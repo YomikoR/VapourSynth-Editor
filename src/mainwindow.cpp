@@ -11,14 +11,12 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QFile>
-#include <QByteArray>
 #include <QStandardPaths>
 #include <QStringList>
 #include <QFileInfo>
 #include <QDir>
 #include <QFontDatabase>
 #include <QResource>
-#include <QMessageBox>
 
 #include "settings/settingsmanager.h"
 #include "vapoursynth/vapoursynthscriptprocessor.h"
