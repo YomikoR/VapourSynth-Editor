@@ -391,11 +391,10 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 	int startPos = m_sideMargin + m_slideLineFrameWidth;
 
 	QPoint labelPos(0, longTickTop - m_tickTextSpacing);
-	QFontMetricsF fontMetrics(m_labelsFont);
+	QFontMetricsF labelsFontMetrics(m_labelsFont);
 
 	if(ticksAtExactFrames)
 	{
-		int labelWidth = (slideLineInnerWidth() - 1) * 10 / m_maxFrame;
         for(int n = 0; n <= m_maxFrame; ++n)
 		{
 			int tickPos = frameToPos(n);
@@ -408,7 +407,8 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 					labelString = QString::number(n);
 				else
 					labelString = vsedit::timeToString(((double)n) / m_fps);
-				labelPos.setX(tickPos - fontMetrics.width(labelString) / 2 + 1);
+				labelPos.setX(tickPos - labelsFontMetrics.width(labelString) /
+					2 + 1);
 				painter.drawText(labelPos, labelString);
 			}
 			else if(n % 5 == 0)
@@ -465,8 +465,6 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 				unitsPerTick *= 2.0;
 		}
 
-		int labelWidth = (int)(unitsPerTick * 10.0 / unitsInPixel);
-
 		double units = 0.0;
 		int n = 0;
 		while(units - maxUnits < 0.001)
@@ -481,7 +479,8 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 					labelString = QString::number(units);
 				else
 					labelString = vsedit::timeToString(units);
-				labelPos.setX(tickPos - fontMetrics.width(labelString) / 2 + 1);
+				labelPos.setX(tickPos - labelsFontMetrics.width(labelString) /
+					2 + 1);
 				painter.drawText(labelPos, labelString);
 			}
 			else if(n % 5 == 0)
