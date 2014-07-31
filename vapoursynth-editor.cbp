@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="vapoursynth-editor" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="./pro/" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="debug">
+				<Option output="build/debug/vsedit-debug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile debug" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile debug" />
+					<SilentBuild command="$make -f $makefile debug &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="release">
+				<Option output="build/bin/vsedit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile release" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile release" />
+					<SilentBuild command="$make -f $makefile release &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="debug-32bit">
+				<Option output="build/debug-32bit/vsedit-debug-32bit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="qt_51_32bit_mingw" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile debug" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile debug" />
+					<SilentBuild command="$make -f $makefile debug &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="release-32bit">
+				<Option output="build/bin-32bit/vsedit-32bit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="qt_51_32bit_mingw" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile release" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile release" />
+					<SilentBuild command="$make -f $makefile release &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="release-msvc">
+				<Option output="build/bin-msvc/vsedit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="microsoft_visual_c_2013_express_64bit" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile release" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile release" />
+					<SilentBuild command="$make -f $makefile release &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="release-32bit-msvc">
+				<Option output="build/bin-32bit-msvc/vsedit-32bit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="microsoft_visual_c_2013_express_32bit" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile release" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile release" />
+					<SilentBuild command="$make -f $makefile release &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="debug-msvc">
+				<Option output="build/debug-msvc/vsedit-debug-msvc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="microsoft_visual_c_2013_express_64bit" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile debug" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile debug" />
+					<SilentBuild command="$make -f $makefile debug &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="debug-32bit-msvc">
+				<Option output="build/debug-32bit-msvc/vsedit-debug-32bit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="microsoft_visual_c_2013_express_32bit" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="src" />
+					<Add directory="src/scripteditor" />
+					<Add directory="src/preview" />
+					<Add directory="src/vapoursynth" />
+				</Compiler>
+				<ExtraCommands>
+					<Add before="qmake -norecursive pro.pro" />
+				</ExtraCommands>
+				<MakeCommands>
+					<Build command="$make -f $makefile debug" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile debug" />
+					<SilentBuild command="$make -f $makefile debug &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="LICENSE" />
+		<Unit filename="README" />
+		<Unit filename="TODO.txt" />
+		<Unit filename="generated/ui/ui_mainwindow.h" />
+		<Unit filename="generated/ui/ui_previewdialog.h" />
+		<Unit filename="generated/ui/ui_settingsdialog.h" />
+		<Unit filename="pro/pro.pro" />
+		<Unit filename="resources/icon.svg" />
+		<Unit filename="resources/resources.h" />
+		<Unit filename="resources/resources.qrc" />
+		<Unit filename="resources/windowsresources.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="src/common/helpers.cpp" />
+		<Unit filename="src/common/helpers.h" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/mainwindow.cpp" />
+		<Unit filename="src/mainwindow.h" />
+		<Unit filename="src/mainwindow.ui" />
+		<Unit filename="src/preview/previewarea.cpp" />
+		<Unit filename="src/preview/previewarea.h" />
+		<Unit filename="src/preview/previewdialog.cpp" />
+		<Unit filename="src/preview/previewdialog.h" />
+		<Unit filename="src/preview/previewdialog.ui" />
+		<Unit filename="src/preview/scrollnavigator.cpp" />
+		<Unit filename="src/preview/scrollnavigator.h" />
+		<Unit filename="src/preview/timelineslider.cpp" />
+		<Unit filename="src/preview/timelineslider.h" />
+		<Unit filename="src/scripteditor/numbermatcher.cpp" />
+		<Unit filename="src/scripteditor/numbermatcher.h" />
+		<Unit filename="src/scripteditor/scriptcompleter.cpp" />
+		<Unit filename="src/scripteditor/scriptcompleter.h" />
+		<Unit filename="src/scripteditor/scriptcompletermodel.cpp" />
+		<Unit filename="src/scripteditor/scriptcompletermodel.h" />
+		<Unit filename="src/scripteditor/scripteditor.cpp" />
+		<Unit filename="src/scripteditor/scripteditor.h" />
+		<Unit filename="src/scripteditor/syntaxhighlighter.cpp" />
+		<Unit filename="src/scripteditor/syntaxhighlighter.h" />
+		<Unit filename="src/settings/actionshotkeyeditmodel.cpp" />
+		<Unit filename="src/settings/actionshotkeyeditmodel.h" />
+		<Unit filename="src/settings/itemdelegateforhotkey.cpp" />
+		<Unit filename="src/settings/itemdelegateforhotkey.h" />
+		<Unit filename="src/settings/settingsdialog.cpp" />
+		<Unit filename="src/settings/settingsdialog.h" />
+		<Unit filename="src/settings/settingsdialog.ui" />
+		<Unit filename="src/settings/settingsmanager.cpp" />
+		<Unit filename="src/settings/settingsmanager.h" />
+		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.cpp" />
+		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.h" />
+		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.cpp" />
+		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.h" />
+		<Unit filename="src/vapoursynth/vsplugindata.cpp" />
+		<Unit filename="src/vapoursynth/vsplugindata.h" />
+		<Extensions>
+			<code_completion>
+				<search_path add="E:\SDK\qt5-x64\include\QtCore" />
+				<search_path add="$(PROJECT_DIR)/gererated/ui" />
+				<search_path add="E:\SDK\qt5-x64\include\QtGui" />
+				<search_path add="E:\SDK\qt5-x64\include\QtWidgets" />
+				<search_path add="C:\Program Files (x86)\VapourSynth\sdk\include" />
+			</code_completion>
+			<envvars />
+			<debugger>
+				<search_path add="src" />
+				<search_path add="src/preview" />
+				<search_path add="src/scripteditor" />
+				<search_path add="src/settings" />
+			</debugger>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

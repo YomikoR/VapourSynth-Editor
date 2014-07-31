@@ -1,0 +1,31 @@
+<!DOCTYPE RCC><RCC version="1.0">
+	<qresource>
+		<file alias="new.png">page_white_text.png</file>
+		<file alias="save.png">disk.png</file>
+		<file alias="saveas.png">disk_edit.png</file>
+		<file alias="load.png">folder_page_white.png</file>
+		<file alias="preview.png">film.png</file>
+		<file alias="check.png">tick_light_blue.png</file>
+		<file alias="exit.png">door_in.png</file>
+		<file alias="snapshot.png">picture_save.png</file>
+		<file alias="zoom.png">zoom.png</file>
+		<file alias="zoom_no_zoom.png">zoom_actual.png</file>
+		<file alias="zoom_fixed_ratio.png">zoom_in.png</file>
+		<file alias="zoom_fit_to_frame.png">zoom_fit.png</file>
+		<file alias="crop.png">transform_crop.png</file>
+		<file alias="paste.png">paste_plain.png</file>
+		<file alias="vsedit.ico">vsedit.ico</file>
+		<file alias="settings.png">cog.png</file>
+		<file alias="folder.png">folder.png</file>
+		<file alias="folder_add.png">folder_add.png</file>
+		<file alias="folder_remove.png">folder_delete.png</file>
+		<file alias="erase.png">erase.png</file>
+		<file alias="image_to_clipboard.png">image_to_clipboard.png</file>
+		<file alias="timeline.png">timeline.png</file>
+		<file alias="timeline_frames.png">timeline_frames.png</file>
+		<file alias="time_back.png">time_back.png</file>
+		<file alias="time_forward.png">time_forward.png</file>
+
+		<file alias="readme">../README</file>
+	</qresource>
+</RCC>
