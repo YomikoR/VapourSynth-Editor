@@ -428,9 +428,11 @@ QStringList SettingsManager::getRecentFilesList() const
 
 bool SettingsManager::addToRecentFilesList(const QString & a_filePath)
 {
+	QFileInfo fileInfo(a_filePath);
+	QString canonicalPath = fileInfo.canonicalFilePath();
 	QStringList recentFilesList = getRecentFilesList();
-	recentFilesList.removeAll(a_filePath);
-	recentFilesList.prepend(a_filePath);
+	recentFilesList.removeAll(canonicalPath);
+	recentFilesList.prepend(canonicalPath);
 	unsigned int maxRecentFilesNumber = getMaxRecentFilesNumber();
 	while((unsigned int)recentFilesList.size() > maxRecentFilesNumber)
 		recentFilesList.removeLast();
