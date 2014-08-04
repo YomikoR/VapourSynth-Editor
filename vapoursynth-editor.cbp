@@ -111,7 +111,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="release-msvc">
-				<Option output="build/bin-msvc/vsedit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option output="build/bin-msvc/vsedit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="microsoft_visual_c_2013_express_64bit" />
@@ -138,7 +138,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="release-32bit-msvc">
-				<Option output="build/bin-32bit-msvc/vsedit-32bit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option output="build/bin-32bit-msvc/vsedit-32bit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="microsoft_visual_c_2013_express_32bit" />

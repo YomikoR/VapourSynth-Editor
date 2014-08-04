@@ -52,7 +52,7 @@ CONFIG(debug, debug|release) {
 		}
 		contains(QMAKE_COMPILER, msvc) {
 			DESTDIR = ../build/bin-msvc
-			TARGET = vsedit-msvc
+			TARGET = vsedit
 			OBJECTS_DIR = ../generated/obj-msvc
 		}
 	} else {
@@ -63,7 +63,7 @@ CONFIG(debug, debug|release) {
 		}
 		contains(QMAKE_COMPILER, msvc) {
 			DESTDIR = ../build/bin-32bit-msvc
-			TARGET = vsedit-32bit-msvc
+			TARGET = vsedit-32bit
 			OBJECTS_DIR = ../generated/obj-32bit-msvc
 		}
 	}
