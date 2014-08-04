@@ -697,6 +697,8 @@ void MainWindow::setCurrentScriptFilePath(const QString & a_filePath)
 
 void MainWindow::loadStartUpScript()
 {
+	slotNewScript();
+
 	QStringList argumentsList = QCoreApplication::arguments();
     if(argumentsList.size() > 1)
 		loadScriptFromFile(argumentsList.at(1));
@@ -705,11 +707,7 @@ void MainWindow::loadStartUpScript()
 		QString lastUsedPath = m_pSettingsManager->getLastUsedPath();
 		if(!lastUsedPath.isEmpty())
 			loadScriptFromFile(lastUsedPath);
-		else
-			slotNewScript();
 	}
-	else
-		slotNewScript();
 }
 
 // END OF void MainWindow::loadStartUpScript()
