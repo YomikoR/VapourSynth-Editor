@@ -1,0 +1,4 @@
+r2:
+-File paths are changed to canonical before adding to recent files list to eliminate doubling records.
+-Change window title when script path changes.
+-Always create new script on start before trying to open any.

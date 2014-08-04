@@ -216,6 +216,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="CHANGELOG" />
 		<Unit filename="LICENSE" />
 		<Unit filename="README" />
 		<Unit filename="TODO.txt" />

@@ -115,26 +115,19 @@ contains(QMAKE_COMPILER, gcc) {
 	CONFIG += c++11
 }
 
-NATIVE_DEST_DIR = $$DESTDIR
-NATIVE_DEST_DIR = $$replace(NATIVE_DEST_DIR, $$escape_expand(\\), \
-	$${DIR_SEPARATOR})
-NATIVE_DEST_DIR = $$replace(NATIVE_DEST_DIR, /, $${DIR_SEPARATOR})
+S = $${DIR_SEPARATOR}
+D = $$DESTDIR
+D = $$replace(D, $$escape_expand(\\), $$S)
+D = $$replace(D, /, $$S)
+E = $$escape_expand(\n\t)
 
-QMAKE_POST_LINK += $${QMAKE_COPY} \
-	..$${DIR_SEPARATOR}resources$${DIR_SEPARATOR}vsedit.ico \
-	$$NATIVE_DEST_DIR$${DIR_SEPARATOR} $$escape_expand(\n\t)
-QMAKE_POST_LINK += $${QMAKE_COPY} \
-	..$${DIR_SEPARATOR}resources$${DIR_SEPARATOR}vsedit.svg \
-	$$NATIVE_DEST_DIR$${DIR_SEPARATOR} $$escape_expand(\n\t)
-QMAKE_POST_LINK += $${QMAKE_COPY} \
-	..$${DIR_SEPARATOR}README \
-	$$NATIVE_DEST_DIR$${DIR_SEPARATOR} $$escape_expand(\n\t)
-QMAKE_POST_LINK += $${QMAKE_COPY} \
-	..$${DIR_SEPARATOR}LICENSE \
-	$$NATIVE_DEST_DIR$${DIR_SEPARATOR} $$escape_expand(\n\t)
-QMAKE_POST_LINK += $${QMAKE_COPY_DIR} \
-	..$${DIR_SEPARATOR}resources$${DIR_SEPARATOR}fonts \
-	$$NATIVE_DEST_DIR$${DIR_SEPARATOR}fonts $$escape_expand(\n\t)
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.ico $$D$$S $$E
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.svg $$D$$S $$E
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}README $$D$$S $$E
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}LICENSE $$D$$S $$E
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}CHANGELOG $$D$$S $$E
+QMAKE_POST_LINK += $${QMAKE_COPY_DIR} ..$${S}resources$${S}fonts \
+	$$D$${S}fonts $$E
 
 TEMPLATE = app
 
