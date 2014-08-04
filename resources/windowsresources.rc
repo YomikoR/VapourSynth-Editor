@@ -23,8 +23,8 @@ IDI_ICON1          ICON           ".\\vsedit.ico"
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 1 VERSIONINFO
-    FILEVERSION     1,0,0,0
-    PRODUCTVERSION  1,0,0,0
+    FILEVERSION     2,0,0,0
+    PRODUCTVERSION  2,0,0,0
     FILEOS          VOS_UNKNOWN
     FILETYPE        VFT_APP
     FILESUBTYPE     VFT2_UNKNOWN
@@ -38,14 +38,14 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
             VALUE "Comments", ""
             VALUE "CompanyName", "Aleksey [Mystery Keeper] Lyashin"
             VALUE "FileDescription", "VapourSynth Editor"
-            VALUE "FileVersion", "r1"
+            VALUE "FileVersion", "r2"
             VALUE "InternalName", ""
             VALUE "LegalCopyright", "Aleksey [Mystery Keeper] Lyashin"
             VALUE "LegalTrademarks", "VapourSynth Editor"
             VALUE "OriginalFilename", ""
             VALUE "PrivateBuild", ""
             VALUE "ProductName", "VapourSynth Editor"
-            VALUE "ProductVersion", "r1"
+            VALUE "ProductVersion", "r2"
             VALUE "SpecialBuild", ""
         }
     }
