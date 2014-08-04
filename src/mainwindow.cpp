@@ -687,8 +687,12 @@ bool MainWindow::safeToCloseFile()
 
 void MainWindow::setCurrentScriptFilePath(const QString & a_filePath)
 {
+	if(m_scriptFilePath == a_filePath)
+		return;
+
 	m_scriptFilePath = a_filePath;
 	m_pSettingsManager->setLastUsedPath(a_filePath);
+	slotChangeWindowTitle();
 	fillRecentScriptsMenu();
 }
 
