@@ -99,9 +99,9 @@ class SettingsManager : public QObject
 
 		bool setZoomMode(ZoomMode a_zoomMode);
 
-		int getZoomRatio() const;
+		double getZoomRatio() const;
 
-		bool setZoomRatio(int a_zoomRatio);
+		bool setZoomRatio(double a_zoomRatio);
 
 		Qt::TransformationMode getScaleMode() const;
 

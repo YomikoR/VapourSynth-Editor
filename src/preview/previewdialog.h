@@ -70,7 +70,7 @@ class PreviewDialog : public QDialog
 
 		void slotZoomModeChanged();
 
-		void slotZoomRatioChanged(int a_zoomRatio);
+		void slotZoomRatioChanged(double a_zoomRatio);
 
 		void slotScaleModeChanged();
 

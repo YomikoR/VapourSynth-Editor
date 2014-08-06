@@ -359,12 +359,12 @@ bool SettingsManager::setZoomMode(ZoomMode a_zoomMode)
 
 //==============================================================================
 
-int SettingsManager::getZoomRatio() const
+double SettingsManager::getZoomRatio() const
 {
-	return value(ZOOM_RATIO_KEY, DEFAULT_ZOOM_RATIO).toInt();
+	return value(ZOOM_RATIO_KEY, DEFAULT_ZOOM_RATIO).toDouble();
 }
 
-bool SettingsManager::setZoomRatio(int a_zoomRatio)
+bool SettingsManager::setZoomRatio(double a_zoomRatio)
 {
 	return setValue(ZOOM_RATIO_KEY, a_zoomRatio);
 }

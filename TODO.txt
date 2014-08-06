@@ -1,5 +1,3 @@
-- new line with same indentation
-- fixed ratio scaling with percentage combo box vith integer validator
 - python error parsing and script line highlighting
 - functions autocompletion refinement
 - style settings

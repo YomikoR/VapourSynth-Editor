@@ -395,13 +395,13 @@ void PreviewDialog::slotZoomModeChanged()
 // END OF void PreviewDialog::slotZoomModeChanged()
 //==============================================================================
 
-void PreviewDialog::slotZoomRatioChanged(int a_zoomRatio)
+void PreviewDialog::slotZoomRatioChanged(double a_zoomRatio)
 {
 	setPreviewPixmap();
 	m_pSettingsManager->setZoomRatio(a_zoomRatio);
 }
 
-// END OF void PreviewDialog::slotZoomRateChanged(int a_zoomRatio)
+// END OF void PreviewDialog::slotZoomRateChanged(double a_zoomRatio)
 //==============================================================================
 
 void PreviewDialog::slotScaleModeChanged()
@@ -1186,6 +1186,8 @@ void PreviewDialog::createActionsAndMenus()
 
 void PreviewDialog::setUpZoomPanel()
 {
+	m_ui.zoomRatioSpinBox->setLocale(QLocale("C"));
+
 	m_ui.zoomCheckButton->setDefaultAction(m_pActionToggleZoomPanel);
 
 	m_ui.zoomModeComboBox->addItem(QIcon(":zoom_no_zoom.png"),
@@ -1221,8 +1223,8 @@ void PreviewDialog::setUpZoomPanel()
 
 	connect(m_ui.zoomModeComboBox, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(slotZoomModeChanged()));
-	connect(m_ui.zoomRatioSpinBox, SIGNAL(valueChanged(int)),
-		this, SLOT(slotZoomRatioChanged(int)));
+	connect(m_ui.zoomRatioSpinBox, SIGNAL(valueChanged(double)),
+		this, SLOT(slotZoomRatioChanged(double)));
 	connect(m_ui.scaleModeComboBox, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(slotScaleModeChanged()));
 }
@@ -1354,7 +1356,7 @@ void PreviewDialog::setPreviewPixmap()
 
 	if(zoomMode == ZoomMode::FixedRatio)
 	{
-		int ratio = m_ui.zoomRatioSpinBox->value();
+		double ratio = m_ui.zoomRatioSpinBox->value();
 		frameWidth = m_cpVideoInfo->width * ratio;
 		frameHeight = m_cpVideoInfo->height * ratio;
 	}
