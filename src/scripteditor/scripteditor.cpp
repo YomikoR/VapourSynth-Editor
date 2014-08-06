@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QAction>
 #include <algorithm>
+#include <cassert>
 
 #include "scriptcompletermodel.h"
 #include "scriptcompleter.h"
@@ -227,10 +228,13 @@ void ScriptEditor::resizeEvent(QResizeEvent * a_pEvent)
 
 void ScriptEditor::keyPressEvent(QKeyEvent * a_pEvent)
 {
+	int key = a_pEvent->key();
+	Qt::KeyboardModifiers modifiers = a_pEvent->modifiers();
+
 	if (m_pCompleter->popup()->isVisible())
 	{
 		// The following keys are forwarded by the completer to the widget
-		switch (a_pEvent->key())
+		switch (key)
 		{
 			case Qt::Key_Enter:
 			case Qt::Key_Return:
@@ -251,6 +255,10 @@ void ScriptEditor::keyPressEvent(QKeyEvent * a_pEvent)
 	QString textBefore = toPlainText();
 
 	QPlainTextEdit::keyPressEvent(a_pEvent);
+
+	if(((key == Qt::Key_Return) && (modifiers == Qt::NoModifier)) ||
+		((key == Qt::Key_Enter) && (modifiers == Qt::KeypadModifier)))
+		indentNewLine();
 
 	if(textBefore != toPlainText())
 		slotComplete();
@@ -461,4 +469,27 @@ void ScriptEditor::paintSideBox(QPaintEvent * a_pEvent)
 }
 
 // END OF void ScriptEditor::paintSideBox(QPaintEvent * a_pEvent)
+//==============================================================================
+
+void ScriptEditor::indentNewLine()
+{
+	QTextCursor currentCursor = textCursor();
+	QTextBlock currentBlock = currentCursor.block();
+	int blockNumber = currentBlock.blockNumber();
+	assert(blockNumber != 0);
+	QTextBlock previousBlock =
+		document()->findBlockByNumber(blockNumber - 1);
+	QString blockText = previousBlock.text();
+	int blockLength = blockText.length();
+	QString indentation;
+	for(int i = 0; i < blockLength; ++i)
+	{
+		if(!blockText[i].isSpace())
+			break;
+		indentation += blockText[i];
+	}
+	currentCursor.insertText(indentation);
+}
+
+// END OF void ScriptEditor::indentNewLine()
 //==============================================================================

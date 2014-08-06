@@ -74,6 +74,8 @@ class ScriptEditor : public QPlainTextEdit
 
 		void paintSideBox(QPaintEvent * a_pEvent);
 
+		void indentNewLine();
+
 		QWidget * m_pSideBox;
 
 		int m_sideBoxLineWidth;
