@@ -1204,7 +1204,7 @@ void PreviewDialog::setUpZoomPanel()
 	bool fixedRatio(zoomMode == ZoomMode::FixedRatio);
 	m_ui.zoomRatioSpinBox->setEnabled(fixedRatio);
 
-	int zoomRatio = m_pSettingsManager->getZoomRatio();
+	double zoomRatio = m_pSettingsManager->getZoomRatio();
 	m_ui.zoomRatioSpinBox->setValue(zoomRatio);
 
 	m_ui.scaleModeComboBox->addItem(trUtf8("Nearest"),
