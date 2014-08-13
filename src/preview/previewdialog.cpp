@@ -148,7 +148,10 @@ void PreviewDialog::previewScript(const QString& a_script,
 	bool initialized =
 		m_pVapourSynthScriptProcessor->initialize(a_script, a_scriptName);
 	if(!initialized)
+	{
+		hide();
 		return;
+	}
 
 	QString title = "Preview - ";
 	title += a_scriptName;
