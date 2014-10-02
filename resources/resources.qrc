@@ -27,5 +27,7 @@
 		<file alias="time_forward.png">time_forward.png</file>
 
 		<file alias="readme">../README</file>
+
+		<file alias="fonts/DigitalMini.ttf">fonts/DigitalMini.ttf</file>
 	</qresource>
 </RCC>

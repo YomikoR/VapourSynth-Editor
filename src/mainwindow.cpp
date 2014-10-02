@@ -719,10 +719,10 @@ void MainWindow::loadStartUpScript()
 
 void MainWindow::loadFonts()
 {
-	QDir applicationDir(QCoreApplication::applicationDirPath() + "/fonts");
-	QFileInfoList filesList = applicationDir.entryInfoList(QDir::Files);
-	for(const QFileInfo & file : filesList)
-		QFontDatabase::addApplicationFont(file.absoluteFilePath());
+	QResource digitalMiniFontResource(":/fonts/DigitalMini.ttf");
+	QByteArray digitalMiniFontData((const char *)digitalMiniFontResource.data(),
+		digitalMiniFontResource.size());
+	QFontDatabase::addApplicationFontFromData(digitalMiniFontData);
 }
 
 // END OF void MainWindow::loadFonts()
