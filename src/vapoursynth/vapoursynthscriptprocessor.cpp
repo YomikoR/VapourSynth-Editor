@@ -1,4 +1,5 @@
 #include <cassert>
+#include <vector>
 
 #include "vapoursynthscriptprocessor.h"
 
@@ -26,10 +27,10 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(QObject * a_pParent):
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
 	, m_pOutputNode(nullptr)
-	, m_pConvertNode(nullptr)
 	, m_cpVideoInfo(nullptr)
 	, m_currentFrame(0)
 	, m_cpCurrentFrameRef(nullptr)
+	, m_pixmapFromFrame(nullptr)
 {
 
 }
@@ -107,54 +108,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
 
-	//--------------------------------------------------------------------------
-	// Create another node that converts the output into BGR32 to easily get
-	// the preview image. Note that frame will be flipped vertically
-
-	VSCore * pVSCore = vsscript_getCore(m_pVSScript);
-
-	// Conversion is done by standard "resize" plugin.
-	VSPlugin * pResizePlugin = m_cpVSAPI->getPluginByNs("resize", pVSCore);
-
-	// Preparing arguments map to call plugin function with.
-	VSMap * pResizeArguments = m_cpVSAPI->createMap();
-	m_cpVSAPI->propSetNode(pResizeArguments, "clip", m_pOutputNode, paReplace);
-	m_cpVSAPI->propSetInt(pResizeArguments, "format", pfCompatBGR32, paReplace);
-
-	// Calling the plugin function "Bicubic". The result is a map containing
-	// new node.
-	VSMap * pResizeRet = m_cpVSAPI->invoke(pResizePlugin, "Bicubic",
-		pResizeArguments);
-
-	m_cpVSAPI->freeMap(pResizeArguments);
-
-	const char * resizeError = m_cpVSAPI->getError(pResizeRet);
-	if(resizeError)
-	{
-		m_error = trUtf8("Failed to convert the script's output to "
-			"COMPATBGR32:\n");
-		m_error += QString::fromUtf8(resizeError);
-		emit signalWriteLogMessage(mtCritical, m_error);
-
-		m_cpVSAPI->freeMap(pResizeRet);
-		finalize();
-		return false;
-	}
-
-	m_pConvertNode = m_cpVSAPI->propGetNode(pResizeRet, "clip", 0, nullptr);
-	if(!m_pConvertNode)
-	{
-		m_error = trUtf8("Failed to convert the script's output to "
-			"COMPATBGR32:\nresize.Bicubic() did not return a valid clip.");
-		emit signalWriteLogMessage(mtCritical, m_error);
-
-		m_cpVSAPI->freeMap(pResizeRet);
-		finalize();
-		return false;
-	}
-
-	m_cpVSAPI->freeMap(pResizeRet);
-	//--------------------------------------------------------------------------
+	setFrameConverter();
 
 	m_currentFrame = 0;
 	m_error.clear();
@@ -171,12 +125,6 @@ void VapourSynthScriptProcessor::finalize()
 	freeFrame();
 
 	m_cpVideoInfo = nullptr;
-
-	if(m_pConvertNode)
-	{
-		m_cpVSAPI->freeNode(m_pConvertNode);
-		m_pConvertNode = nullptr;
-	}
 
 	if(m_pOutputNode)
 	{
@@ -197,6 +145,8 @@ void VapourSynthScriptProcessor::finalize()
 		vsscript_finalize();
 		m_vsScriptInitialized = false;
 	}
+
+	m_pixmapFromFrame = nullptr;
 
 	m_error.clear();
 	m_initialized = false;
@@ -283,13 +233,13 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 	if(!m_initialized)
 		return QPixmap();
 
-	assert(m_pConvertNode);
+	assert(m_pOutputNode);
 	assert(m_cpVSAPI);
 
 	char getFrameErrorMessage[1024] = {0};
 
 	const VSFrameRef * cpFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		m_pConvertNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
+		m_pOutputNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
 	if (!cpFrameRef)
 	{
@@ -299,17 +249,19 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 		return QPixmap();
 	}
 
-	int frameWidth = m_cpVSAPI->getFrameWidth(cpFrameRef, 0);
-	int frameHeight = m_cpVSAPI->getFrameHeight(cpFrameRef, 0);
-	int stride = m_cpVSAPI->getStride(cpFrameRef, 0);
-	const uint8_t * pFrameReadPointer =
-		m_cpVSAPI->getReadPtr(cpFrameRef, 0);
+	QPixmap framePixmap = QPixmap();
 
-	// Creating QImage from memory doesn't copy or modify the data.
-	QImage frameImage(pFrameReadPointer, frameWidth, frameHeight, stride,
-		QImage::Format_RGB32);
-	// But when creating the pixmap - we use mirrored copy.
-	QPixmap framePixmap = QPixmap::fromImage(frameImage.mirrored());
+	if(m_pixmapFromFrame)
+	{
+		framePixmap = m_pixmapFromFrame(m_cpVSAPI, m_cpVideoInfo->format,
+			cpFrameRef);
+	}
+	else
+	{
+		m_error = trUtf8("Can not convert from format \"%1\" for preview!")
+			.arg(m_cpVideoInfo->format->name);
+		emit signalWriteLogMessage(mtCritical, m_error);
+	}
 
 	m_cpVSAPI->freeFrame(cpFrameRef);
 
@@ -327,4 +279,61 @@ void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 
 // END OF void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 //		const QString & a_message)
+//==============================================================================
+
+void VapourSynthScriptProcessor::setFrameConverter()
+{
+	assert(m_cpVideoInfo);
+
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
+
+	if(cpFormat->id == pfCompatBGR32)
+		m_pixmapFromFrame = vsedit::pixmapFromCompatBGR32;
+	else if(cpFormat->id == pfCompatYUY2)
+		m_pixmapFromFrame = vsedit::pixmapFromCompatYUY2;
+	else if(cpFormat->id == pfGray8)
+		m_pixmapFromFrame = vsedit::pixmapFromGray1B;
+	else if(cpFormat->id == pfGray16)
+		m_pixmapFromFrame = vsedit::pixmapFromGray2B;
+	else if(cpFormat->id == pfGrayH)
+		m_pixmapFromFrame = vsedit::pixmapFromGrayH;
+	else if(cpFormat->id == pfGrayS)
+		m_pixmapFromFrame = vsedit::pixmapFromGrayS;
+	else if((cpFormat->colorFamily == cmYUV) &&
+		(cpFormat->sampleType == stInteger) &&
+		(cpFormat->bytesPerSample == 1))
+		m_pixmapFromFrame = vsedit::pixmapFromYUV1B;
+	else if((cpFormat->colorFamily == cmYUV) &&
+		(cpFormat->sampleType == stInteger) &&
+		(cpFormat->bytesPerSample == 2))
+		m_pixmapFromFrame = vsedit::pixmapFromYUV2B;
+	else if((cpFormat->colorFamily == cmYUV) &&
+		(cpFormat->sampleType == stFloat) &&
+		(cpFormat->bytesPerSample == 2))
+		m_pixmapFromFrame = vsedit::pixmapFromYUVH;
+	else if((cpFormat->colorFamily == cmYUV) &&
+		(cpFormat->sampleType == stFloat) &&
+		(cpFormat->bytesPerSample == 4))
+		m_pixmapFromFrame = vsedit::pixmapFromYUVS;
+	else if((cpFormat->colorFamily == cmRGB) &&
+		(cpFormat->sampleType == stInteger) &&
+		(cpFormat->bytesPerSample == 1))
+		m_pixmapFromFrame = vsedit::pixmapFromRGB1B;
+	else if((cpFormat->colorFamily == cmRGB) &&
+		(cpFormat->sampleType == stInteger) &&
+		(cpFormat->bytesPerSample == 2))
+		m_pixmapFromFrame = vsedit::pixmapFromRGB2B;
+	else if((cpFormat->colorFamily == cmRGB) &&
+		(cpFormat->sampleType == stFloat) &&
+		(cpFormat->bytesPerSample == 2))
+		m_pixmapFromFrame = vsedit::pixmapFromRGBH;
+	else if((cpFormat->colorFamily == cmRGB) &&
+		(cpFormat->sampleType == stFloat) &&
+		(cpFormat->bytesPerSample == 4))
+		m_pixmapFromFrame = vsedit::pixmapFromRGBS;
+	else
+		m_pixmapFromFrame = nullptr;
+}
+
+// END OF void VapourSynthScriptProcessor::setFrameConverter()
 //==============================================================================

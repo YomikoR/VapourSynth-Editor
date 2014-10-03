@@ -5,6 +5,8 @@
 #include <QPixmap>
 #include <vapoursynth/VSScript.h>
 
+#include "pixmapfromframe.h"
+
 class VapourSynthScriptProcessor : public QObject
 {
 	Q_OBJECT
@@ -40,6 +42,8 @@ class VapourSynthScriptProcessor : public QObject
 
 		void handleVSMessage(int a_messageType, const QString & a_message);
 
+		void setFrameConverter();
+
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
 
@@ -59,13 +63,13 @@ class VapourSynthScriptProcessor : public QObject
 
 		VSNodeRef * m_pOutputNode;
 
-		VSNodeRef * m_pConvertNode;
-
 		const VSVideoInfo * m_cpVideoInfo;
 
 		int m_currentFrame;
 
 		const VSFrameRef * m_cpCurrentFrameRef;
+
+		PixmapFromFrameFunc m_pixmapFromFrame;
 
 };
 

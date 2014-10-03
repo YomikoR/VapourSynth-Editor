@@ -1,5 +1,6 @@
 r4:
 -Custom font is embedded.
+-Internal format conversion for preview. All VapourSynth video formats are now supported.
 
 r3:
 -Fixed zoom ratio changed to real number.

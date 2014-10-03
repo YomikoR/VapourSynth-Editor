@@ -231,6 +231,8 @@
 		</Unit>
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
+		<Unit filename="src/common/image.cpp" />
+		<Unit filename="src/common/image.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mainwindow.cpp" />
 		<Unit filename="src/mainwindow.h" />
@@ -263,6 +265,8 @@
 		<Unit filename="src/settings/settingsdialog.ui" />
 		<Unit filename="src/settings/settingsmanager.cpp" />
 		<Unit filename="src/settings/settingsmanager.h" />
+		<Unit filename="src/vapoursynth/pixmapfromframe.cpp" />
+		<Unit filename="src/vapoursynth/pixmapfromframe.h" />
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.cpp" />
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.h" />
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.cpp" />
