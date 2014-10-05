@@ -2,6 +2,7 @@
 #define IMAGE_H_INCLUDED
 
 #include <cstdint>
+#include <cmath>
 
 namespace vsedit
 {
@@ -76,6 +77,84 @@ namespace vsedit
 			uint8_t y1;
 			uint8_t v;
 		} parts;
+	};
+
+	//--------------------------------------------------------------------------
+
+	template<typename T>
+	class DoSample
+	{
+		public:
+
+			DoSample(const T * a_cpSource, size_t a_sourceWidth,
+				size_t a_sourceHeight, ptrdiff_t a_sourceStride):
+				m_cpSource(a_cpSource)
+				, m_sourceWidth(a_sourceWidth)
+				, m_sourceHeight(a_sourceHeight)
+				, m_sourceStride(a_sourceStride)
+			{};
+
+			T operator()(ptrdiff_t a_x, ptrdiff_t a_y)
+			{
+				ptrdiff_t l_x = a_x;
+				clamp(l_x, 0, (ptrdiff_t)m_sourceWidth);
+				ptrdiff_t l_y = a_y;
+				clamp(l_y, 0, (ptrdiff_t)m_sourceHeight);
+
+				const uint8_t * cpSourceBase = (const uint8_t *)m_cpSource;
+				cpSourceBase += m_sourceStride * l_y;
+				const T * cpLine = (const T *)cpSourceBase;
+				return cpLine[l_x];
+			};
+
+		private:
+
+			const T * m_cpSource;
+			size_t m_sourceWidth;
+			size_t m_sourceHeight;
+			ptrdiff_t m_sourceStride;
+	};
+
+	template<typename T>
+	void bilinearResize(const T * a_cpSource, size_t a_sourceWidth,
+		size_t a_sourceHeight, ptrdiff_t a_sourceStride,
+		T * a_pDestination, size_t a_destinationWidth,
+		size_t a_destinationHeight, ptrdiff_t a_destinationStride)
+	{
+		DoSample<T> sample(a_cpSource, a_sourceWidth, a_sourceHeight,
+			a_sourceStride);
+
+		uint8_t * pDestinationBase = (uint8_t *)a_pDestination;
+		float kx = (float)a_sourceWidth / (float)a_destinationWidth;
+		float ky = (float)a_sourceHeight / (float)a_destinationHeight;
+
+		float sx;
+		float sy;
+		float wx;
+		float wy;
+
+		T * pDestinationLine;
+		for(size_t h = 0; h < a_destinationHeight; ++h)
+		{
+			sy = (float)h * ky;
+			wy = sy - (float)(int)sy;
+			pDestinationLine = (T *)pDestinationBase;
+			for(size_t w = 0; w < a_destinationWidth; ++w)
+			{
+				sx = (float)w * kx;
+				wx = sx - (float)(int)sx;
+				pDestinationLine[w] =
+					(1.0f - wy) * (1.0f - wx) *
+					sample(std::floor(sx), std::floor(sy)) +
+					(1.0f - wy) * wx *
+					sample(std::ceil(sx), std::floor(sy)) +
+					wy * (1.0f - wx) *
+					sample(std::floor(sx), std::ceil(sy)) +
+					wy * wx *
+					sample(std::ceil(sx), std::ceil(sy));
+			}
+			pDestinationBase += a_destinationStride;
+		}
 	};
 }
 

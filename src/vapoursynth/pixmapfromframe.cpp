@@ -184,21 +184,42 @@ QPixmap vsedit::pixmapFromYUV1B(const VSAPI * a_cpVSAPI,
 	int subSamplingW = a_cpFormat->subSamplingW;
 	int subSamplingH = a_cpFormat->subSamplingH;
 
+	uint8_t * pUpsampledU = nullptr;
+	uint8_t * pUpsampledV = nullptr;
+	if( (subSamplingH != 0) || (subSamplingW != 0))
+	{
+		pUpsampledU = (uint8_t *)malloc(height * width);
+		bilinearResize(cpReadU, width >> subSamplingW, height >> subSamplingH,
+			strideU, pUpsampledU, width, height, width);
+		cpReadU = pUpsampledU;
+		strideU = width;
+		pUpsampledV = (uint8_t *)malloc(height * width);
+		bilinearResize(cpReadV, width >> subSamplingW, height >> subSamplingH,
+			strideV, pUpsampledV, width, height, width);
+		cpReadV = pUpsampledV;
+		strideV = width;
+	}
+
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
 	const uint8_t *cpLineY, *cpLineU, *cpLineV;
 	for(size_t h = 0; h < (size_t)height; ++h)
 	{
 		cpLineY = cpReadY + strideY * h;
-		cpLineU = cpReadU + strideU * (h >> subSamplingH);
-		cpLineV = cpReadV + strideV * (h >> subSamplingH);
+		cpLineU = cpReadU + strideU * h;
+		cpLineV = cpReadV + strideV * h;
 		for(size_t w = 0; w < (size_t)width; ++w)
 		{
 			image[i] = vsedit::yuvToRgb32(cpLineY[w],
-				cpLineU[w >> subSamplingW], cpLineV[w >> subSamplingW]);
+				cpLineU[w], cpLineV[w]);
 			i++;
 		}
 	}
+
+	if(pUpsampledU)
+		free(pUpsampledU);
+	if(pUpsampledV)
+		free(pUpsampledV);
 
 	QImage frameImage((const uchar *)image.data(), width, height,
 		QImage::Format_RGB32);
