@@ -189,13 +189,13 @@ QPixmap vsedit::pixmapFromYUV1B(const VSAPI * a_cpVSAPI,
 	if( (subSamplingH != 0) || (subSamplingW != 0))
 	{
 		pUpsampledU = (uint8_t *)malloc(height * width);
-		bilinearResize(cpReadU, width >> subSamplingW, height >> subSamplingH,
-			strideU, pUpsampledU, width, height, width);
+		bicubicResize(cpReadU, width >> subSamplingW, height >> subSamplingH,
+			strideU, pUpsampledU, width, height, width, (uint8_t)0, (uint8_t)255);
 		cpReadU = pUpsampledU;
 		strideU = width;
 		pUpsampledV = (uint8_t *)malloc(height * width);
-		bilinearResize(cpReadV, width >> subSamplingW, height >> subSamplingH,
-			strideV, pUpsampledV, width, height, width);
+		bicubicResize(cpReadV, width >> subSamplingW, height >> subSamplingH,
+			strideV, pUpsampledV, width, height, width, (uint8_t)0, (uint8_t)255);
 		cpReadV = pUpsampledV;
 		strideV = width;
 	}

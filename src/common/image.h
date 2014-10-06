@@ -156,6 +156,67 @@ namespace vsedit
 			pDestinationBase += a_destinationStride;
 		}
 	};
+
+	float bicubicWeight(float a_distance, float a_alpha);
+
+	template<typename T>
+	void bicubicResize(const T * a_cpSource, size_t a_sourceWidth,
+		size_t a_sourceHeight, ptrdiff_t a_sourceStride,
+		T * a_pDestination, size_t a_destinationWidth,
+		size_t a_destinationHeight, ptrdiff_t a_destinationStride,
+		T a_clampLow, T a_clampHigh)
+	{
+		const float a = 0.5f;
+		DoSample<T> sample(a_cpSource, a_sourceWidth, a_sourceHeight,
+			a_sourceStride);
+
+		uint8_t * pDestinationBase = (uint8_t *)a_pDestination;
+		float kx = (float)a_sourceWidth / (float)a_destinationWidth;
+		float ky = (float)a_sourceHeight / (float)a_destinationHeight;
+
+		float sx;
+		float sy;
+		float wx[4];
+		float wy[4];
+		float row;
+		float result;
+
+		T * pDestinationLine;
+		for(size_t h = 0; h < a_destinationHeight; ++h)
+		{
+			sy = (float)h * ky;
+			for(ptrdiff_t i = 0; i < 4; ++i)
+				wy[i] = bicubicWeight(sy - std::floor(sy + (float)(i - 1)), a);
+
+			pDestinationLine = (T *)pDestinationBase;
+			for(size_t w = 0; w < a_destinationWidth; ++w)
+			{
+				sx = (float)w * kx;
+				for(ptrdiff_t i = 0; i < 4; ++i)
+				{
+					wx[i] = bicubicWeight(sx -
+						std::floor(sx + (float)(i - 1)), a);
+				}
+
+				result = 0.0f;
+				for(ptrdiff_t i = 0; i < 4; ++i)
+				{
+					row = 0;
+					for(ptrdiff_t j = 0; j < 4; ++j)
+					{
+						row += wx[j] * sample(std::floor(sx + (float)(j - 1)),
+							std::floor(sy + (float)(i - 1)));
+					}
+					result += wy[i] * row;
+				}
+
+				clamp(result, (float)a_clampLow, (float)a_clampHigh);
+
+				pDestinationLine[w] = (T)result;
+			}
+			pDestinationBase += a_destinationStride;
+		}
+	};
 }
 
 #endif // IMAGE_H_INCLUDED
