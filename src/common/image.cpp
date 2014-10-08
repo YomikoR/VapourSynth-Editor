@@ -166,7 +166,7 @@ float vsedit::bicubicWeight(float a_distance, float a_alpha)
 	}
 
 	return 0.0f;
-};
+}
 
 // END OF float vsedit::bicubicWeight(float a_distance, float a_alpha)
 //==============================================================================

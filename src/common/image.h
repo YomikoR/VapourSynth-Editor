@@ -155,7 +155,7 @@ namespace vsedit
 			}
 			pDestinationBase += a_destinationStride;
 		}
-	};
+	}
 
 	float bicubicWeight(float a_distance, float a_alpha);
 
@@ -184,14 +184,14 @@ namespace vsedit
 		T * pDestinationLine;
 		for(size_t h = 0; h < a_destinationHeight; ++h)
 		{
-			sy = (float)h * ky;
+			sy = (float)h * ky - 0.25f;
 			for(ptrdiff_t i = 0; i < 4; ++i)
 				wy[i] = bicubicWeight(sy - std::floor(sy + (float)(i - 1)), a);
 
 			pDestinationLine = (T *)pDestinationBase;
 			for(size_t w = 0; w < a_destinationWidth; ++w)
 			{
-				sx = (float)w * kx;
+				sx = (float)w * kx - 0.25f;
 				for(ptrdiff_t i = 0; i < 4; ++i)
 				{
 					wx[i] = bicubicWeight(sx -
@@ -216,7 +216,7 @@ namespace vsedit
 			}
 			pDestinationBase += a_destinationStride;
 		}
-	};
+	}
 }
 
 #endif // IMAGE_H_INCLUDED
