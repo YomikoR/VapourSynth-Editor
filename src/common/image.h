@@ -107,6 +107,32 @@ namespace vsedit
 				return cpLine[l_x];
 			};
 
+			void row(T * a_pDestination, ptrdiff_t a_xFirst, size_t a_length,
+				ptrdiff_t a_y)
+			{
+				ptrdiff_t l_y = a_y;
+				clamp(l_y, 0, (ptrdiff_t)m_sourceHeight - 1);
+
+				const uint8_t * cpSourceBase = (const uint8_t *)m_cpSource;
+				cpSourceBase += m_sourceStride * l_y;
+				const T * cpLine = (const T *)cpSourceBase;
+
+				ptrdiff_t destinationFirst = std::max(0, -a_xFirst);
+				ptrdiff_t copyLength = std::min(a_length - destinationFirst,
+					m_sourceWidth - a_xFirst);
+				ptrdiff_t sourceFirst = std::max(0, a_xFirst);
+
+				memcpy(a_pDestination + destinationFirst, cpLine + sourceFirst,
+					copyLength * sizeof(T));
+
+				for(ptrdiff_t i = 0; i < destinationFirst; ++i)
+					a_pDestination[i] = cpLine[0];
+
+				for(ptrdiff_t i = destinationFirst + copyLength;
+					i < a_length; ++i)
+					a_pDestination[i] = cpLine[m_sourceWidth - 1];
+			};
+
 		private:
 
 			const T * m_cpSource;
@@ -182,6 +208,7 @@ namespace vsedit
 		float sy;
 		float wx[4];
 		float wy[4];
+		T x[4];
 		float row;
 		float result;
 
@@ -197,19 +224,16 @@ namespace vsedit
 			{
 				sx = (float)w * kx - 0.25f;
 				for(ptrdiff_t i = 0; i < 4; ++i)
-				{
 					wx[i] = bicubicWeight(sx - std::floor(sx + i - 1), a);
-				}
 
 				result = 0.0f;
 				for(ptrdiff_t i = 0; i < 4; ++i)
 				{
+					sample.row(x, std::floor(sx - 1), 4,
+						std::floor(sy + i - 1));
 					row = 0;
 					for(ptrdiff_t j = 0; j < 4; ++j)
-					{
-						row += wx[j] * sample(std::floor(sx + j - 1),
-							std::floor(sy + i - 1));
-					}
+						row += wx[j] * x[j];
 					result += wy[i] * row;
 				}
 
