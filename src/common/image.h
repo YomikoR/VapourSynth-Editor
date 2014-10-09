@@ -97,9 +97,9 @@ namespace vsedit
 			T operator()(ptrdiff_t a_x, ptrdiff_t a_y)
 			{
 				ptrdiff_t l_x = a_x;
-				clamp(l_x, 0, (ptrdiff_t)m_sourceWidth);
+				clamp(l_x, 0, (ptrdiff_t)m_sourceWidth - 1);
 				ptrdiff_t l_y = a_y;
-				clamp(l_y, 0, (ptrdiff_t)m_sourceHeight);
+				clamp(l_y, 0, (ptrdiff_t)m_sourceHeight - 1);
 
 				const uint8_t * cpSourceBase = (const uint8_t *)m_cpSource;
 				cpSourceBase += m_sourceStride * l_y;
@@ -114,6 +114,8 @@ namespace vsedit
 			size_t m_sourceHeight;
 			ptrdiff_t m_sourceStride;
 	};
+
+	//--------------------------------------------------------------------------
 
 	template<typename T>
 	void bilinearResize(const T * a_cpSource, size_t a_sourceWidth,
@@ -136,12 +138,12 @@ namespace vsedit
 		T * pDestinationLine;
 		for(size_t h = 0; h < a_destinationHeight; ++h)
 		{
-			sy = (float)h * ky;
+			sy = (float)h * ky - 0.25f;
 			wy = sy - (float)(int)sy;
 			pDestinationLine = (T *)pDestinationBase;
 			for(size_t w = 0; w < a_destinationWidth; ++w)
 			{
-				sx = (float)w * kx;
+				sx = (float)w * kx - 0.25f;
 				wx = sx - (float)(int)sx;
 				pDestinationLine[w] =
 					(1.0f - wy) * (1.0f - wx) *
@@ -156,6 +158,8 @@ namespace vsedit
 			pDestinationBase += a_destinationStride;
 		}
 	}
+
+	//--------------------------------------------------------------------------
 
 	float bicubicWeight(float a_distance, float a_alpha);
 
@@ -186,7 +190,7 @@ namespace vsedit
 		{
 			sy = (float)h * ky - 0.25f;
 			for(ptrdiff_t i = 0; i < 4; ++i)
-				wy[i] = bicubicWeight(sy - std::floor(sy + (float)(i - 1)), a);
+				wy[i] = bicubicWeight(sy - std::floor(sy + i - 1), a);
 
 			pDestinationLine = (T *)pDestinationBase;
 			for(size_t w = 0; w < a_destinationWidth; ++w)
@@ -194,8 +198,7 @@ namespace vsedit
 				sx = (float)w * kx - 0.25f;
 				for(ptrdiff_t i = 0; i < 4; ++i)
 				{
-					wx[i] = bicubicWeight(sx -
-						std::floor(sx + (float)(i - 1)), a);
+					wx[i] = bicubicWeight(sx - std::floor(sx + i - 1), a);
 				}
 
 				result = 0.0f;
@@ -204,8 +207,8 @@ namespace vsedit
 					row = 0;
 					for(ptrdiff_t j = 0; j < 4; ++j)
 					{
-						row += wx[j] * sample(std::floor(sx + (float)(j - 1)),
-							std::floor(sy + (float)(i - 1)));
+						row += wx[j] * sample(std::floor(sx + j - 1),
+							std::floor(sy + i - 1));
 					}
 					result += wy[i] * row;
 				}

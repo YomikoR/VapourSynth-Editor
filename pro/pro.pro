@@ -164,7 +164,6 @@ HEADERS += ../src/scripteditor/scriptcompleter.h
 HEADERS += ../src/scripteditor/scripteditor.h
 HEADERS += ../src/vapoursynth/vsplugindata.h
 HEADERS += ../src/vapoursynth/vapoursynthpluginsmanager.h
-HEADERS += ../src/vapoursynth/pixmapfromframe.h
 HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
 HEADERS += ../src/mainwindow.h
 

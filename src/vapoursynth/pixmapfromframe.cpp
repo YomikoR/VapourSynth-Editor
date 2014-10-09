@@ -1,19 +1,17 @@
 #include "../common/helpers.h"
 #include "../common/image.h"
 
-#include "pixmapfromframe.h"
+#include "vapoursynthscriptprocessor.h"
 
 //==============================================================================
 
-QPixmap vsedit::pixmapFromGray1B(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromGray1B(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpRead = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int stride = a_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpRead = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -38,19 +36,17 @@ QPixmap vsedit::pixmapFromGray1B(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromGray1B(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromGray1B(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromGray2B(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromGray2B(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpRead = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int stride = a_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpRead = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -82,19 +78,17 @@ QPixmap vsedit::pixmapFromGray2B(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromGray2B(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromGray2B(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromGrayH(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromGrayH(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpRead = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int stride = a_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpRead = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -108,7 +102,7 @@ QPixmap vsedit::pixmapFromGrayH(const VSAPI * a_cpVSAPI,
 			vsedit::FP16 half;
 			half.u = cpLine[w];
 			gray = halfToSingle(half).f * 255.0f;
-			clamp(gray, 0.0f, 255.0f);
+			vsedit::clamp(gray, 0.0f, 255.0f);
 			image[i].parts.r = gray;
 			image[i].parts.g = gray;
 			image[i].parts.b = gray;
@@ -125,19 +119,17 @@ QPixmap vsedit::pixmapFromGrayH(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromGrayH(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromGrayH(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromGrayS(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromGrayS(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpRead = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int stride = a_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpRead = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -149,7 +141,7 @@ QPixmap vsedit::pixmapFromGrayS(const VSAPI * a_cpVSAPI,
 		for(size_t w = 0; w < (size_t)width; ++w)
 		{
 			gray = cpLine[w] * 255.0f;
-			clamp(gray, 0.0f, 255.0f);
+			vsedit::clamp(gray, 0.0f, 255.0f);
 			image[i].parts.r = gray;
 			image[i].parts.g = gray;
 			image[i].parts.b = gray;
@@ -166,54 +158,59 @@ QPixmap vsedit::pixmapFromGrayS(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromGrayS(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromGrayS(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromYUV1B(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
+	const VSFrameRef * a_cpFrameRef)
 {
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadY = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadU = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadV = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideY = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideU = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideV = a_cpVSAPI->getStride(a_cpFrameRef, 2);
-	int subSamplingW = a_cpFormat->subSamplingW;
-	int subSamplingH = a_cpFormat->subSamplingH;
+	int widthY = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int heightY = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int widthU = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 1);
+	int heightU = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 1);
+	int widthV = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 2);
+	int heightV = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 2);
+	const uint8_t * cpReadY = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadU = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadV = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideY = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 
 	uint8_t * pUpsampledU = nullptr;
 	uint8_t * pUpsampledV = nullptr;
-	if( (subSamplingH != 0) || (subSamplingW != 0))
+
+	if((widthU != widthY) || (heightU != heightY))
 	{
-		pUpsampledU = (uint8_t *)malloc(height * width);
-		bicubicResize(cpReadU, width >> subSamplingW, height >> subSamplingH,
-			strideU, pUpsampledU, width, height, width, (uint8_t)0, (uint8_t)255);
+		pUpsampledU = (uint8_t *)malloc(heightY * widthY);
+		vsedit::bicubicResize(cpReadU, widthU, heightU, strideU, pUpsampledU,
+			widthY, heightY, widthY, (uint8_t)0, (uint8_t)255);
 		cpReadU = pUpsampledU;
-		strideU = width;
-		pUpsampledV = (uint8_t *)malloc(height * width);
-		bicubicResize(cpReadV, width >> subSamplingW, height >> subSamplingH,
-			strideV, pUpsampledV, width, height, width, (uint8_t)0, (uint8_t)255);
-		cpReadV = pUpsampledV;
-		strideV = width;
+		strideU = widthY;
 	}
 
-	std::vector<vsedit::RGB32> image(width * height);
-	size_t i = 0;
-	const uint8_t *cpLineY, *cpLineU, *cpLineV;
-	for(size_t h = 0; h < (size_t)height; ++h)
+	if((widthV != widthY) || (heightV != heightY))
 	{
-		cpLineY = cpReadY + strideY * h;
-		cpLineU = cpReadU + strideU * h;
-		cpLineV = cpReadV + strideV * h;
-		for(size_t w = 0; w < (size_t)width; ++w)
+		pUpsampledV = (uint8_t *)malloc(heightY * widthY);
+		vsedit::bicubicResize(cpReadV, widthV, heightV, strideV, pUpsampledV,
+			widthY, heightY, widthY, (uint8_t)0, (uint8_t)255);
+		cpReadV = pUpsampledV;
+		strideV = widthY;
+	}
+
+	std::vector<vsedit::RGB32> image(widthY * heightY);
+	size_t i = 0;
+	for(size_t h = 0; h < (size_t)heightY; ++h)
+	{
+		for(size_t w = 0; w < (size_t)widthY; ++w)
 		{
-			image[i] = vsedit::yuvToRgb32(cpLineY[w],
-				cpLineU[w], cpLineV[w]);
+			image[i] = vsedit::yuvToRgb32(cpReadY[w], cpReadU[w], cpReadV[w]);
 			i++;
 		}
+		cpReadY += strideY;
+		cpReadU += strideU;
+		cpReadV += strideV;
 	}
 
 	if(pUpsampledU)
@@ -221,73 +218,108 @@ QPixmap vsedit::pixmapFromYUV1B(const VSAPI * a_cpVSAPI,
 	if(pUpsampledV)
 		free(pUpsampledV);
 
-	QImage frameImage((const uchar *)image.data(), width, height,
+	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage).copy();
 
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromYUV1B(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromYUV2B(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
+	const VSFrameRef * a_cpFrameRef)
 {
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadY = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadU = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadV = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideY = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideU = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideV = a_cpVSAPI->getStride(a_cpFrameRef, 2);
-	int subSamplingW = a_cpFormat->subSamplingW;
-	int subSamplingH = a_cpFormat->subSamplingH;
-	int bitsPerSample = a_cpFormat->bitsPerSample;
+	int widthY = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int heightY = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int widthU = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 1);
+	int heightU = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 1);
+	int widthV = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 2);
+	int heightV = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 2);
+	const uint8_t * cpReadY = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadU = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadV = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideY = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
+	int bitsPerSample = m_cpVideoInfo->format->bitsPerSample;
+	uint16_t maxValue = ((uint32_t)1 << bitsPerSample) - 1;
 
-	std::vector<vsedit::RGB32> image(width * height);
-	size_t i = 0;
-	const uint16_t *cpLineY, *cpLineU, *cpLineV;
-	for(size_t h = 0; h < (size_t)height; ++h)
+	uint16_t * pUpsampledU = nullptr;
+	uint16_t * pUpsampledV = nullptr;
+
+	if((widthU != widthY) || (heightU != heightY))
 	{
-		cpLineY = (const uint16_t *)(cpReadY + strideY * h);
-		cpLineU = (const uint16_t *)(cpReadU + strideU * (h >> subSamplingH));
-		cpLineV = (const uint16_t *)(cpReadV + strideV * (h >> subSamplingH));
-		for(size_t w = 0; w < (size_t)width; ++w)
+		pUpsampledU = (uint16_t *)malloc(heightY * widthY * 2);
+		vsedit::bicubicResize((const uint16_t *)cpReadU, widthU, heightU,
+			strideU, pUpsampledU, widthY, heightY, widthY * 2,
+			(uint16_t)0, maxValue);
+		cpReadU = (const uint8_t *)pUpsampledU;
+		strideU = widthY * 2;
+	}
+
+	if((widthV != widthY) || (heightV != heightY))
+	{
+		pUpsampledV = (uint16_t *)malloc(heightY * widthY * 2);
+		vsedit::bicubicResize((const uint16_t *)cpReadV, widthV, heightV,
+			strideV, pUpsampledV, widthY, heightY, widthY * 2,
+			(uint16_t)0, maxValue);
+		cpReadV = (const uint8_t *)pUpsampledV;
+		strideV = widthY * 2;
+	}
+
+	std::vector<vsedit::RGB32> image(widthY * heightY);
+	const uint16_t * cpLineY;
+	const uint16_t * cpLineU;
+	const uint16_t * cpLineV;
+	size_t i = 0;
+	for(size_t h = 0; h < (size_t)heightY; ++h)
+	{
+		cpLineY = (const uint16_t *)cpReadY;
+		cpLineU = (const uint16_t *)cpReadU;
+		cpLineV = (const uint16_t *)cpReadV;
+		for(size_t w = 0; w < (size_t)widthY; ++w)
 		{
-			image[i] = vsedit::yuvToRgb32(cpLineY[w],
-				cpLineU[w >> subSamplingW], cpLineV[w >> subSamplingW],
+			image[i] = vsedit::yuvToRgb32(cpLineY[w], cpLineU[w], cpLineV[w],
 				bitsPerSample);
 			i++;
 		}
+		cpReadY += strideY;
+		cpReadU += strideU;
+		cpReadV += strideV;
 	}
 
-	QImage frameImage((const uchar *)image.data(), width, height,
+	if(pUpsampledU)
+		free(pUpsampledU);
+	if(pUpsampledV)
+		free(pUpsampledV);
+
+	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage).copy();
 
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromYUV2B(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromYUVH(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
+	const VSFrameRef * a_cpFrameRef)
 {
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadY = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadU = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadV = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideY = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideU = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideV = a_cpVSAPI->getStride(a_cpFrameRef, 2);
-	int subSamplingW = a_cpFormat->subSamplingW;
-	int subSamplingH = a_cpFormat->subSamplingH;
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpReadY = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadU = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadV = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideY = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
+	int subSamplingW = m_cpVideoInfo->format->subSamplingW;
+	int subSamplingH = m_cpVideoInfo->format->subSamplingH;
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -315,64 +347,94 @@ QPixmap vsedit::pixmapFromYUVH(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromYUVH(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromYUVS(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
+	const VSFrameRef * a_cpFrameRef)
 {
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadY = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadU = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadV = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideY = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideU = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideV = a_cpVSAPI->getStride(a_cpFrameRef, 2);
-	int subSamplingW = a_cpFormat->subSamplingW;
-	int subSamplingH = a_cpFormat->subSamplingH;
+	int widthY = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int heightY = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int widthU = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 1);
+	int heightU = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 1);
+	int widthV = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 2);
+	int heightV = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 2);
+	const uint8_t * cpReadY = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadU = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadV = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideY = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 
-	std::vector<vsedit::RGB32> image(width * height);
-	size_t i = 0;
-	const float *cpLineY, *cpLineU, *cpLineV;
-	for(size_t h = 0; h < (size_t)height; ++h)
+	float * pUpsampledU = nullptr;
+	float * pUpsampledV = nullptr;
+
+	if((widthU != widthY) || (heightU != heightY))
 	{
-		cpLineY = (const float *)(cpReadY + strideY * h);
-		cpLineU = (const float *)(cpReadU + strideU * (h >> subSamplingH));
-		cpLineV = (const float *)(cpReadV + strideV * (h >> subSamplingH));
-		for(size_t w = 0; w < (size_t)width; ++w)
-		{
-			image[i] = vsedit::yuvToRgb32(cpLineY[w],
-				cpLineU[w >> subSamplingW], cpLineV[w >> subSamplingW]);
-			i++;
-		}
+		pUpsampledU = (float *)malloc(heightY * widthY * 4);
+		vsedit::bicubicResize((const float *)cpReadU, widthU, heightU,
+			strideU, pUpsampledU, widthY, heightY, widthY * 4, -0.5f, 0.5f);
+		cpReadU = (const uint8_t *)pUpsampledU;
+		strideU = widthY * 4;
 	}
 
-	QImage frameImage((const uchar *)image.data(), width, height,
+	if((widthV != widthY) || (heightV != heightY))
+	{
+		pUpsampledV = (float *)malloc(heightY * widthY * 4);
+		vsedit::bicubicResize((const float *)cpReadV, widthV, heightV,
+			strideV, pUpsampledV, widthY, heightY, widthY * 4, -0.5f, 0.5f);
+		cpReadV = (const uint8_t *)pUpsampledV;
+		strideV = widthY * 4;
+	}
+
+	std::vector<vsedit::RGB32> image(widthY * heightY);
+	const float * cpLineY;
+	const float * cpLineU;
+	const float * cpLineV;
+	size_t i = 0;
+	for(size_t h = 0; h < (size_t)heightY; ++h)
+	{
+		cpLineY = (const float *)cpReadY;
+		cpLineU = (const float *)cpReadU;
+		cpLineV = (const float *)cpReadV;
+		for(size_t w = 0; w < (size_t)widthY; ++w)
+		{
+			image[i] = vsedit::yuvToRgb32(cpLineY[w], cpLineU[w], cpLineV[w]);
+			i++;
+		}
+		cpReadY += strideY;
+		cpReadU += strideU;
+		cpReadV += strideV;
+	}
+
+	if(pUpsampledU)
+		free(pUpsampledU);
+	if(pUpsampledV)
+		free(pUpsampledV);
+
+	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage).copy();
 
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromYUVS(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromRGB1B(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromRGB1B(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadR = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadG = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadB = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideR = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideG = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideB = a_cpVSAPI->getStride(a_cpFrameRef, 2);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpReadR = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadG = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadB = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideR = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideG = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideB = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -398,22 +460,22 @@ QPixmap vsedit::pixmapFromRGB1B(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromRGB1B(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromRGB1B(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromRGB2B(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromRGB2B(
+	const VSFrameRef * a_cpFrameRef)
 {
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadR = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadG = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadB = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideR = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideG = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideB = a_cpVSAPI->getStride(a_cpFrameRef, 2);
-	int bitsPerSample = a_cpFormat->bitsPerSample;
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpReadR = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadG = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadB = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideR = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideG = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideB = m_cpVSAPI->getStride(a_cpFrameRef, 2);
+	int bitsPerSample = m_cpVideoInfo->format->bitsPerSample;
 
 
 	uint8_t shift = bitsPerSample - 8;
@@ -460,23 +522,21 @@ QPixmap vsedit::pixmapFromRGB2B(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromRGB2B(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromRGB2B(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromRGBH(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromRGBH(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadR = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadG = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadB = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideR = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideG = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideB = a_cpVSAPI->getStride(a_cpFrameRef, 2);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpReadR = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadG = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadB = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideR = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideG = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideB = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -492,17 +552,17 @@ QPixmap vsedit::pixmapFromRGBH(const VSAPI * a_cpVSAPI,
 		{
 			half.u = cpLineR[w];
 			single = halfToSingle(half).f * 255.0f;
-			clamp(single, 0.0f, 255.0f);
+			vsedit::clamp(single, 0.0f, 255.0f);
 			image[i].parts.r = single;
 
 			half.u = cpLineG[w];
 			single = halfToSingle(half).f * 255.0f;
-			clamp(single, 0.0f, 255.0f);
+			vsedit::clamp(single, 0.0f, 255.0f);
 			image[i].parts.g = single;
 
 			half.u = cpLineB[w];
 			single = halfToSingle(half).f * 255.0f;
-			clamp(single, 0.0f, 255.0f);
+			vsedit::clamp(single, 0.0f, 255.0f);
 			image[i].parts.b = single;
 
 			image[i].parts.x = 255;
@@ -520,23 +580,21 @@ QPixmap vsedit::pixmapFromRGBH(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromRGBH(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromRGBH(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromRGBS(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromRGBS(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpReadR = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	const uint8_t * cpReadG = a_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
-	const uint8_t * cpReadB = a_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
-	int strideR = a_cpVSAPI->getStride(a_cpFrameRef, 0);
-	int strideG = a_cpVSAPI->getStride(a_cpFrameRef, 1);
-	int strideB = a_cpVSAPI->getStride(a_cpFrameRef, 2);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpReadR = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	const uint8_t * cpReadG = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
+	const uint8_t * cpReadB = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
+	int strideR = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int strideG = m_cpVSAPI->getStride(a_cpFrameRef, 1);
+	int strideB = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -550,15 +608,15 @@ QPixmap vsedit::pixmapFromRGBS(const VSAPI * a_cpVSAPI,
 		for(size_t w = 0; w < (size_t)width; ++w)
 		{
 			single = cpLineR[w] * 255.0f;
-			clamp(single, 0.0f, 255.0f);
+			vsedit::clamp(single, 0.0f, 255.0f);
 			image[i].parts.r = single;
 
 			single = cpLineG[w] * 255.0f;
-			clamp(single, 0.0f, 255.0f);
+			vsedit::clamp(single, 0.0f, 255.0f);
 			image[i].parts.g = single;
 
 			single = cpLineB[w] * 255.0f;
-			clamp(single, 0.0f, 255.0f);
+			vsedit::clamp(single, 0.0f, 255.0f);
 			image[i].parts.b = single;
 
 			image[i].parts.x = 255;
@@ -576,20 +634,18 @@ QPixmap vsedit::pixmapFromRGBS(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromRGBS(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromRGBS(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromCompatBGR32(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromCompatBGR32(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int frameWidth = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int frameHeight = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	int stride = a_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int frameWidth = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int frameHeight = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 	const uint8_t * pFrameReadPointer =
-		a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+		m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
 
 	// Creating QImage from memory doesn't copy or modify the data.
 	QImage frameImage(pFrameReadPointer, frameWidth, frameHeight, stride,
@@ -600,19 +656,17 @@ QPixmap vsedit::pixmapFromCompatBGR32(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromCompatBGR32(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromCompatBGR32(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-QPixmap vsedit::pixmapFromCompatYUY2(const VSAPI * a_cpVSAPI,
-	const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+QPixmap VapourSynthScriptProcessor::pixmapFromCompatYUY2(
+	const VSFrameRef * a_cpFrameRef)
 {
-	(void)a_cpFormat;
-
-	int width = a_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = a_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const uint8_t * cpRead = a_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int stride = a_cpVSAPI->getStride(a_cpFrameRef, 0);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const uint8_t * cpRead = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	std::vector<vsedit::RGB32> image(width * height);
 	size_t i = 0;
@@ -624,12 +678,12 @@ QPixmap vsedit::pixmapFromCompatYUY2(const VSAPI * a_cpVSAPI,
 		{
 			if(w & 1)
 			{
-				image[i] = yuvToRgb32(cpLine[w >> 1].parts.y1,
+				image[i] = vsedit::yuvToRgb32(cpLine[w >> 1].parts.y1,
 					cpLine[w >> 1].parts.u, cpLine[w >> 1].parts.v);
 			}
 			else
 			{
-				image[i] = yuvToRgb32(cpLine[w >> 1].parts.y0,
+				image[i] = vsedit::yuvToRgb32(cpLine[w >> 1].parts.y0,
 					cpLine[w >> 1].parts.u, cpLine[w >> 1].parts.v);
 			}
 			i++;
@@ -644,6 +698,6 @@ QPixmap vsedit::pixmapFromCompatYUY2(const VSAPI * a_cpVSAPI,
 	return framePixmap;
 }
 
-// END OF QPixmap vsedit::pixmapFromCompatYUY2(const VSAPI * a_cpVSAPI,
-//		const VSFormat * a_cpFormat, const VSFrameRef * a_cpFrameRef)
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromCompatYUY2(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================

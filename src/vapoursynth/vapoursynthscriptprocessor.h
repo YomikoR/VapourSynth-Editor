@@ -5,8 +5,6 @@
 #include <QPixmap>
 #include <vapoursynth/VSScript.h>
 
-#include "pixmapfromframe.h"
-
 class VapourSynthScriptProcessor : public QObject
 {
 	Q_OBJECT
@@ -42,7 +40,23 @@ class VapourSynthScriptProcessor : public QObject
 
 		void handleVSMessage(int a_messageType, const QString & a_message);
 
-		void setFrameConverter();
+		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
+
+		// pixmapfromframe.cpp
+		QPixmap pixmapFromGray1B(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromGray2B(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromGrayH(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromGrayS(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromYUV1B(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromYUV2B(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromYUVH(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromYUVS(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromRGB1B(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromRGB2B(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromRGBH(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromRGBS(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromCompatBGR32(const VSFrameRef * a_cpFrameRef);
+		QPixmap pixmapFromCompatYUY2(const VSFrameRef * a_cpFrameRef);
 
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
@@ -68,8 +82,6 @@ class VapourSynthScriptProcessor : public QObject
 		int m_currentFrame;
 
 		const VSFrameRef * m_cpCurrentFrameRef;
-
-		PixmapFromFrameFunc m_pixmapFromFrame;
 
 };
 

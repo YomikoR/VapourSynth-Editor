@@ -266,7 +266,6 @@
 		<Unit filename="src/settings/settingsmanager.cpp" />
 		<Unit filename="src/settings/settingsmanager.h" />
 		<Unit filename="src/vapoursynth/pixmapfromframe.cpp" />
-		<Unit filename="src/vapoursynth/pixmapfromframe.h" />
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.cpp" />
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.h" />
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.cpp" />

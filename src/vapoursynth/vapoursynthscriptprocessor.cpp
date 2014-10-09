@@ -30,7 +30,6 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(QObject * a_pParent):
 	, m_cpVideoInfo(nullptr)
 	, m_currentFrame(0)
 	, m_cpCurrentFrameRef(nullptr)
-	, m_pixmapFromFrame(nullptr)
 {
 
 }
@@ -107,9 +106,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
-
-	setFrameConverter();
-
+	
 	m_currentFrame = 0;
 	m_error.clear();
 	m_initialized = true;
@@ -145,8 +142,6 @@ void VapourSynthScriptProcessor::finalize()
 		vsscript_finalize();
 		m_vsScriptInitialized = false;
 	}
-
-	m_pixmapFromFrame = nullptr;
 
 	m_error.clear();
 	m_initialized = false;
@@ -249,14 +244,9 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 		return QPixmap();
 	}
 
-	QPixmap framePixmap = QPixmap();
+	QPixmap framePixmap = pixmapFromFrame(cpFrameRef);
 
-	if(m_pixmapFromFrame)
-	{
-		framePixmap = m_pixmapFromFrame(m_cpVSAPI, m_cpVideoInfo->format,
-			cpFrameRef);
-	}
-	else
+	if(framePixmap.isNull())
 	{
 		m_error = trUtf8("Can not convert from format \"%1\" for preview!")
 			.arg(m_cpVideoInfo->format->name);
@@ -281,59 +271,61 @@ void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 //		const QString & a_message)
 //==============================================================================
 
-void VapourSynthScriptProcessor::setFrameConverter()
+QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
+	const VSFrameRef * a_cpFrameRef)
 {
 	assert(m_cpVideoInfo);
 
 	const VSFormat * cpFormat = m_cpVideoInfo->format;
 
 	if(cpFormat->id == pfCompatBGR32)
-		m_pixmapFromFrame = vsedit::pixmapFromCompatBGR32;
+		return pixmapFromCompatBGR32(a_cpFrameRef);
 	else if(cpFormat->id == pfCompatYUY2)
-		m_pixmapFromFrame = vsedit::pixmapFromCompatYUY2;
+		return pixmapFromCompatYUY2(a_cpFrameRef);
 	else if(cpFormat->id == pfGray8)
-		m_pixmapFromFrame = vsedit::pixmapFromGray1B;
+		return pixmapFromGray1B(a_cpFrameRef);
 	else if(cpFormat->id == pfGray16)
-		m_pixmapFromFrame = vsedit::pixmapFromGray2B;
+		return pixmapFromGray2B(a_cpFrameRef);
 	else if(cpFormat->id == pfGrayH)
-		m_pixmapFromFrame = vsedit::pixmapFromGrayH;
+		return pixmapFromGrayH(a_cpFrameRef);
 	else if(cpFormat->id == pfGrayS)
-		m_pixmapFromFrame = vsedit::pixmapFromGrayS;
+		return pixmapFromGrayS(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmYUV) &&
 		(cpFormat->sampleType == stInteger) &&
 		(cpFormat->bytesPerSample == 1))
-		m_pixmapFromFrame = vsedit::pixmapFromYUV1B;
+		return pixmapFromYUV1B(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmYUV) &&
 		(cpFormat->sampleType == stInteger) &&
 		(cpFormat->bytesPerSample == 2))
-		m_pixmapFromFrame = vsedit::pixmapFromYUV2B;
+		return pixmapFromYUV2B(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmYUV) &&
 		(cpFormat->sampleType == stFloat) &&
 		(cpFormat->bytesPerSample == 2))
-		m_pixmapFromFrame = vsedit::pixmapFromYUVH;
+		return pixmapFromYUVH(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmYUV) &&
 		(cpFormat->sampleType == stFloat) &&
 		(cpFormat->bytesPerSample == 4))
-		m_pixmapFromFrame = vsedit::pixmapFromYUVS;
+		return pixmapFromYUVS(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmRGB) &&
 		(cpFormat->sampleType == stInteger) &&
 		(cpFormat->bytesPerSample == 1))
-		m_pixmapFromFrame = vsedit::pixmapFromRGB1B;
+		return pixmapFromRGB1B(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmRGB) &&
 		(cpFormat->sampleType == stInteger) &&
 		(cpFormat->bytesPerSample == 2))
-		m_pixmapFromFrame = vsedit::pixmapFromRGB2B;
+		return pixmapFromRGB2B(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmRGB) &&
 		(cpFormat->sampleType == stFloat) &&
 		(cpFormat->bytesPerSample == 2))
-		m_pixmapFromFrame = vsedit::pixmapFromRGBH;
+		return pixmapFromRGBH(a_cpFrameRef);
 	else if((cpFormat->colorFamily == cmRGB) &&
 		(cpFormat->sampleType == stFloat) &&
 		(cpFormat->bytesPerSample == 4))
-		m_pixmapFromFrame = vsedit::pixmapFromRGBS;
+		return pixmapFromRGBS(a_cpFrameRef);
 	else
-		m_pixmapFromFrame = nullptr;
+		return QPixmap();
 }
 
-// END OF void VapourSynthScriptProcessor::setFrameConverter()
+// END OF QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
