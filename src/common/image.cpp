@@ -154,14 +154,17 @@ vsedit::RGB32 vsedit::yuvToRgb32(vsedit::FP16 a_y, vsedit::FP16 a_u,
 float vsedit::bicubicWeight(float a_distance, float a_alpha)
 {
 	float t = std::abs(a_distance);
+	float t2 = t * t;
+	float t3 = t2 * t;
+
 	if(t <= 1.0f)
 	{
-		return (a_alpha + 2.0f) * t * t * t -
-			(a_alpha + 3.0f) * t * t + 1.0f;
+		return (a_alpha + 2.0f) * t3 -
+			(a_alpha + 3.0f) * t2 + 1.0f;
 	}
 	else if(t < 2.0f)
 	{
-		return a_alpha * t * t * t - 5.0f * a_alpha * t * t +
+		return a_alpha * t3 - 5.0f * a_alpha * t2 +
 			8.0f * a_alpha * t - 4.0f * a_alpha;
 	}
 
