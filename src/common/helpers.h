@@ -27,6 +27,37 @@ namespace vsedit
 		else if(a_value > a_high)
 			a_value = a_high;
 	}
+
+	//--------------------------------------------------------------------------
+	// Half to single precision float conversion
+	// by Fabian "ryg" Giesen.
+
+	union FP32
+	{
+		uint32_t u;
+		float f;
+		struct
+		{
+			unsigned int Mantissa : 23;
+			unsigned int Exponent : 8;
+			unsigned int Sign : 1;
+		} parts;
+	};
+
+	union FP16
+	{
+		uint16_t u;
+		struct
+		{
+			unsigned int Mantissa : 10;
+			unsigned int Exponent : 5;
+			unsigned int Sign : 1;
+		} parts;
+	};
+
+	FP32 halfToSingle(FP16 a_half);
+
+	//--------------------------------------------------------------------------
 }
 
 #endif // HELPERS_H_INCLUDED

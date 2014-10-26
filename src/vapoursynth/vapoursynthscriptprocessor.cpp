@@ -30,8 +30,10 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(QObject * a_pParent):
 	, m_cpVideoInfo(nullptr)
 	, m_currentFrame(0)
 	, m_cpCurrentFrameRef(nullptr)
+	, m_pResampleLinearFilter(nullptr)
 {
-
+	double a = 1.0 / 3.0;
+	m_pResampleLinearFilter = new vsedit::CubicResampleFilter(a, a);
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -42,6 +44,9 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 {
 	if(m_initialized)
 		finalize();
+
+	if(m_pResampleLinearFilter)
+		delete(m_pResampleLinearFilter);
 }
 
 // END OF VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
@@ -106,7 +111,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
-	
+
 	m_currentFrame = 0;
 	m_error.clear();
 	m_initialized = true;

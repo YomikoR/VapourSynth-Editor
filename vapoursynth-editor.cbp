@@ -231,8 +231,14 @@
 		</Unit>
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
-		<Unit filename="src/common/image.cpp" />
-		<Unit filename="src/common/image.h" />
+		<Unit filename="src/image/padimage.h" />
+		<Unit filename="src/image/resample.h" />
+		<Unit filename="src/image/resamplefilters.cpp" />
+		<Unit filename="src/image/resamplefilters.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="src/image/yuvtorgb.cpp" />
+		<Unit filename="src/image/yuvtorgb.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mainwindow.cpp" />
 		<Unit filename="src/mainwindow.h" />

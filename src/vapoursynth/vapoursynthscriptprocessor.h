@@ -5,6 +5,8 @@
 #include <QPixmap>
 #include <vapoursynth/VSScript.h>
 
+#include "../image/resamplefilters.h"
+
 class VapourSynthScriptProcessor : public QObject
 {
 	Q_OBJECT
@@ -82,6 +84,8 @@ class VapourSynthScriptProcessor : public QObject
 		int m_currentFrame;
 
 		const VSFrameRef * m_cpCurrentFrameRef;
+
+		vsedit::AbstractResampleLinearFilter * m_pResampleLinearFilter;
 
 };
 

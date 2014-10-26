@@ -1,5 +1,6 @@
 #include "../common/helpers.h"
-#include "../common/image.h"
+#include "../image/yuvtorgb.h"
+#include "../image/resample.h"
 
 #include "vapoursynthscriptprocessor.h"
 
@@ -180,12 +181,15 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 
 	uint8_t * pUpsampledU = nullptr;
 	uint8_t * pUpsampledV = nullptr;
+	uint8_t clampLow = 0;
+	uint8_t clampHigh = 255;
 
 	if((widthU != widthY) || (heightU != heightY))
 	{
 		pUpsampledU = (uint8_t *)malloc(heightY * widthY);
-		vsedit::bicubicResize(cpReadU, widthU, heightU, strideU, pUpsampledU,
-			widthY, heightY, widthY, (uint8_t)0, (uint8_t)255);
+		vsedit::resampleImageLinear(m_pResampleLinearFilter,
+			cpReadU, widthU, heightU, strideU, pUpsampledU,
+			widthY, heightY, widthY, clampLow, clampHigh);
 		cpReadU = pUpsampledU;
 		strideU = widthY;
 	}
@@ -193,8 +197,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 	if((widthV != widthY) || (heightV != heightY))
 	{
 		pUpsampledV = (uint8_t *)malloc(heightY * widthY);
-		vsedit::bicubicResize(cpReadV, widthV, heightV, strideV, pUpsampledV,
-			widthY, heightY, widthY, (uint8_t)0, (uint8_t)255);
+		vsedit::resampleImageLinear(m_pResampleLinearFilter,
+			cpReadV, widthV, heightV, strideV, pUpsampledV,
+			widthY, heightY, widthY, clampLow, clampHigh);
 		cpReadV = pUpsampledV;
 		strideV = widthY;
 	}
@@ -245,17 +250,18 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
 	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 	int bitsPerSample = m_cpVideoInfo->format->bitsPerSample;
-	uint16_t maxValue = ((uint32_t)1 << bitsPerSample) - 1;
 
 	uint16_t * pUpsampledU = nullptr;
 	uint16_t * pUpsampledV = nullptr;
+	uint16_t clampLow = 0;
+	uint16_t clampHigh = (1ul << bitsPerSample) - 1ul;
 
 	if((widthU != widthY) || (heightU != heightY))
 	{
 		pUpsampledU = (uint16_t *)malloc(heightY * widthY * 2);
-		vsedit::bicubicResize((const uint16_t *)cpReadU, widthU, heightU,
-			strideU, pUpsampledU, widthY, heightY, widthY * 2,
-			(uint16_t)0, maxValue);
+		vsedit::resampleImageLinear(m_pResampleLinearFilter,
+			(const uint16_t *)cpReadU, widthU, heightU, strideU, pUpsampledU,
+			widthY, heightY, widthY * 2, clampLow, clampHigh);
 		cpReadU = (const uint8_t *)pUpsampledU;
 		strideU = widthY * 2;
 	}
@@ -263,9 +269,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	if((widthV != widthY) || (heightV != heightY))
 	{
 		pUpsampledV = (uint16_t *)malloc(heightY * widthY * 2);
-		vsedit::bicubicResize((const uint16_t *)cpReadV, widthV, heightV,
-			strideV, pUpsampledV, widthY, heightY, widthY * 2,
-			(uint16_t)0, maxValue);
+		vsedit::resampleImageLinear(m_pResampleLinearFilter,
+			(const uint16_t *)cpReadV, widthV, heightV, strideV, pUpsampledV,
+			widthY, heightY, widthY * 2, clampLow, clampHigh);
 		cpReadV = (const uint8_t *)pUpsampledV;
 		strideV = widthY * 2;
 	}
@@ -369,12 +375,15 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 
 	float * pUpsampledU = nullptr;
 	float * pUpsampledV = nullptr;
+	float clampLow = -0.5f;
+	float clampHigh = 0.5f;
 
 	if((widthU != widthY) || (heightU != heightY))
 	{
 		pUpsampledU = (float *)malloc(heightY * widthY * 4);
-		vsedit::bicubicResize((const float *)cpReadU, widthU, heightU,
-			strideU, pUpsampledU, widthY, heightY, widthY * 4, -0.5f, 0.5f);
+		vsedit::resampleImageLinear(m_pResampleLinearFilter,
+			(const float *)cpReadU, widthU, heightU, strideU, pUpsampledU,
+			widthY, heightY, widthY * 4, clampLow, clampHigh);
 		cpReadU = (const uint8_t *)pUpsampledU;
 		strideU = widthY * 4;
 	}
@@ -382,8 +391,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 	if((widthV != widthY) || (heightV != heightY))
 	{
 		pUpsampledV = (float *)malloc(heightY * widthY * 4);
-		vsedit::bicubicResize((const float *)cpReadV, widthV, heightV,
-			strideV, pUpsampledV, widthY, heightY, widthY * 4, -0.5f, 0.5f);
+		vsedit::resampleImageLinear(m_pResampleLinearFilter,
+			(const float *)cpReadV, widthV, heightV, strideV, pUpsampledV,
+			widthY, heightY, widthY * 4, clampLow, clampHigh);
 		cpReadV = (const uint8_t *)pUpsampledV;
 		strideV = widthY * 4;
 	}

@@ -1,53 +1,5 @@
-#include "helpers.h"
-#include "image.h"
+#include "yuvtorgb.h"
 
-//==============================================================================
-
-vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)
-{
-	FP32 o = { 0 };
-
-	// From ISPC ref code
-	if (a_half.parts.Exponent == 0 && a_half.parts.Mantissa == 0)
-		// (Signed) zero
-		o.parts.Sign = a_half.parts.Sign;
-	else
-	{
-		if (a_half.parts.Exponent == 0) // Denormal (will convert to normalized)
-		{
-			// Adjust mantissa so it's normalized (and keep track of exp adjust)
-			int e = -1;
-			unsigned int m = a_half.parts.Mantissa;
-			do
-			{
-				e++;
-				m <<= 1;
-			} while ((m & 0x400) == 0);
-
-			o.parts.Mantissa = (m & 0x3ff) << 13;
-			o.parts.Exponent = 127 - 15 - e;
-			o.parts.Sign = a_half.parts.Sign;
-		}
-		else if (a_half.parts.Exponent == 0x1f) // Inf/NaN
-		{
-			// NOTE: It's safe to treat both with the same code path
-			// by just truncating lower Mantissa bits in NaNs (this is valid).
-			o.parts.Mantissa = a_half.parts.Mantissa << 13;
-			o.parts.Exponent = 255;
-			o.parts.Sign = a_half.parts.Sign;
-		}
-		else // Normalized number
-		{
-			o.parts.Mantissa = a_half.parts.Mantissa << 13;
-			o.parts.Exponent = 127 - 15 + a_half.parts.Exponent;
-			o.parts.Sign = a_half.parts.Sign;
-		}
-	}
-
-	return o;
-}
-
-// END OF vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)
 //==============================================================================
 
 // Matrix for full range YUV
@@ -149,27 +101,4 @@ vsedit::RGB32 vsedit::yuvToRgb32(vsedit::FP16 a_y, vsedit::FP16 a_u,
 
 // END OF vsedit::RGB32 vsedit::yuvToRgb32(vsedit::FP16 a_y, vsedit::FP16 a_u,
 //		vsedit::FP16 a_v)
-//==============================================================================
-
-float vsedit::bicubicWeight(float a_distance, float a_alpha)
-{
-	float t = std::abs(a_distance);
-	float t2 = t * t;
-	float t3 = t2 * t;
-
-	if(t <= 1.0f)
-	{
-		return (a_alpha + 2.0f) * t3 -
-			(a_alpha + 3.0f) * t2 + 1.0f;
-	}
-	else if(t < 2.0f)
-	{
-		return a_alpha * t3 - 5.0f * a_alpha * t2 +
-			8.0f * a_alpha * t - 4.0f * a_alpha;
-	}
-
-	return 0.0f;
-}
-
-// END OF float vsedit::bicubicWeight(float a_distance, float a_alpha)
 //==============================================================================

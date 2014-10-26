@@ -121,3 +121,50 @@ QTime vsedit::secondsToQTime(double a_seconds)
 
 // END OF QTime vsedit::secondsToQTime(double a_seconds)
 //==============================================================================
+
+vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)
+{
+	FP32 o = { 0 };
+
+	// From ISPC ref code
+	if (a_half.parts.Exponent == 0 && a_half.parts.Mantissa == 0)
+		// (Signed) zero
+		o.parts.Sign = a_half.parts.Sign;
+	else
+	{
+		if (a_half.parts.Exponent == 0) // Denormal (will convert to normalized)
+		{
+			// Adjust mantissa so it's normalized (and keep track of exp adjust)
+			int e = -1;
+			unsigned int m = a_half.parts.Mantissa;
+			do
+			{
+				e++;
+				m <<= 1;
+			} while ((m & 0x400) == 0);
+
+			o.parts.Mantissa = (m & 0x3ff) << 13;
+			o.parts.Exponent = 127 - 15 - e;
+			o.parts.Sign = a_half.parts.Sign;
+		}
+		else if (a_half.parts.Exponent == 0x1f) // Inf/NaN
+		{
+			// NOTE: It's safe to treat both with the same code path
+			// by just truncating lower Mantissa bits in NaNs (this is valid).
+			o.parts.Mantissa = a_half.parts.Mantissa << 13;
+			o.parts.Exponent = 255;
+			o.parts.Sign = a_half.parts.Sign;
+		}
+		else // Normalized number
+		{
+			o.parts.Mantissa = a_half.parts.Mantissa << 13;
+			o.parts.Exponent = 127 - 15 + a_half.parts.Exponent;
+			o.parts.Sign = a_half.parts.Sign;
+		}
+	}
+
+	return o;
+}
+
+// END OF vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)
+//==============================================================================

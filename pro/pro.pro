@@ -148,7 +148,10 @@ FORMS += ../src/preview/previewdialog.ui
 FORMS += ../src/mainwindow.ui
 
 HEADERS += ../src/common/helpers.h
-HEADERS += ../src/common/image.h
+HEADERS += ../src/image/yuvtorgb.h
+HEADERS += ../src/image/padimage.h
+HEADERS += ../src/image/resample.h
+HEADERS += ../src/image/resamplefilters.h
 HEADERS += ../src/settings/settingsmanager.h
 HEADERS += ../src/settings/actionshotkeyeditmodel.h
 HEADERS += ../src/settings/itemdelegateforhotkey.h
@@ -168,7 +171,8 @@ HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
 HEADERS += ../src/mainwindow.h
 
 SOURCES += ../src/common/helpers.cpp
-SOURCES += ../src/common/image.cpp
+SOURCES += ../src/image/yuvtorgb.cpp
+SOURCES += ../src/image/resamplefilters.cpp
 SOURCES += ../src/settings/settingsmanager.cpp
 SOURCES += ../src/settings/actionshotkeyeditmodel.cpp
 SOURCES += ../src/settings/itemdelegateforhotkey.cpp
