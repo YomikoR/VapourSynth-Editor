@@ -34,23 +34,23 @@ namespace vsedit
 
 		size_t paddedWidth = a_sourceWidth + 2 * padding;
 
-		float sx;
+		std::vector<double> weight(taps);
+		double sum;
+
+		// Interpolate columns vertically
 		float sy;
-		std::vector<double> wx(taps);
-		std::vector<double> wy(taps);
-		double rowSumm;
-		double result;
 		const T * pSourceLine;
 		std::vector<const T *> ppSourceLine(taps);
-		T * pDestinationLine;
-		const T * pWindowRow;
+		double * pVerticalSums = (double *)
+			malloc(paddedWidth * a_destinationHeight * sizeof(double));
+		double * pVerticalSumsLine = pVerticalSums;
 
 		for(size_t h = 0; h < a_destinationHeight; ++h)
 		{
 			sy = (float)h * ky + shiftY;
 			for(size_t i = 0; i < taps; ++i)
 			{
-				wy[i] = a_cpFilter->weight(
+				weight[i] = a_cpFilter->weight(
 					sy - std::floor(sy + i - windowOverlap));
 			}
 
@@ -62,33 +62,50 @@ namespace vsedit
 				pSourceLine += paddedWidth;
 			}
 
-			pDestinationLine = (T *)pDestinationBase;
-			for(size_t w = 0; w < a_destinationWidth; ++w)
+			for(size_t w = 0; w < paddedWidth; ++w)
 			{
-				sx = (float)w * kx + shiftX;
+				sum = 0.0;
 				for(size_t i = 0; i < taps; ++i)
-				{
-					wx[i] = a_cpFilter->weight(
-						sx - std::floor(sx + i - windowOverlap));
-				}
-
-				result = 0.0f;
-				for(size_t i = 0; i < taps; ++i)
-				{
-					rowSumm = 0;
-					pWindowRow = ppSourceLine[i] + (ptrdiff_t)std::floor(sx -
-						windowOverlap) + padding;
-					for(size_t j = 0; j < taps; ++j)
-						rowSumm += wx[j] * pWindowRow[j];
-					result += wy[i] * rowSumm;
-				}
-
-				clamp(result, a_clampLow, a_clampHigh);
-				pDestinationLine[w] = (T)result;
+					sum += weight[i] * ppSourceLine[i][w];
+				pVerticalSumsLine[w] = sum;
 			}
-			pDestinationBase += a_destinationStride;
+
+			pVerticalSumsLine += paddedWidth;
 		}
 
+		//Interpolate rows horizontally
+		float sx;
+		uint8_t * pDestinationBaseLine;
+		T * pDestinationPoint;
+
+		for(size_t w = 0; w < a_destinationWidth; ++w)
+		{
+			sx = (float)w * kx + shiftX;
+				for(size_t i = 0; i < taps; ++i)
+			{
+				weight[i] = a_cpFilter->weight(
+					sx - std::floor(sx + i - windowOverlap));
+			}
+
+			pVerticalSumsLine = pVerticalSums + padding +
+				(ptrdiff_t)std::floor(sx - windowOverlap);
+			pDestinationBaseLine = pDestinationBase;
+
+			for(size_t h = 0; h < a_destinationHeight; ++h)
+			{
+				pDestinationPoint = (T *)pDestinationBaseLine + w;
+				sum = 0.0;
+				for(size_t i = 0; i < taps; ++i)
+					sum += weight[i] * pVerticalSumsLine[i];
+				clamp(sum, a_clampLow, a_clampHigh);
+				*pDestinationPoint = (T)sum;
+
+				pVerticalSumsLine += paddedWidth;
+				pDestinationBaseLine += a_destinationStride;
+			}
+		}
+
+		free(pVerticalSums);
 		free(pPaddedImage);
 	}
 }
