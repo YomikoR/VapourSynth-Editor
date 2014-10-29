@@ -47,18 +47,18 @@ vsedit::RGB32 vsedit::AbstractYuvToRgbConverter::yuvToRgb32(uint16_t a_y,
 	float l_u = a_u - midValue;
 	float l_v = a_v - midValue;
 
-	float r = l_y * m_ky1 + l_u * m_ku1 + l_v * m_kv1;
-	float g = l_y * m_ky2 + l_u * m_ku2 + l_v * m_kv2;
-	float b = l_y * m_ky3 + l_u * m_ku3 + l_v * m_kv3;
+	float r = (l_y * m_ky1 + l_u * m_ku1 + l_v * m_kv1) / delimiter;
+	float g = (l_y * m_ky2 + l_u * m_ku2 + l_v * m_kv2) / delimiter;
+	float b = (l_y * m_ky3 + l_u * m_ku3 + l_v * m_kv3) / delimiter;
 
-	clamp(r, 0.0f, maxValue);
-	clamp(g, 0.0f, maxValue);
-	clamp(b, 0.0f, maxValue);
+	clamp(r, 0.0f, 255.0f);
+	clamp(g, 0.0f, 255.0f);
+	clamp(b, 0.0f, 255.0f);
 
 	vsedit::RGB32 rgbOut;
-	rgbOut.parts.r = r / delimiter;
-	rgbOut.parts.g = g / delimiter;
-	rgbOut.parts.b = b / delimiter;
+	rgbOut.parts.r = r;
+	rgbOut.parts.g = g;
+	rgbOut.parts.b = b;
 	rgbOut.parts.x = 255;
 	return rgbOut;
 }
@@ -70,18 +70,18 @@ vsedit::RGB32 vsedit::AbstractYuvToRgbConverter::yuvToRgb32(uint16_t a_y,
 vsedit::RGB32 vsedit::AbstractYuvToRgbConverter::yuvToRgb32(float a_y,
 	float a_u, float a_v)
 {
-	float r = a_y * m_ky1 + a_u * m_ku1 + a_v * m_kv1;
-	float g = a_y * m_ky2 + a_u * m_ku2 + a_v * m_kv2;
-	float b = a_y * m_ky3 + a_u * m_ku3 + a_v * m_kv3;
+	float r = (a_y * m_ky1 + a_u * m_ku1 + a_v * m_kv1) * 255.0f;
+	float g = (a_y * m_ky2 + a_u * m_ku2 + a_v * m_kv2) * 255.0f;
+	float b = (a_y * m_ky3 + a_u * m_ku3 + a_v * m_kv3) * 255.0f;
 
-	clamp(r, 0.0f, 1.0f);
-	clamp(g, 0.0f, 1.0f);
-	clamp(b, 0.0f, 1.0f);
+	clamp(r, 0.0f, 255.0f);
+	clamp(g, 0.0f, 255.0f);
+	clamp(b, 0.0f, 255.0f);
 
 	vsedit::RGB32 rgbOut;
-	rgbOut.parts.r = r * 255.0f;
-	rgbOut.parts.g = g * 255.0f;
-	rgbOut.parts.b = b * 255.0f;
+	rgbOut.parts.r = r;
+	rgbOut.parts.g = g;
+	rgbOut.parts.b = b;
 	rgbOut.parts.x = 255;
 	return rgbOut;
 }
