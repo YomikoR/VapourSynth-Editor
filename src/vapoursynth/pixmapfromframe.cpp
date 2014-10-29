@@ -210,7 +210,8 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 	{
 		for(size_t w = 0; w < (size_t)widthY; ++w)
 		{
-			image[i] = vsedit::yuvToRgb32(cpReadY[w], cpReadU[w], cpReadV[w]);
+			image[i] = m_pYuvToRgbConverter->yuvToRgb32(cpReadY[w], cpReadU[w],
+				cpReadV[w]);
 			i++;
 		}
 		cpReadY += strideY;
@@ -288,8 +289,8 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 		cpLineV = (const uint16_t *)cpReadV;
 		for(size_t w = 0; w < (size_t)widthY; ++w)
 		{
-			image[i] = vsedit::yuvToRgb32(cpLineY[w], cpLineU[w], cpLineV[w],
-				bitsPerSample);
+			image[i] = m_pYuvToRgbConverter->yuvToRgb32(cpLineY[w], cpLineU[w],
+				cpLineV[w], bitsPerSample);
 			i++;
 		}
 		cpReadY += strideY;
@@ -341,7 +342,7 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
 			halfY.u = cpLineY[w];
 			halfU.u = cpLineU[w >> subSamplingW];
 			halfV.u = cpLineV[w >> subSamplingW];
-			image[i] = vsedit::yuvToRgb32(halfY, halfU, halfV);
+			image[i] = m_pYuvToRgbConverter->yuvToRgb32(halfY, halfU, halfV);
 			i++;
 		}
 	}
@@ -410,7 +411,8 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 		cpLineV = (const float *)cpReadV;
 		for(size_t w = 0; w < (size_t)widthY; ++w)
 		{
-			image[i] = vsedit::yuvToRgb32(cpLineY[w], cpLineU[w], cpLineV[w]);
+			image[i] = m_pYuvToRgbConverter->yuvToRgb32(cpLineY[w], cpLineU[w],
+				cpLineV[w]);
 			i++;
 		}
 		cpReadY += strideY;
@@ -688,13 +690,17 @@ QPixmap VapourSynthScriptProcessor::pixmapFromCompatYUY2(
 		{
 			if(w & 1)
 			{
-				image[i] = vsedit::yuvToRgb32(cpLine[w >> 1].parts.y1,
-					cpLine[w >> 1].parts.u, cpLine[w >> 1].parts.v);
+				image[i] = m_pYuvToRgbConverter->yuvToRgb32(
+					cpLine[w >> 1].parts.y1,
+					cpLine[w >> 1].parts.u,
+					cpLine[w >> 1].parts.v);
 			}
 			else
 			{
-				image[i] = vsedit::yuvToRgb32(cpLine[w >> 1].parts.y0,
-					cpLine[w >> 1].parts.u, cpLine[w >> 1].parts.v);
+				image[i] = m_pYuvToRgbConverter->yuvToRgb32(
+					cpLine[w >> 1].parts.y0,
+					cpLine[w >> 1].parts.u,
+					cpLine[w >> 1].parts.v);
 			}
 			i++;
 		}

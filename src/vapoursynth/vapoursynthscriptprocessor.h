@@ -6,6 +6,7 @@
 #include <vapoursynth/VSScript.h>
 
 #include "../image/resamplefilters.h"
+#include "../image/yuvtorgb.h"
 
 class VapourSynthScriptProcessor : public QObject
 {
@@ -86,6 +87,8 @@ class VapourSynthScriptProcessor : public QObject
 		const VSFrameRef * m_cpCurrentFrameRef;
 
 		vsedit::AbstractResampleLinearFilter * m_pResampleLinearFilter;
+
+		vsedit::AbstractYuvToRgbConverter * m_pYuvToRgbConverter;
 
 };
 

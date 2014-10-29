@@ -20,24 +20,6 @@ namespace vsedit
 		} parts;
 	};
 
-	extern const float ky1;
-	extern const float ku1;
-	extern const float kv1;
-	extern const float ky2;
-	extern const float ku2;
-	extern const float kv2;
-	extern const float ky3;
-	extern const float ku3;
-	extern const float kv3;
-
-	RGB32 yuvToRgb32(uint8_t a_y, uint8_t a_u, uint8_t a_v);
-	RGB32 yuvToRgb32(uint16_t a_y, uint16_t a_u, uint16_t a_v,
-		int a_bitsPerSample);
-	RGB32 yuvToRgb32(float a_y, float a_u, float a_v);
-	RGB32 yuvToRgb32(FP16 a_y, FP16 a_u, FP16 a_v);
-
-	//--------------------------------------------------------------------------
-
 	union YUY2
 	{
 		uint32_t u;
@@ -48,6 +30,50 @@ namespace vsedit
 			uint8_t y1;
 			uint8_t v;
 		} parts;
+	};
+
+	class AbstractYuvToRgbConverter
+	{
+		public:
+
+			virtual ~AbstractYuvToRgbConverter();
+
+			RGB32 yuvToRgb32(uint8_t a_y, uint8_t a_u, uint8_t a_v);
+			RGB32 yuvToRgb32(uint16_t a_y, uint16_t a_u, uint16_t a_v,
+				int a_bitsPerSample);
+			RGB32 yuvToRgb32(float a_y, float a_u, float a_v);
+			RGB32 yuvToRgb32(FP16 a_y, FP16 a_u, FP16 a_v);
+
+		protected:
+
+			uint16_t m_ay; // Luma lower boundary
+			float m_ky1;
+			float m_ku1;
+			float m_kv1;
+			float m_ky2;
+			float m_ku2;
+			float m_kv2;
+			float m_ky3;
+			float m_ku3;
+			float m_kv3;
+	};
+
+	class YuvToRgbConverterBt601 : public AbstractYuvToRgbConverter
+	{
+		public:
+			YuvToRgbConverterBt601();
+	};
+
+	class YuvToRgbConverterBt709 : public AbstractYuvToRgbConverter
+	{
+		public:
+			YuvToRgbConverterBt709();
+	};
+
+	class YuvToRgbConverterFullRange : public AbstractYuvToRgbConverter
+	{
+		public:
+			YuvToRgbConverterFullRange();
 	};
 
 }
