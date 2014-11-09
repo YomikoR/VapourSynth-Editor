@@ -17,8 +17,8 @@ namespace vsedit
 		size_t a_destinationHeight, ptrdiff_t a_destinationStride,
 		T a_clampLow, T a_clampHigh)
 	{
-		const float shiftX = -0.25f;
-		const float shiftY = -0.25f;
+		const float shiftX = 0.0f;
+		const float shiftY = 0.0f;
 		size_t taps = a_cpFilter->taps();
 		size_t windowOverlap = (size_t)std::ceil(
 			(float)taps / 2.0f - 1.0f);
