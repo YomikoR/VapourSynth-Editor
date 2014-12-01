@@ -281,7 +281,7 @@
 		<Extensions>
 			<code_completion>
 				<search_path add="E:\SDK\qt5-x64\include\QtCore" />
-				<search_path add="$(PROJECT_DIR)/gererated/ui" />
+				<search_path add="generated/ui" />
 				<search_path add="E:\SDK\qt5-x64\include\QtGui" />
 				<search_path add="E:\SDK\qt5-x64\include\QtWidgets" />
 				<search_path add="C:\Program Files (x86)\VapourSynth\sdk\include" />
