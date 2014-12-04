@@ -5,8 +5,11 @@
 #include <QPixmap>
 #include <vapoursynth/VSScript.h>
 
-#include "../image/resamplefilters.h"
-#include "../image/yuvtorgb.h"
+namespace vsedit
+{
+	class Resampler;
+	class AbstractYuvToRgbConverter;
+}
 
 class VapourSynthScriptProcessor : public QObject
 {
@@ -86,9 +89,9 @@ class VapourSynthScriptProcessor : public QObject
 
 		const VSFrameRef * m_cpCurrentFrameRef;
 
-		vsedit::AbstractResampleLinearFilter * m_pResampleLinearFilter;
-
 		vsedit::AbstractYuvToRgbConverter * m_pYuvToRgbConverter;
+
+		vsedit::Resampler * m_pResampler;
 
 };
 

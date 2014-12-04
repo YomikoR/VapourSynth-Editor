@@ -3,6 +3,9 @@
 
 #include "vapoursynthscriptprocessor.h"
 
+#include "../image/yuvtorgb.h"
+#include "../image/resample.h"
+
 //==============================================================================
 
 void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
@@ -30,13 +33,11 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(QObject * a_pParent):
 	, m_cpVideoInfo(nullptr)
 	, m_currentFrame(0)
 	, m_cpCurrentFrameRef(nullptr)
-	, m_pResampleLinearFilter(nullptr)
 	, m_pYuvToRgbConverter(nullptr)
+	, m_pResampler(nullptr)
 {
-	double a = 1.0 / 3.0;
-	m_pResampleLinearFilter = new vsedit::CubicResampleFilter(a, a);
-
 	m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterBt709();
+	m_pResampler = new vsedit::Resampler();
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -48,11 +49,11 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 	if(m_initialized)
 		finalize();
 
-	if(m_pResampleLinearFilter)
-		delete(m_pResampleLinearFilter);
-
 	if(m_pYuvToRgbConverter)
 		delete(m_pYuvToRgbConverter);
+
+	if(m_pResampler)
+		delete(m_pResampler);
 }
 
 // END OF VapourSynthScriptProcessor::~VapourSynthScriptProcessor()

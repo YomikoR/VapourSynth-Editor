@@ -1,8 +1,10 @@
+#include "vapoursynthscriptprocessor.h"
+
 #include "../common/helpers.h"
 #include "../image/yuvtorgb.h"
 #include "../image/resample.h"
 
-#include "vapoursynthscriptprocessor.h"
+#include <vapoursynth/VSHelper.h>
 
 //==============================================================================
 
@@ -186,22 +188,30 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 
 	if((widthU != widthY) || (heightU != heightY))
 	{
-		pUpsampledU = (uint8_t *)malloc(heightY * widthY);
-		vsedit::resampleImageLinear(m_pResampleLinearFilter,
-			cpReadU, widthU, heightU, strideU, pUpsampledU,
-			widthY, heightY, widthY, clampLow, clampHigh);
+		pUpsampledU = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
+		assert(pUpsampledU);
+
+		m_pResampler->resample(cpReadU, widthU, heightU, strideU,
+			pUpsampledU, widthY, heightY, strideY, ZIMG_PIXEL_BYTE,
+			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			(float)clampLow, (float)clampHigh);
+
 		cpReadU = pUpsampledU;
-		strideU = widthY;
+		strideU = strideY;
 	}
 
 	if((widthV != widthY) || (heightV != heightY))
 	{
-		pUpsampledV = (uint8_t *)malloc(heightY * widthY);
-		vsedit::resampleImageLinear(m_pResampleLinearFilter,
-			cpReadV, widthV, heightV, strideV, pUpsampledV,
-			widthY, heightY, widthY, clampLow, clampHigh);
+		pUpsampledV = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
+		assert(pUpsampledV);
+
+		m_pResampler->resample(cpReadV, widthV, heightV, strideV,
+			pUpsampledV, widthY, heightY, strideY, ZIMG_PIXEL_BYTE,
+			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			(float)clampLow, (float)clampHigh);
+
 		cpReadV = pUpsampledV;
-		strideV = widthY;
+		strideV = strideY;
 	}
 
 	std::vector<vsedit::RGB32> image(widthY * heightY);
@@ -220,9 +230,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 	}
 
 	if(pUpsampledU)
-		free(pUpsampledU);
+		vs_aligned_free(pUpsampledU);
 	if(pUpsampledV)
-		free(pUpsampledV);
+		vs_aligned_free(pUpsampledV);
 
 	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
@@ -252,29 +262,37 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 	int bitsPerSample = m_cpVideoInfo->format->bitsPerSample;
 
-	uint16_t * pUpsampledU = nullptr;
-	uint16_t * pUpsampledV = nullptr;
+	uint8_t * pUpsampledU = nullptr;
+	uint8_t * pUpsampledV = nullptr;
 	uint16_t clampLow = 0;
 	uint16_t clampHigh = (1ul << bitsPerSample) - 1ul;
 
 	if((widthU != widthY) || (heightU != heightY))
 	{
-		pUpsampledU = (uint16_t *)malloc(heightY * widthY * 2);
-		vsedit::resampleImageLinear(m_pResampleLinearFilter,
-			(const uint16_t *)cpReadU, widthU, heightU, strideU, pUpsampledU,
-			widthY, heightY, widthY * 2, clampLow, clampHigh);
-		cpReadU = (const uint8_t *)pUpsampledU;
-		strideU = widthY * 2;
+		pUpsampledU = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
+		assert(pUpsampledU);
+
+		m_pResampler->resample(cpReadU, widthU, heightU, strideU,
+			pUpsampledU, widthY, heightY, strideY, ZIMG_PIXEL_WORD,
+			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			(float)clampLow, (float)clampHigh);
+
+		cpReadU = pUpsampledU;
+		strideU = strideY;
 	}
 
 	if((widthV != widthY) || (heightV != heightY))
 	{
-		pUpsampledV = (uint16_t *)malloc(heightY * widthY * 2);
-		vsedit::resampleImageLinear(m_pResampleLinearFilter,
-			(const uint16_t *)cpReadV, widthV, heightV, strideV, pUpsampledV,
-			widthY, heightY, widthY * 2, clampLow, clampHigh);
-		cpReadV = (const uint8_t *)pUpsampledV;
-		strideV = widthY * 2;
+		pUpsampledV = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
+		assert(pUpsampledV);
+
+		m_pResampler->resample(cpReadV, widthV, heightV, strideV,
+			pUpsampledV, widthY, heightY, strideY, ZIMG_PIXEL_WORD,
+			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			(float)clampLow, (float)clampHigh);
+
+		cpReadV = pUpsampledV;
+		strideV = strideY;
 	}
 
 	std::vector<vsedit::RGB32> image(widthY * heightY);
@@ -299,9 +317,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	}
 
 	if(pUpsampledU)
-		free(pUpsampledU);
+		vs_aligned_free(pUpsampledU);
 	if(pUpsampledV)
-		free(pUpsampledV);
+		vs_aligned_free(pUpsampledV);
 
 	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
@@ -374,29 +392,37 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
 	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
 
-	float * pUpsampledU = nullptr;
-	float * pUpsampledV = nullptr;
+	uint8_t * pUpsampledU = nullptr;
+	uint8_t * pUpsampledV = nullptr;
 	float clampLow = -0.5f;
 	float clampHigh = 0.5f;
 
 	if((widthU != widthY) || (heightU != heightY))
 	{
-		pUpsampledU = (float *)malloc(heightY * widthY * 4);
-		vsedit::resampleImageLinear(m_pResampleLinearFilter,
-			(const float *)cpReadU, widthU, heightU, strideU, pUpsampledU,
-			widthY, heightY, widthY * 4, clampLow, clampHigh);
-		cpReadU = (const uint8_t *)pUpsampledU;
-		strideU = widthY * 4;
+		pUpsampledU = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
+		assert(pUpsampledU);
+
+		m_pResampler->resample(cpReadU, widthU, heightU, strideU,
+			pUpsampledU, widthY, heightY, strideY, ZIMG_PIXEL_FLOAT,
+			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			clampLow, clampHigh);
+
+		cpReadU = pUpsampledU;
+		strideU = strideY;
 	}
 
 	if((widthV != widthY) || (heightV != heightY))
 	{
-		pUpsampledV = (float *)malloc(heightY * widthY * 4);
-		vsedit::resampleImageLinear(m_pResampleLinearFilter,
-			(const float *)cpReadV, widthV, heightV, strideV, pUpsampledV,
-			widthY, heightY, widthY * 4, clampLow, clampHigh);
-		cpReadV = (const uint8_t *)pUpsampledV;
-		strideV = widthY * 4;
+		pUpsampledV = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
+		assert(pUpsampledV);
+
+		m_pResampler->resample(cpReadV, widthV, heightV, strideV,
+			pUpsampledV, widthY, heightY, strideY, ZIMG_PIXEL_FLOAT,
+			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			clampLow, clampHigh);
+
+		cpReadV = pUpsampledV;
+		strideV = strideY;
 	}
 
 	std::vector<vsedit::RGB32> image(widthY * heightY);
@@ -421,9 +447,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 	}
 
 	if(pUpsampledU)
-		free(pUpsampledU);
+		vs_aligned_free(pUpsampledU);
 	if(pUpsampledV)
-		free(pUpsampledV);
+		vs_aligned_free(pUpsampledV);
 
 	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
