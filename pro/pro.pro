@@ -6,20 +6,20 @@ CONFIG(debug, debug|release) {
 
 	contains(QMAKE_HOST.arch, x86_64) {
 		contains(QMAKE_COMPILER, gcc) {
-			DESTDIR = ../build/debug
-			TARGET = vsedit-debug
-			OBJECTS_DIR = ../generated/obj-debug
+			DESTDIR = ../build/debug-64bit-gcc
+			TARGET = vsedit-debug-64bit-gcc
+			OBJECTS_DIR = ../generated/obj-debug-64bit-gcc
 		}
 		contains(QMAKE_COMPILER, msvc) {
-			DESTDIR = ../build/debug-msvc
-			TARGET = vsedit-debug-msvc
-			OBJECTS_DIR = ../generated/obj-debug-msvc
+			DESTDIR = ../build/debug-64bit-msvc
+			TARGET = vsedit-debug-64bit-msvc
+			OBJECTS_DIR = ../generated/obj-debug-64bit-msvc
 		}
 	} else {
 		contains(QMAKE_COMPILER, gcc) {
-			DESTDIR = ../build/debug-32bit
-			TARGET = vsedit-debug-32bit
-			OBJECTS_DIR = ../generated/obj-debug-32bit
+			DESTDIR = ../build/debug-32bit-gcc
+			TARGET = vsedit-debug-32bit-gcc
+			OBJECTS_DIR = ../generated/obj-debug-32bit-gcc
 		}
 		contains(QMAKE_COMPILER, msvc) {
 			DESTDIR = ../build/debug-32bit-msvc
@@ -46,25 +46,25 @@ CONFIG(debug, debug|release) {
 
 	contains(QMAKE_HOST.arch, x86_64) {
 		contains(QMAKE_COMPILER, gcc) {
-			DESTDIR = ../build/bin
+			DESTDIR = ../build/release-64bit-gcc
 			TARGET = vsedit
-			OBJECTS_DIR = ../generated/obj
+			OBJECTS_DIR = ../generated/obj-release-64bit-gcc
 		}
 		contains(QMAKE_COMPILER, msvc) {
-			DESTDIR = ../build/bin-msvc
+			DESTDIR = ../build/release-64bit-msvc
 			TARGET = vsedit
-			OBJECTS_DIR = ../generated/obj-msvc
+			OBJECTS_DIR = ../generated/obj-release-64bit-msvc
 		}
 	} else {
 		contains(QMAKE_COMPILER, gcc) {
-			DESTDIR = ../build/bin-32bit
+			DESTDIR = ../build/release-32bit-gcc
 			TARGET = vsedit-32bit
-			OBJECTS_DIR = ../generated/obj-32bit
+			OBJECTS_DIR = ../generated/obj-release-32bit-gcc
 		}
 		contains(QMAKE_COMPILER, msvc) {
-			DESTDIR = ../build/bin-32bit-msvc
+			DESTDIR = ../build/release-32bit-msvc
 			TARGET = vsedit-32bit
-			OBJECTS_DIR = ../generated/obj-32bit-msvc
+			OBJECTS_DIR = ../generated/obj-release-32bit-msvc
 		}
 	}
 
