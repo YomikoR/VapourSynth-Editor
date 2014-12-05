@@ -3,6 +3,8 @@
 
 #include "../image/zimg/API/zimg.h"
 
+#include <QString>
+
 namespace vsedit
 {
 
@@ -33,6 +35,8 @@ namespace vsedit
 				float a_clampMin,
 				float a_clampMax);
 
+			const QString & getError() const;
+
 		private:
 
 			int m_sourceWidth;
@@ -53,6 +57,8 @@ namespace vsedit
 			int m_outFloatStride;
 			void * m_pResizeTempBuffer;
 			size_t m_resizeTempBufferSize;
+
+			QString m_error;
 
 	};
 

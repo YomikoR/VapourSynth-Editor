@@ -189,12 +189,26 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 	if((widthU != widthY) || (heightU != heightY))
 	{
 		pUpsampledU = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
-		assert(pUpsampledU);
+		if(!pUpsampledU)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			return QPixmap();
+		}
 
-		m_pResampler->resample(cpReadU, widthU, heightU, strideU,
+		bool success = m_pResampler->resample(cpReadU, widthU, heightU, strideU,
 			pUpsampledU, widthY, heightY, strideY, ZIMG_PIXEL_BYTE,
 			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
 			(float)clampLow, (float)clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
 
 		cpReadU = pUpsampledU;
 		strideU = strideY;
@@ -203,12 +217,30 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 	if((widthV != widthY) || (heightV != heightY))
 	{
 		pUpsampledV = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
-		assert(pUpsampledV);
+		if(!pUpsampledV)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			if(pUpsampledU)
+				vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
 
-		m_pResampler->resample(cpReadV, widthV, heightV, strideV,
+		bool success = m_pResampler->resample(cpReadV, widthV, heightV, strideV,
 			pUpsampledV, widthY, heightY, strideY, ZIMG_PIXEL_BYTE,
 			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
 			(float)clampLow, (float)clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			if(pUpsampledU)
+				vs_aligned_free(pUpsampledU);
+			vs_aligned_free(pUpsampledV);
+			return QPixmap();
+		}
 
 		cpReadV = pUpsampledV;
 		strideV = strideY;
@@ -270,12 +302,26 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	if((widthU != widthY) || (heightU != heightY))
 	{
 		pUpsampledU = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
-		assert(pUpsampledU);
+		if(!pUpsampledU)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			return QPixmap();
+		}
 
-		m_pResampler->resample(cpReadU, widthU, heightU, strideU,
+		bool success = m_pResampler->resample(cpReadU, widthU, heightU, strideU,
 			pUpsampledU, widthY, heightY, strideY, ZIMG_PIXEL_WORD,
 			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
 			(float)clampLow, (float)clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
 
 		cpReadU = pUpsampledU;
 		strideU = strideY;
@@ -284,12 +330,30 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	if((widthV != widthY) || (heightV != heightY))
 	{
 		pUpsampledV = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
-		assert(pUpsampledV);
+		if(!pUpsampledV)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			if(pUpsampledU)
+				vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
 
-		m_pResampler->resample(cpReadV, widthV, heightV, strideV,
+		bool success = m_pResampler->resample(cpReadV, widthV, heightV, strideV,
 			pUpsampledV, widthY, heightY, strideY, ZIMG_PIXEL_WORD,
 			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
 			(float)clampLow, (float)clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			if(pUpsampledU)
+				vs_aligned_free(pUpsampledU);
+			vs_aligned_free(pUpsampledV);
+			return QPixmap();
+		}
 
 		cpReadV = pUpsampledV;
 		strideV = strideY;
@@ -400,12 +464,26 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 	if((widthU != widthY) || (heightU != heightY))
 	{
 		pUpsampledU = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
-		assert(pUpsampledU);
+		if(!pUpsampledU)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			return QPixmap();
+		}
 
-		m_pResampler->resample(cpReadU, widthU, heightU, strideU,
+		bool success = m_pResampler->resample(cpReadU, widthU, heightU, strideU,
 			pUpsampledU, widthY, heightY, strideY, ZIMG_PIXEL_FLOAT,
 			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
 			clampLow, clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
 
 		cpReadU = pUpsampledU;
 		strideU = strideY;
@@ -414,12 +492,30 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 	if((widthV != widthY) || (heightV != heightY))
 	{
 		pUpsampledV = vs_aligned_malloc<uint8_t>(heightY * strideY, 32);
-		assert(pUpsampledV);
+		if(!pUpsampledV)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			if(pUpsampledU)
+				vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
 
-		m_pResampler->resample(cpReadV, widthV, heightV, strideV,
+		bool success = m_pResampler->resample(cpReadV, widthV, heightV, strideV,
 			pUpsampledV, widthY, heightY, strideY, ZIMG_PIXEL_FLOAT,
 			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
 			clampLow, clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			if(pUpsampledU)
+				vs_aligned_free(pUpsampledU);
+			vs_aligned_free(pUpsampledV);
+			return QPixmap();
+		}
 
 		cpReadV = pUpsampledV;
 		strideV = strideY;

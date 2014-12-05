@@ -5,6 +5,9 @@
 #include <vapoursynth/VSHelper.h>
 
 #include <cassert>
+#include <vector>
+
+#define ERROR_STRING_SIZE 2048
 
 //==============================================================================
 
@@ -26,6 +29,7 @@ vsedit::Resampler::Resampler():
 	, m_outFloatStride(0)
 	, m_pResizeTempBuffer(nullptr)
 	, m_resizeTempBufferSize(0u)
+	, m_error()
 {
 }
 
@@ -65,6 +69,8 @@ void vsedit::Resampler::clear()
 		vs_aligned_free(m_pResizeTempBuffer);
 		m_pResizeTempBuffer = nullptr;
 	}
+
+	m_error.clear();
 }
 
 // END OF void vsedit::Resampler::clear()
@@ -102,6 +108,15 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 		a_sourceHeight, a_destinationWidth, a_destinationHeight, a_shiftW,
 		a_shiftH, (double)a_sourceWidth, (double)a_sourceHeight,
 		a_filterParamA, a_filterParamB);
+
+		if(!m_pResizeContext)
+		{
+			std::vector<char> zimgErrorString(ERROR_STRING_SIZE);
+			zimg_get_last_error(zimgErrorString.data(), ERROR_STRING_SIZE);
+			m_error = QString("Could not create zimg resize context. %1")
+				.arg(zimgErrorString.data());
+			return false;
+		}
 	}
 
 	//--------------------------------------------------------------------------
@@ -121,7 +136,11 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 	{
 		m_pResizeTempBuffer =
 			vs_aligned_malloc<void>(l_resizeTempBufferSize, 32);
-		assert(m_pResizeTempBuffer);
+		if(!m_pResizeTempBuffer)
+		{
+			m_error = QString("Could not allocate temporary buffer.");
+			return false;
+		}
 
 		m_resizeTempBufferSize = l_resizeTempBufferSize;
 	}
@@ -130,10 +149,19 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 
 	if(a_pixelType == ZIMG_PIXEL_FLOAT)
 	{
-		zimg_resize_process(m_pResizeContext, a_pSource, a_pDestination,
-			m_pResizeTempBuffer, a_sourceWidth, a_sourceHeight,
+		int error = zimg_resize_process(m_pResizeContext, a_pSource,
+			a_pDestination, m_pResizeTempBuffer, a_sourceWidth, a_sourceHeight,
 			a_destinationWidth, a_destinationHeight, a_sourceStride,
 			a_destinationStride, ZIMG_PIXEL_FLOAT);
+
+		if(error)
+		{
+			std::vector<char> zimgErrorString(ERROR_STRING_SIZE);
+			zimg_get_last_error(zimgErrorString.data(), ERROR_STRING_SIZE);
+			m_error = QString("Could not resample the plane. %1")
+				.arg(zimgErrorString.data());
+			return false;
+		}
 	}
 	else
 	{
@@ -156,7 +184,12 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 		{
 			m_pInFloatBuffer = vs_aligned_malloc<void>(
 				l_inFloatStride * a_sourceHeight, 32);
-			assert(m_pInFloatBuffer);
+			if(!m_pInFloatBuffer)
+			{
+				m_error = QString("Could not allocate temporary buffer.");
+				return false;
+			}
+
 			m_inFloatStride = l_inFloatStride;
 		}
 
@@ -179,7 +212,12 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 		{
 			m_pOutFloatBuffer = vs_aligned_malloc<void>(
 				l_outFloatStride * a_destinationHeight, 32);
-			assert(m_pOutFloatBuffer);
+			if(!m_pOutFloatBuffer)
+			{
+				m_error = QString("Could not allocate temporary buffer.");
+				return false;
+			}
+
 			m_outFloatStride = l_outFloatStride;
 		}
 
@@ -226,10 +264,19 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 		//----------------------------------------------------------------------
 		// Resample
 
-		zimg_resize_process(m_pResizeContext, m_pInFloatBuffer,
+		int error = zimg_resize_process(m_pResizeContext, m_pInFloatBuffer,
 			m_pOutFloatBuffer, m_pResizeTempBuffer, a_sourceWidth,
 			a_sourceHeight, a_destinationWidth, a_destinationHeight,
 			m_inFloatStride, m_outFloatStride, ZIMG_PIXEL_FLOAT);
+
+		if(error)
+		{
+			std::vector<char> zimgErrorString(ERROR_STRING_SIZE);
+			zimg_get_last_error(zimgErrorString.data(), ERROR_STRING_SIZE);
+			m_error = QString("Could not resample the plane. %1")
+				.arg(zimgErrorString.data());
+			return false;
+		}
 
 		//----------------------------------------------------------------------
 		// Copy output float buffer to destination with clamping
@@ -286,6 +333,7 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 	m_filterParamA = a_filterParamA;
 	m_filterParamB = a_filterParamB;
 
+	m_error.clear();
 	return true;
 }
 
@@ -295,4 +343,12 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 //		int a_destinationStride, int a_pixelType, double a_shiftW,
 //		double a_shiftH, int a_filterType, double a_filterParamA,
 //		double a_filterParamB, float a_clampMin, float a_clampMax)
+//==============================================================================
+
+const QString & vsedit::Resampler::getError() const
+{
+	return m_error;
+}
+
+// END OF const QString & vsedit::Resampler::getError() const
 //==============================================================================
