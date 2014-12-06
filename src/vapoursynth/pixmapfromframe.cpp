@@ -399,40 +399,237 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
 	const VSFrameRef * a_cpFrameRef)
 {
-	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int widthY = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int heightY = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int widthU = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 1);
+	int heightU = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 1);
+	int widthV = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 2);
+	int heightV = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 2);
 	const uint8_t * cpReadY = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
 	const uint8_t * cpReadU = m_cpVSAPI->getReadPtr(a_cpFrameRef, 1);
 	const uint8_t * cpReadV = m_cpVSAPI->getReadPtr(a_cpFrameRef, 2);
 	int strideY = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 	int strideU = m_cpVSAPI->getStride(a_cpFrameRef, 1);
 	int strideV = m_cpVSAPI->getStride(a_cpFrameRef, 2);
-	int subSamplingW = m_cpVideoInfo->format->subSamplingW;
-	int subSamplingH = m_cpVideoInfo->format->subSamplingH;
 
-	std::vector<vsedit::RGB32> image(width * height);
-	size_t i = 0;
-	const uint16_t *cpLineY, *cpLineU, *cpLineV;
-	vsedit::FP16 halfY, halfU, halfV;
-	for(size_t h = 0; h < (size_t)height; ++h)
+	int upsampledFloatRowLength = widthY * sizeof(float);
+	int upsampledFloatStride = (upsampledFloatRowLength / 32) * 32;
+	if(upsampledFloatRowLength % 32)
+		upsampledFloatStride += 32;
+	size_t upsampledFloatBufferSize = upsampledFloatStride * heightY;
+
+	//--------------------------------------------------------------------------
+	// Convert Y-plane to float
+
+	uint8_t * pFloatY =
+		vs_aligned_malloc<uint8_t>(upsampledFloatBufferSize, 32);
+	if(!pFloatY)
 	{
-		cpLineY = (const uint16_t *)(cpReadY + strideY * h);
-		cpLineU = (const uint16_t *)(cpReadU + strideU * (h >> subSamplingH));
-		cpLineV = (const uint16_t *)(cpReadV + strideV * (h >> subSamplingH));
-		for(size_t w = 0; w < (size_t)width; ++w)
-		{
-			halfY.u = cpLineY[w];
-			halfU.u = cpLineU[w >> subSamplingW];
-			halfV.u = cpLineV[w >> subSamplingW];
-			image[i] = m_pYuvToRgbConverter->yuvToRgb32(halfY, halfU, halfV);
-			i++;
-		}
+		emit signalWriteLogMessage(mtCritical, QString(
+		"Error while creating pixmap for frame.\n"
+		"Could not allocate temporary buffer."));
+		return QPixmap();
 	}
 
-	QImage frameImage((const uchar *)image.data(), width, height,
+	uint8_t * pByteLine = pFloatY;
+	const uint16_t * cpHalfLine;
+	float * pFloatLine;
+	vsedit::FP16 halfValue;
+
+	for(int h = 0; h < heightY; ++h)
+	{
+		cpHalfLine = (const uint16_t *)cpReadY;
+		pFloatLine = (float *)pByteLine;
+
+		for(int w = 0; w < widthY; ++w)
+		{
+			halfValue.u = cpHalfLine[w];
+			pFloatLine[w] = vsedit::halfToSingle(halfValue).f;
+		}
+
+		cpReadY += strideY;
+		pByteLine += upsampledFloatStride;
+	}
+
+	float clampLow = -0.5f;
+	float clampHigh = 0.5f;
+
+	//--------------------------------------------------------------------------
+	// Convert U-plane to float
+
+	int floatRowLengthU = widthU * sizeof(float);
+	int floatStrideU = (floatRowLengthU / 32) * 32;
+	if(floatRowLengthU % 32)
+		floatStrideU += 32;
+
+	uint8_t * pFloatU = vs_aligned_malloc<uint8_t>(floatStrideU * heightU, 32);
+	if(!pFloatU)
+	{
+		emit signalWriteLogMessage(mtCritical, QString(
+		"Error while creating pixmap for frame.\n"
+		"Could not allocate temporary buffer."));
+		vs_aligned_free(pFloatY);
+		return QPixmap();
+	}
+
+	pByteLine = pFloatU;
+
+	for(int h = 0; h < heightU; ++h)
+	{
+		cpHalfLine = (const uint16_t *)cpReadU;
+		pFloatLine = (float *)pByteLine;
+
+		for(int w = 0; w < widthU; ++w)
+		{
+			halfValue.u = cpHalfLine[w];
+			pFloatLine[w] = vsedit::halfToSingle(halfValue).f;
+		}
+
+		cpReadU += strideU;
+		pByteLine += floatStrideU;
+	}
+
+	if((widthU != widthY) || (heightU != heightY))
+	{
+		uint8_t * pUpsampledU =
+			vs_aligned_malloc<uint8_t>(upsampledFloatBufferSize, 32);
+		if(!pUpsampledU)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			vs_aligned_free(pFloatY);
+			vs_aligned_free(pFloatU);
+			return QPixmap();
+		}
+
+		bool success = m_pResampler->resample(pFloatU, widthU, heightU,
+			floatStrideU, pUpsampledU, widthY, heightY, upsampledFloatStride,
+			ZIMG_PIXEL_FLOAT, 0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			(float)clampLow, (float)clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			vs_aligned_free(pFloatY);
+			vs_aligned_free(pFloatU);
+			vs_aligned_free(pUpsampledU);
+			return QPixmap();
+		}
+
+		vs_aligned_free(pFloatU);
+		pFloatU = pUpsampledU;
+	}
+
+	//--------------------------------------------------------------------------
+	// Convert V-plane to float
+
+	int floatRowLengthV = widthV * sizeof(float);
+	int floatStrideV = (floatRowLengthV / 32) * 32;
+	if(floatRowLengthV % 32)
+		floatStrideV += 32;
+
+	uint8_t * pFloatV = vs_aligned_malloc<uint8_t>(floatStrideV * heightV, 32);
+	if(!pFloatV)
+	{
+		emit signalWriteLogMessage(mtCritical, QString(
+		"Error while creating pixmap for frame.\n"
+		"Could not allocate temporary buffer."));
+		vs_aligned_free(pFloatY);
+		vs_aligned_free(pFloatU);
+		return QPixmap();
+	}
+
+	pByteLine = pFloatV;
+
+	for(int h = 0; h < heightV; ++h)
+	{
+		cpHalfLine = (const uint16_t *)cpReadV;
+		pFloatLine = (float *)pByteLine;
+
+		for(int w = 0; w < widthV; ++w)
+		{
+			halfValue.u = cpHalfLine[w];
+			pFloatLine[w] = vsedit::halfToSingle(halfValue).f;
+		}
+
+		cpReadV += strideV;
+		pByteLine += floatStrideV;
+	}
+
+	if((widthV != widthY) || (heightV != heightY))
+	{
+		uint8_t * pUpsampledV =
+			vs_aligned_malloc<uint8_t>(upsampledFloatBufferSize, 32);
+		if(!pUpsampledV)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"Could not allocate temporary buffer."));
+			vs_aligned_free(pFloatY);
+			vs_aligned_free(pFloatU);
+			vs_aligned_free(pFloatV);
+			return QPixmap();
+		}
+
+		bool success = m_pResampler->resample(pFloatV, widthV, heightV,
+			floatStrideV, pUpsampledV, widthY, heightY, upsampledFloatStride,
+			ZIMG_PIXEL_FLOAT, 0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			(float)clampLow, (float)clampHigh);
+		if(!success)
+		{
+			emit signalWriteLogMessage(mtCritical, QString(
+			"Error while creating pixmap for frame.\n"
+			"%1").arg(m_pResampler->getError()));
+			vs_aligned_free(pFloatY);
+			vs_aligned_free(pFloatU);
+			vs_aligned_free(pFloatV);
+			vs_aligned_free(pUpsampledV);
+			return QPixmap();
+		}
+
+		vs_aligned_free(pFloatV);
+		pFloatV = pUpsampledV;
+	}
+
+	//--------------------------------------------------------------------------
+
+	std::vector<vsedit::RGB32> image(widthY * heightY);
+	size_t i = 0;
+	const uint8_t * cpInLineY = (const uint8_t *)pFloatY;
+	const uint8_t * cpInLineU = (const uint8_t *)pFloatU;
+	const uint8_t * cpInLineV = (const uint8_t *)pFloatV;
+
+	const float * cpFloatLineY;
+	const float * cpFloatLineU;
+	const float * cpFloatLineV;
+
+	for(size_t h = 0; h < (size_t)heightY; ++h)
+	{
+		cpFloatLineY = (const float *)cpInLineY;
+		cpFloatLineU = (const float *)cpInLineU;
+		cpFloatLineV = (const float *)cpInLineV;
+
+		for(size_t w = 0; w < (size_t)widthY; ++w)
+		{
+			image[i] = m_pYuvToRgbConverter->yuvToRgb32(cpFloatLineY[w],
+				cpFloatLineU[w], cpFloatLineV[w]);
+			i++;
+		}
+
+		cpInLineY += upsampledFloatStride;
+		cpInLineU += upsampledFloatStride;
+		cpInLineV += upsampledFloatStride;
+	}
+
+	QImage frameImage((const uchar *)image.data(), widthY, heightY,
 		QImage::Format_RGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage).copy();
 
+	vs_aligned_free(pFloatY);
+	vs_aligned_free(pFloatU);
+	vs_aligned_free(pFloatV);
 	return framePixmap;
 }
 
