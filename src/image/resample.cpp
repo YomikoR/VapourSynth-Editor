@@ -23,12 +23,9 @@ vsedit::Resampler::Resampler():
 	, m_filterParamA(0.0)
 	, m_filterParamB(0.0)
 	, m_pResizeContext(nullptr)
-	, m_pInFloatBuffer(nullptr)
-	, m_inFloatStride(0)
-	, m_pOutFloatBuffer(nullptr)
-	, m_outFloatStride(0)
-	, m_pResizeTempBuffer(nullptr)
-	, m_resizeTempBufferSize(0u)
+	, m_inFloatBuffer()
+	, m_outFloatBuffer()
+	, m_resizeTempBuffer()
 	, m_error()
 {
 }
@@ -52,23 +49,9 @@ void vsedit::Resampler::clear()
 		m_pResizeContext = nullptr;
 	}
 
-	if(m_pInFloatBuffer)
-	{
-		vs_aligned_free(m_pInFloatBuffer);
-		m_pInFloatBuffer = nullptr;
-	}
-
-	if(m_pOutFloatBuffer)
-	{
-		vs_aligned_free(m_pOutFloatBuffer);
-		m_pOutFloatBuffer = nullptr;
-	}
-
-	if(m_pResizeTempBuffer)
-	{
-		vs_aligned_free(m_pResizeTempBuffer);
-		m_pResizeTempBuffer = nullptr;
-	}
+	m_inFloatBuffer.clear();
+	m_outFloatBuffer.clear();
+	m_resizeTempBuffer.clear();
 
 	m_error.clear();
 }
@@ -122,27 +105,13 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 	//--------------------------------------------------------------------------
 	// Check for matching temporary buffer size
 
-	size_t l_resizeTempBufferSize =
+	size_t resizeTempBufferSize =
 		zimg_resize_tmp_size(m_pResizeContext, ZIMG_PIXEL_FLOAT);
-
-	if(m_pResizeTempBuffer &&
-		(m_resizeTempBufferSize != l_resizeTempBufferSize))
+	m_resizeTempBuffer.resize(resizeTempBufferSize);
+	if(m_resizeTempBuffer.size() != resizeTempBufferSize)
 	{
-		vs_aligned_free(m_pResizeTempBuffer);
-		m_pResizeTempBuffer = nullptr;
-	}
-
-	if(!m_pResizeTempBuffer)
-	{
-		m_pResizeTempBuffer =
-			vs_aligned_malloc<void>(l_resizeTempBufferSize, 32);
-		if(!m_pResizeTempBuffer)
-		{
-			m_error = QString("Could not allocate temporary buffer.");
-			return false;
-		}
-
-		m_resizeTempBufferSize = l_resizeTempBufferSize;
+		m_error = QString("Could not allocate temporary buffer.");
+		return false;
 	}
 
 	//--------------------------------------------------------------------------
@@ -150,7 +119,8 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 	if(a_pixelType == ZIMG_PIXEL_FLOAT)
 	{
 		int error = zimg_resize_process(m_pResizeContext, a_pSource,
-			a_pDestination, m_pResizeTempBuffer, a_sourceWidth, a_sourceHeight,
+			a_pDestination, m_resizeTempBuffer.data(),
+			a_sourceWidth, a_sourceHeight,
 			a_destinationWidth, a_destinationHeight, a_sourceStride,
 			a_destinationStride, ZIMG_PIXEL_FLOAT);
 
@@ -165,67 +135,47 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 	}
 	else
 	{
+		size_t bufferSize;
+
 		//----------------------------------------------------------------------
 		// Check for matching input float buffer size
 
 		int inFloatRowLength = a_sourceWidth * sizeof(float);
-		int l_inFloatStride = (inFloatRowLength / 32) * 32;
-		if(inFloatRowLength % 32)
-			l_inFloatStride += 32;
+		int inFloatStride = (inFloatRowLength /
+			VSE_MEMORY_ALIGNMENT) * VSE_MEMORY_ALIGNMENT;
+		if(inFloatRowLength % VSE_MEMORY_ALIGNMENT)
+			inFloatStride += VSE_MEMORY_ALIGNMENT;
 
-		if(m_pInFloatBuffer && ((m_inFloatStride != l_inFloatStride) ||
-			(m_sourceHeight != a_sourceHeight)))
+		bufferSize = inFloatStride * a_sourceHeight;
+		m_inFloatBuffer.resize(bufferSize);
+		if(m_inFloatBuffer.size() != bufferSize)
 		{
-			vs_aligned_free(m_pInFloatBuffer);
-			m_pInFloatBuffer = nullptr;
-		}
-
-		if(!m_pInFloatBuffer)
-		{
-			m_pInFloatBuffer = vs_aligned_malloc<void>(
-				l_inFloatStride * a_sourceHeight, 32);
-			if(!m_pInFloatBuffer)
-			{
-				m_error = QString("Could not allocate temporary buffer.");
-				return false;
-			}
-
-			m_inFloatStride = l_inFloatStride;
+			m_error = QString("Could not allocate temporary buffer.");
+			return false;
 		}
 
 		//----------------------------------------------------------------------
 		// Check for matching output float buffer size
 
 		int outFloatRowLength = a_destinationWidth * sizeof(float);
-		int l_outFloatStride = (outFloatRowLength / 32) * 32;
-		if(outFloatRowLength % 32)
-			l_outFloatStride += 32;
+		int outFloatStride = (outFloatRowLength /
+			VSE_MEMORY_ALIGNMENT) * VSE_MEMORY_ALIGNMENT;
+		if(outFloatRowLength % VSE_MEMORY_ALIGNMENT)
+			outFloatStride += VSE_MEMORY_ALIGNMENT;
 
-		if(m_pOutFloatBuffer && ((m_outFloatStride != l_outFloatStride) ||
-			(m_destinationHeight != a_destinationHeight)))
+		bufferSize = outFloatStride * a_destinationHeight;
+		m_outFloatBuffer.resize(bufferSize);
+		if(m_outFloatBuffer.size() != bufferSize)
 		{
-			vs_aligned_free(m_pOutFloatBuffer);
-			m_pOutFloatBuffer = nullptr;
-		}
-
-		if(!m_pOutFloatBuffer)
-		{
-			m_pOutFloatBuffer = vs_aligned_malloc<void>(
-				l_outFloatStride * a_destinationHeight, 32);
-			if(!m_pOutFloatBuffer)
-			{
-				m_error = QString("Could not allocate temporary buffer.");
-				return false;
-			}
-
-			m_outFloatStride = l_outFloatStride;
+			m_error = QString("Could not allocate temporary buffer.");
+			return false;
 		}
 
 		//----------------------------------------------------------------------
 		// Copy source to input float buffer
 
 		const uint8_t * cpSourceLine = (const uint8_t *)a_pSource;
-		uint8_t * pDestinationLine = (uint8_t *)m_pInFloatBuffer;
+		uint8_t * pDestinationLine = m_inFloatBuffer.data();
 		float * pFloatLine;
 
 		if(a_pixelType == ZIMG_PIXEL_BYTE)
@@ -241,7 +191,7 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 					pFloatLine[w] = (float)cpByteLine[w];
 
 				cpSourceLine += a_sourceStride;
-				pDestinationLine += m_inFloatStride;
+				pDestinationLine += inFloatStride;
 			}
 		}
 		else if(a_pixelType == ZIMG_PIXEL_WORD)
@@ -257,17 +207,18 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 					pFloatLine[w] = (float)cpShortLine[w];
 
 				cpSourceLine += a_sourceStride;
-				pDestinationLine += m_inFloatStride;
+				pDestinationLine += inFloatStride;
 			}
 		}
 
 		//----------------------------------------------------------------------
 		// Resample
 
-		int error = zimg_resize_process(m_pResizeContext, m_pInFloatBuffer,
-			m_pOutFloatBuffer, m_pResizeTempBuffer, a_sourceWidth,
-			a_sourceHeight, a_destinationWidth, a_destinationHeight,
-			m_inFloatStride, m_outFloatStride, ZIMG_PIXEL_FLOAT);
+		int error = zimg_resize_process(m_pResizeContext,
+			m_inFloatBuffer.data(), m_outFloatBuffer.data(),
+			m_resizeTempBuffer.data(), a_sourceWidth, a_sourceHeight,
+			a_destinationWidth, a_destinationHeight, inFloatStride,
+			outFloatStride, ZIMG_PIXEL_FLOAT);
 
 		if(error)
 		{
@@ -281,7 +232,7 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 		//----------------------------------------------------------------------
 		// Copy output float buffer to destination with clamping
 
-		uint8_t * pSourceLine = (uint8_t *)m_pOutFloatBuffer;
+		uint8_t * pSourceLine = m_outFloatBuffer.data();
 		pDestinationLine = (uint8_t *)a_pDestination;
 
 		if(a_pixelType == ZIMG_PIXEL_BYTE)
@@ -297,7 +248,7 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 					pByteLine[w] = (uint8_t)pFloatLine[w];
 				}
 
-				pSourceLine += m_outFloatStride;
+				pSourceLine += outFloatStride;
 				pDestinationLine += a_destinationStride;
 			}
 		}
@@ -314,7 +265,7 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 					pShortLine[w] = (uint16_t)pFloatLine[w];
 				}
 
-				pSourceLine += m_outFloatStride;
+				pSourceLine += outFloatStride;
 				pDestinationLine += a_destinationStride;
 			}
 		}

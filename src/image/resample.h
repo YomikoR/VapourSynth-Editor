@@ -1,7 +1,8 @@
 #ifndef RESAMPLE_H_INCLUDED
 #define RESAMPLE_H_INCLUDED
 
-#include "../image/zimg/API/zimg.h"
+#include "../common/aligned_vector.h"
+#include "../zimg/API/zimg.h"
 
 #include <QString>
 
@@ -51,12 +52,9 @@ namespace vsedit
 			double m_filterParamB;
 			zimg_resize_context * m_pResizeContext;
 
-			void * m_pInFloatBuffer;
-			int m_inFloatStride;
-			void * m_pOutFloatBuffer;
-			int m_outFloatStride;
-			void * m_pResizeTempBuffer;
-			size_t m_resizeTempBufferSize;
+			vsedit::aligned_vector<uint8_t> m_inFloatBuffer;
+			vsedit::aligned_vector<uint8_t> m_outFloatBuffer;
+			vsedit::aligned_vector<uint8_t> m_resizeTempBuffer;
 
 			QString m_error;
 

@@ -148,6 +148,7 @@ FORMS += ../src/preview/previewdialog.ui
 FORMS += ../src/mainwindow.ui
 
 HEADERS += ../src/common/helpers.h
+HEADERS += ../src/common/aligned_vector.h
 HEADERS += ../src/image/yuvtorgb.h
 HEADERS += ../src/image/resample.h
 HEADERS += ../src/settings/settingsmanager.h

@@ -230,6 +230,7 @@
 		<Unit filename="resources/windowsresources.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="src/common/aligned_vector.h" />
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
 		<Unit filename="src/image/resample.cpp" />
