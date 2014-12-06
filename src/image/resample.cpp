@@ -132,6 +132,18 @@ bool vsedit::Resampler::resample(const void * a_pSource, int a_sourceWidth,
 				.arg(zimgErrorString.data());
 			return false;
 		}
+
+		// Clamp output values
+		uint8_t * pDestinationLine = (uint8_t *)a_pDestination;
+		float * pFloatLine;
+
+		for(int h = 0; h < a_destinationHeight; ++h)
+		{
+			pFloatLine = (float *)pDestinationLine;
+			for(int w = 0; w < a_destinationWidth; ++w)
+				vsedit::clamp(pFloatLine[w], a_clampMin, a_clampMax);
+			pDestinationLine += a_destinationStride;
+		}
 	}
 	else
 	{
