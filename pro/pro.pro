@@ -144,6 +144,7 @@ RCC_DIR = ../generated/rcc
 RESOURCES = ../resources/resources.qrc
 
 FORMS += ../src/settings/settingsdialog.ui
+FORMS += ../src/preview/preview_advanced_settings_dialog.ui
 FORMS += ../src/preview/previewdialog.ui
 FORMS += ../src/mainwindow.ui
 
@@ -158,6 +159,7 @@ HEADERS += ../src/settings/settingsdialog.h
 HEADERS += ../src/preview/scrollnavigator.h
 HEADERS += ../src/preview/previewarea.h
 HEADERS += ../src/preview/timelineslider.h
+HEADERS += ../src/preview/preview_advanced_settings_dialog.h
 HEADERS += ../src/preview/previewdialog.h
 HEADERS += ../src/scripteditor/numbermatcher.h
 HEADERS += ../src/scripteditor/syntaxhighlighter.h
@@ -179,6 +181,7 @@ SOURCES += ../src/settings/settingsdialog.cpp
 SOURCES += ../src/preview/scrollnavigator.cpp
 SOURCES += ../src/preview/previewarea.cpp
 SOURCES += ../src/preview/timelineslider.cpp
+SOURCES += ../src/preview/preview_advanced_settings_dialog.cpp
 SOURCES += ../src/preview/previewdialog.cpp
 SOURCES += ../src/scripteditor/numbermatcher.cpp
 SOURCES += ../src/scripteditor/syntaxhighlighter.cpp

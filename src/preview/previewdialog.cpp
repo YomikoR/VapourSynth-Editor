@@ -27,6 +27,7 @@
 #include "../settings/settingsdialog.h"
 #include "scrollnavigator.h"
 #include "timelineslider.h"
+#include "preview_advanced_settings_dialog.h"
 
 #include "previewdialog.h"
 
@@ -55,6 +56,7 @@ PreviewDialog::PreviewDialog(
 	, m_pVapourSynthScriptProcessor(a_pVapourSynthScriptProcessor)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pSettingsDialog(a_pSettingsDialog)
+	, m_pAdvancedSettingsDialog(nullptr)
 	, m_pStatusBar(nullptr)
 	, m_currentFrame(0)
 	, m_bigFrameStep(10)
@@ -84,6 +86,7 @@ PreviewDialog::PreviewDialog(
 	, m_pActionTimeStepForward(nullptr)
 	, m_pActionTimeStepBack(nullptr)
 	, m_pActionPasteCropSnippetIntoScript(nullptr)
+	, m_pActionAdvancedSettingsDialog(nullptr)
 	, m_actionIDToZoomMode()
 	, m_actionIDToZoomScaleMode()
 	, m_actionIDToTimeLineMode()
@@ -91,6 +94,9 @@ PreviewDialog::PreviewDialog(
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
+
+	m_pAdvancedSettingsDialog = new PreviewAdvancedSettingsDialog(
+		m_pSettingsManager, this);
 
 	createActionsAndMenus();
 
@@ -100,6 +106,8 @@ PreviewDialog::PreviewDialog(
 
 	m_ui.frameToClipboardButton->setDefaultAction(m_pActionFrameToClipboard);
 	m_ui.saveSnapshotButton->setDefaultAction(m_pActionSaveSnapshot);
+	m_ui.advancedSettingsButton->setDefaultAction(
+		m_pActionAdvancedSettingsDialog);
 
 	setUpZoomPanel();
 	setUpCropPanel();
@@ -112,6 +120,10 @@ PreviewDialog::PreviewDialog(
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
 
+	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
+		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
+	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
+		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
 	connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
@@ -832,6 +844,14 @@ void PreviewDialog::slotFrameToClipboard()
 // END OF void PreviewDialog::slotFrameToClipboard()
 //==============================================================================
 
+void PreviewDialog::slotAdvancedSettingsChanged()
+{
+	showFrame(m_currentFrame);
+}
+
+// END OF void PreviewDialog::slotAdvancedSettingsChanged()
+//==============================================================================
+
 void PreviewDialog::createActionsAndMenus()
 {
 	QKeySequence hotkey;
@@ -1145,6 +1165,19 @@ void PreviewDialog::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
+	m_pActionAdvancedSettingsDialog = new QAction(this);
+	m_pActionAdvancedSettingsDialog->setIconText(
+		trUtf8("Preview advanced settings"));
+	m_pActionAdvancedSettingsDialog->setIcon(QIcon(":settings.png"));
+	hotkey = m_pSettingsManager->getHotkey(
+		ACTION_ID_ADVANCED_PREVIEW_SETTINGS);
+	m_pActionAdvancedSettingsDialog->setShortcut(hotkey);
+	m_pActionAdvancedSettingsDialog->setData(
+		ACTION_ID_ADVANCED_PREVIEW_SETTINGS);
+	m_settableActionsList.push_back(m_pActionAdvancedSettingsDialog);
+
+//------------------------------------------------------------------------------
+
 	connect(m_pActionFrameToClipboard, SIGNAL(triggered()),
 		this, SLOT(slotFrameToClipboard()));
 	connect(m_pActionSaveSnapshot, SIGNAL(triggered()),
@@ -1175,6 +1208,8 @@ void PreviewDialog::createActionsAndMenus()
 		this, SLOT(slotTimeStepBack()));
 	connect(m_pActionPasteCropSnippetIntoScript, SIGNAL(triggered()),
 		this, SLOT(slotPasteCropSnippetIntoScript()));
+	connect(m_pActionAdvancedSettingsDialog, SIGNAL(triggered()),
+		m_pAdvancedSettingsDialog, SLOT(slotCall()));
 
 //------------------------------------------------------------------------------
 

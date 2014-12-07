@@ -5,6 +5,8 @@
 #include <QPixmap>
 #include <vapoursynth/VSScript.h>
 
+#include "../settings/settingsmanager.h"
+
 namespace vsedit
 {
 	class Resampler;
@@ -17,7 +19,8 @@ class VapourSynthScriptProcessor : public QObject
 
 	public:
 
-		VapourSynthScriptProcessor(QObject * a_pParent = nullptr);
+		VapourSynthScriptProcessor(SettingsManager * a_pSettingsManager,
+			QObject * a_pParent = nullptr);
 
 		virtual ~VapourSynthScriptProcessor();
 
@@ -41,6 +44,10 @@ class VapourSynthScriptProcessor : public QObject
 
 		void signalWriteLogMessage(int a_messageType,
 			const QString & a_message);
+
+	private slots:
+
+		void slotSettingsChanged();
 
 	private:
 
@@ -67,6 +74,8 @@ class VapourSynthScriptProcessor : public QObject
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
 
+		SettingsManager * m_pSettingsManager;
+
 		QString m_script;
 
 		QString m_scriptName;
@@ -88,6 +97,14 @@ class VapourSynthScriptProcessor : public QObject
 		int m_currentFrame;
 
 		const VSFrameRef * m_cpCurrentFrameRef;
+
+		ResamplingFilter m_chromaResamplingFilter;
+
+		ChromaPlacement m_chromaPlacement;
+
+		double m_resamplingFilterParameterA;
+
+		double m_resamplingFilterParameterB;
 
 		vsedit::AbstractYuvToRgbConverter * m_pYuvToRgbConverter;
 

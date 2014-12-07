@@ -50,6 +50,20 @@ const TimeLineSlider::DisplayMode DEFAULT_TIMELINE_MODE =
 	TimeLineSlider::DisplayMode::Time;
 const char TIME_STEP_KEY[] = "time_step_mode";
 const double DEFAULT_TIME_STEP = 5.0;
+const char CHROMA_RESAMPLING_FILTER_KEY[] = "chroma_resampling_filter";
+const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER =
+	ResamplingFilter::Spline16;
+const char YUV_TO_RGB_CONVERSION_MATRIX_KEY[] = "yuv_to_rgb_conversion_matrix";
+const YuvToRgbConversionMatrix DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX =
+	YuvToRgbConversionMatrix::Bt709;
+const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
+const ChromaPlacement DEFAULT_CHROMA_PLACEMENT = ChromaPlacement::MPEG2;
+const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
+const double DEFAULT_BICUBIC_FILTER_PARAMETER_B = 1.0 / 3.0;
+const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
+const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 1.0 / 3.0;
+const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
+const int DEFAULT_LANCZOS_FILTER_TAPS = 3;
 
 //==============================================================================
 
@@ -84,6 +98,7 @@ const char ACTION_ID_SET_TIMELINE_MODE_TIME[] = "set_timeline_mode_time";
 const char ACTION_ID_SET_TIMELINE_MODE_FRAMES[] = "set_timeline_mode_frames";
 const char ACTION_ID_TIME_STEP_FORWARD[] = "time_step_forward";
 const char ACTION_ID_TIME_STEP_BACK[] = "time_step_back";
+const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[] = "advanced_preview_settings";
 
 //==============================================================================
 
@@ -538,6 +553,84 @@ double SettingsManager::getTimeStep()
 bool SettingsManager::setTimeStep(double a_timeStep)
 {
 	return setValue(TIME_STEP_KEY, a_timeStep);
+}
+
+//==============================================================================
+
+ResamplingFilter SettingsManager::getChromaResamplingFilter()
+{
+	return (ResamplingFilter)value(CHROMA_RESAMPLING_FILTER_KEY,
+		(int)DEFAULT_CHROMA_RESAMPLING_FILTER).toInt();
+}
+
+bool SettingsManager::setChromaResamplingFilter(ResamplingFilter a_filter)
+{
+	return setValue(CHROMA_RESAMPLING_FILTER_KEY, (int)a_filter);
+}
+
+//==============================================================================
+
+YuvToRgbConversionMatrix SettingsManager::getYuvToRgbConversionMatrix()
+{
+	return (YuvToRgbConversionMatrix)value(YUV_TO_RGB_CONVERSION_MATRIX_KEY,
+		(int)DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX).toInt();
+}
+
+bool SettingsManager::setYuvToRgbConversionMatrix(
+	YuvToRgbConversionMatrix a_matrix)
+{
+	return setValue(YUV_TO_RGB_CONVERSION_MATRIX_KEY, (int)a_matrix);
+}
+
+//==============================================================================
+
+ChromaPlacement SettingsManager::getChromaPlacement()
+{
+	return (ChromaPlacement)value(CHROMA_PLACEMENT_KEY,
+		(int)DEFAULT_CHROMA_PLACEMENT).toInt();
+}
+
+bool SettingsManager::setChromaPlacement(ChromaPlacement a_placement)
+{
+	return setValue(CHROMA_PLACEMENT_KEY, (int)a_placement);
+}
+
+//==============================================================================
+
+double SettingsManager::getBicubicFilterParameterB()
+{
+	return value(BICUBIC_FILTER_PARAMETER_B_KEY,
+		DEFAULT_BICUBIC_FILTER_PARAMETER_B).toDouble();
+}
+
+bool SettingsManager::setBicubicFilterParameterB(double a_parameterB)
+{
+	return setValue(BICUBIC_FILTER_PARAMETER_B_KEY, a_parameterB);
+}
+
+//==============================================================================
+
+double SettingsManager::getBicubicFilterParameterC()
+{
+	return value(BICUBIC_FILTER_PARAMETER_C_KEY,
+		DEFAULT_BICUBIC_FILTER_PARAMETER_C).toDouble();
+}
+
+bool SettingsManager::setBicubicFilterParameterC(double a_parameterC)
+{
+	return setValue(BICUBIC_FILTER_PARAMETER_C_KEY, a_parameterC);
+}
+
+//==============================================================================
+
+int SettingsManager::getLanczosFilterTaps()
+{
+	return value(LANCZOS_FILTER_TAPS_KEY, DEFAULT_LANCZOS_FILTER_TAPS).toInt();
+}
+
+bool SettingsManager::setLanczosFilterTaps(int a_taps)
+{
+	return setValue(LANCZOS_FILTER_TAPS_KEY, a_taps);
 }
 
 //==============================================================================

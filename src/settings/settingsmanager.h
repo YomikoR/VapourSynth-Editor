@@ -8,6 +8,56 @@
 #include <QKeySequence>
 
 #include "../preview/timelineslider.h"
+#include "../image/zimg/API/zimg.h"
+
+//==============================================================================
+
+enum class ZoomMode
+{
+	NoZoom,
+	FixedRatio,
+	FitToFrame
+};
+
+enum class CropMode
+{
+	Absolute,
+	Relative
+};
+
+enum class ResamplingFilter : int
+{
+	Point = ZIMG_RESIZE_POINT,
+	Bilinear = ZIMG_RESIZE_BILINEAR,
+	Bicubic = ZIMG_RESIZE_BICUBIC,
+	Spline16 = ZIMG_RESIZE_SPLINE16,
+	Spline36 = ZIMG_RESIZE_SPLINE36,
+	Lanczos = ZIMG_RESIZE_LANCZOS
+};
+
+enum class YuvToRgbConversionMatrix
+{
+	Bt601,
+	Bt709,
+	FullRange
+};
+
+enum class ChromaPlacement
+{
+	MPEG1,
+	MPEG2
+};
+
+//==============================================================================
+
+extern const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER;
+extern const YuvToRgbConversionMatrix DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX;
+extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;
+extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_B;
+extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_C;
+extern const int DEFAULT_LANCZOS_FILTER_TAPS;
+
+//==============================================================================
 
 extern const char ACTION_ID_NEW_SCRIPT[];
 extern const char ACTION_ID_OPEN_SCRIPT[];
@@ -34,19 +84,9 @@ extern const char ACTION_ID_SET_TIMELINE_MODE_TIME[];
 extern const char ACTION_ID_SET_TIMELINE_MODE_FRAMES[];
 extern const char ACTION_ID_TIME_STEP_FORWARD[];
 extern const char ACTION_ID_TIME_STEP_BACK[];
+extern const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[];
 
-enum class ZoomMode
-{
-	NoZoom,
-	FixedRatio,
-	FitToFrame
-};
-
-enum class CropMode
-{
-	Absolute,
-	Relative
-};
+//==============================================================================
 
 class SettingsManager : public QObject
 {
@@ -151,6 +191,30 @@ class SettingsManager : public QObject
 
 		bool setTimeStep(double a_timeStep);
 
+		ResamplingFilter getChromaResamplingFilter();
+
+		bool setChromaResamplingFilter(ResamplingFilter a_filter);
+
+		YuvToRgbConversionMatrix getYuvToRgbConversionMatrix();
+
+		bool setYuvToRgbConversionMatrix(YuvToRgbConversionMatrix a_matrix);
+
+		ChromaPlacement getChromaPlacement();
+
+		bool setChromaPlacement(ChromaPlacement a_placement);
+
+		double getBicubicFilterParameterB();
+
+		bool setBicubicFilterParameterB(double a_parameterB);
+
+		double getBicubicFilterParameterC();
+
+		bool setBicubicFilterParameterC(double a_parameterC);
+
+		int getLanczosFilterTaps();
+
+		bool setLanczosFilterTaps(int a_taps);
+
 	private:
 
 		QVariant valueInGroup(const QString & a_group, const QString & a_key,
@@ -167,5 +231,7 @@ class SettingsManager : public QObject
 		QString m_settingsFilePath;
 
 };
+
+//==============================================================================
 
 #endif // SETTINGSMANAGER_H

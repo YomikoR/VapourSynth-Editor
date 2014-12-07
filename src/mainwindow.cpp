@@ -59,7 +59,7 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pSettingsManager = new SettingsManager(this);
 
 	m_pVapourSynthScriptProcessor =
-		new VapourSynthScriptProcessor(this);
+		new VapourSynthScriptProcessor(m_pSettingsManager, this);
 
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),

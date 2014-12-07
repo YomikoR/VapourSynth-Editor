@@ -7,6 +7,8 @@
 
 #include <vapoursynth/VSHelper.h>
 
+const double BASE_MPEG2_CHROMA_SHIFT = 0.5;
+
 //==============================================================================
 
 QPixmap VapourSynthScriptProcessor::pixmapFromGray1B(
@@ -185,6 +187,7 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 	uint8_t clampLow = 0;
 	uint8_t clampHigh = 255;
 	size_t bufferSize = heightY * strideY;
+	double shiftW = 0.0;
 
 	vsedit::aligned_vector<uint8_t> upsampledU;
 	if((widthU != widthY) || (heightU != heightY))
@@ -198,9 +201,13 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthU / widthY;
+
 		bool success = m_pResampler->resample(cpReadU, widthU, heightU, strideU,
 			upsampledU.data(), widthY, heightY, strideY, ZIMG_PIXEL_BYTE,
-			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			shiftW, 0.0, (int)m_chromaResamplingFilter,
+			m_resamplingFilterParameterA, m_resamplingFilterParameterB,
 			(float)clampLow, (float)clampHigh);
 		if(!success)
 		{
@@ -226,9 +233,13 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV1B(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthV / widthY;
+
 		bool success = m_pResampler->resample(cpReadV, widthV, heightV, strideV,
 			upsampledV.data(), widthY, heightY, strideY, ZIMG_PIXEL_BYTE,
-			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			shiftW, 0.0, (int)m_chromaResamplingFilter,
+			m_resamplingFilterParameterA, m_resamplingFilterParameterB,
 			(float)clampLow, (float)clampHigh);
 		if(!success)
 		{
@@ -288,6 +299,7 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 	uint16_t clampLow = 0;
 	uint16_t clampHigh = (1ul << bitsPerSample) - 1ul;
 	size_t bufferSize = heightY * strideY;
+	double shiftW = 0.0;
 
 	vsedit::aligned_vector<uint8_t> upsampledU;
 	if((widthU != widthY) || (heightU != heightY))
@@ -301,9 +313,13 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthU / widthY;
+
 		bool success = m_pResampler->resample(cpReadU, widthU, heightU, strideU,
 			upsampledU.data(), widthY, heightY, strideY, ZIMG_PIXEL_WORD,
-			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			shiftW, 0.0, (int)m_chromaResamplingFilter,
+			m_resamplingFilterParameterA, m_resamplingFilterParameterB,
 			(float)clampLow, (float)clampHigh);
 		if(!success)
 		{
@@ -329,9 +345,13 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUV2B(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthV / widthY;
+
 		bool success = m_pResampler->resample(cpReadV, widthV, heightV, strideV,
 			upsampledV.data(), widthY, heightY, strideY, ZIMG_PIXEL_WORD,
-			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			shiftW, 0.0, (int)m_chromaResamplingFilter,
+			m_resamplingFilterParameterA, m_resamplingFilterParameterB,
 			(float)clampLow, (float)clampHigh);
 		if(!success)
 		{
@@ -437,6 +457,7 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
 	float clampLow = -0.5f;
 	float clampHigh = 0.5f;
 	size_t bufferSize;
+	double shiftW = 0.0;
 
 	//--------------------------------------------------------------------------
 	// Convert U-plane to float
@@ -485,10 +506,14 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthU / widthY;
+
 		bool success = m_pResampler->resample(floatU.data(), widthU, heightU,
 			floatStrideU, upsampledU.data(), widthY, heightY,
-			upsampledFloatStride, ZIMG_PIXEL_FLOAT, 0.0, 0.0,
-			ZIMG_RESIZE_SPLINE36, 0.0, 0.0, (float)clampLow, (float)clampHigh);
+			upsampledFloatStride, ZIMG_PIXEL_FLOAT, shiftW, 0.0,
+			(int)m_chromaResamplingFilter, m_resamplingFilterParameterA,
+			m_resamplingFilterParameterB, (float)clampLow, (float)clampHigh);
 		if(!success)
 		{
 			emit signalWriteLogMessage(mtCritical, QString(
@@ -547,10 +572,14 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVH(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthV / widthY;
+
 		bool success = m_pResampler->resample(floatV.data(), widthV, heightV,
 			floatStrideV, upsampledV.data(), widthY, heightY,
-			upsampledFloatStride, ZIMG_PIXEL_FLOAT, 0.0, 0.0,
-			ZIMG_RESIZE_SPLINE36, 0.0, 0.0, (float)clampLow, (float)clampHigh);
+			upsampledFloatStride, ZIMG_PIXEL_FLOAT, shiftW, 0.0,
+			(int)m_chromaResamplingFilter, m_resamplingFilterParameterA,
+			m_resamplingFilterParameterB, (float)clampLow, (float)clampHigh);
 		if(!success)
 		{
 			emit signalWriteLogMessage(mtCritical, QString(
@@ -622,6 +651,7 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 	float clampLow = -0.5f;
 	float clampHigh = 0.5f;
 	size_t bufferSize = heightY * strideY;
+	double shiftW = 0.0;
 
 	vsedit::aligned_vector<uint8_t> upsampledU;
 	if((widthU != widthY) || (heightU != heightY))
@@ -635,9 +665,13 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthU / widthY;
+
 		bool success = m_pResampler->resample(cpReadU, widthU, heightU, strideU,
 			upsampledU.data(), widthY, heightY, strideY, ZIMG_PIXEL_FLOAT,
-			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			shiftW, 0.0, (int)m_chromaResamplingFilter,
+			m_resamplingFilterParameterA, m_resamplingFilterParameterB,
 			(float)clampLow, (float)clampHigh);
 		if(!success)
 		{
@@ -663,9 +697,13 @@ QPixmap VapourSynthScriptProcessor::pixmapFromYUVS(
 			return QPixmap();
 		}
 
+		if(m_chromaPlacement == ChromaPlacement::MPEG2)
+			shiftW = BASE_MPEG2_CHROMA_SHIFT * widthV / widthY;
+
 		bool success = m_pResampler->resample(cpReadV, widthV, heightV, strideV,
 			upsampledV.data(), widthY, heightY, strideY, ZIMG_PIXEL_FLOAT,
-			0.0, 0.0, ZIMG_RESIZE_SPLINE36, 0.0, 0.0,
+			shiftW, 0.0, (int)m_chromaResamplingFilter,
+			m_resamplingFilterParameterA, m_resamplingFilterParameterB,
 			(float)clampLow, (float)clampHigh);
 		if(!success)
 		{

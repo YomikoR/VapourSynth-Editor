@@ -298,6 +298,9 @@
 		<Unit filename="src/mainwindow.cpp" />
 		<Unit filename="src/mainwindow.h" />
 		<Unit filename="src/mainwindow.ui" />
+		<Unit filename="src/preview/preview_advanced_settings_dialog.cpp" />
+		<Unit filename="src/preview/preview_advanced_settings_dialog.h" />
+		<Unit filename="src/preview/preview_advanced_settings_dialog.ui" />
 		<Unit filename="src/preview/previewarea.cpp" />
 		<Unit filename="src/preview/previewarea.h" />
 		<Unit filename="src/preview/previewdialog.cpp" />

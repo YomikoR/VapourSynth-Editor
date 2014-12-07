@@ -21,9 +21,9 @@ class QMenu;
 class QActionGroup;
 class QAction;
 class VapourSynthScriptProcessor;
-class SettingsManager;
 class SettingsDialog;
 struct VSVideoInfo;
+class PreviewAdvancedSettingsDialog;
 
 class PreviewDialog : public QDialog
 {
@@ -116,6 +116,8 @@ class PreviewDialog : public QDialog
 
 		void slotFrameToClipboard();
 
+		void slotAdvancedSettingsChanged();
+
 	private:
 
 		void createActionsAndMenus();
@@ -144,6 +146,8 @@ class PreviewDialog : public QDialog
 		SettingsManager * m_pSettingsManager;
 
 		SettingsDialog * m_pSettingsDialog;
+
+		PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
 
 		QStatusBar * m_pStatusBar;
 
@@ -181,6 +185,7 @@ class PreviewDialog : public QDialog
 		QAction * m_pActionTimeStepForward;
 		QAction * m_pActionTimeStepBack;
 		QAction * m_pActionPasteCropSnippetIntoScript;
+		QAction * m_pActionAdvancedSettingsDialog;
 
 		std::map<QString, ZoomMode> m_actionIDToZoomMode;
 

@@ -1,10 +1,11 @@
-#include <cassert>
-#include <vector>
-
 #include "vapoursynthscriptprocessor.h"
 
 #include "../image/yuvtorgb.h"
 #include "../image/resample.h"
+
+#include <cassert>
+#include <vector>
+#include <cmath>
 
 //==============================================================================
 
@@ -20,8 +21,10 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 //	void * a_pUserData)
 //==============================================================================
 
-VapourSynthScriptProcessor::VapourSynthScriptProcessor(QObject * a_pParent):
+VapourSynthScriptProcessor::VapourSynthScriptProcessor(
+	SettingsManager * a_pSettingsManager, QObject * a_pParent):
 	QObject(a_pParent)
+	, m_pSettingsManager(a_pSettingsManager)
 	, m_script()
 	, m_scriptName()
 	, m_error()
@@ -33,11 +36,15 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(QObject * a_pParent):
 	, m_cpVideoInfo(nullptr)
 	, m_currentFrame(0)
 	, m_cpCurrentFrameRef(nullptr)
+	, m_chromaResamplingFilter()
+	, m_chromaPlacement()
+	, m_resamplingFilterParameterA(NAN)
+	, m_resamplingFilterParameterB(NAN)
 	, m_pYuvToRgbConverter(nullptr)
 	, m_pResampler(nullptr)
 {
-	m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterBt709();
 	m_pResampler = new vsedit::Resampler();
+	slotSettingsChanged();
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -271,6 +278,42 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 }
 
 // END OF QPixmap VapourSynthScriptProcessor::pixmap()
+//==============================================================================
+
+void VapourSynthScriptProcessor::slotSettingsChanged()
+{
+	delete(m_pYuvToRgbConverter);
+	m_pYuvToRgbConverter = nullptr;
+	YuvToRgbConversionMatrix matrix =
+		m_pSettingsManager->getYuvToRgbConversionMatrix();
+	if(matrix == YuvToRgbConversionMatrix::Bt601)
+		m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterBt601();
+	else if(matrix == YuvToRgbConversionMatrix::Bt709)
+		m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterBt709();
+	else if(matrix == YuvToRgbConversionMatrix::FullRange)
+		m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterFullRange();
+	assert(m_pYuvToRgbConverter);
+
+	m_chromaResamplingFilter = m_pSettingsManager->getChromaResamplingFilter();
+	m_resamplingFilterParameterA = NAN;
+	m_resamplingFilterParameterB = NAN;
+	if(m_chromaResamplingFilter == ResamplingFilter::Bicubic)
+	{
+		m_resamplingFilterParameterA =
+			m_pSettingsManager->getBicubicFilterParameterB();
+		m_resamplingFilterParameterB =
+			m_pSettingsManager->getBicubicFilterParameterC();
+	}
+	else if(m_chromaResamplingFilter == ResamplingFilter::Lanczos)
+	{
+		m_resamplingFilterParameterA =
+			(double)m_pSettingsManager->getLanczosFilterTaps();
+	}
+
+	m_chromaPlacement = m_pSettingsManager->getChromaPlacement();
+}
+
+// END OF void VapourSynthScriptProcessor::slotSettingsChanged()
 //==============================================================================
 
 void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,

@@ -97,6 +97,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="advancedSettingsButton">
+        <property name="toolTip">
+         <string>Preview Advanced Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="timeLineCheckButton">
         <property name="toolTip">
          <string>Timeline</string>
