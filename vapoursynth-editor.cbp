@@ -21,7 +21,7 @@
 					<Add directory="src/vapoursynth" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile debug" />
@@ -48,7 +48,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile release" />
@@ -63,7 +63,7 @@
 				<Option output="build/debug-32bit-gcc/vsedit-debug-32bit-gcc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
-				<Option compiler="qt_51_32bit_mingw" />
+				<Option compiler="mingw_builds_x32" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="src" />
@@ -72,7 +72,7 @@
 					<Add directory="src/vapoursynth" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile debug" />
@@ -87,7 +87,7 @@
 				<Option output="build/release-32bit-gcc/vsedit-32bit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
-				<Option compiler="qt_51_32bit_mingw" />
+				<Option compiler="mingw_builds_x32" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="src" />
@@ -99,7 +99,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile release" />
@@ -126,7 +126,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile release" />
@@ -153,7 +153,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile release" />
@@ -177,7 +177,7 @@
 					<Add directory="src/vapoursynth" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile debug" />
@@ -201,7 +201,7 @@
 					<Add directory="src/vapoursynth" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="qmake -norecursive pro.pro" />
+					<Add before="${qt5binpath}qmake -norecursive pro.pro" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile debug" />
