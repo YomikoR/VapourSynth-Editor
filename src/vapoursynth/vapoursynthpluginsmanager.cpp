@@ -203,15 +203,26 @@ void VapourSynthPluginsManager::getCorePlugins()
 	{
 		QString filepath = CORE_PLUGINS_FILEPATH;
 
-		const char * pluginID = cpVSAPI->propGetKey(pPluginsMap, i);
-		if(!pluginID)
+        const char * pluginKey = cpVSAPI->propGetKey(pPluginsMap, i);
+        if(!pluginKey)
 		{
 			emit signalWriteLogMessage(mtCritical, QString("VapourSynth "
 				"plugins manager: Failed to get ID for the plugin number %1.")
 				.arg(i));
 			continue;
 		}
-		QString id(pluginID);
+
+        const char *pluginStr = cpVSAPI->propGetData(pPluginsMap, pluginKey, 0, nullptr);
+        if(!pluginStr)
+        {
+            emit signalWriteLogMessage(mtCritical, QString("VapourSynth "
+                "plugins manager: Failed to get ID for the plugin number %1.")
+                .arg(i));
+            continue;
+        }
+
+        QString id(QString::fromUtf8(pluginStr).split(';')[1]);
+        QByteArray pluginID(id.toUtf8());
 
 		for(const VSData::Plugin & existingPluginData : m_pluginsList)
 		{
@@ -219,7 +230,7 @@ void VapourSynthPluginsManager::getCorePlugins()
 				continue;
 		}
 
-		VSPlugin * pPlugin = cpVSAPI->getPluginById(pluginID, pCore);
+        VSPlugin * pPlugin = cpVSAPI->getPluginById(pluginID, pCore);
 		if(!pPlugin)
 		{
 			emit signalWriteLogMessage(mtCritical, QString("VapourSynth "
@@ -229,7 +240,7 @@ void VapourSynthPluginsManager::getCorePlugins()
 		}
 
 		int error = 0;
-		const char * pluginInfo = cpVSAPI->propGetData(pPluginsMap, pluginID,
+        const char * pluginInfo = cpVSAPI->propGetData(pPluginsMap, pluginKey,
 			0, &error);
 		if(error || !pluginInfo)
 		{
