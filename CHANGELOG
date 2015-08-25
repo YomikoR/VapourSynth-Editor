@@ -1,3 +1,8 @@
+r5:
+Fix release.
+-Fixed compatibility with VapourSynth r27. Patch by Myrsloik.
+-Fixed "Copy frame to clipboard" action.
+
 r4:
 -Custom font is embedded.
 -Internal format conversion for preview. All VapourSynth video formats are now supported.

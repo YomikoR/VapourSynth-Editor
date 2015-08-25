@@ -866,7 +866,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionFrameToClipboard->setIconText(
 		trUtf8("Copy frame to clipboard"));
 	m_pActionFrameToClipboard->setIcon(QIcon(":image_to_clipboard.png"));
-	m_pPreviewContextMenu->addAction(m_pActionSaveSnapshot);
+	m_pPreviewContextMenu->addAction(m_pActionFrameToClipboard);
 	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_FRAME_TO_CLIPBOARD);
 	m_pActionFrameToClipboard->setShortcut(hotkey);
 	m_pActionFrameToClipboard->setData(ACTION_ID_FRAME_TO_CLIPBOARD);
