@@ -340,9 +340,9 @@
 			<code_completion>
 				<search_path add="generated/ui" />
 				<search_path add="C:\Program Files (x86)\VapourSynth\sdk\include" />
-				<search_path add="E:\SDK\qt5-gcc-4.9-64bit\include\QtCore" />
-				<search_path add="E:\SDK\qt5-gcc-4.9-64bit\include\QtGui" />
-				<search_path add="E:\SDK\qt5-gcc-4.9-64bit\include\QtWidgets" />
+				<search_path add="E:\sdk\qt-5.5.0-x64-mingw510r0-seh\include\QtCore" />
+				<search_path add="E:\sdk\qt-5.5.0-x64-mingw510r0-seh\include\QtGui" />
+				<search_path add="E:\sdk\qt-5.5.0-x64-mingw510r0-seh\include\QtWidgets" />
 			</code_completion>
 			<envvars />
 			<debugger>
