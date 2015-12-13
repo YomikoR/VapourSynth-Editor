@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "numbermatcher.h"
+#include "../settings/settingsmanager.h"
 
 #include "syntaxhighlighter.h"
 
@@ -47,8 +48,8 @@ struct Token
 //==============================================================================
 
 SyntaxHighlighter::SyntaxHighlighter(QTextDocument * a_pDocument,
-	VSPluginsList a_pluginsList)
-	: QSyntaxHighlighter(a_pDocument)
+	VSPluginsList a_pluginsList) : QSyntaxHighlighter(a_pDocument)
+	, m_pSettingsManager(nullptr)
 	, m_coreName("core")
 	, m_pluginsList(a_pluginsList)
 	, m_keywordsList()
@@ -82,20 +83,6 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument * a_pDocument,
 		{
 			return (a_first.length() > a_second.length());
 		});
-
-	m_keywordFormat.setForeground(QColor("#0EAA95"));
-	m_keywordFormat.setFontWeight(QFont::Bold);
-	m_operatorFormat.setForeground(QColor("#b9672a"));
-	m_stringFormat.setForeground(QColor("#a500bc"));
-	m_numberFormat.setForeground(QColor("#3f8300"));
-	m_commentFormat.setForeground(QColor("#808080"));
-	m_vsCoreFormat.setForeground(QColor("#0673E0"));
-	m_vsCoreFormat.setFontWeight(QFont::Bold);
-	m_vsNamespaceFormat.setForeground(QColor("#0673E0"));
-	m_vsNamespaceFormat.setFontWeight(QFont::Bold);
-	m_vsFunctionFormat.setForeground(QColor("#0673E0"));
-	m_vsFunctionFormat.setFontWeight(QFont::Bold);
-	m_vsArgumentFormat.setForeground(QColor("#a500bc"));
 }
 
 // END OF SyntaxHighlighter::SyntaxHighlighter(QTextDocument * a_pDocument,
@@ -108,6 +95,16 @@ SyntaxHighlighter::~SyntaxHighlighter()
 }
 
 // END OF SyntaxHighlighter::~SyntaxHighlighter()
+//==============================================================================
+
+void SyntaxHighlighter::setSettingsManager(SettingsManager * a_pSettingsManager)
+{
+	m_pSettingsManager = a_pSettingsManager;
+	slotLoadSettings();
+}
+
+// END OF void SyntaxHighlighter::setSettingsManager(
+//		SettingsManager * a_pSettingsManager)
 //==============================================================================
 
 void SyntaxHighlighter::setCoreName(const QString & a_coreName)
@@ -128,6 +125,32 @@ void SyntaxHighlighter::setPluginsList(VSPluginsList a_pluginsList)
 }
 
 // END OF void SyntaxHighlighter::setPluginsList(VSPluginsList a_pluginsList)
+//==============================================================================
+
+void SyntaxHighlighter::slotLoadSettings()
+{
+	m_keywordFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_KEYWORD);
+	m_operatorFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_OPERATOR);
+	m_stringFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_STRING);
+	m_numberFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_NUMBER);
+	m_commentFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_COMMENT);
+	m_vsCoreFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_VS_CORE);
+	m_vsNamespaceFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_VS_NAMESPACE);
+	m_vsFunctionFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_VS_FUNCTION);
+	m_vsArgumentFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_VS_ARGUMENT);
+	rehighlight();
+}
+
+// END OF void SyntaxHighlighter::slotLoadSettings()
 //==============================================================================
 
 void SyntaxHighlighter::highlightBlock(const QString & a_text)

@@ -13,6 +13,8 @@ class QPaintEvent;
 class ScriptCompleterModel;
 class ScriptCompleter;
 class SyntaxHighlighter;
+class SettingsManager;
+class SettingsDialog;
 
 class ScriptEditor : public QPlainTextEdit
 {
@@ -40,7 +42,13 @@ class ScriptEditor : public QPlainTextEdit
 
 		void setCharactersTypedToStartCompletion(int a_charactersNumber);
 
+		void setSettingsManager(SettingsManager * a_pSettingsManager);
+
+		void setSettingsDialog(SettingsDialog * a_pSettingsDialog);
+
 	public slots:
+
+		void slotLoadSettings();
 
 		void slotComplete();
 
@@ -76,6 +84,8 @@ class ScriptEditor : public QPlainTextEdit
 
 		void indentNewLine();
 
+		SettingsManager * m_pSettingsManager;
+
 		QWidget * m_pSideBox;
 
 		int m_sideBoxLineWidth;
@@ -93,6 +103,8 @@ class ScriptEditor : public QPlainTextEdit
 		int m_charactersTypedToStartCompletion;
 
 		QString m_plainText;
+
+		QColor m_backgroundColor;
 
 };
 

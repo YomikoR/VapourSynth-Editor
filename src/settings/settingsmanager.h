@@ -6,6 +6,8 @@
 #include <QByteArray>
 #include <QStringList>
 #include <QKeySequence>
+#include <QTextCharFormat>
+#include <QColor>
 
 #include "../preview/timelineslider.h"
 #include "../image/zimg/API/zimg.h"
@@ -88,6 +90,20 @@ extern const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[];
 
 //==============================================================================
 
+extern const char TEXT_FORMAT_ID_KEYWORD[];
+extern const char TEXT_FORMAT_ID_OPERATOR[];
+extern const char TEXT_FORMAT_ID_STRING[];
+extern const char TEXT_FORMAT_ID_NUMBER[];
+extern const char TEXT_FORMAT_ID_COMMENT[];
+extern const char TEXT_FORMAT_ID_VS_CORE[];
+extern const char TEXT_FORMAT_ID_VS_NAMESPACE[];
+extern const char TEXT_FORMAT_ID_VS_FUNCTION[];
+extern const char TEXT_FORMAT_ID_VS_ARGUMENT[];
+
+extern const char COLOR_ID_TEXT_BACKGROUND[];
+
+//==============================================================================
+
 class SettingsManager : public QObject
 {
 	public:
@@ -95,16 +111,40 @@ class SettingsManager : public QObject
 		SettingsManager(QObject * a_pParent);
 		virtual ~SettingsManager();
 
+		//----------------------------------------------------------------------
+
 		bool getPortableMode() const;
 
 		bool setPortableMode(bool a_portableMod);
 
-		QKeySequence getDefaultHotkey(const QString & a_actionID);
+		//----------------------------------------------------------------------
 
-		QKeySequence getHotkey(const QString & a_actionID);
+		QKeySequence getDefaultHotkey(const QString & a_actionID) const;
+
+		QKeySequence getHotkey(const QString & a_actionID) const;
 
 		bool setHotkey(const QString & a_actionID,
 			const QKeySequence & a_hotkey);
+
+		//----------------------------------------------------------------------
+
+		QTextCharFormat getDefaultTextFormat(const QString & a_textFormatID)
+			const;
+
+		QTextCharFormat getTextFormat(const QString & a_textFormatID) const;
+
+		bool setTextFormat(const QString & a_textFormatID,
+			const QTextCharFormat & a_format);
+
+		//----------------------------------------------------------------------
+
+		QColor getDefaultColor(const QString & a_colorID) const;
+
+		QColor getColor(const QString & a_colorID) const;
+
+		bool setColor(const QString & a_colorID, const QColor & a_color);
+
+		//----------------------------------------------------------------------
 
 		QString getLastUsedPath() const;
 
@@ -167,51 +207,51 @@ class SettingsManager : public QObject
 
 		bool setMaxRecentFilesNumber(unsigned int a_maxRecentFilesNumber);
 
-		QStringList getVapourSynthLibraryPaths();
+		QStringList getVapourSynthLibraryPaths() const;
 
 		bool setVapourSynthLibraryPaths(const QStringList & a_pathsList);
 
-		QStringList getVapourSynthPluginsPaths();
+		QStringList getVapourSynthPluginsPaths() const;
 
 		bool setVapourSynthPluginsPaths(const QStringList & a_pathsList);
 
-		QStringList getVapourSynthDocumentationPaths();
+		QStringList getVapourSynthDocumentationPaths() const;
 
 		bool setVapourSynthDocumentationPaths(const QStringList & a_pathsList);
 
-		int getCharactersTypedToStartCompletion();
+		int getCharactersTypedToStartCompletion() const;
 
 		bool setCharactersTypedToStartCompletion(int a_charactersNumber);
 
-		TimeLineSlider::DisplayMode getTimeLineMode();
+		TimeLineSlider::DisplayMode getTimeLineMode() const;
 
 		bool setTimeLineMode(TimeLineSlider::DisplayMode a_timeLineMode);
 
-		double getTimeStep();
+		double getTimeStep() const;
 
 		bool setTimeStep(double a_timeStep);
 
-		ResamplingFilter getChromaResamplingFilter();
+		ResamplingFilter getChromaResamplingFilter() const;
 
 		bool setChromaResamplingFilter(ResamplingFilter a_filter);
 
-		YuvToRgbConversionMatrix getYuvToRgbConversionMatrix();
+		YuvToRgbConversionMatrix getYuvToRgbConversionMatrix() const;
 
 		bool setYuvToRgbConversionMatrix(YuvToRgbConversionMatrix a_matrix);
 
-		ChromaPlacement getChromaPlacement();
+		ChromaPlacement getChromaPlacement() const;
 
 		bool setChromaPlacement(ChromaPlacement a_placement);
 
-		double getBicubicFilterParameterB();
+		double getBicubicFilterParameterB() const;
 
 		bool setBicubicFilterParameterB(double a_parameterB);
 
-		double getBicubicFilterParameterC();
+		double getBicubicFilterParameterC() const;
 
 		bool setBicubicFilterParameterC(double a_parameterC);
 
-		int getLanczosFilterTaps();
+		int getLanczosFilterTaps() const;
 
 		bool setLanczosFilterTaps(int a_taps);
 
@@ -229,7 +269,6 @@ class SettingsManager : public QObject
 		bool setValue(const QString & a_key, const QVariant & a_value);
 
 		QString m_settingsFilePath;
-
 };
 
 //==============================================================================

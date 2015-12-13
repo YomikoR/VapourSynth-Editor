@@ -57,6 +57,7 @@ MainWindow::MainWindow() : QMainWindow()
 	setWindowIcon(QIcon(":vsedit.ico"));
 
 	m_pSettingsManager = new SettingsManager(this);
+	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 
 	m_pVapourSynthScriptProcessor =
 		new VapourSynthScriptProcessor(m_pSettingsManager, this);
@@ -76,13 +77,14 @@ MainWindow::MainWindow() : QMainWindow()
 		m_pVapourSynthPluginsManager->pluginsList());
 	m_ui.scriptEdit->setCharactersTypedToStartCompletion(
 		m_pSettingsManager->getCharactersTypedToStartCompletion());
+	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
+	m_ui.scriptEdit->setSettingsDialog(m_pSettingsDialog);
+	m_ui.scriptEdit->slotLoadSettings();
 
 	connect(m_ui.scriptEdit, SIGNAL(textChanged()),
 		this, SLOT(slotEditorTextChanged()));
 	connect(m_ui.scriptEdit, SIGNAL(modificationChanged(bool)),
 		this, SLOT(slotChangeWindowTitle()));
-
-	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotSettingsChanged()));

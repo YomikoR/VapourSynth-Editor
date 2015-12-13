@@ -13,12 +13,16 @@
 #include "scriptcompletermodel.h"
 #include "scriptcompleter.h"
 #include "syntaxhighlighter.h"
+#include "../settings/settingsmanager.h"
+#include "../settings/settingsdialog.h"
 
 #include "scripteditor.h"
 
 //==============================================================================
 
-ScriptEditor::ScriptEditor(QWidget * a_pParent) : QPlainTextEdit(a_pParent)
+ScriptEditor::ScriptEditor(QWidget * a_pParent) :
+	QPlainTextEdit(a_pParent)
+	, m_pSettingsManager(nullptr)
 	, m_pSideBox(nullptr)
 	, m_sideBoxLineWidth(1)
 	, m_sideBoxTextMargin(3)
@@ -28,6 +32,7 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) : QPlainTextEdit(a_pParent)
 	, m_typedCharacters(0)
 	, m_charactersTypedToStartCompletion(2)
 	, m_plainText()
+	, m_backgroundColor(Qt::white)
 {
 	QFont scriptEditorFont = font();
 	scriptEditorFont.setFamily("monospace");
@@ -61,6 +66,8 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) : QPlainTextEdit(a_pParent)
 		this, SLOT(slotUpdateSideBox(const QRect &, int)));
 	connect(this, SIGNAL(cursorPositionChanged()),
 		this, SLOT(slotHighlightCurrentBlock()));
+
+	slotLoadSettings();
 }
 
 // END OF ScriptEditor::ScriptEditor(QWidget * a_pParent)
@@ -147,6 +154,44 @@ void ScriptEditor::setCharactersTypedToStartCompletion(int a_charactersNumber)
 }
 
 // END OF void ScriptEditor::setModified(bool a_modified)
+//==============================================================================
+
+void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
+{
+	m_pSettingsManager = a_pSettingsManager;
+	m_pSyntaxHighlighter->setSettingsManager(a_pSettingsManager);
+}
+
+// END OF void ScriptEditor::setSettingsManager(
+//		SettingsManager * a_pSettingsManager)
+//==============================================================================
+
+void ScriptEditor::setSettingsDialog(SettingsDialog * a_pSettingsDialog)
+{
+	connect(a_pSettingsDialog, SIGNAL(signalSettingsChanged()),
+		this, SLOT(slotLoadSettings()));
+	connect(a_pSettingsDialog, SIGNAL(signalSettingsChanged()),
+		m_pSyntaxHighlighter, SLOT(slotLoadSettings()));
+}
+
+// END OF void ScriptEditor::setSettingsDialog(
+//		SettingsManager * a_pSettingsDialog)
+//==============================================================================
+
+void ScriptEditor::slotLoadSettings()
+{
+	if(!m_pSettingsManager)
+		return;
+
+	m_backgroundColor = m_pSettingsManager->getColor(COLOR_ID_TEXT_BACKGROUND);
+	QPalette newPalette = palette();
+	newPalette.setColor(QPalette::Active, QPalette::Base, m_backgroundColor);
+	newPalette.setColor(QPalette::Inactive, QPalette::Base, m_backgroundColor);
+	setPalette(newPalette);
+	update();
+}
+
+// END OF void ScriptEditor::slotLoadSettings()
 //==============================================================================
 
 void ScriptEditor::slotComplete()
@@ -440,7 +485,7 @@ int ScriptEditor::sideBoxWidth()
 void ScriptEditor::paintSideBox(QPaintEvent * a_pEvent)
 {
 	QPainter painter(m_pSideBox);
-	painter.fillRect(a_pEvent->rect(), Qt::white);
+	painter.fillRect(a_pEvent->rect(), m_backgroundColor);
 
 	// Draw border line between sidebox and text.
 	QRect borderLineRect = a_pEvent->rect();

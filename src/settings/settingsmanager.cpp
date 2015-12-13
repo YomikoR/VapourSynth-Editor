@@ -102,6 +102,22 @@ const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[] = "advanced_preview_settings";
 
 //==============================================================================
 
+const char THEME_GROUP[] = "theme";
+
+const char TEXT_FORMAT_ID_KEYWORD[] = "keyword";
+const char TEXT_FORMAT_ID_OPERATOR[] = "operator";
+const char TEXT_FORMAT_ID_STRING[] = "string";
+const char TEXT_FORMAT_ID_NUMBER[] = "number";
+const char TEXT_FORMAT_ID_COMMENT[] = "comment";
+const char TEXT_FORMAT_ID_VS_CORE[] = "vs_core";
+const char TEXT_FORMAT_ID_VS_NAMESPACE[] = "vs_namespace";
+const char TEXT_FORMAT_ID_VS_FUNCTION[] = "vs_function";
+const char TEXT_FORMAT_ID_VS_ARGUMENT[] = "vs_argument";
+
+const char COLOR_ID_TEXT_BACKGROUND[] = "text_background_color";
+
+//==============================================================================
+
 SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 	, m_settingsFilePath()
 {
@@ -214,7 +230,7 @@ bool SettingsManager::setValue(const QString & a_key,
 
 //==============================================================================
 
-QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID)
+QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID) const
 {
 	if(a_actionID == ACTION_ID_NEW_SCRIPT)
 		return QKeySequence(Qt::CTRL + Qt::Key_N);
@@ -252,7 +268,7 @@ QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID)
 	return QKeySequence();
 }
 
-QKeySequence SettingsManager::getHotkey(const QString & a_actionID)
+QKeySequence SettingsManager::getHotkey(const QString & a_actionID) const
 {
 	QKeySequence hotkey =
 		valueInGroup(HOTKEYS_GROUP, a_actionID).value<QKeySequence>();
@@ -265,6 +281,100 @@ bool SettingsManager::setHotkey(const QString & a_actionID,
 	const QKeySequence & a_hotkey)
 {
 	return setValueInGroup(HOTKEYS_GROUP, a_actionID, a_hotkey);
+}
+
+//==============================================================================
+
+QTextCharFormat SettingsManager::getDefaultTextFormat(
+	const QString & a_textFormatID) const
+{
+	// Standard "Icecream" theme
+
+	QTextCharFormat defaultFormat;
+
+	if(a_textFormatID == TEXT_FORMAT_ID_KEYWORD)
+	{
+		defaultFormat.setForeground(QColor("#0EAA95"));
+		defaultFormat.setFontWeight(QFont::Bold);
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_OPERATOR)
+	{
+		defaultFormat.setForeground(QColor("#b9672a"));
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_STRING)
+	{
+		defaultFormat.setForeground(QColor("#a500bc"));
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_NUMBER)
+	{
+		defaultFormat.setForeground(QColor("#3f8300"));
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_COMMENT)
+	{
+		defaultFormat.setForeground(QColor("#808080"));
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_VS_CORE)
+	{
+		defaultFormat.setForeground(QColor("#0673E0"));
+		defaultFormat.setFontWeight(QFont::Bold);
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_VS_NAMESPACE)
+	{
+		defaultFormat.setForeground(QColor("#0673E0"));
+		defaultFormat.setFontWeight(QFont::Bold);
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_VS_FUNCTION)
+	{
+		defaultFormat.setForeground(QColor("#0673E0"));
+		defaultFormat.setFontWeight(QFont::Bold);
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_VS_ARGUMENT)
+	{
+		defaultFormat.setForeground(QColor("#a500bc"));
+	}
+
+	return defaultFormat;
+}
+
+QTextCharFormat SettingsManager::getTextFormat(const QString & a_textFormatID)
+	const
+{
+	QVariant value = valueInGroup(THEME_GROUP, a_textFormatID,
+		getDefaultTextFormat(a_textFormatID));
+	return qvariant_cast<QTextFormat>(value).toCharFormat();
+}
+
+bool SettingsManager::setTextFormat(const QString & a_textFormatID,
+	const QTextCharFormat & a_format)
+{
+	return setValueInGroup(THEME_GROUP, a_textFormatID, a_format);
+}
+
+//==============================================================================
+
+QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
+{
+	QColor defaultColor;
+
+	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
+	{
+		defaultColor = Qt::white;
+	}
+
+	return defaultColor;
+}
+
+QColor SettingsManager::getColor(const QString & a_colorID) const
+{
+	QVariant value = valueInGroup(THEME_GROUP, a_colorID,
+		getDefaultColor(a_colorID));
+	return qvariant_cast<QColor>(value);
+}
+
+bool SettingsManager::setColor(const QString & a_colorID,
+	const QColor & a_color)
+{
+	return setValueInGroup(THEME_GROUP, a_colorID, a_color);
 }
 
 //==============================================================================
@@ -470,7 +580,7 @@ bool SettingsManager::setMaxRecentFilesNumber(
 
 //==============================================================================
 
-QStringList SettingsManager::getVapourSynthLibraryPaths()
+QStringList SettingsManager::getVapourSynthLibraryPaths() const
 {
 	QStringList paths = value(VAPOURSYNTH_LIBRARY_PATHS_KEY).toStringList();
 	paths.removeDuplicates();
@@ -485,7 +595,7 @@ bool SettingsManager::setVapourSynthLibraryPaths(
 
 //==============================================================================
 
-QStringList SettingsManager::getVapourSynthPluginsPaths()
+QStringList SettingsManager::getVapourSynthPluginsPaths() const
 {
 	QStringList paths = value(VAPOURSYNTH_PLUGINS_PATHS_KEY).toStringList();
 	paths.removeDuplicates();
@@ -500,7 +610,7 @@ bool SettingsManager::setVapourSynthPluginsPaths(
 
 //==============================================================================
 
-QStringList SettingsManager::getVapourSynthDocumentationPaths()
+QStringList SettingsManager::getVapourSynthDocumentationPaths() const
 {
 	QStringList paths = value(VAPOURSYNTH_DOCUMENTATION_PATHS_KEY,
 		DEFAULT_DOCUMENTATION_PATHS).toStringList();
@@ -516,7 +626,7 @@ bool SettingsManager::setVapourSynthDocumentationPaths(
 
 //==============================================================================
 
-int SettingsManager::getCharactersTypedToStartCompletion()
+int SettingsManager::getCharactersTypedToStartCompletion() const
 {
 	return value(CHARACTERS_TYPED_TO_START_COMPLETION_KEY,
 		DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION).toInt();
@@ -531,7 +641,7 @@ bool SettingsManager::setCharactersTypedToStartCompletion(
 
 //==============================================================================
 
-TimeLineSlider::DisplayMode SettingsManager::getTimeLineMode()
+TimeLineSlider::DisplayMode SettingsManager::getTimeLineMode() const
 {
 	return (TimeLineSlider::DisplayMode)value(TIMELINE_MODE_KEY,
 		(int)DEFAULT_TIMELINE_MODE).toInt();
@@ -545,7 +655,7 @@ bool SettingsManager::setTimeLineMode(
 
 //==============================================================================
 
-double SettingsManager::getTimeStep()
+double SettingsManager::getTimeStep() const
 {
 	return value(TIME_STEP_KEY, DEFAULT_TIME_STEP).toDouble();
 }
@@ -557,7 +667,7 @@ bool SettingsManager::setTimeStep(double a_timeStep)
 
 //==============================================================================
 
-ResamplingFilter SettingsManager::getChromaResamplingFilter()
+ResamplingFilter SettingsManager::getChromaResamplingFilter() const
 {
 	return (ResamplingFilter)value(CHROMA_RESAMPLING_FILTER_KEY,
 		(int)DEFAULT_CHROMA_RESAMPLING_FILTER).toInt();
@@ -570,7 +680,7 @@ bool SettingsManager::setChromaResamplingFilter(ResamplingFilter a_filter)
 
 //==============================================================================
 
-YuvToRgbConversionMatrix SettingsManager::getYuvToRgbConversionMatrix()
+YuvToRgbConversionMatrix SettingsManager::getYuvToRgbConversionMatrix() const
 {
 	return (YuvToRgbConversionMatrix)value(YUV_TO_RGB_CONVERSION_MATRIX_KEY,
 		(int)DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX).toInt();
@@ -584,7 +694,7 @@ bool SettingsManager::setYuvToRgbConversionMatrix(
 
 //==============================================================================
 
-ChromaPlacement SettingsManager::getChromaPlacement()
+ChromaPlacement SettingsManager::getChromaPlacement() const
 {
 	return (ChromaPlacement)value(CHROMA_PLACEMENT_KEY,
 		(int)DEFAULT_CHROMA_PLACEMENT).toInt();
@@ -597,7 +707,7 @@ bool SettingsManager::setChromaPlacement(ChromaPlacement a_placement)
 
 //==============================================================================
 
-double SettingsManager::getBicubicFilterParameterB()
+double SettingsManager::getBicubicFilterParameterB() const
 {
 	return value(BICUBIC_FILTER_PARAMETER_B_KEY,
 		DEFAULT_BICUBIC_FILTER_PARAMETER_B).toDouble();
@@ -610,7 +720,7 @@ bool SettingsManager::setBicubicFilterParameterB(double a_parameterB)
 
 //==============================================================================
 
-double SettingsManager::getBicubicFilterParameterC()
+double SettingsManager::getBicubicFilterParameterC() const
 {
 	return value(BICUBIC_FILTER_PARAMETER_C_KEY,
 		DEFAULT_BICUBIC_FILTER_PARAMETER_C).toDouble();
@@ -623,7 +733,7 @@ bool SettingsManager::setBicubicFilterParameterC(double a_parameterC)
 
 //==============================================================================
 
-int SettingsManager::getLanczosFilterTaps()
+int SettingsManager::getLanczosFilterTaps() const
 {
 	return value(LANCZOS_FILTER_TAPS_KEY, DEFAULT_LANCZOS_FILTER_TAPS).toInt();
 }
