@@ -7,6 +7,7 @@
 
 class SettingsManager;
 class ItemDelegateForHotkey;
+class ThemeElementsModel;
 
 class SettingsDialog : public QDialog
 {
@@ -33,6 +34,8 @@ class SettingsDialog : public QDialog
 
 	private:
 
+		void addThemeElements();
+
 		Ui::SettingsDialog m_ui;
 
 		SettingsManager * m_pSettingsManager;
@@ -40,6 +43,8 @@ class SettingsDialog : public QDialog
 		ActionsHotkeyEditModel * m_pActionsHotkeyEditModel;
 
 		ItemDelegateForHotkey * m_pItemDelegateForHotkey;
+
+		ThemeElementsModel * m_pThemeElementsModel;
 
 	private slots:
 
@@ -65,6 +70,11 @@ class SettingsDialog : public QDialog
 
 		void slotSelectVSDocumentationPath();
 
+		void slotThemeElementSelected(const QModelIndex & a_index);
+
+		void slotFontButtonClicked();
+
+		void slotColourButtonClicked();
 };
 
 #endif // SETTINGSDIALOG_H

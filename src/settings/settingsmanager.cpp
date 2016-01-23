@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QSettings>
+#include <QPalette>
 
 #include "settingsmanager.h"
 
@@ -356,9 +357,11 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 {
 	QColor defaultColor;
 
+	QPalette defaultPalette;
+
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
 	{
-		defaultColor = Qt::white;
+		defaultColor = defaultPalette.color(QPalette::Active, QPalette::Base);
 	}
 
 	return defaultColor;

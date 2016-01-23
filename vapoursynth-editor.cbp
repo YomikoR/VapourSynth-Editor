@@ -329,6 +329,8 @@
 		<Unit filename="src/settings/settingsdialog.ui" />
 		<Unit filename="src/settings/settingsmanager.cpp" />
 		<Unit filename="src/settings/settingsmanager.h" />
+		<Unit filename="src/settings/theme_elements_model.cpp" />
+		<Unit filename="src/settings/theme_elements_model.h" />
 		<Unit filename="src/vapoursynth/pixmapfromframe.cpp" />
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.cpp" />
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.h" />

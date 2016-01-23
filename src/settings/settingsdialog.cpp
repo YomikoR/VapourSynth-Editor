@@ -1,8 +1,11 @@
 #include <QFileDialog>
 #include <QListWidgetItem>
+#include <QFontDialog>
+#include <QColorDialog>
 
 #include "settingsmanager.h"
 #include "itemdelegateforhotkey.h"
+#include "theme_elements_model.h"
 
 #include "settingsdialog.h"
 
@@ -17,7 +20,8 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pActionsHotkeyEditModel(nullptr)
-	,m_pItemDelegateForHotkey(nullptr)
+	, m_pItemDelegateForHotkey(nullptr)
+	, m_pThemeElementsModel(nullptr)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":settings.png"));
@@ -38,6 +42,10 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 
 	m_pItemDelegateForHotkey = new ItemDelegateForHotkey(this);
 	m_ui.hotkeysTable->setItemDelegateForColumn(1, m_pItemDelegateForHotkey);
+
+	m_pThemeElementsModel = new ThemeElementsModel(m_pSettingsManager, this);
+	m_ui.themeElementsList->setModel(m_pThemeElementsModel);
+	addThemeElements();
 
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
@@ -63,6 +71,13 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotRemoveVSDocumentationPath()));
 	connect(m_ui.selectVSDocumentationPathButton, SIGNAL(clicked()),
 		this, SLOT(slotSelectVSDocumentationPath()));
+
+	connect(m_ui.themeElementsList, SIGNAL(clicked(const QModelIndex &)),
+		this, SLOT(slotThemeElementSelected(const QModelIndex &)));
+	connect(m_ui.fontButton, SIGNAL(clicked()),
+		this, SLOT(slotFontButtonClicked()));
+	connect(m_ui.colourButton, SIGNAL(clicked()),
+		this, SLOT(slotColourButtonClicked()));
 }
 
 // END OF SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
@@ -118,10 +133,40 @@ void SettingsDialog::slotCall()
 	m_ui.settingsTabWidget->setCurrentIndex(0);
 
 	m_pActionsHotkeyEditModel->reloadHotkeysSettings();
+
+	m_pThemeElementsModel->reloadThemeSettings();
+
 	show();
 }
 
 // END OF void SettingsDialog::slotCall()
+//==============================================================================
+
+void SettingsDialog::addThemeElements()
+{
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_KEYWORD,
+		trUtf8("Keyword"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_OPERATOR,
+		trUtf8("Operator"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_STRING,
+		trUtf8("String"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_NUMBER,
+		trUtf8("Number"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_COMMENT,
+		trUtf8("Comment"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_CORE,
+		trUtf8("VapourSynth core"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_NAMESPACE,
+		trUtf8("VapourSynth namespace"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_FUNCTION,
+		trUtf8("VapourSynth function"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_ARGUMENT,
+		trUtf8("VapourSynth argument"));
+	m_pThemeElementsModel->addColor(COLOR_ID_TEXT_BACKGROUND,
+		trUtf8("Text background color"));
+}
+
+// END OF void SettingsDialog::addThemeElements()
 //==============================================================================
 
 void SettingsDialog::slotOk()
@@ -179,6 +224,8 @@ void SettingsDialog::slotApply()
 		vapourSynthDocumentationPaths);
 
 	m_pActionsHotkeyEditModel->slotSaveActionsHotkeys();
+
+	m_pThemeElementsModel->slotSaveThemeSettings();
 
 	emit signalSettingsChanged();
 }
@@ -313,4 +360,152 @@ void SettingsDialog::slotSelectVSDocumentationPath()
 }
 
 // END OF void SettingsDialog::slotSelectVSDocumentationPath()
+//==============================================================================
+
+void SettingsDialog::slotThemeElementSelected(const QModelIndex & a_index)
+{
+	if(!a_index.isValid())
+		return;
+
+    QString themeElementId = m_pThemeElementsModel->data(
+		a_index, Qt::UserRole).toString();
+    ThemeElementData themeElementData =
+		m_pThemeElementsModel->getThemeElementData(themeElementId);
+
+	if(themeElementData.id.isEmpty())
+		return;
+
+	if(themeElementData.type == ThemeElementType::TextCharFormat)
+	{
+		m_ui.fontButton->setEnabled(true);
+		m_ui.colourButton->setEnabled(true);
+
+		m_ui.fontLabel->setText(
+			themeElementData.textCharFormat.font().family());
+		m_ui.fontLabel->setFont(themeElementData.textCharFormat.font());
+		QPalette newPalette = m_ui.fontLabel->palette();
+		newPalette.setColor(QPalette::Active, QPalette::WindowText,
+			themeElementData.textCharFormat.foreground().color());
+		newPalette.setColor(QPalette::Inactive, QPalette::WindowText,
+			themeElementData.textCharFormat.foreground().color());
+		m_ui.fontLabel->setPalette(newPalette);
+		m_ui.fontLabel->update();
+
+		newPalette = m_ui.colourFrame->palette();
+		newPalette.setColor(QPalette::Active, QPalette::Window,
+			themeElementData.textCharFormat.foreground().color());
+		newPalette.setColor(QPalette::Inactive, QPalette::Window,
+			themeElementData.textCharFormat.foreground().color());
+		m_ui.colourFrame->setPalette(newPalette);
+		m_ui.colourFrame->update();
+	}
+	else if(themeElementData.type == ThemeElementType::Color)
+	{
+		m_ui.fontButton->setEnabled(false);
+		m_ui.colourButton->setEnabled(true);
+
+		m_ui.fontLabel->setText(QString());
+		m_ui.fontLabel->setFont(QFont());
+		m_ui.fontLabel->setPalette(QPalette());
+		m_ui.fontLabel->update();
+
+		QPalette newPalette = m_ui.colourFrame->palette();
+		newPalette.setColor(QPalette::Active, QPalette::Window,
+			themeElementData.color);
+		newPalette.setColor(QPalette::Inactive, QPalette::Window,
+			themeElementData.color);
+		m_ui.colourFrame->setPalette(newPalette);
+		m_ui.colourFrame->update();
+	}
+}
+
+// END OF void SettingsDialog::slotThemeElementSelected(
+//		const QModelIndex & a_index)
+//==============================================================================
+
+void SettingsDialog::slotFontButtonClicked()
+{
+	QModelIndex index = m_ui.themeElementsList->currentIndex();
+	QString id = m_pThemeElementsModel->data(index, Qt::UserRole).toString();
+	ThemeElementData themeElementData =
+		m_pThemeElementsModel->getThemeElementData(id);
+
+	QFontDialog fontDialog;
+	fontDialog.setCurrentFont(themeElementData.textCharFormat.font());
+	int returnCode = fontDialog.exec();
+	if(returnCode == QDialog::Rejected)
+		return;
+
+	QFont newFont = fontDialog.selectedFont();
+	themeElementData.textCharFormat.setFont(newFont);
+	m_pThemeElementsModel->saveThemeElementData(themeElementData);
+	m_ui.fontLabel->setText(newFont.family());
+	m_ui.fontLabel->setFont(newFont);
+}
+
+// END OF void SettingsDialog::slotFontButtonClicked()
+//==============================================================================
+
+void SettingsDialog::slotColourButtonClicked()
+{
+	QModelIndex index = m_ui.themeElementsList->currentIndex();
+	QString id = m_pThemeElementsModel->data(index, Qt::UserRole).toString();
+	ThemeElementData themeElementData =
+		m_pThemeElementsModel->getThemeElementData(id);
+
+	QColorDialog colorDialog;
+
+	if(themeElementData.type == ThemeElementType::TextCharFormat)
+	{
+		colorDialog.setCurrentColor(
+		themeElementData.textCharFormat.foreground().color());
+	}
+	else if(themeElementData.type == ThemeElementType::Color)
+		colorDialog.setCurrentColor(themeElementData.color);
+
+	int returnCode = colorDialog.exec();
+	if(returnCode == QDialog::Rejected)
+		return;
+
+	QColor newColor = colorDialog.selectedColor();
+
+	if(themeElementData.type == ThemeElementType::TextCharFormat)
+	{
+		QBrush brush = themeElementData.textCharFormat.foreground();
+		brush.setColor(newColor);
+		themeElementData.textCharFormat.setForeground(brush);
+
+		QPalette newPalette = m_ui.fontLabel->palette();
+		newPalette.setColor(QPalette::Active, QPalette::WindowText,
+			themeElementData.textCharFormat.foreground().color());
+		newPalette.setColor(QPalette::Inactive, QPalette::WindowText,
+			themeElementData.textCharFormat.foreground().color());
+		m_ui.fontLabel->setPalette(newPalette);
+		m_ui.fontLabel->update();
+
+		newPalette = m_ui.colourFrame->palette();
+		newPalette.setColor(QPalette::Active, QPalette::Window,
+			themeElementData.textCharFormat.foreground().color());
+		newPalette.setColor(QPalette::Inactive, QPalette::Window,
+			themeElementData.textCharFormat.foreground().color());
+		m_ui.colourFrame->setPalette(newPalette);
+		m_ui.colourFrame->update();
+	}
+	else if(themeElementData.type == ThemeElementType::Color)
+	{
+		themeElementData.color = newColor;
+
+		QPalette newPalette = m_ui.colourFrame->palette();
+		newPalette.setColor(QPalette::Active, QPalette::Window,
+			themeElementData.color);
+		newPalette.setColor(QPalette::Inactive, QPalette::Window,
+			themeElementData.color);
+		m_ui.colourFrame->setPalette(newPalette);
+		m_ui.colourFrame->update();
+	}
+
+	m_pThemeElementsModel->saveThemeElementData(themeElementData);
+}
+
+// END OF void SettingsDialog::slotFontButtonClicked()
 //==============================================================================
