@@ -106,6 +106,9 @@ class ScriptEditor : public QPlainTextEdit
 
 		QColor m_backgroundColor;
 
+		QColor m_activeLineColor;
+
+		QTextCharFormat m_commonScriptTextFormat;
 };
 
 #endif // SCRIPTEDITOR_H

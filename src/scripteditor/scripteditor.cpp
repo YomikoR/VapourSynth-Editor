@@ -33,6 +33,8 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_charactersTypedToStartCompletion(2)
 	, m_plainText()
 	, m_backgroundColor(Qt::white)
+	, m_activeLineColor(Qt::lightGray)
+	, m_commonScriptTextFormat()
 {
 	QFont scriptEditorFont = font();
 	scriptEditorFont.setFamily("monospace");
@@ -183,11 +185,19 @@ void ScriptEditor::slotLoadSettings()
 	if(!m_pSettingsManager)
 		return;
 
+	m_commonScriptTextFormat = m_pSettingsManager->getTextFormat(
+		TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT);
+	document()->setDefaultFont(m_commonScriptTextFormat.font());
+
 	m_backgroundColor = m_pSettingsManager->getColor(COLOR_ID_TEXT_BACKGROUND);
+	QColor textColor = m_commonScriptTextFormat.foreground().color();
 	QPalette newPalette = palette();
-	newPalette.setColor(QPalette::Active, QPalette::Base, m_backgroundColor);
-	newPalette.setColor(QPalette::Inactive, QPalette::Base, m_backgroundColor);
+	newPalette.setColor(QPalette::Base, m_backgroundColor);
+	newPalette.setColor(QPalette::Text, textColor);
 	setPalette(newPalette);
+
+	m_activeLineColor = m_pSettingsManager->getColor(COLOR_ID_ACTIVE_LINE);
+
 	update();
 }
 
@@ -348,14 +358,13 @@ void ScriptEditor::slotUpdateSideBox(const QRect & a_rect, int a_dy)
 void ScriptEditor::slotHighlightCurrentBlock()
 {
 	QList<QTextEdit::ExtraSelection> extraTextSelections;
-	QColor lineColor = QColor("#F0F0F0");
 	QTextCursor newCursor = textCursor();
 	newCursor.movePosition(QTextCursor::StartOfBlock);
 	int linesInBlock = newCursor.block().lineCount();
 	for(int i = 0; i < linesInBlock; ++i)
 	{
 		QTextEdit::ExtraSelection selection;
-		selection.format.setBackground(lineColor);
+		selection.format.setBackground(m_activeLineColor);
 		selection.format.setProperty(QTextFormat::FullWidthSelection, true);
 		selection.cursor = newCursor;
 		selection.cursor.clearSelection();
@@ -464,15 +473,17 @@ void ScriptEditor::setChildrenCoreName(const QString & a_coreName)
 
 int ScriptEditor::sideBoxWidth()
 {
-	int digits = 1;
+	QString controlString("9");
 	int max = std::max(1, blockCount());
 	while(max >= 10)
 	{
 		max /= 10;
-		++digits;
+		controlString += "9";
 	}
 
-	int space = fontMetrics().width('9') * digits;
+	QFont commonTextFont = m_commonScriptTextFormat.font();
+	QFontMetrics metrics(commonTextFont);
+	int space = metrics.width(controlString);
 	space += m_sideBoxTextMargin * 2;
 	space += m_sideBoxLineWidth;
 
@@ -490,9 +501,16 @@ void ScriptEditor::paintSideBox(QPaintEvent * a_pEvent)
 	// Draw border line between sidebox and text.
 	QRect borderLineRect = a_pEvent->rect();
 	borderLineRect.setLeft(borderLineRect.right() - m_sideBoxLineWidth + 1);
-	painter.fillRect(borderLineRect, Qt::lightGray);
+	painter.fillRect(borderLineRect, m_activeLineColor);
 
 	// Draw visible lines numbers.
+
+	painter.setPen(m_commonScriptTextFormat.foreground().color());
+	QFont commonTextFont = m_commonScriptTextFormat.font();
+	QFontMetrics metrics(commonTextFont);
+	int labelHeight = metrics.height();
+	painter.setFont(commonTextFont);
+
 	int lineNumberWidth = m_pSideBox->width() - m_sideBoxLineWidth -
 		m_sideBoxTextMargin * 2;
 	QPointF offset = contentOffset();
@@ -507,9 +525,8 @@ void ScriptEditor::paintSideBox(QPaintEvent * a_pEvent)
 		if(!textBlock.isVisible())
 			continue;
 		QString number = QString::number(textBlock.blockNumber() + 1);
-		painter.setPen(Qt::black);
 		painter.drawText(m_sideBoxTextMargin, blockTop, lineNumberWidth,
-			fontMetrics().height(), Qt::AlignRight, number);
+			labelHeight, Qt::AlignRight, number);
 	}
 }
 

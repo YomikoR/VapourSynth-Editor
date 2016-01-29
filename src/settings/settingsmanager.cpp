@@ -4,6 +4,7 @@
 #include <QStandardPaths>
 #include <QSettings>
 #include <QPalette>
+#include <QFontMetricsF>
 
 #include "settingsmanager.h"
 
@@ -105,6 +106,7 @@ const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[] = "advanced_preview_settings";
 
 const char THEME_GROUP[] = "theme";
 
+const char TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT[] = "common_script_text";
 const char TEXT_FORMAT_ID_KEYWORD[] = "keyword";
 const char TEXT_FORMAT_ID_OPERATOR[] = "operator";
 const char TEXT_FORMAT_ID_STRING[] = "string";
@@ -114,8 +116,12 @@ const char TEXT_FORMAT_ID_VS_CORE[] = "vs_core";
 const char TEXT_FORMAT_ID_VS_NAMESPACE[] = "vs_namespace";
 const char TEXT_FORMAT_ID_VS_FUNCTION[] = "vs_function";
 const char TEXT_FORMAT_ID_VS_ARGUMENT[] = "vs_argument";
+const char TEXT_FORMAT_ID_TIMELINE[] = "timeline_text";
 
 const char COLOR_ID_TEXT_BACKGROUND[] = "text_background_color";
+const char COLOR_ID_ACTIVE_LINE[] = "active_line_color";
+
+const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 
 //==============================================================================
 
@@ -293,7 +299,11 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 
 	QTextCharFormat defaultFormat;
 
-	if(a_textFormatID == TEXT_FORMAT_ID_KEYWORD)
+	if(a_textFormatID == TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT)
+	{
+		return defaultFormat;
+	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_KEYWORD)
 	{
 		defaultFormat.setForeground(QColor("#0EAA95"));
 		defaultFormat.setFontWeight(QFont::Bold);
@@ -333,6 +343,19 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 	{
 		defaultFormat.setForeground(QColor("#a500bc"));
 	}
+	else if(a_textFormatID == TEXT_FORMAT_ID_TIMELINE)
+	{
+		QFont timelineLabelsFont = defaultFormat.font();
+		timelineLabelsFont.setFamily(QString("Digital Mini"));
+
+		QFontMetricsF metrics(timelineLabelsFont);
+		qreal factor = (qreal)DEFAULT_TIMELINE_LABELS_HEIGHT /
+			metrics.tightBoundingRect("9").height();
+		qreal currentFontSize = timelineLabelsFont.pointSizeF();
+		timelineLabelsFont.setPointSizeF(currentFontSize * factor);
+
+		defaultFormat.setFont(timelineLabelsFont);
+	}
 
 	return defaultFormat;
 }
@@ -362,6 +385,16 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
 	{
 		defaultColor = defaultPalette.color(QPalette::Active, QPalette::Base);
+	}
+	else if(a_colorID == COLOR_ID_ACTIVE_LINE)
+	{
+		// TODO: find a better way to achieve default active line color?
+		defaultColor = getColor(COLOR_ID_TEXT_BACKGROUND);
+		qreal lightness = defaultColor.lightnessF();
+		if(lightness >= 0.5)
+			defaultColor = defaultColor.darker(110);
+		else
+			defaultColor = defaultColor.lighter(150);
 	}
 
 	return defaultColor;

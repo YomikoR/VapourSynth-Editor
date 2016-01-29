@@ -90,6 +90,7 @@ extern const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[];
 
 //==============================================================================
 
+extern const char TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT[];
 extern const char TEXT_FORMAT_ID_KEYWORD[];
 extern const char TEXT_FORMAT_ID_OPERATOR[];
 extern const char TEXT_FORMAT_ID_STRING[];
@@ -99,8 +100,10 @@ extern const char TEXT_FORMAT_ID_VS_CORE[];
 extern const char TEXT_FORMAT_ID_VS_NAMESPACE[];
 extern const char TEXT_FORMAT_ID_VS_FUNCTION[];
 extern const char TEXT_FORMAT_ID_VS_ARGUMENT[];
+extern const char TEXT_FORMAT_ID_TIMELINE[];
 
 extern const char COLOR_ID_TEXT_BACKGROUND[];
+extern const char COLOR_ID_ACTIVE_LINE[];
 
 //==============================================================================
 

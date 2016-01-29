@@ -578,7 +578,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>fontLabel</string>
+            <string/>
            </property>
           </widget>
          </item>

@@ -136,6 +136,9 @@ void SettingsDialog::slotCall()
 
 	m_pThemeElementsModel->reloadThemeSettings();
 
+	QModelIndex firstElement = m_pActionsHotkeyEditModel->index(0, 0);
+	m_ui.themeElementsList->setCurrentIndex(firstElement);
+
 	show();
 }
 
@@ -144,6 +147,8 @@ void SettingsDialog::slotCall()
 
 void SettingsDialog::addThemeElements()
 {
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT,
+		trUtf8("Common script text"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_KEYWORD,
 		trUtf8("Keyword"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_OPERATOR,
@@ -162,8 +167,12 @@ void SettingsDialog::addThemeElements()
 		trUtf8("VapourSynth function"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_ARGUMENT,
 		trUtf8("VapourSynth argument"));
+	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_TIMELINE,
+		trUtf8("Timeline labels"));
 	m_pThemeElementsModel->addColor(COLOR_ID_TEXT_BACKGROUND,
 		trUtf8("Text background color"));
+	m_pThemeElementsModel->addColor(COLOR_ID_ACTIVE_LINE,
+		trUtf8("Active line color"));
 }
 
 // END OF void SettingsDialog::addThemeElements()
@@ -384,17 +393,13 @@ void SettingsDialog::slotThemeElementSelected(const QModelIndex & a_index)
 			themeElementData.textCharFormat.font().family());
 		m_ui.fontLabel->setFont(themeElementData.textCharFormat.font());
 		QPalette newPalette = m_ui.fontLabel->palette();
-		newPalette.setColor(QPalette::Active, QPalette::WindowText,
-			themeElementData.textCharFormat.foreground().color());
-		newPalette.setColor(QPalette::Inactive, QPalette::WindowText,
+		newPalette.setColor(QPalette::WindowText,
 			themeElementData.textCharFormat.foreground().color());
 		m_ui.fontLabel->setPalette(newPalette);
 		m_ui.fontLabel->update();
 
 		newPalette = m_ui.colourFrame->palette();
-		newPalette.setColor(QPalette::Active, QPalette::Window,
-			themeElementData.textCharFormat.foreground().color());
-		newPalette.setColor(QPalette::Inactive, QPalette::Window,
+		newPalette.setColor(QPalette::Window,
 			themeElementData.textCharFormat.foreground().color());
 		m_ui.colourFrame->setPalette(newPalette);
 		m_ui.colourFrame->update();
@@ -410,10 +415,7 @@ void SettingsDialog::slotThemeElementSelected(const QModelIndex & a_index)
 		m_ui.fontLabel->update();
 
 		QPalette newPalette = m_ui.colourFrame->palette();
-		newPalette.setColor(QPalette::Active, QPalette::Window,
-			themeElementData.color);
-		newPalette.setColor(QPalette::Inactive, QPalette::Window,
-			themeElementData.color);
+		newPalette.setColor(QPalette::Window, themeElementData.color);
 		m_ui.colourFrame->setPalette(newPalette);
 		m_ui.colourFrame->update();
 	}
@@ -476,17 +478,13 @@ void SettingsDialog::slotColourButtonClicked()
 		themeElementData.textCharFormat.setForeground(brush);
 
 		QPalette newPalette = m_ui.fontLabel->palette();
-		newPalette.setColor(QPalette::Active, QPalette::WindowText,
-			themeElementData.textCharFormat.foreground().color());
-		newPalette.setColor(QPalette::Inactive, QPalette::WindowText,
+		newPalette.setColor(QPalette::WindowText,
 			themeElementData.textCharFormat.foreground().color());
 		m_ui.fontLabel->setPalette(newPalette);
 		m_ui.fontLabel->update();
 
 		newPalette = m_ui.colourFrame->palette();
-		newPalette.setColor(QPalette::Active, QPalette::Window,
-			themeElementData.textCharFormat.foreground().color());
-		newPalette.setColor(QPalette::Inactive, QPalette::Window,
+		newPalette.setColor(QPalette::Window,
 			themeElementData.textCharFormat.foreground().color());
 		m_ui.colourFrame->setPalette(newPalette);
 		m_ui.colourFrame->update();
@@ -496,10 +494,7 @@ void SettingsDialog::slotColourButtonClicked()
 		themeElementData.color = newColor;
 
 		QPalette newPalette = m_ui.colourFrame->palette();
-		newPalette.setColor(QPalette::Active, QPalette::Window,
-			themeElementData.color);
-		newPalette.setColor(QPalette::Inactive, QPalette::Window,
-			themeElementData.color);
+		newPalette.setColor(QPalette::Window, themeElementData.color);
 		m_ui.colourFrame->setPalette(newPalette);
 		m_ui.colourFrame->update();
 	}

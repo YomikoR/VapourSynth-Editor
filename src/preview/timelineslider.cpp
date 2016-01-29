@@ -41,17 +41,15 @@ TimeLineSlider::TimeLineSlider(QWidget * a_pParent) : QWidget(a_pParent)
 	setAutoFillBackground(true);
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking(true);
-	int widgetHeight = m_bottomMargin + m_slideLineHeight +
-		m_slideLineTicksSpacing + m_longTickHeight + m_tickTextSpacing +
-		m_textHeight + m_topMargin;
-	setMinimumSize(2 * m_sideMargin + 2 * m_slideLineFrameWidth + 2,
-		widgetHeight);
-	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
 	QFontMetricsF metrics(m_labelsFont);
 	qreal factor = (qreal)m_textHeight /
 		metrics.tightBoundingRect("9").height();
 	m_labelsFont.setPointSizeF(m_labelsFont.pointSizeF() * factor);
+
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+	recalculateMinimumSize();
 }
 
 // END OF TimeLineSlider::TimeLineSlider(QWidget * a_pParent)
@@ -139,6 +137,17 @@ void TimeLineSlider::setBigStep(int a_bigStep)
 
 
 // END OF void TimeLineSlider::setBigStep(int a_bigStep)
+//==============================================================================
+
+void TimeLineSlider::setLabelsFont(const QFont & a_font)
+{
+	m_labelsFont = a_font;
+	QFontMetrics metrics(m_labelsFont);
+	m_textHeight = metrics.tightBoundingRect("9").height();
+	recalculateMinimumSize();
+}
+
+// END OF void TimeLineSlider::setLabelsFont(const QFont & a_font)
 //==============================================================================
 
 void TimeLineSlider::slotStepUp()
@@ -590,4 +599,16 @@ QRect TimeLineSlider::slideLineActiveRect() const
 }
 
 // END OF QRect TimeLineSlider::slideLineActiveRect() const
+//==============================================================================
+
+void TimeLineSlider::recalculateMinimumSize()
+{
+	int widgetHeight = m_bottomMargin + m_slideLineHeight +
+		m_slideLineTicksSpacing + m_longTickHeight + m_tickTextSpacing +
+		m_textHeight + m_topMargin;
+	setMinimumSize(2 * m_sideMargin + 2 * m_slideLineFrameWidth + 2,
+		widgetHeight);
+}
+
+// END OF QRect TimeLineSlider::recalculateMinimumSize()
 //==============================================================================

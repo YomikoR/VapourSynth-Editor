@@ -38,6 +38,8 @@ class TimeLineSlider : public QWidget
 
 		void setBigStep(int a_bigStep);
 
+		void setLabelsFont(const QFont & a_font);
+
 	public slots:
 
 		void slotStepUp();
@@ -81,6 +83,8 @@ class TimeLineSlider : public QWidget
 		QRect slideLineRect() const;
 
 		QRect slideLineActiveRect() const;
+
+		void recalculateMinimumSize();
 
 		int m_maxFrame;
 		double m_fps;

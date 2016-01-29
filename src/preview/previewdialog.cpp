@@ -138,6 +138,8 @@ PreviewDialog::PreviewDialog(
 		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotSettingsChanged()));
+
+	slotSettingsChanged();
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
@@ -770,6 +772,10 @@ void PreviewDialog::slotSettingsChanged()
 		hotkey = m_pSettingsManager->getHotkey(pAction->data().toString());
 		pAction->setShortcut(hotkey);
 	}
+
+	QFont sliderLabelsFont =
+		m_pSettingsManager->getTextFormat(TEXT_FORMAT_ID_TIMELINE).font();
+	m_ui.frameNumberSlider->setLabelsFont(sliderLabelsFont);
 }
 
 // END OF void PreviewDialog::slotSettingsChanged()
