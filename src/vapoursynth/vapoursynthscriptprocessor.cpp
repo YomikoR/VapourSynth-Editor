@@ -33,6 +33,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
 	, m_pOutputNode(nullptr)
+	, m_pPreviewNode(nullptr)
 	, m_cpVideoInfo(nullptr)
 	, m_currentFrame(0)
 	, m_cpCurrentFrameRef(nullptr)
@@ -112,7 +113,15 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
-    	return false;
+		return false;
+	}
+
+	if(m_cpVSAPI->getCoreInfo(vsscript_getCore(m_pVSScript))->core < 29)
+	{
+		m_error = trUtf8("VapourSynth R29+ required for preview.");
+		emit signalWriteLogMessage(mtCritical, m_error);
+		finalize();
+		return false;
 	}
 
 	m_pOutputNode = vsscript_getOutput(m_pVSScript, 0);
@@ -121,10 +130,73 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		m_error = trUtf8("Failed to get the script output node.");
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
-    	return false;
+		return false;
 	}
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
+
+	if(!m_cpVideoInfo->format || m_cpVideoInfo->format->id != pfCompatBGR32)
+	{
+		VSCore * pCore = vsscript_getCore(m_pVSScript);
+		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById("com.vapoursynth.resize",
+			pCore);
+		ResamplingFilter filter = m_pSettingsManager->getChromaResamplingFilter();
+		const char * resizeName = nullptr;
+		double paramA = NAN, paramB = NAN;
+
+		switch (filter)
+		{
+			case ResamplingFilter::Point:
+				resizeName = "Point";
+				break;
+			case ResamplingFilter::Bilinear:
+				resizeName = "Bilinear";
+				break;
+			case ResamplingFilter::Bicubic:
+				resizeName = "Bicubic";
+				paramA = m_pSettingsManager->getBicubicFilterParameterB();
+				paramB = m_pSettingsManager->getBicubicFilterParameterC();
+				break;
+			case ResamplingFilter::Lanczos:
+				resizeName = "Lanczos";
+				paramA = m_pSettingsManager->getLanczosFilterTaps();
+				break;
+			case ResamplingFilter::Spline16:
+				resizeName = "Spline16";
+				break;
+			case ResamplingFilter::Spline36:
+				resizeName = "Spline36";
+				break;
+			default:
+				assert(false);
+		}
+
+		VSMap * pArgumentMap = m_cpVSAPI->createMap();
+		m_cpVSAPI->propSetNode(pArgumentMap, "clip", m_pOutputNode, paReplace);
+		m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
+		VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
+			pArgumentMap);
+
+		m_cpVSAPI->freeMap(pArgumentMap);
+
+		if (const char * pResultError = m_cpVSAPI->getError(pResultMap))
+		{
+			m_error = trUtf8("Failed to convert to RGB:\n");
+			m_error += pResultError;
+			emit signalWriteLogMessage(mtCritical, m_error);
+			finalize();
+			return false;
+		}
+
+		VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pResultMap, "clip", 0,
+			nullptr);
+		assert(pPreviewNode);
+		m_pPreviewNode = pPreviewNode;
+	}
+	else
+	{
+		m_pPreviewNode = m_cpVSAPI->cloneNodeRef(m_pOutputNode);
+	}
 
 	m_currentFrame = 0;
 	m_error.clear();
@@ -146,6 +218,12 @@ void VapourSynthScriptProcessor::finalize()
 	{
 		m_cpVSAPI->freeNode(m_pOutputNode);
 		m_pOutputNode = nullptr;
+	}
+
+	if(m_pPreviewNode)
+	{
+		m_cpVSAPI->freeNode(m_pPreviewNode);
+		m_pPreviewNode = nullptr;
 	}
 
 	if(m_pVSScript)
@@ -171,7 +249,7 @@ void VapourSynthScriptProcessor::finalize()
 
 bool VapourSynthScriptProcessor::isInitialized() const
 {
-    return m_initialized;
+	return m_initialized;
 }
 
 // END OF bool VapourSynthScriptProcessor::isInitialized() const
@@ -202,13 +280,13 @@ bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber)
 	if(!m_initialized)
 		return false;
 
-	assert(m_pOutputNode);
+	assert(m_pPreviewNode);
 	assert(m_cpVSAPI);
 
 	char getFrameErrorMessage[1024] = {0};
 
 	const VSFrameRef * cpNewFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		m_pOutputNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
+		m_pPreviewNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
 	if (!cpNewFrameRef)
 	{
@@ -253,7 +331,7 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 	char getFrameErrorMessage[1024] = {0};
 
 	const VSFrameRef * cpFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		m_pOutputNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
+		m_pPreviewNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
 	if (!cpFrameRef)
 	{
@@ -329,56 +407,18 @@ void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
 	const VSFrameRef * a_cpFrameRef)
 {
-	assert(m_cpVideoInfo);
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(a_cpFrameRef);
+	assert(cpFormat->id == pfCompatBGR32);
 
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
+	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
 
-	if(cpFormat->id == pfCompatBGR32)
-		return pixmapFromCompatBGR32(a_cpFrameRef);
-	else if(cpFormat->id == pfCompatYUY2)
-		return pixmapFromCompatYUY2(a_cpFrameRef);
-	else if(cpFormat->id == pfGray8)
-		return pixmapFromGray1B(a_cpFrameRef);
-	else if(cpFormat->id == pfGray16)
-		return pixmapFromGray2B(a_cpFrameRef);
-	else if(cpFormat->id == pfGrayH)
-		return pixmapFromGrayH(a_cpFrameRef);
-	else if(cpFormat->id == pfGrayS)
-		return pixmapFromGrayS(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmYUV) &&
-		(cpFormat->sampleType == stInteger) &&
-		(cpFormat->bytesPerSample == 1))
-		return pixmapFromYUV1B(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmYUV) &&
-		(cpFormat->sampleType == stInteger) &&
-		(cpFormat->bytesPerSample == 2))
-		return pixmapFromYUV2B(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmYUV) &&
-		(cpFormat->sampleType == stFloat) &&
-		(cpFormat->bytesPerSample == 2))
-		return pixmapFromYUVH(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmYUV) &&
-		(cpFormat->sampleType == stFloat) &&
-		(cpFormat->bytesPerSample == 4))
-		return pixmapFromYUVS(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmRGB) &&
-		(cpFormat->sampleType == stInteger) &&
-		(cpFormat->bytesPerSample == 1))
-		return pixmapFromRGB1B(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmRGB) &&
-		(cpFormat->sampleType == stInteger) &&
-		(cpFormat->bytesPerSample == 2))
-		return pixmapFromRGB2B(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmRGB) &&
-		(cpFormat->sampleType == stFloat) &&
-		(cpFormat->bytesPerSample == 2))
-		return pixmapFromRGBH(a_cpFrameRef);
-	else if((cpFormat->colorFamily == cmRGB) &&
-		(cpFormat->sampleType == stFloat) &&
-		(cpFormat->bytesPerSample == 4))
-		return pixmapFromRGBS(a_cpFrameRef);
-	else
-		return QPixmap();
+	QImage frameImage(static_cast<const uchar *>(pData), width, height,
+		QImage::Format_RGB32);
+	QPixmap framePixmap = QPixmap::fromImage(std::move(frameImage));
+
+	return framePixmap;
 }
 
 // END OF QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
