@@ -77,6 +77,11 @@ CONFIG(debug, debug|release) {
 	}
 }
 
+macx {
+	INCLUDEPATH += /usr/local/include
+	ICON = ../resources/vsedit.icns
+}
+
 win32 {
 	INCLUDEPATH += 'C:/Program Files (x86)/VapourSynth/sdk/include/'
 
@@ -105,11 +110,16 @@ win32 {
 	}
 }
 
+contains(QMAKE_COMPILER, clang){
+	QMAKE_CXXFLAGS += -stdlib=libc++
+}
+
 contains(QMAKE_COMPILER, gcc) {
 	QMAKE_CXXFLAGS += -std=c++11
 	LIBS += -L$$[QT_INSTALL_LIBS]
 	#Why do they differ? Ask Myrsloik.
 	win32:LIBS += -lvsscript
+	macx:LIBS += -L/usr/local/lib -lvapoursynth-script
 	linux:LIBS += -lvapoursynth-script
 } else {
 	CONFIG += c++11
