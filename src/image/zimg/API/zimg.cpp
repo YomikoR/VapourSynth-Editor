@@ -19,8 +19,8 @@ using namespace zimg;
 namespace {;
 
 std::atomic<CPUClass> g_cpu_type{ CPUClass::CPU_NONE };
-THREAD_LOCAL int g_last_error = 0;
-THREAD_LOCAL char g_last_error_msg[1024];
+__thread int g_last_error = 0;
+__thread char g_last_error_msg[1024];
 
 CPUClass get_cpu_class(int cpu)
 {
