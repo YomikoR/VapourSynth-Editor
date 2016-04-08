@@ -301,6 +301,14 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 
 	if(a_textFormatID == TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT)
 	{
+		QFont commonScriptFont = defaultFormat.font();
+		commonScriptFont.setFamily("monospace");
+		commonScriptFont.setStyleHint(QFont::Monospace);
+		commonScriptFont.setFixedPitch(true);
+		commonScriptFont.setKerning(false);
+		commonScriptFont.setPointSize(10);
+		defaultFormat.setFont(commonScriptFont);
+
 		return defaultFormat;
 	}
 	else if(a_textFormatID == TEXT_FORMAT_ID_KEYWORD)

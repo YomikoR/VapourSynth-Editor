@@ -36,16 +36,6 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_activeLineColor(Qt::lightGray)
 	, m_commonScriptTextFormat()
 {
-	QFont scriptEditorFont = font();
-	scriptEditorFont.setFamily("monospace");
-	scriptEditorFont.setStyleHint(QFont::Monospace);
-	scriptEditorFont.setFixedPitch(true);
-	scriptEditorFont.setKerning(false);
-	scriptEditorFont.setPointSize(10);
-	setFont(scriptEditorFont);
-	QFontMetrics metrics(scriptEditorFont);
-	setTabStopWidth(metrics.width(' ') * 4);
-
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);
 
@@ -187,7 +177,11 @@ void ScriptEditor::slotLoadSettings()
 
 	m_commonScriptTextFormat = m_pSettingsManager->getTextFormat(
 		TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT);
-	document()->setDefaultFont(m_commonScriptTextFormat.font());
+	QFont commonScriptTextFont = m_commonScriptTextFormat.font();
+	document()->setDefaultFont(commonScriptTextFont);
+
+	QFontMetrics metrics(commonScriptTextFont);
+	setTabStopWidth(metrics.width(' ') * 4);
 
 	m_backgroundColor = m_pSettingsManager->getColor(COLOR_ID_TEXT_BACKGROUND);
 	QColor textColor = m_commonScriptTextFormat.foreground().color();
@@ -197,6 +191,8 @@ void ScriptEditor::slotLoadSettings()
 	setPalette(newPalette);
 
 	m_activeLineColor = m_pSettingsManager->getColor(COLOR_ID_ACTIVE_LINE);
+
+	slotUpdateSideBoxWidth();
 
 	update();
 }
@@ -471,7 +467,7 @@ void ScriptEditor::setChildrenCoreName(const QString & a_coreName)
 // END OF void ScriptEditor::setChildrenCoreName(const QString & a_coreName)
 //==============================================================================
 
-int ScriptEditor::sideBoxWidth()
+int ScriptEditor::sideBoxWidth() const
 {
 	QString controlString("9");
 	int max = std::max(1, blockCount());

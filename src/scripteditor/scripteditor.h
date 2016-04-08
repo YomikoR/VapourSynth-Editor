@@ -78,7 +78,7 @@ class ScriptEditor : public QPlainTextEdit
 
 		void setChildrenCoreName(const QString & a_coreName);
 
-		int sideBoxWidth();
+		int sideBoxWidth() const;
 
 		void paintSideBox(QPaintEvent * a_pEvent);
 
