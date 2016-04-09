@@ -5,7 +5,7 @@
 // https://mastermind-strategy.googlecode.com/svn-history/r167/trunk/src/util/
 // aligned_allocator.hpp
 
-#include <malloc.h>
+#include <cstdlib>
 #include <memory>
 #include <vector>
 

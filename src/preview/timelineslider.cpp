@@ -9,6 +9,7 @@
 #include <QFontMetricsF>
 #include <climits>
 #include <cmath>
+#include <cstdlib>
 
 #include "../common/helpers.h"
 
