@@ -1,3 +1,8 @@
+r6:
+-Added some theme settings.
+-Switched preview to use the internal resizer instead of zimg. Requires VapourSynth R29+.
+-Support for building under MacOS X (not tested).
+
 r5:
 Fix release.
 -Fixed compatibility with VapourSynth r27. Patch by Myrsloik.

@@ -1,4 +1,4 @@
-VapourSynth Editor r5
+VapourSynth Editor r6
 
 By Aleksey [Mystery Keeper] Lyashin
 mystkeeper@gmail.com
@@ -8,9 +8,6 @@ This software is free and distributed under MIT license.
 
 Software uses Qt 5 framework by Digia, distributed under LGPL license.
 https://qt.digia.com/
-
-Software uses zimg library by Stephen R. Savage
-https://github.com/sekrit-twc/zimg
 
 Software includes Silk icons v1.3 by Mark James,
 distributed under Creative Commons Attribution 2.5 License.
