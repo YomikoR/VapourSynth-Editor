@@ -85,12 +85,12 @@ class VapourSynthScriptProcessor : public QObject
 		bool m_vsScriptInitialized;
 
 		bool m_initialized;
-
 		const VSAPI * m_cpVSAPI;
 
 		VSScript * m_pVSScript;
 
 		VSNodeRef * m_pOutputNode;
+		VSNodeRef * m_pPreviewNode;
 
 		const VSVideoInfo * m_cpVideoInfo;
 
