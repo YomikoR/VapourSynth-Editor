@@ -9,6 +9,7 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	QDialog(a_pParent, (Qt::WindowFlags)0
 		| Qt::Dialog
 		| Qt::CustomizeWindowHint
+		| Qt::WindowTitleHint
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
 {
