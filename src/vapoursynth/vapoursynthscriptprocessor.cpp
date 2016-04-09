@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include <QImage>
+#include <QSettings>
 
 //==============================================================================
 
@@ -41,8 +42,10 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_resamplingFilterParameterA(NAN)
 	, m_resamplingFilterParameterB(NAN)
 	, m_yuvMatrix()
+	, m_vsScriptLibrary(this)
 {
 	slotSettingsChanged();
+	initLibrary();
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -53,6 +56,8 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 {
 	if(m_initialized)
 		finalize();
+
+	freeLibrary();
 }
 
 // END OF VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
@@ -68,7 +73,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	int opresult = vsscript_init();
+	if(!initLibrary())
+		return false;
+
+	int opresult = vssInit();
 	if(!opresult)
 	{
 		m_error = trUtf8("Failed to initialize VapourSynth");
@@ -77,7 +85,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 	m_vsScriptInitialized = true;
 
-	m_cpVSAPI = vsscript_getVSApi();
+	m_cpVSAPI = vssGetVSApi();
 	if(!m_cpVSAPI)
 	{
 		m_error = trUtf8("Failed to get VapourSynth API!");
@@ -89,14 +97,14 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	m_cpVSAPI->setMessageHandler(::vsMessageHandler,
 		static_cast<void *>(this));
 
-	opresult = vsscript_evaluateScript(&m_pVSScript,
+	opresult = vssEvaluateScript(&m_pVSScript,
 		a_script.toUtf8().constData(), a_scriptName.toUtf8().constData(),
 		efSetWorkingDir);
 
 	if(opresult)
 	{
 		m_error = trUtf8("Failed to evaluate the script");
-		const char * vsError = vsscript_getError(m_pVSScript);
+		const char * vsError = vssGetError(m_pVSScript);
 		if(vsError)
 			m_error += QString(":\n") + vsError;
 		else
@@ -107,7 +115,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	if(m_cpVSAPI->getCoreInfo(vsscript_getCore(m_pVSScript))->core < 29)
+	if(m_cpVSAPI->getCoreInfo(vssGetCore(m_pVSScript))->core < 29)
 	{
 		m_error = trUtf8("VapourSynth R29+ required for preview.");
 		emit signalWriteLogMessage(mtCritical, m_error);
@@ -115,7 +123,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	m_pOutputNode = vsscript_getOutput(m_pVSScript, 0);
+	m_pOutputNode = vssGetOutput(m_pVSScript, 0);
 	if(!m_pOutputNode)
 	{
 		m_error = trUtf8("Failed to get the script output node.");
@@ -129,7 +137,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	if(!cpFormat || cpFormat->id != pfCompatBGR32)
 	{
-		VSCore * pCore = vsscript_getCore(m_pVSScript);
+		VSCore * pCore = vssGetCore(m_pVSScript);
 		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
 			"com.vapoursynth.resize", pCore);
 		const char * resizeName = nullptr;
@@ -256,7 +264,7 @@ void VapourSynthScriptProcessor::finalize()
 
 	if(m_pVSScript)
 	{
-		vsscript_freeScript(m_pVSScript);
+		vssFreeScript(m_pVSScript);
 		m_pVSScript = nullptr;
 	}
 
@@ -264,7 +272,7 @@ void VapourSynthScriptProcessor::finalize()
 
 	if(m_vsScriptInitialized)
 	{
-		vsscript_finalize();
+		vssFinalize();
 		m_vsScriptInitialized = false;
 	}
 
@@ -443,4 +451,148 @@ QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
 
 // END OF QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
 //		const VSFrameRef * a_cpFrameRef)
+//==============================================================================
+
+bool VapourSynthScriptProcessor::initLibrary()
+{
+	if(m_vsScriptLibrary.isLoaded())
+	{
+		assert(vssInit);
+		assert(vssGetVSApi);
+		assert(vssEvaluateScript);
+		assert(vssGetError);
+		assert(vssGetCore);
+		assert(vssGetOutput);
+		assert(vssFreeScript);
+		assert(vssFinalize);
+		return true;
+	}
+
+	#ifdef Q_OS_WIN
+	QString libraryName("vsscript");
+#else
+	QString libraryName("vapoursynth-script");
+#endif // Q_OS_WIN
+
+	QString libraryFullPath;
+	QLibrary vsLibrary(libraryName);
+	bool loaded = vsLibrary.load();
+
+#ifdef Q_OS_WIN
+	if(!loaded)
+	{
+		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
+			QSettings::NativeFormat);
+		QString vapourSynthPath =
+			settings.value("VapourSynth/Path").toString();
+		if(vapourSynthPath.isEmpty())
+		{
+			vapourSynthPath =
+				settings.value("Wow6432Node/VapourSynth/Path").toString();
+		}
+
+		if(!vapourSynthPath.isEmpty())
+		{
+			libraryFullPath = vapourSynthPath + "\\core64\\" + libraryName;
+			vsLibrary.setFileName(libraryFullPath);
+			loaded = vsLibrary.load();
+			if(!loaded)
+			{
+				libraryFullPath = vapourSynthPath + "\\core32\\" + libraryName;
+				vsLibrary.setFileName(libraryFullPath);
+				loaded = vsLibrary.load();
+			}
+		}
+	}
+#endif // Q_OS_WIN
+
+	if(!loaded)
+	{
+		QStringList librarySearchPaths =
+			m_pSettingsManager->getVapourSynthLibraryPaths();
+		for(const QString & path : librarySearchPaths)
+		{
+			libraryFullPath = path + QString("/") + libraryName;
+			vsLibrary.setFileName(libraryFullPath);
+			loaded = vsLibrary.load();
+			if(loaded)
+				break;
+		}
+	}
+
+	if(!loaded)
+	{
+		emit signalWriteLogMessage(mtCritical, "VapourSynth script processor: "
+			"Failed to load vapoursynth script library!\n"
+			"Please set up the library search paths in settings.");
+		return false;
+	}
+
+	struct Entry
+	{
+		QFunctionPointer * ppFunction;
+		const char * name;
+		const char * fallbackName;
+	};
+
+	Entry vssEntries[] =
+	{
+		  {(QFunctionPointer *)&vssInit, "vsscript_init",
+			"_vsscript_init@0"}
+		, {(QFunctionPointer *)&vssGetVSApi, "vsscript_getVSApi",
+			"_vsscript_getVSApi@0"}
+		, {(QFunctionPointer *)&vssEvaluateScript, "vsscript_evaluateScript",
+			"_vsscript_evaluateScript@16"}
+		, {(QFunctionPointer *)&vssGetError, "vsscript_getError",
+			"_vsscript_getError@4"}
+		, {(QFunctionPointer *)&vssGetCore, "vsscript_getCore",
+			"_vsscript_getCore@4"}
+		, {(QFunctionPointer *)&vssGetOutput, "vsscript_getOutput",
+			"_vsscript_getOutput@8"}
+		, {(QFunctionPointer *)&vssFreeScript, "vsscript_freeScript",
+			"_vsscript_freeScript@4"}
+		, {(QFunctionPointer *)&vssFinalize, "vsscript_finalize",
+			"_vsscript_finalize@0"}
+	};
+
+	for(Entry & entry : vssEntries)
+	{
+		assert(entry.ppFunction);
+		*entry.ppFunction = vsLibrary.resolve(entry.name);
+		if(!*entry.ppFunction)
+		{ // Win32 fallback
+			*entry.ppFunction = vsLibrary.resolve(entry.fallbackName);
+		}
+		if(!*entry.ppFunction)
+		{
+			QString errorString = trUtf8("VapourSynth script processor: "
+				"Failed to get entry %1() in vapoursynth script library!")
+				.arg(entry.name);
+			emit signalWriteLogMessage(mtCritical, errorString);
+			freeLibrary();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// END OF bool VapourSynthScriptProcessor::initLibrary()
+//==============================================================================
+
+void VapourSynthScriptProcessor::freeLibrary()
+{
+	vssInit = nullptr;
+	vssGetVSApi = nullptr;
+	vssEvaluateScript = nullptr;
+	vssGetError = nullptr;
+	vssGetCore = nullptr;
+	vssGetOutput = nullptr;
+	vssFreeScript = nullptr;
+	vssFinalize = nullptr;
+
+	m_vsScriptLibrary.unload();
+}
+
+// END OF void VapourSynthScriptProcessor::freeLibrary()
 //==============================================================================

@@ -3,15 +3,21 @@
 
 #include <QObject>
 #include <QPixmap>
+#include <QLibrary>
 #include <vapoursynth/VSScript.h>
 
 #include "../settings/settingsmanager.h"
 
-namespace vsedit
-{
-	class Resampler;
-	class AbstractYuvToRgbConverter;
-}
+typedef int (VS_CC *FNP_vssInit)(void);
+typedef const VSAPI * (VS_CC *FNP_vssGetVSApi)(void);
+typedef int (VS_CC *FNP_vssEvaluateScript)(VSScript ** a_handle,
+	const char * a_script, const char * a_scriptFilename, int a_flags);
+typedef const char * (VS_CC *FNP_vssGetError)(VSScript * a_handle);
+typedef VSCore * (VS_CC *FNP_vssGetCore)(VSScript * a_handle);
+typedef VSNodeRef * (VS_CC *FNP_vssGetOutput)(VSScript * a_handle,
+	int a_index);
+typedef void (VS_CC *FNP_vssFreeScript)(VSScript * a_handle);
+typedef int (VS_CC *FNP_vssFinalize)(void);
 
 class VapourSynthScriptProcessor : public QObject
 {
@@ -55,6 +61,10 @@ class VapourSynthScriptProcessor : public QObject
 
 		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
 
+		bool initLibrary();
+
+		void freeLibrary();
+
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
 
@@ -91,6 +101,17 @@ class VapourSynthScriptProcessor : public QObject
 		double m_resamplingFilterParameterB;
 
 		YuvToRgbConversionMatrix m_yuvMatrix;
+
+		QLibrary m_vsScriptLibrary;
+
+		FNP_vssInit vssInit;
+		FNP_vssGetVSApi vssGetVSApi;
+		FNP_vssEvaluateScript vssEvaluateScript;
+		FNP_vssGetError vssGetError;
+		FNP_vssGetCore vssGetCore;
+		FNP_vssGetOutput vssGetOutput;
+		FNP_vssFreeScript vssFreeScript;
+		FNP_vssFinalize vssFinalize;
 };
 
 #endif // VAPOURSYNTHSCRIPTPROCESSOR_H

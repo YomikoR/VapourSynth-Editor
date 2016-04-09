@@ -87,22 +87,16 @@ win32 {
 
 	contains(QMAKE_HOST.arch, x86_64) {
 		message("x86_64 build")
-		contains(QMAKE_COMPILER, gcc) {
-			LIBS += -L'C:/Program Files (x86)/VapourSynth/sdk/lib64/'
-		}
 		contains(QMAKE_COMPILER, msvc) {
-			LIBS += "C:/Program Files (x86)/VapourSynth/sdk/lib64/vsscript.lib"
 			QMAKE_LIBDIR += "E:/SDK/msvc-2013-express/VC/lib/amd64/"
 			QMAKE_LIBDIR += "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64/"
 		}
 	} else {
 		message("x86 build")
 		contains(QMAKE_COMPILER, gcc) {
-			LIBS += -L'C:/Program Files (x86)/VapourSynth/sdk/lib32/'
 			QMAKE_LFLAGS += -Wl,--large-address-aware
 		}
 		contains(QMAKE_COMPILER, msvc) {
-			LIBS += "C:/Program Files (x86)/VapourSynth/sdk/lib32/vsscript.lib"
 			QMAKE_LIBDIR += "E:/SDK/msvc-2013-express/VC/lib/"
 			QMAKE_LIBDIR += "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86/"
 			QMAKE_LFLAGS += /LARGEADDRESSAWARE
@@ -117,10 +111,6 @@ contains(QMAKE_COMPILER, clang){
 contains(QMAKE_COMPILER, gcc) {
 	QMAKE_CXXFLAGS += -std=c++11
 	LIBS += -L$$[QT_INSTALL_LIBS]
-	#Why do they differ? Ask Myrsloik.
-	win32:LIBS += -lvsscript
-	macx:LIBS += -L/usr/local/lib -lvapoursynth-script
-	linux:LIBS += -lvapoursynth-script
 } else {
 	CONFIG += c++11
 }
