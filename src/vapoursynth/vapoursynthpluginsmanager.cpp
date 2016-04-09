@@ -154,7 +154,7 @@ void VapourSynthPluginsManager::getCorePlugins()
 		return;
 	}
 
-	VSGetVapourSynthAPI getVapourSynthAPI  =
+	VSGetVapourSynthAPI getVapourSynthAPI =
 		(VSGetVapourSynthAPI)vsLibrary.resolve("getVapourSynthAPI");
 	if(!getVapourSynthAPI)
 	{ // Win32 fallback
@@ -212,7 +212,8 @@ void VapourSynthPluginsManager::getCorePlugins()
 			continue;
 		}
 
-        const char *pluginStr = cpVSAPI->propGetData(pPluginsMap, pluginKey, 0, nullptr);
+        const char * pluginStr = cpVSAPI->propGetData(pPluginsMap,
+			pluginKey, 0, nullptr);
         if(!pluginStr)
         {
             emit signalWriteLogMessage(mtCritical, QString("VapourSynth "
