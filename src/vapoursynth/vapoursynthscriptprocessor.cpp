@@ -468,40 +468,33 @@ bool VapourSynthScriptProcessor::initLibrary()
 		return true;
 	}
 
-	#ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
 	QString libraryName("vsscript");
 #else
 	QString libraryName("vapoursynth-script");
 #endif // Q_OS_WIN
 
 	QString libraryFullPath;
-	QLibrary vsLibrary(libraryName);
-	bool loaded = vsLibrary.load();
+	m_vsScriptLibrary.setFileName(libraryName);
+	bool loaded = m_vsScriptLibrary.load();
 
 #ifdef Q_OS_WIN
 	if(!loaded)
 	{
 		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
 			QSettings::NativeFormat);
-		QString vapourSynthPath =
-			settings.value("VapourSynth/Path").toString();
-		if(vapourSynthPath.isEmpty())
+		libraryFullPath =
+			settings.value("VapourSynth/VSScriptDLL").toString();
+		if(libraryFullPath.isEmpty())
 		{
-			vapourSynthPath =
-				settings.value("Wow6432Node/VapourSynth/Path").toString();
+			libraryFullPath = settings.value(
+				"Wow6432Node/VapourSynth/VSScriptDLL").toString();
 		}
 
-		if(!vapourSynthPath.isEmpty())
+		if(!libraryFullPath.isEmpty())
 		{
-			libraryFullPath = vapourSynthPath + "\\core64\\" + libraryName;
-			vsLibrary.setFileName(libraryFullPath);
-			loaded = vsLibrary.load();
-			if(!loaded)
-			{
-				libraryFullPath = vapourSynthPath + "\\core32\\" + libraryName;
-				vsLibrary.setFileName(libraryFullPath);
-				loaded = vsLibrary.load();
-			}
+			m_vsScriptLibrary.setFileName(libraryFullPath);
+			loaded = m_vsScriptLibrary.load();
 		}
 	}
 #endif // Q_OS_WIN
@@ -513,8 +506,8 @@ bool VapourSynthScriptProcessor::initLibrary()
 		for(const QString & path : librarySearchPaths)
 		{
 			libraryFullPath = path + QString("/") + libraryName;
-			vsLibrary.setFileName(libraryFullPath);
-			loaded = vsLibrary.load();
+			m_vsScriptLibrary.setFileName(libraryFullPath);
+			loaded = m_vsScriptLibrary.load();
 			if(loaded)
 				break;
 		}
@@ -558,10 +551,10 @@ bool VapourSynthScriptProcessor::initLibrary()
 	for(Entry & entry : vssEntries)
 	{
 		assert(entry.ppFunction);
-		*entry.ppFunction = vsLibrary.resolve(entry.name);
+		*entry.ppFunction = m_vsScriptLibrary.resolve(entry.name);
 		if(!*entry.ppFunction)
 		{ // Win32 fallback
-			*entry.ppFunction = vsLibrary.resolve(entry.fallbackName);
+			*entry.ppFunction = m_vsScriptLibrary.resolve(entry.fallbackName);
 		}
 		if(!*entry.ppFunction)
 		{

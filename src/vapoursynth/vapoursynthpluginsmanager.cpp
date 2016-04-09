@@ -109,25 +109,18 @@ void VapourSynthPluginsManager::getCorePlugins()
 	{
 		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
 			QSettings::NativeFormat);
-		QString vapourSynthPath =
-			settings.value("VapourSynth/Path").toString();
-		if(vapourSynthPath.isEmpty())
+		libraryFullPath =
+			settings.value("VapourSynth/VapourSynthDLL").toString();
+		if(libraryFullPath.isEmpty())
 		{
-			vapourSynthPath =
-				settings.value("Wow6432Node/VapourSynth/Path").toString();
+			libraryFullPath = settings.value(
+				"Wow6432Node/VapourSynth/VapourSynthDLL").toString();
 		}
 
-		if(!vapourSynthPath.isEmpty())
+		if(!libraryFullPath.isEmpty())
 		{
-			libraryFullPath = vapourSynthPath + "\\core64\\" + libraryName;
 			vsLibrary.setFileName(libraryFullPath);
 			loaded = vsLibrary.load();
-			if(!loaded)
-			{
-				libraryFullPath = vapourSynthPath + "\\core32\\" + libraryName;
-				vsLibrary.setFileName(libraryFullPath);
-				loaded = vsLibrary.load();
-			}
 		}
 	}
 #endif // Q_OS_WIN
