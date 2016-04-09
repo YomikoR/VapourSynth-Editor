@@ -224,7 +224,6 @@
 		<Unit filename="generated/ui/ui_previewdialog.h" />
 		<Unit filename="generated/ui/ui_settingsdialog.h" />
 		<Unit filename="pro/pro.pro" />
-		<Unit filename="pro/zimg.pro" />
 		<Unit filename="resources/resources.h" />
 		<Unit filename="resources/resources.qrc" />
 		<Unit filename="resources/windowsresources.rc">
