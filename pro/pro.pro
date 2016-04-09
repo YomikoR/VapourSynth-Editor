@@ -160,8 +160,6 @@ FORMS += ../src/mainwindow.ui
 
 HEADERS += ../src/common/helpers.h
 HEADERS += ../src/common/aligned_vector.h
-HEADERS += ../src/image/yuvtorgb.h
-HEADERS += ../src/image/resample.h
 HEADERS += ../src/settings/settingsmanager.h
 HEADERS += ../src/settings/actionshotkeyeditmodel.h
 HEADERS += ../src/settings/itemdelegateforhotkey.h
@@ -183,8 +181,6 @@ HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
 HEADERS += ../src/mainwindow.h
 
 SOURCES += ../src/common/helpers.cpp
-SOURCES += ../src/image/yuvtorgb.cpp
-SOURCES += ../src/image/resample.cpp
 SOURCES += ../src/settings/settingsmanager.cpp
 SOURCES += ../src/settings/actionshotkeyeditmodel.cpp
 SOURCES += ../src/settings/itemdelegateforhotkey.cpp
@@ -202,9 +198,6 @@ SOURCES += ../src/scripteditor/scriptcompleter.cpp
 SOURCES += ../src/scripteditor/scripteditor.cpp
 SOURCES += ../src/vapoursynth/vsplugindata.cpp
 SOURCES += ../src/vapoursynth/vapoursynthpluginsmanager.cpp
-SOURCES += ../src/vapoursynth/pixmapfromframe.cpp
 SOURCES += ../src/vapoursynth/vapoursynthscriptprocessor.cpp
 SOURCES += ../src/mainwindow.cpp
 SOURCES += ../src/main.cpp
-
-include(zimg.pro)

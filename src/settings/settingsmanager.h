@@ -10,7 +10,6 @@
 #include <QColor>
 
 #include "../preview/timelineslider.h"
-#include "../image/zimg/API/zimg.h"
 
 //==============================================================================
 
@@ -29,19 +28,18 @@ enum class CropMode
 
 enum class ResamplingFilter : int
 {
-	Point = ZIMG_RESIZE_POINT,
-	Bilinear = ZIMG_RESIZE_BILINEAR,
-	Bicubic = ZIMG_RESIZE_BICUBIC,
-	Spline16 = ZIMG_RESIZE_SPLINE16,
-	Spline36 = ZIMG_RESIZE_SPLINE36,
-	Lanczos = ZIMG_RESIZE_LANCZOS
+	Point,
+	Bilinear,
+	Bicubic,
+	Spline16,
+	Spline36,
+	Lanczos
 };
 
 enum class YuvToRgbConversionMatrix
 {
 	Bt601,
-	Bt709,
-	FullRange
+	Bt709
 };
 
 enum class ChromaPlacement

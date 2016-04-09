@@ -19,8 +19,6 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 		trUtf8("BT.601 (SD content)"), (int)YuvToRgbConversionMatrix::Bt601);
 	m_ui.yuvToRgbConversionMatrixComboBox->addItem(
 		trUtf8("BT.709 (HD content)"), (int)YuvToRgbConversionMatrix::Bt709);
-	m_ui.yuvToRgbConversionMatrixComboBox->addItem(
-		trUtf8("Full range"), (int)YuvToRgbConversionMatrix::FullRange);
 
 	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Point"),
 		(int)ResamplingFilter::Point);

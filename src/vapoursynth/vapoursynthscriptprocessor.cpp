@@ -1,11 +1,10 @@
 #include "vapoursynthscriptprocessor.h"
 
-#include "../image/yuvtorgb.h"
-#include "../image/resample.h"
-
 #include <cassert>
 #include <vector>
 #include <cmath>
+
+#include <QImage>
 
 //==============================================================================
 
@@ -41,10 +40,8 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_chromaPlacement()
 	, m_resamplingFilterParameterA(NAN)
 	, m_resamplingFilterParameterB(NAN)
-	, m_pYuvToRgbConverter(nullptr)
-	, m_pResampler(nullptr)
+	, m_yuvMatrix()
 {
-	m_pResampler = new vsedit::Resampler();
 	slotSettingsChanged();
 }
 
@@ -56,12 +53,6 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 {
 	if(m_initialized)
 		finalize();
-
-	if(m_pYuvToRgbConverter)
-		delete(m_pYuvToRgbConverter);
-
-	if(m_pResampler)
-		delete(m_pResampler);
 }
 
 // END OF VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
@@ -134,46 +125,83 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
 
-	if(!m_cpVideoInfo->format || m_cpVideoInfo->format->id != pfCompatBGR32)
+	if(!cpFormat || cpFormat->id != pfCompatBGR32)
 	{
 		VSCore * pCore = vsscript_getCore(m_pVSScript);
-		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById("com.vapoursynth.resize",
-			pCore);
-		ResamplingFilter filter = m_pSettingsManager->getChromaResamplingFilter();
+		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
+			"com.vapoursynth.resize", pCore);
 		const char * resizeName = nullptr;
-		double paramA = NAN, paramB = NAN;
-
-		switch (filter)
-		{
-			case ResamplingFilter::Point:
-				resizeName = "Point";
-				break;
-			case ResamplingFilter::Bilinear:
-				resizeName = "Bilinear";
-				break;
-			case ResamplingFilter::Bicubic:
-				resizeName = "Bicubic";
-				paramA = m_pSettingsManager->getBicubicFilterParameterB();
-				paramB = m_pSettingsManager->getBicubicFilterParameterC();
-				break;
-			case ResamplingFilter::Lanczos:
-				resizeName = "Lanczos";
-				paramA = m_pSettingsManager->getLanczosFilterTaps();
-				break;
-			case ResamplingFilter::Spline16:
-				resizeName = "Spline16";
-				break;
-			case ResamplingFilter::Spline36:
-				resizeName = "Spline36";
-				break;
-			default:
-				assert(false);
-		}
 
 		VSMap * pArgumentMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->propSetNode(pArgumentMap, "clip", m_pOutputNode, paReplace);
 		m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
+
+		switch(m_chromaResamplingFilter)
+		{
+		case ResamplingFilter::Point:
+			resizeName = "Point";
+			break;
+		case ResamplingFilter::Bilinear:
+			resizeName = "Bilinear";
+			break;
+		case ResamplingFilter::Bicubic:
+			resizeName = "Bicubic";
+			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+				m_resamplingFilterParameterA, paReplace);
+			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
+				m_resamplingFilterParameterB, paReplace);
+			break;
+		case ResamplingFilter::Lanczos:
+			resizeName = "Lanczos";
+			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+				m_resamplingFilterParameterA, paReplace);
+			break;
+		case ResamplingFilter::Spline16:
+			resizeName = "Spline16";
+			break;
+		case ResamplingFilter::Spline36:
+			resizeName = "Spline36";
+			break;
+		default:
+			assert(false);
+		}
+
+		if(cpFormat->colorFamily == cmYUV)
+		{
+			const char * matrixInS = nullptr;
+			switch(m_yuvMatrix)
+			{
+			case YuvToRgbConversionMatrix::Bt601:
+				matrixInS = "601";
+				break;
+			case YuvToRgbConversionMatrix::Bt709:
+				matrixInS = "709";
+				break;
+			default:
+				assert(false);
+			}
+			int matrixStringLength = (int)strlen(matrixInS);
+			m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
+				matrixInS, matrixStringLength, paReplace);
+
+			int64_t chromaLoc = 0;
+			switch(m_chromaPlacement)
+			{
+			case ChromaPlacement::MPEG1:
+				chromaLoc = 1;
+				break;
+			case ChromaPlacement::MPEG2:
+				chromaLoc = 0;
+				break;
+			default:
+				assert(false);
+			}
+			m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
+				chromaLoc, paReplace);
+		}
+
 		VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
 			pArgumentMap);
 
@@ -360,17 +388,7 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 
 void VapourSynthScriptProcessor::slotSettingsChanged()
 {
-	delete(m_pYuvToRgbConverter);
-	m_pYuvToRgbConverter = nullptr;
-	YuvToRgbConversionMatrix matrix =
-		m_pSettingsManager->getYuvToRgbConversionMatrix();
-	if(matrix == YuvToRgbConversionMatrix::Bt601)
-		m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterBt601();
-	else if(matrix == YuvToRgbConversionMatrix::Bt709)
-		m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterBt709();
-	else if(matrix == YuvToRgbConversionMatrix::FullRange)
-		m_pYuvToRgbConverter = new vsedit::YuvToRgbConverterFullRange();
-	assert(m_pYuvToRgbConverter);
+	m_yuvMatrix = m_pSettingsManager->getYuvToRgbConversionMatrix();
 
 	m_chromaResamplingFilter = m_pSettingsManager->getChromaResamplingFilter();
 	m_resamplingFilterParameterA = NAN;
@@ -416,7 +434,9 @@ QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
 
 	QImage frameImage(static_cast<const uchar *>(pData), width, height,
 		QImage::Format_RGB32);
-	QPixmap framePixmap = QPixmap::fromImage(std::move(frameImage));
+
+	QImage flippedImage = frameImage.mirrored();
+	QPixmap framePixmap = QPixmap::fromImage(std::move(flippedImage));
 
 	return framePixmap;
 }

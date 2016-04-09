@@ -55,22 +55,6 @@ class VapourSynthScriptProcessor : public QObject
 
 		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
 
-		// pixmapfromframe.cpp
-		QPixmap pixmapFromGray1B(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromGray2B(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromGrayH(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromGrayS(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromYUV1B(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromYUV2B(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromYUVH(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromYUVS(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromRGB1B(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromRGB2B(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromRGBH(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromRGBS(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromCompatBGR32(const VSFrameRef * a_cpFrameRef);
-		QPixmap pixmapFromCompatYUY2(const VSFrameRef * a_cpFrameRef);
-
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
 
@@ -106,10 +90,7 @@ class VapourSynthScriptProcessor : public QObject
 
 		double m_resamplingFilterParameterB;
 
-		vsedit::AbstractYuvToRgbConverter * m_pYuvToRgbConverter;
-
-		vsedit::Resampler * m_pResampler;
-
+		YuvToRgbConversionMatrix m_yuvMatrix;
 };
 
 #endif // VAPOURSYNTHSCRIPTPROCESSOR_H
