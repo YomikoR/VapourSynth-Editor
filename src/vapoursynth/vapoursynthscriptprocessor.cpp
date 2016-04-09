@@ -182,7 +182,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 			switch(m_yuvMatrix)
 			{
 			case YuvToRgbConversionMatrix::Bt601:
-				matrixInS = "601";
+				matrixInS = "470bg";
 				break;
 			case YuvToRgbConversionMatrix::Bt709:
 				matrixInS = "709";
