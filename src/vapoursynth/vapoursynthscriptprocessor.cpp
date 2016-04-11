@@ -477,6 +477,7 @@ bool VapourSynthScriptProcessor::initLibrary()
 
 	QString libraryFullPath;
 	m_vsScriptLibrary.setFileName(libraryName);
+	m_vsScriptLibrary.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 	bool loaded = m_vsScriptLibrary.load();
 
 #ifdef Q_OS_WIN
