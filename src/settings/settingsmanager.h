@@ -85,6 +85,7 @@ extern const char ACTION_ID_SET_TIMELINE_MODE_FRAMES[];
 extern const char ACTION_ID_TIME_STEP_FORWARD[];
 extern const char ACTION_ID_TIME_STEP_BACK[];
 extern const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[];
+extern const char ACTION_ID_TOGGLE_COLOR_PICKER[];
 
 //==============================================================================
 
@@ -255,6 +256,10 @@ class SettingsManager : public QObject
 		int getLanczosFilterTaps() const;
 
 		bool setLanczosFilterTaps(int a_taps);
+
+		bool getColorPickerVisible() const;
+
+		bool setColorPickerVisible(bool a_colorPickerVisible);
 
 	private:
 

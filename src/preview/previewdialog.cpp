@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <vapoursynth/VapourSynth.h>
+
 #include "../common/helpers.h"
 #include "../vapoursynth/vapoursynthscriptprocessor.h"
 #include "../settings/settingsdialog.h"
@@ -87,6 +89,7 @@ PreviewDialog::PreviewDialog(
 	, m_pActionTimeStepBack(nullptr)
 	, m_pActionPasteCropSnippetIntoScript(nullptr)
 	, m_pActionAdvancedSettingsDialog(nullptr)
+	, m_pActionToggleColorPicker(nullptr)
 	, m_actionIDToZoomMode()
 	, m_actionIDToZoomScaleMode()
 	, m_actionIDToTimeLineMode()
@@ -113,6 +116,10 @@ PreviewDialog::PreviewDialog(
 	setUpCropPanel();
 	setUpTimeLinePanel();
 
+	m_ui.colorPickerButton->setDefaultAction(m_pActionToggleColorPicker);
+	m_ui.colorPickerLabel->setVisible(
+		m_pSettingsManager->getColorPickerVisible());
+
 	m_pStatusBar = new QStatusBar(this);
 	m_ui.mainLayout->addWidget(m_pStatusBar);
 
@@ -136,6 +143,10 @@ PreviewDialog::PreviewDialog(
 		this, SLOT(slotPreviewAreaMouseMiddleButtonReleased()));
 	connect(m_ui.previewArea, SIGNAL(signalMouseRightButtonReleased()),
 		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
+	connect(m_ui.previewArea, SIGNAL(signalMouseRightButtonReleased()),
+		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
+	connect(m_ui.previewArea, SIGNAL(signalMouseOverPoint(float, float)),
+		this, SLOT(slotPreviewAreaMouseOverPoint(float, float)));
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotSettingsChanged()));
 
@@ -838,6 +849,60 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 // END OF void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 //==============================================================================
 
+void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
+{
+	if(!m_ui.colorPickerLabel->isVisible())
+		return;
+
+	double value1 = 0.0;
+	double value2 = 0.0;
+	double value3 = 0.0;
+
+	size_t x = (size_t)((float)m_framePixmap.width() * a_normX);
+	size_t y = (size_t)((float)m_framePixmap.height() * a_normY);
+	m_pVapourSynthScriptProcessor->colorAtPoint(x, y, value1, value2, value3);
+
+	QString l1("1");
+	QString l2("2");
+	QString l3("3");
+
+	int colorFamily = m_cpVideoInfo->format->colorFamily;
+	int formatID = m_cpVideoInfo->format->id;
+
+	if(colorFamily == cmGray)
+	{
+		QString colorString = QString("G:%1").arg(value1);
+		QToolTip::showText(QCursor::pos(), colorString);
+		return;
+	}
+	else if((colorFamily == cmYUV) || (formatID == pfCompatYUY2))
+	{
+		l1 = "Y";
+		l2 = "U";
+		l3 = "V";
+	}
+	else if((colorFamily == cmRGB) || (formatID == pfCompatBGR32))
+	{
+		l1 = "R";
+		l2 = "G";
+		l3 = "B";
+	}
+	else if(colorFamily == cmYCoCg)
+	{
+		l1 = "Y";
+		l2 = "Co";
+		l3 = "Cg";
+	}
+
+	QString colorString = QString("%1:%2|%3:%4|%5:%6")
+		.arg(l1).arg(value1).arg(l2).arg(value2).arg(l3).arg(value3);
+	m_ui.colorPickerLabel->setText(colorString);
+}
+
+// END OF void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX,
+//		float a_normY)
+//==============================================================================
+
 void PreviewDialog::slotFrameToClipboard()
 {
 	if(m_framePixmap.isNull())
@@ -1184,6 +1249,20 @@ void PreviewDialog::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
+	m_pActionToggleColorPicker = new QAction(this);
+	m_pActionToggleColorPicker->setIconText(trUtf8("Color panel"));
+	m_pActionToggleColorPicker->setIcon(QIcon(":color_picker.png"));
+	m_pActionToggleColorPicker->setCheckable(true);
+	m_pActionToggleColorPicker->setChecked(
+		m_pSettingsManager->getColorPickerVisible());
+	m_pPreviewContextMenu->addAction(m_pActionToggleColorPicker);
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TOGGLE_COLOR_PICKER);
+	m_pActionToggleColorPicker->setShortcut(hotkey);
+	m_pActionToggleColorPicker->setData(ACTION_ID_TOGGLE_COLOR_PICKER);
+	m_settableActionsList.push_back(m_pActionToggleColorPicker);
+
+//------------------------------------------------------------------------------
+
 	connect(m_pActionFrameToClipboard, SIGNAL(triggered()),
 		this, SLOT(slotFrameToClipboard()));
 	connect(m_pActionSaveSnapshot, SIGNAL(triggered()),
@@ -1216,6 +1295,8 @@ void PreviewDialog::createActionsAndMenus()
 		this, SLOT(slotPasteCropSnippetIntoScript()));
 	connect(m_pActionAdvancedSettingsDialog, SIGNAL(triggered()),
 		m_pAdvancedSettingsDialog, SLOT(slotCall()));
+	connect(m_pActionToggleColorPicker, SIGNAL(toggled(bool)),
+		m_ui.colorPickerLabel, SLOT(setVisible(bool)));
 
 //------------------------------------------------------------------------------
 

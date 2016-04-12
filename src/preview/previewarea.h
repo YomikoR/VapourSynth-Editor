@@ -47,6 +47,7 @@ class PreviewArea : public QScrollArea
 		void signalCtrlWheel(QPoint a_angleDelta);
 		void signalMouseMiddleButtonReleased();
 		void signalMouseRightButtonReleased();
+		void signalMouseOverPoint(float a_normX, float a_normY);
 
 	private:
 

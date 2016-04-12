@@ -27,6 +27,7 @@
 		<file alias="time_forward.png">time_forward.png</file>
 		<file alias="color_swatch.png">color_swatch.png</file>
 		<file alias="font.png">font.png</file>
+		<file alias="color_picker.png">color_picker.png</file>
 
 		<file alias="readme">../README</file>
 

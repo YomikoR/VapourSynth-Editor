@@ -66,6 +66,8 @@ const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
 const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 1.0 / 3.0;
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
 const int DEFAULT_LANCZOS_FILTER_TAPS = 3;
+const bool DEFAULT_COLOR_PICKER_VISIBLE = false;
+const char COLOR_PICKER_VISIBLE_KEY[] = "color_picker_visible";
 
 //==============================================================================
 
@@ -101,6 +103,7 @@ const char ACTION_ID_SET_TIMELINE_MODE_FRAMES[] = "set_timeline_mode_frames";
 const char ACTION_ID_TIME_STEP_FORWARD[] = "time_step_forward";
 const char ACTION_ID_TIME_STEP_BACK[] = "time_step_back";
 const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[] = "advanced_preview_settings";
+const char ACTION_ID_TOGGLE_COLOR_PICKER[] = "toggle_color_picker";
 
 //==============================================================================
 
@@ -785,6 +788,19 @@ int SettingsManager::getLanczosFilterTaps() const
 bool SettingsManager::setLanczosFilterTaps(int a_taps)
 {
 	return setValue(LANCZOS_FILTER_TAPS_KEY, a_taps);
+}
+
+//==============================================================================
+
+bool SettingsManager::getColorPickerVisible() const
+{
+	return value(COLOR_PICKER_VISIBLE_KEY,
+		DEFAULT_COLOR_PICKER_VISIBLE).toBool();
+}
+
+bool SettingsManager::setColorPickerVisible(bool a_colorPickerVisible)
+{
+	return setValue(COLOR_PICKER_VISIBLE_KEY, a_colorPickerVisible);
 }
 
 //==============================================================================

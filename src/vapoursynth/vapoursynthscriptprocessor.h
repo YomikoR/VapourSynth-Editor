@@ -46,6 +46,9 @@ class VapourSynthScriptProcessor : public QObject
 
 		QPixmap pixmap(int a_frameNumber);
 
+		void colorAtPoint(size_t a_x, size_t a_y, double & a_rValue1,
+			double & a_rValue2, double & a_rValue3);
+
 	signals:
 
 		void signalWriteLogMessage(int a_messageType,
@@ -64,6 +67,8 @@ class VapourSynthScriptProcessor : public QObject
 		bool initLibrary();
 
 		void freeLibrary();
+
+		double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
 
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);

@@ -114,6 +114,8 @@ class PreviewDialog : public QDialog
 
 		void slotPreviewAreaMouseRightButtonReleased();
 
+		void slotPreviewAreaMouseOverPoint(float a_normX, float a_normY);
+
 		void slotFrameToClipboard();
 
 		void slotAdvancedSettingsChanged();
@@ -186,6 +188,7 @@ class PreviewDialog : public QDialog
 		QAction * m_pActionTimeStepBack;
 		QAction * m_pActionPasteCropSnippetIntoScript;
 		QAction * m_pActionAdvancedSettingsDialog;
+		QAction * m_pActionToggleColorPicker;
 
 		std::map<QString, ZoomMode> m_actionIDToZoomMode;
 

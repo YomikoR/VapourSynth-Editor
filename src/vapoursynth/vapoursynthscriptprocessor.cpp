@@ -1,5 +1,7 @@
 #include "vapoursynthscriptprocessor.h"
 
+#include "../common/helpers.h"
+
 #include <cassert>
 #include <vector>
 #include <cmath>
@@ -55,9 +57,6 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 
 VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 {
-	if(m_initialized)
-		finalize();
-
 	freeLibrary();
 }
 
@@ -251,16 +250,16 @@ void VapourSynthScriptProcessor::finalize()
 
 	m_cpVideoInfo = nullptr;
 
-	if(m_pOutputNode)
-	{
-		m_cpVSAPI->freeNode(m_pOutputNode);
-		m_pOutputNode = nullptr;
-	}
-
 	if(m_pPreviewNode)
 	{
 		m_cpVSAPI->freeNode(m_pPreviewNode);
 		m_pPreviewNode = nullptr;
+	}
+
+	if(m_pOutputNode)
+	{
+		m_cpVSAPI->freeNode(m_pOutputNode);
+		m_pOutputNode = nullptr;
 	}
 
 	if(m_pVSScript)
@@ -317,13 +316,13 @@ bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber)
 	if(!m_initialized)
 		return false;
 
-	assert(m_pPreviewNode);
+	assert(m_pOutputNode);
 	assert(m_cpVSAPI);
 
 	char getFrameErrorMessage[1024] = {0};
 
 	const VSFrameRef * cpNewFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		m_pPreviewNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
+		m_pOutputNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
 	if (!cpNewFrameRef)
 	{
@@ -362,7 +361,13 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 	if(!m_initialized)
 		return QPixmap();
 
-	assert(m_pOutputNode);
+	// Pixmap will likely be used for preview, so current frame, referenced
+	// from the output node, must be of the same number with the frame
+	// from the preview node. That ensures the work of color picker and such.
+	requestFrame(a_frameNumber);
+
+
+	assert(m_pPreviewNode);
 	assert(m_cpVSAPI);
 
 	char getFrameErrorMessage[1024] = {0};
@@ -393,6 +398,64 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 }
 
 // END OF QPixmap VapourSynthScriptProcessor::pixmap()
+//==============================================================================
+
+void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
+	double & a_rValue1, double & a_rValue2, double & a_rValue3)
+{
+	if(!m_cpCurrentFrameRef)
+		requestFrame(m_currentFrame);
+
+	if(!m_cpCurrentFrameRef)
+		return;
+
+	assert(m_cpVSAPI);
+
+	int width = m_cpVSAPI->getFrameWidth(m_cpCurrentFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(m_cpCurrentFrameRef, 0);
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpCurrentFrameRef);
+
+	if((a_x >= (size_t)width) || (a_y >= (size_t)height))
+		return;
+
+	if(cpFormat->id == pfCompatBGR32)
+	{
+		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, 0);
+		int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, 0);
+		const uint32_t * cpLine = (const uint32_t *)(cpData + a_y * stride);
+		uint32_t packedValue = cpLine[a_x];
+		a_rValue3 = (double)(packedValue & 0xFF);
+		a_rValue2 = (double)((packedValue >> 8) & 0xFF);
+		a_rValue1 = (double)((packedValue >> 16) & 0xFF);
+		return;
+	}
+	else if(cpFormat->id == pfCompatYUY2)
+	{
+		size_t x = a_x >> 1;
+		size_t rem = a_x & 0x1;
+		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, 0);
+		int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, 0);
+		const uint32_t * cpLine = (const uint32_t *)(cpData + a_y * stride);
+		uint32_t packedValue = cpLine[x];
+
+		if(rem == 0)
+			a_rValue1 = (double)(packedValue & 0xFF);
+		else
+			a_rValue1 = (double)((packedValue >> 16) & 0xFF);
+		a_rValue2 = (double)((packedValue >> 8) & 0xFF);
+		a_rValue3 = (double)((packedValue >> 24) & 0xFF);
+		return;
+	}
+
+	a_rValue1 = valueAtPoint(a_x, a_y, 0);
+	if(cpFormat->numPlanes > 1)
+		a_rValue2 = valueAtPoint(a_x, a_y, 1);
+	if(cpFormat->numPlanes > 2)
+		a_rValue3 = valueAtPoint(a_x, a_y, 2);
+}
+
+// END OF void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
+//		 double & a_rValue1, double & a_rValue2, double & a_rValue3)
 //==============================================================================
 
 void VapourSynthScriptProcessor::slotSettingsChanged()
@@ -595,6 +658,8 @@ bool VapourSynthScriptProcessor::initLibrary()
 
 void VapourSynthScriptProcessor::freeLibrary()
 {
+	finalize();
+
 	vssInit = nullptr;
 	vssGetVSApi = nullptr;
 	vssEvaluateScript = nullptr;
@@ -608,4 +673,53 @@ void VapourSynthScriptProcessor::freeLibrary()
 }
 
 // END OF void VapourSynthScriptProcessor::freeLibrary()
+//==============================================================================
+
+double VapourSynthScriptProcessor::valueAtPoint(size_t a_x, size_t a_y,
+	int a_plane)
+{
+	assert(m_cpCurrentFrameRef);
+	assert(m_cpVSAPI);
+
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpCurrentFrameRef);
+
+	assert((a_plane >= 0) && (a_plane < cpFormat->numPlanes));
+
+    const uint8_t * cpPlane =
+		m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, a_plane);
+
+	size_t x = a_x >> cpFormat->subSamplingW;
+	size_t y = a_y >> cpFormat->subSamplingH;
+	int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, a_plane);
+	const uint8_t * cpLine = cpPlane + y * stride;
+
+	double value = 0.0;
+
+	if(cpFormat->sampleType == stInteger)
+	{
+		if(cpFormat->bytesPerSample == 1)
+			value = (double)cpLine[x];
+		else if(cpFormat->bytesPerSample == 2)
+			value = (double)((uint16_t *)cpLine)[x];
+		else if(cpFormat->bytesPerSample == 4)
+			value = (double)((uint32_t *)cpLine)[x];
+	}
+	else if(cpFormat->sampleType == stFloat)
+	{
+		if(cpFormat->bytesPerSample == 2)
+		{
+			vsedit::FP16 half;
+			half.u = ((uint16_t *)cpLine)[x];
+			vsedit::FP32 single = vsedit::halfToSingle(half);
+			value = (double)single.f;
+		}
+		else if(cpFormat->bytesPerSample == 4)
+			value = (double)((float *)cpLine)[x];
+	}
+
+	return value;
+}
+
+// END OF double VapourSynthScriptProcessor::valueAtPoint(size_t a_x,
+//		size_t a_y, int a_plane)
 //==============================================================================

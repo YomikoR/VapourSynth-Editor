@@ -189,7 +189,35 @@
         </layout>
        </widget>
       </item>
+      <item>
+       <widget class="QToolButton" name="colorPickerButton">
+        <property name="toolTip">
+         <string>Color picker</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="colorPickerLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
      </layout>
+     <zorder>colorPickerButton</zorder>
+     <zorder>frameNumberSpinBox</zorder>
+     <zorder>frameNumberSlider</zorder>
+     <zorder>frameToClipboardButton</zorder>
+     <zorder>saveSnapshotButton</zorder>
+     <zorder>advancedSettingsButton</zorder>
+     <zorder>timeLineCheckButton</zorder>
+     <zorder>cropCheckButton</zorder>
+     <zorder>zoomCheckButton</zorder>
+     <zorder>zoomPanel</zorder>
+     <zorder>colorPickerLabel</zorder>
     </widget>
    </item>
    <item>

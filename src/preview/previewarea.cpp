@@ -27,6 +27,9 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 	m_pScrollNavigator->move(pos() +
 		QPoint(scrollFrameWidth, scrollFrameWidth));
 	m_pScrollNavigator->setVisible(false);
+
+	setMouseTracking(true);
+	m_pPreviewLabel->setMouseTracking(true);
 }
 
 // END OF PreviewArea::PreviewArea(QWidget * a_pParent)
@@ -153,8 +156,7 @@ void PreviewArea::mousePressEvent(QMouseEvent * a_pEvent)
 
 void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 {
-	if((a_pEvent->buttons() & Qt::LeftButton) &&
-		(m_draggingPreview))
+	if((a_pEvent->buttons() & Qt::LeftButton) && m_draggingPreview)
 	{
 		QPoint newCursorPos = a_pEvent->globalPos();
 		QPoint posDifference = newCursorPos - m_lastCursorPos;
@@ -167,6 +169,21 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 		drawScrollNavigator();
 		a_pEvent->accept();
 		return;
+	}
+
+	QPoint globalPoint = a_pEvent->globalPos();
+	QPoint imagePoint = m_pPreviewLabel->mapFromGlobal(globalPoint);
+
+	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
+	int width = pPreviewPixmap->width();
+	int height = pPreviewPixmap->height();
+
+	if((imagePoint.x() < width) && (imagePoint.y() < height))
+	{
+		float normX = (float)imagePoint.x() / (float)width;
+		float normY = (float)imagePoint.y() / (float)height;
+
+		emit signalMouseOverPoint(normX, normY);
 	}
 
 	QScrollArea::mouseMoveEvent(a_pEvent);
