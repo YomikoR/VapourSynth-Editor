@@ -688,8 +688,14 @@ double VapourSynthScriptProcessor::valueAtPoint(size_t a_x, size_t a_y,
     const uint8_t * cpPlane =
 		m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, a_plane);
 
-	size_t x = a_x >> cpFormat->subSamplingW;
-	size_t y = a_y >> cpFormat->subSamplingH;
+	size_t x = a_x;
+	size_t y = a_y;
+
+	if(a_plane != 0)
+	{
+		x = (a_x >> cpFormat->subSamplingW);
+		y = (a_y >> cpFormat->subSamplingH);
+	}
 	int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, a_plane);
 	const uint8_t * cpLine = cpPlane + y * stride;
 

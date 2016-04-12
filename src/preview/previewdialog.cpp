@@ -872,7 +872,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	if(colorFamily == cmGray)
 	{
 		QString colorString = QString("G:%1").arg(value1);
-		QToolTip::showText(QCursor::pos(), colorString);
+		m_ui.colorPickerLabel->setText(colorString);
 		return;
 	}
 	else if((colorFamily == cmYUV) || (formatID == pfCompatYUY2))
@@ -921,6 +921,15 @@ void PreviewDialog::slotAdvancedSettingsChanged()
 }
 
 // END OF void PreviewDialog::slotAdvancedSettingsChanged()
+//==============================================================================
+
+void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
+{
+	m_ui.colorPickerLabel->setVisible(a_colorPickerVisible);
+	m_pSettingsManager->setColorPickerVisible(a_colorPickerVisible);
+}
+
+// END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 //==============================================================================
 
 void PreviewDialog::createActionsAndMenus()
@@ -1296,7 +1305,7 @@ void PreviewDialog::createActionsAndMenus()
 	connect(m_pActionAdvancedSettingsDialog, SIGNAL(triggered()),
 		m_pAdvancedSettingsDialog, SLOT(slotCall()));
 	connect(m_pActionToggleColorPicker, SIGNAL(toggled(bool)),
-		m_ui.colorPickerLabel, SLOT(setVisible(bool)));
+		this, SLOT(slotToggleColorPicker(bool)));
 
 //------------------------------------------------------------------------------
 

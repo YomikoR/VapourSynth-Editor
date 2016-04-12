@@ -120,6 +120,8 @@ class PreviewDialog : public QDialog
 
 		void slotAdvancedSettingsChanged();
 
+		void slotToggleColorPicker(bool a_colorPickerVisible);
+
 	private:
 
 		void createActionsAndMenus();
