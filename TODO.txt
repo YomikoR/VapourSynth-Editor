@@ -1,6 +1,5 @@
 - python error parsing and script line highlighting
 - functions autocompletion refinement
-- style settings
 - snippets
 - drag and drop sources
 - script performance evaluator
