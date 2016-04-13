@@ -175,13 +175,13 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 	QPoint imagePoint = m_pPreviewLabel->mapFromGlobal(globalPoint);
 
 	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	int width = pPreviewPixmap->width();
-	int height = pPreviewPixmap->height();
+	int pixmapWidth = pPreviewPixmap->width();
+	int pixmapHeight = pPreviewPixmap->height();
 
-	if((imagePoint.x() < width) && (imagePoint.y() < height))
+	if((imagePoint.x() < pixmapWidth) && (imagePoint.y() < pixmapHeight))
 	{
-		float normX = (float)imagePoint.x() / (float)width;
-		float normY = (float)imagePoint.y() / (float)height;
+		float normX = (float)imagePoint.x() / (float)pixmapWidth;
+		float normY = (float)imagePoint.y() / (float)pixmapHeight;
 
 		emit signalMouseOverPoint(normX, normY);
 	}
