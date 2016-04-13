@@ -11,4 +11,3 @@
 - crashreport
 - building with both Qt4 and Qt5
 - timeline bookmarks
-- color under cursor

@@ -1,3 +1,10 @@
+r7:
+-BUGFIX: Bt.601 YUV to RGB conversion matrix. Not sure if it works correctly, but it works.
+-BUGFIX: Massive memory leak.
+-Late linking to vsscript library. Can start with no VapourSynth installed.
+-Better detection of VapourSynth installation on Windows.
+-Experimental color picker. Shows values under cursor in preview window. Not thoroughly tested.
+
 r6:
 -Added some theme settings.
 -Switched preview to use the internal resizer instead of zimg. Requires VapourSynth R29+.
