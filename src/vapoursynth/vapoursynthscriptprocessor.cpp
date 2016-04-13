@@ -228,6 +228,8 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 			nullptr);
 		assert(pPreviewNode);
 		m_pPreviewNode = pPreviewNode;
+
+		m_cpVSAPI->freeMap(pResultMap);
 	}
 	else
 	{
@@ -365,7 +367,6 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 	// from the output node, must be of the same number with the frame
 	// from the preview node. That ensures the work of color picker and such.
 	requestFrame(a_frameNumber);
-
 
 	assert(m_pPreviewNode);
 	assert(m_cpVSAPI);
