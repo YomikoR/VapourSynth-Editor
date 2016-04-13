@@ -121,11 +121,11 @@ D = $$replace(D, $$escape_expand(\\), $$S)
 D = $$replace(D, /, $$S)
 E = $$escape_expand(\n\t)
 
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.ico $$D$$S $$E
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.svg $$D$$S $$E
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}README $$D$$S $$E
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}LICENSE $$D$$S $$E
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}CHANGELOG $$D$$S $$E
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.ico $${D}$${S}vsedit.ico $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.svg $${D}$${S}vsedit.svg $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}README $${D}$${S}README $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}LICENSE $${D}$${S}LICENSE $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}CHANGELOG $${D}$${S}CHANGELOG $${E}
 
 TEMPLATE = app
 
