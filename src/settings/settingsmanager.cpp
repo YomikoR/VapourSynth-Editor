@@ -374,9 +374,9 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 QTextCharFormat SettingsManager::getTextFormat(const QString & a_textFormatID)
 	const
 {
-	QVariant value = valueInGroup(THEME_GROUP, a_textFormatID,
+	QVariant textFormatValue = valueInGroup(THEME_GROUP, a_textFormatID,
 		getDefaultTextFormat(a_textFormatID));
-	return qvariant_cast<QTextFormat>(value).toCharFormat();
+	return qvariant_cast<QTextFormat>(textFormatValue).toCharFormat();
 }
 
 bool SettingsManager::setTextFormat(const QString & a_textFormatID,
@@ -413,9 +413,9 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 QColor SettingsManager::getColor(const QString & a_colorID) const
 {
-	QVariant value = valueInGroup(THEME_GROUP, a_colorID,
+	QVariant colorValue = valueInGroup(THEME_GROUP, a_colorID,
 		getDefaultColor(a_colorID));
-	return qvariant_cast<QColor>(value);
+	return qvariant_cast<QColor>(colorValue);
 }
 
 bool SettingsManager::setColor(const QString & a_colorID,

@@ -858,9 +858,10 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	double value2 = 0.0;
 	double value3 = 0.0;
 
-	size_t x = (size_t)((float)m_framePixmap.width() * a_normX);
-	size_t y = (size_t)((float)m_framePixmap.height() * a_normY);
-	m_pVapourSynthScriptProcessor->colorAtPoint(x, y, value1, value2, value3);
+	size_t frameX = (size_t)((float)m_framePixmap.width() * a_normX);
+	size_t frameY = (size_t)((float)m_framePixmap.height() * a_normY);
+	m_pVapourSynthScriptProcessor->colorAtPoint(frameX, frameY,
+		value1, value2, value3);
 
 	QString l1("1");
 	QString l2("2");
