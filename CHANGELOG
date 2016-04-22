@@ -1,3 +1,6 @@
+r8:
+-BUGFIX: Preview stride.
+
 r7:
 -BUGFIX: Bt.601 YUV to RGB conversion matrix. Not sure if it works correctly, but it works.
 -BUGFIX: Massive memory leak.
