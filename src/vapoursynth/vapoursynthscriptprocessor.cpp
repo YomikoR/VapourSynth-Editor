@@ -504,9 +504,10 @@ QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
 	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
 	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	QImage frameImage(static_cast<const uchar *>(pData), width, height,
-		QImage::Format_RGB32);
+		stride, QImage::Format_RGB32);
 
 	QImage flippedImage = frameImage.mirrored();
 	QPixmap framePixmap = QPixmap::fromImage(std::move(flippedImage));
