@@ -231,7 +231,7 @@ bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber)
 	const VSFrameRef * cpNewFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
 		m_pOutputNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
-	if (!cpNewFrameRef)
+	if(!cpNewFrameRef)
 	{
 		m_error = trUtf8("Error getting the frame number %1:\n%2")
 			.arg(a_frameNumber).arg(QString::fromUtf8(getFrameErrorMessage));
@@ -281,7 +281,7 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 	const VSFrameRef * cpFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
 		m_pPreviewNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
-	if (!cpFrameRef)
+	if(!cpFrameRef)
 	{
 		m_error = trUtf8("Error getting the frame number %1:\n%2")
 			.arg(a_frameNumber).arg(QString::fromUtf8(getFrameErrorMessage));
