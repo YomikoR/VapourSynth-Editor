@@ -70,6 +70,8 @@ class VapourSynthScriptProcessor : public QObject
 
 		double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
 
+		void initPreviewNode();
+
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
 

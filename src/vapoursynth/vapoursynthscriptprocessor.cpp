@@ -47,8 +47,8 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_yuvMatrix()
 	, m_vsScriptLibrary(this)
 {
-	slotSettingsChanged();
 	initLibrary();
+	slotSettingsChanged();
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -133,107 +133,12 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
 
-	if(!cpFormat || cpFormat->id != pfCompatBGR32)
+	initPreviewNode();
+	if(!m_pPreviewNode)
 	{
-		VSCore * pCore = vssGetCore(m_pVSScript);
-		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
-			"com.vapoursynth.resize", pCore);
-		const char * resizeName = nullptr;
-
-		VSMap * pArgumentMap = m_cpVSAPI->createMap();
-		m_cpVSAPI->propSetNode(pArgumentMap, "clip", m_pOutputNode, paReplace);
-		m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
-
-		switch(m_chromaResamplingFilter)
-		{
-		case ResamplingFilter::Point:
-			resizeName = "Point";
-			break;
-		case ResamplingFilter::Bilinear:
-			resizeName = "Bilinear";
-			break;
-		case ResamplingFilter::Bicubic:
-			resizeName = "Bicubic";
-			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-				m_resamplingFilterParameterA, paReplace);
-			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
-				m_resamplingFilterParameterB, paReplace);
-			break;
-		case ResamplingFilter::Lanczos:
-			resizeName = "Lanczos";
-			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-				m_resamplingFilterParameterA, paReplace);
-			break;
-		case ResamplingFilter::Spline16:
-			resizeName = "Spline16";
-			break;
-		case ResamplingFilter::Spline36:
-			resizeName = "Spline36";
-			break;
-		default:
-			assert(false);
-		}
-
-		if(cpFormat->colorFamily == cmYUV)
-		{
-			const char * matrixInS = nullptr;
-			switch(m_yuvMatrix)
-			{
-			case YuvToRgbConversionMatrix::Bt601:
-				matrixInS = "470bg";
-				break;
-			case YuvToRgbConversionMatrix::Bt709:
-				matrixInS = "709";
-				break;
-			default:
-				assert(false);
-			}
-			int matrixStringLength = (int)strlen(matrixInS);
-			m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
-				matrixInS, matrixStringLength, paReplace);
-
-			int64_t chromaLoc = 0;
-			switch(m_chromaPlacement)
-			{
-			case ChromaPlacement::MPEG1:
-				chromaLoc = 1;
-				break;
-			case ChromaPlacement::MPEG2:
-				chromaLoc = 0;
-				break;
-			default:
-				assert(false);
-			}
-			m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
-				chromaLoc, paReplace);
-		}
-
-		VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
-			pArgumentMap);
-
-		m_cpVSAPI->freeMap(pArgumentMap);
-
-		if (const char * pResultError = m_cpVSAPI->getError(pResultMap))
-		{
-			m_error = trUtf8("Failed to convert to RGB:\n");
-			m_error += pResultError;
-			emit signalWriteLogMessage(mtCritical, m_error);
-			finalize();
-			return false;
-		}
-
-		VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pResultMap, "clip", 0,
-			nullptr);
-		assert(pPreviewNode);
-		m_pPreviewNode = pPreviewNode;
-
-		m_cpVSAPI->freeMap(pResultMap);
-	}
-	else
-	{
-		m_pPreviewNode = m_cpVSAPI->cloneNodeRef(m_pOutputNode);
+		finalize();
+		return false;
 	}
 
 	m_currentFrame = 0;
@@ -480,6 +385,8 @@ void VapourSynthScriptProcessor::slotSettingsChanged()
 	}
 
 	m_chromaPlacement = m_pSettingsManager->getChromaPlacement();
+
+	initPreviewNode();
 }
 
 // END OF void VapourSynthScriptProcessor::slotSettingsChanged()
@@ -730,4 +637,135 @@ double VapourSynthScriptProcessor::valueAtPoint(size_t a_x, size_t a_y,
 
 // END OF double VapourSynthScriptProcessor::valueAtPoint(size_t a_x,
 //		size_t a_y, int a_plane)
+//==============================================================================
+
+void VapourSynthScriptProcessor::initPreviewNode()
+{
+	if(!m_cpVSAPI)
+	{
+		// Function was called while VapourSynth was not initialized.
+		return;
+	}
+
+	if(m_pPreviewNode)
+	{
+		m_cpVSAPI->freeNode(m_pPreviewNode);
+		m_pPreviewNode = nullptr;
+	}
+
+	if(!m_pOutputNode)
+	{
+		m_error = trUtf8("Failed to create preview node: "
+			"there is no output node.\n");
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return;
+	}
+
+	assert(m_cpVideoInfo);
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
+
+	if(cpFormat->id == pfCompatBGR32)
+	{
+		m_pPreviewNode = m_cpVSAPI->cloneNodeRef(m_pOutputNode);
+		return;
+	}
+
+	VSCore * pCore = vssGetCore(m_pVSScript);
+	VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
+		"com.vapoursynth.resize", pCore);
+	const char * resizeName = nullptr;
+
+	VSMap * pArgumentMap = m_cpVSAPI->createMap();
+	m_cpVSAPI->propSetNode(pArgumentMap, "clip", m_pOutputNode, paReplace);
+	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
+
+	switch(m_chromaResamplingFilter)
+	{
+	case ResamplingFilter::Point:
+		resizeName = "Point";
+		break;
+	case ResamplingFilter::Bilinear:
+		resizeName = "Bilinear";
+		break;
+	case ResamplingFilter::Bicubic:
+		resizeName = "Bicubic";
+		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+			m_resamplingFilterParameterA, paReplace);
+		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
+			m_resamplingFilterParameterB, paReplace);
+		break;
+	case ResamplingFilter::Lanczos:
+		resizeName = "Lanczos";
+		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+			m_resamplingFilterParameterA, paReplace);
+		break;
+	case ResamplingFilter::Spline16:
+		resizeName = "Spline16";
+		break;
+	case ResamplingFilter::Spline36:
+		resizeName = "Spline36";
+		break;
+	default:
+		assert(false);
+	}
+
+	if(cpFormat->colorFamily == cmYUV)
+	{
+		const char * matrixInS = nullptr;
+		switch(m_yuvMatrix)
+		{
+		case YuvToRgbConversionMatrix::Bt601:
+			matrixInS = "470bg";
+			break;
+		case YuvToRgbConversionMatrix::Bt709:
+			matrixInS = "709";
+			break;
+		default:
+			assert(false);
+		}
+		int matrixStringLength = (int)strlen(matrixInS);
+		m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
+			matrixInS, matrixStringLength, paReplace);
+
+		int64_t chromaLoc = 0;
+		switch(m_chromaPlacement)
+		{
+		case ChromaPlacement::MPEG1:
+			chromaLoc = 1;
+			break;
+		case ChromaPlacement::MPEG2:
+			chromaLoc = 0;
+			break;
+		default:
+			assert(false);
+		}
+		m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
+			chromaLoc, paReplace);
+	}
+
+	VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
+		pArgumentMap);
+
+	m_cpVSAPI->freeMap(pArgumentMap);
+
+	const char * cpResultError = m_cpVSAPI->getError(pResultMap);
+
+	if(cpResultError)
+	{
+		m_error = trUtf8("Failed to convert to RGB:\n");
+		m_error += cpResultError;
+		emit signalWriteLogMessage(mtCritical, m_error);
+		m_cpVSAPI->freeMap(pResultMap);
+		return;
+	}
+
+	VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pResultMap, "clip", 0,
+		nullptr);
+	assert(pPreviewNode);
+	m_pPreviewNode = pPreviewNode;
+
+	m_cpVSAPI->freeMap(pResultMap);
+}
+
+// END OF void VapourSynthScriptProcessor::initPreviewNode()
 //==============================================================================
