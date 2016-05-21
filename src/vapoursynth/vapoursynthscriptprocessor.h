@@ -46,6 +46,8 @@ class VapourSynthScriptProcessor : public QObject
 
 		QPixmap pixmap(int a_frameNumber);
 
+		void requestPixmapAsync(int a_frameNumber);
+
 		void colorAtPoint(size_t a_x, size_t a_y, double & a_rValue1,
 			double & a_rValue2, double & a_rValue3);
 
@@ -54,6 +56,8 @@ class VapourSynthScriptProcessor : public QObject
 		void signalWriteLogMessage(int a_messageType,
 			const QString & a_message);
 
+		void signalDistributePixmap(QPixmap a_pixmap);
+
 	private slots:
 
 		void slotSettingsChanged();
@@ -61,6 +65,10 @@ class VapourSynthScriptProcessor : public QObject
 	private:
 
 		void handleVSMessage(int a_messageType, const QString & a_message);
+
+		void receiveFrameForPreview(const VSFrameRef * a_cpFrameRef,
+			int a_frameNumber, VSNodeRef * a_pNodeRef,
+			const QString & a_errorMessage);
 
 		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
 
@@ -72,8 +80,15 @@ class VapourSynthScriptProcessor : public QObject
 
 		void initPreviewNode();
 
+		void requestFrameAsync(int a_frameNumber, VSNodeRef * a_pNodeRef,
+			VSFrameDoneCallback a_fpCallback);
+
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
+
+		friend void VS_CC frameForPreviewReady(void * a_pUserData,
+			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+			VSNodeRef * a_pNodeRef, const char * a_errorMessage);
 
 		SettingsManager * m_pSettingsManager;
 
@@ -94,8 +109,11 @@ class VapourSynthScriptProcessor : public QObject
 		VSNodeRef * m_pPreviewNode;
 
 		const VSVideoInfo * m_cpVideoInfo;
+		const VSCoreInfo * m_cpCoreInfo;
 
 		int m_currentFrame;
+
+		int m_lastRequestedPixmapFrameNumber;
 
 		const VSFrameRef * m_cpCurrentFrameRef;
 

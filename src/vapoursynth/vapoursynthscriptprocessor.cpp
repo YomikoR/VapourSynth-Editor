@@ -24,6 +24,21 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 //	void * a_pUserData)
 //==============================================================================
 
+void VS_CC frameForPreviewReady(void * a_pUserData,
+	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
+{
+	VapourSynthScriptProcessor * scriptProcessor =
+		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
+	scriptProcessor->receiveFrameForPreview(a_cpFrameRef, a_frameNumber,
+		a_pNodeRef, a_errorMessage);
+}
+
+// END OF void VS_CC frameForPreviewReady(void * a_pUserData,
+//	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+//	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
+//==============================================================================
+
 VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	SettingsManager * a_pSettingsManager, QObject * a_pParent):
 	QObject(a_pParent)
@@ -38,7 +53,9 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_pOutputNode(nullptr)
 	, m_pPreviewNode(nullptr)
 	, m_cpVideoInfo(nullptr)
+	, m_cpCoreInfo(nullptr)
 	, m_currentFrame(0)
+	, m_lastRequestedPixmapFrameNumber(-1)
 	, m_cpCurrentFrameRef(nullptr)
 	, m_chromaResamplingFilter()
 	, m_chromaPlacement()
@@ -115,7 +132,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	if(m_cpVSAPI->getCoreInfo(vssGetCore(m_pVSScript))->core < 29)
+	VSCore * pCore = vssGetCore(m_pVSScript);
+	m_cpCoreInfo = m_cpVSAPI->getCoreInfo(pCore);
+
+	if(m_cpCoreInfo->core < 29)
 	{
 		m_error = trUtf8("VapourSynth R29+ required for preview.");
 		emit signalWriteLogMessage(mtCritical, m_error);
@@ -156,6 +176,7 @@ void VapourSynthScriptProcessor::finalize()
 	freeFrame();
 
 	m_cpVideoInfo = nullptr;
+	m_cpCoreInfo = nullptr;
 
 	if(m_pPreviewNode)
 	{
@@ -306,6 +327,18 @@ QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
 // END OF QPixmap VapourSynthScriptProcessor::pixmap()
 //==============================================================================
 
+void VapourSynthScriptProcessor::requestPixmapAsync(int a_frameNumber)
+{
+	if((!m_pOutputNode) || (!m_pPreviewNode))
+		return;
+
+	m_lastRequestedPixmapFrameNumber = a_frameNumber;
+	requestFrameAsync(a_frameNumber, m_pOutputNode, &frameForPreviewReady);
+}
+
+// END OF void VapourSynthScriptProcessor::requestPixmapAsync(int a_frameNumber)
+//==============================================================================
+
 void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 	double & a_rValue1, double & a_rValue2, double & a_rValue3)
 {
@@ -400,6 +433,67 @@ void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 
 // END OF void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 //		const QString & a_message)
+//==============================================================================
+
+void VapourSynthScriptProcessor::receiveFrameForPreview(
+	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
+{
+	assert(m_cpVSAPI);
+	m_cpVSAPI->freeNode(a_pNodeRef);
+
+	if(!a_errorMessage.isEmpty())
+	{
+		m_error = trUtf8("Error on frame %1 request:\n%2")
+			.arg(a_frameNumber).arg(a_errorMessage);
+		emit signalWriteLogMessage(mtCritical, m_error);
+	}
+
+	if(!a_cpFrameRef)
+		return;
+
+	if(a_frameNumber != m_lastRequestedPixmapFrameNumber)
+	{
+		m_cpVSAPI->freeFrame(a_cpFrameRef);
+		return;
+	}
+
+	if(a_pNodeRef == m_pOutputNode)
+	{
+		m_cpVSAPI->freeFrame(m_cpCurrentFrameRef);
+		m_cpCurrentFrameRef = a_cpFrameRef;
+		assert(m_pPreviewNode);
+		requestFrameAsync(a_frameNumber, m_pPreviewNode, &frameForPreviewReady);
+		return;
+	}
+	else if(a_pNodeRef == m_pPreviewNode)
+	{
+		QPixmap framePixmap = pixmapFromFrame(a_cpFrameRef);
+
+		if(framePixmap.isNull())
+		{
+			m_error = trUtf8("Can not convert from format \"%1\" for preview!")
+				.arg(m_cpVideoInfo->format->name);
+			emit signalWriteLogMessage(mtCritical, m_error);
+		}
+
+		m_cpVSAPI->freeFrame(a_cpFrameRef);
+		emit signalDistributePixmap(framePixmap);
+		return;
+	}
+	else
+	{
+		m_cpVSAPI->freeFrame(a_cpFrameRef);
+		m_error = trUtf8("Received frame %1 from an unknown node.")
+			.arg(m_cpVideoInfo->format->name);
+		emit signalWriteLogMessage(mtWarning, m_error);
+		return;
+	}
+}
+
+// END OF void VapourSynthScriptProcessor::receiveFrameForPreview(
+//	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+//	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
 //==============================================================================
 
 QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
@@ -768,4 +862,17 @@ void VapourSynthScriptProcessor::initPreviewNode()
 }
 
 // END OF void VapourSynthScriptProcessor::initPreviewNode()
+//==============================================================================
+
+void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
+	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
+{
+	assert(m_cpVSAPI);
+	// Done for safety. Don't forget to free the node reference in the callback.
+	m_cpVSAPI->cloneNodeRef(a_pNodeRef);
+	m_cpVSAPI->getFrameAsync(a_frameNumber, a_pNodeRef, a_fpCallback, this);
+}
+
+// END OF void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
+//	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
 //==============================================================================
