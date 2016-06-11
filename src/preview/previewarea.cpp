@@ -19,6 +19,7 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 	, m_lastPreviewLabelPos(0, 0)
 {
 	m_pPreviewLabel = new QLabel(this);
+	m_pPreviewLabel->setPixmap(QPixmap());
 	m_pPreviewLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	QScrollArea::setWidget(m_pPreviewLabel);
 
@@ -122,10 +123,6 @@ void PreviewArea::keyPressEvent(QKeyEvent * a_pEvent)
 
 void PreviewArea::wheelEvent(QWheelEvent * a_pEvent)
 {
-	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	if(!pPreviewPixmap)
-		return;
-
 	if(a_pEvent->modifiers() == Qt::ControlModifier)
 	{
 		emit signalCtrlWheel(a_pEvent->angleDelta());
@@ -141,10 +138,6 @@ void PreviewArea::wheelEvent(QWheelEvent * a_pEvent)
 
 void PreviewArea::mousePressEvent(QMouseEvent * a_pEvent)
 {
-	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	if(!pPreviewPixmap)
-		return;
-
 	if(a_pEvent->buttons() == Qt::LeftButton)
 	{
 		m_draggingPreview = true;
@@ -164,10 +157,6 @@ void PreviewArea::mousePressEvent(QMouseEvent * a_pEvent)
 
 void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 {
-	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	if(!pPreviewPixmap)
-		return;
-
 	if((a_pEvent->buttons() & Qt::LeftButton) && m_draggingPreview)
 	{
 		QPoint newCursorPos = a_pEvent->globalPos();
@@ -186,6 +175,7 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 	QPoint globalPoint = a_pEvent->globalPos();
 	QPoint imagePoint = m_pPreviewLabel->mapFromGlobal(globalPoint);
 
+	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
 	int pixmapWidth = pPreviewPixmap->width();
 	int pixmapHeight = pPreviewPixmap->height();
 
@@ -205,10 +195,6 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 
 void PreviewArea::mouseReleaseEvent(QMouseEvent * a_pEvent)
 {
-	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	if(!pPreviewPixmap)
-		return;
-
 	Qt::MouseButton releasedButton = a_pEvent->button();
 	if(releasedButton == Qt::LeftButton)
 	{
@@ -230,12 +216,8 @@ void PreviewArea::mouseReleaseEvent(QMouseEvent * a_pEvent)
 
 void PreviewArea::drawScrollNavigator()
 {
-	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	if(!pPreviewPixmap)
-		return;
-
-	int contentsWidth = pPreviewPixmap->width();
-	int contentsHeight = pPreviewPixmap->height();
+	int contentsWidth = m_pPreviewLabel->pixmap()->width();
+	int contentsHeight = m_pPreviewLabel->pixmap()->height();
 	int viewportX = -m_pPreviewLabel->x();
 	int viewportY = -m_pPreviewLabel->y();
 	int viewportWidth = viewport()->width();
