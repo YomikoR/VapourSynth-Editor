@@ -284,16 +284,15 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 
 	int key = a_pEvent->key();
 
-	if((key == Qt::Key_Left) || (key == Qt::Key_Down))
-		slotShowFrame(std::max(0, m_currentFrame - 1));
-	else if((key == Qt::Key_Right) || (key == Qt::Key_Up))
-	{
-		slotShowFrame(std::min(m_cpVideoInfo->numFrames - 1,
-			m_currentFrame + 1));
-	}
-	else if(key == Qt::Key_PageDown)
+	if(((key == Qt::Key_Left) || (key == Qt::Key_Down)) && (m_currentFrame > 0))
+		slotShowFrame(m_currentFrame - 1);
+	else if(((key == Qt::Key_Right) || (key == Qt::Key_Up)) &&
+		(m_currentFrame < (m_cpVideoInfo->numFrames - 1)))
+		slotShowFrame(m_currentFrame + 1);
+	else if((key == Qt::Key_PageDown) && (m_currentFrame > 0))
 		slotShowFrame(std::max(0, m_currentFrame - m_bigFrameStep));
-	else if(key == Qt::Key_PageUp)
+	else if((key == Qt::Key_PageUp) &&
+		(m_currentFrame < (m_cpVideoInfo->numFrames - 1)))
 	{
 		slotShowFrame(std::min(m_cpVideoInfo->numFrames - 1,
 			m_currentFrame + m_bigFrameStep));
