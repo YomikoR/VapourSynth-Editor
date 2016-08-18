@@ -4,9 +4,14 @@
 #include <QObject>
 #include <QPixmap>
 #include <QLibrary>
+#include <QMutex>
 #include <vapoursynth/VSScript.h>
+#include <deque>
+#include <set>
 
 #include "../settings/settingsmanager.h"
+
+//==============================================================================
 
 typedef int (VS_CC *FNP_vssInit)(void);
 typedef const VSAPI * (VS_CC *FNP_vssGetVSApi)(void);
@@ -18,6 +23,22 @@ typedef VSNodeRef * (VS_CC *FNP_vssGetOutput)(VSScript * a_handle,
 	int a_index);
 typedef void (VS_CC *FNP_vssFreeScript)(VSScript * a_handle);
 typedef int (VS_CC *FNP_vssFinalize)(void);
+
+//==============================================================================
+
+struct FrameTicket
+{
+	int frameNumber;
+	VSNodeRef * pNode;
+	VSFrameDoneCallback fpCallback;
+
+	FrameTicket(int a_frameNumber, VSNodeRef * a_pNode,
+		VSFrameDoneCallback a_fpCallback);
+	bool operator<(const FrameTicket & a_other) const;
+	bool operator==(const FrameTicket & a_other) const;
+};
+
+//==============================================================================
 
 class VapourSynthScriptProcessor : public QObject
 {
@@ -56,7 +77,11 @@ class VapourSynthScriptProcessor : public QObject
 		void signalWriteLogMessage(int a_messageType,
 			const QString & a_message);
 
-		void signalDistributePixmap(QPixmap a_pixmap);
+		void signalDistributePixmap(int a_frameNumber,
+			const QPixmap & a_pixmap);
+
+		void signalFrameQueStateChanged(size_t a_inQue, size_t a_inProcess,
+			size_t a_maxThreads);
 
 	private slots:
 
@@ -70,6 +95,10 @@ class VapourSynthScriptProcessor : public QObject
 			int a_frameNumber, VSNodeRef * a_pNodeRef,
 			const QString & a_errorMessage);
 
+		void receiveFrameForPreviewAndProcessQue(
+			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+			VSNodeRef * a_pNodeRef, const QString & a_errorMessage);
+
 		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
 
 		bool initLibrary();
@@ -82,6 +111,10 @@ class VapourSynthScriptProcessor : public QObject
 
 		void requestFrameAsync(int a_frameNumber, VSNodeRef * a_pNodeRef,
 			VSFrameDoneCallback a_fpCallback);
+
+		void processFrameTicketsQue();
+
+		void sendFrameQueChangeSignal();
 
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
@@ -137,6 +170,13 @@ class VapourSynthScriptProcessor : public QObject
 		FNP_vssGetOutput vssGetOutput;
 		FNP_vssFreeScript vssFreeScript;
 		FNP_vssFinalize vssFinalize;
+
+		std::deque<FrameTicket> m_frameTicketsQue;
+		std::multiset<FrameTicket> m_frameTicketsInProcess;
+
+		QMutex m_framesQueMutex;
 };
+
+//==============================================================================
 
 #endif // VAPOURSYNTHSCRIPTPROCESSOR_H

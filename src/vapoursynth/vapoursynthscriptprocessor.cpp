@@ -5,10 +5,55 @@
 #include <cassert>
 #include <vector>
 #include <cmath>
+#include <utility>
 
 #include <QImage>
 #include <QSettings>
 #include <QProcessEnvironment>
+#include <QMutexLocker>
+
+//==============================================================================
+
+FrameTicket::FrameTicket(int a_frameNumber, VSNodeRef * a_pNode,
+	VSFrameDoneCallback a_fpCallback):
+	frameNumber(a_frameNumber)
+	, pNode(a_pNode)
+	, fpCallback(a_fpCallback)
+{
+	assert(pNode);
+	assert(fpCallback);
+}
+
+//==============================================================================
+
+bool FrameTicket::operator<(const FrameTicket & a_other) const
+{
+	if(this == &a_other)
+		return false;
+
+	if(pNode < a_other.pNode)
+		return true;
+
+	if(pNode == a_other.pNode)
+	{
+		if(frameNumber < a_other.frameNumber)
+			return true;
+
+		if((frameNumber == a_other.frameNumber) &&
+			(fpCallback < a_other.fpCallback))
+			return true;
+	}
+
+	return false;
+}
+
+//==============================================================================
+
+bool FrameTicket::operator==(const FrameTicket & a_other) const
+{
+	return ((pNode == a_other.pNode) && (frameNumber == a_other.frameNumber) &&
+		(fpCallback == a_other.fpCallback));
+}
 
 //==============================================================================
 
@@ -30,8 +75,8 @@ void VS_CC frameForPreviewReady(void * a_pUserData,
 {
 	VapourSynthScriptProcessor * scriptProcessor =
 		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
-	scriptProcessor->receiveFrameForPreview(a_cpFrameRef, a_frameNumber,
-		a_pNodeRef, a_errorMessage);
+	scriptProcessor->receiveFrameForPreviewAndProcessQue(a_cpFrameRef,
+		a_frameNumber, a_pNodeRef, a_errorMessage);
 }
 
 // END OF void VS_CC frameForPreviewReady(void * a_pUserData,
@@ -63,6 +108,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_resamplingFilterParameterB(NAN)
 	, m_yuvMatrix()
 	, m_vsScriptLibrary(this)
+	, m_framesQueMutex(QMutex::Recursive)
 {
 	initLibrary();
 	slotSettingsChanged();
@@ -164,6 +210,9 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	m_currentFrame = 0;
 	m_error.clear();
 	m_initialized = true;
+
+	sendFrameQueChangeSignal();
+
 	return true;
 }
 
@@ -440,7 +489,28 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
 {
 	assert(m_cpVSAPI);
-	m_cpVSAPI->freeNode(a_pNodeRef);
+	// Was supposed to keep the node from being destroyed or lost midway.
+	// Doesn't work as supposed in R31 and earlier.
+	// Commented out for now. Hopefully, will not be needed in future releases.
+	//m_cpVSAPI->freeNode(a_pNodeRef);
+
+	QMutexLocker lock(&m_framesQueMutex);
+
+	FrameTicket ticket(a_frameNumber, a_pNodeRef, frameForPreviewReady);
+	std::set<FrameTicket>::iterator it = m_frameTicketsInProcess.find(ticket);
+	if(it != m_frameTicketsInProcess.end())
+	{
+		m_frameTicketsInProcess.erase(it);
+		sendFrameQueChangeSignal();
+	}
+	else
+	{
+		QString warning = trUtf8("Warning: received frame not registered in "
+			"processing. Frame number: %1; Node: %2; "
+			"Callback: frameForPreviewReady\n")
+			.arg(a_frameNumber).arg((intptr_t)a_pNodeRef);
+		emit signalWriteLogMessage(mtCritical, warning);
+	}
 
 	if(!a_errorMessage.isEmpty())
 	{
@@ -478,15 +548,12 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 		}
 
 		m_cpVSAPI->freeFrame(a_cpFrameRef);
-		emit signalDistributePixmap(framePixmap);
+		emit signalDistributePixmap(a_frameNumber, framePixmap);
 		return;
 	}
 	else
 	{
 		m_cpVSAPI->freeFrame(a_cpFrameRef);
-		m_error = trUtf8("Received frame %1 from an unknown node.")
-			.arg(m_cpVideoInfo->format->name);
-		emit signalWriteLogMessage(mtWarning, m_error);
 		return;
 	}
 }
@@ -494,6 +561,21 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 // END OF void VapourSynthScriptProcessor::receiveFrameForPreview(
 //	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
+//==============================================================================
+
+void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQue(
+	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
+	const QString & a_errorMessage)
+{
+	QMutexLocker lock(&m_framesQueMutex);
+	receiveFrameForPreview(a_cpFrameRef, a_frameNumber, a_pNodeRef,
+		a_errorMessage);
+	processFrameTicketsQue();
+}
+
+// END OF void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQue(
+//	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
+//	const QString & a_errorMessage)
 //==============================================================================
 
 QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
@@ -868,11 +950,73 @@ void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
 {
 	assert(m_cpVSAPI);
-	// Done for safety. Don't forget to free the node reference in the callback.
-	m_cpVSAPI->cloneNodeRef(a_pNodeRef);
-	m_cpVSAPI->getFrameAsync(a_frameNumber, a_pNodeRef, a_fpCallback, this);
+
+	QMutexLocker lock(&m_framesQueMutex);
+
+	FrameTicket newFrameTicket(a_frameNumber, a_pNodeRef, a_fpCallback);
+
+	if((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads)
+	{
+		// Was supposed to keep the node from being destroyed or lost midway.
+		// Doesn't work as supposed in R31 and earlier.
+		// Commented out for now. Hopefully, will not be needed
+		// in future releases.
+		//VSNodeRef * pNewRef = m_cpVSAPI->cloneNodeRef(a_pNodeRef);
+
+		m_frameTicketsInProcess.insert(newFrameTicket);
+		m_cpVSAPI->getFrameAsync(a_frameNumber, a_pNodeRef, a_fpCallback, this);
+	}
+	else
+	{
+		m_frameTicketsQue.push_back(newFrameTicket);
+	}
+
+	sendFrameQueChangeSignal();
 }
 
 // END OF void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 //	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
+//==============================================================================
+
+void VapourSynthScriptProcessor::processFrameTicketsQue()
+{
+	assert(m_cpVSAPI);
+
+	QMutexLocker lock(&m_framesQueMutex);
+
+	size_t oldInQue = m_frameTicketsQue.size();
+	size_t oldInProcess = m_frameTicketsInProcess.size();
+
+	while(((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads) &&
+		(!m_frameTicketsQue.empty()))
+	{
+		FrameTicket ticket = std::move(m_frameTicketsQue.front());
+		m_frameTicketsQue.pop_front();
+		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pNode,
+			ticket.fpCallback, this);
+		m_frameTicketsInProcess.insert(ticket);
+	}
+
+	size_t inQue = m_frameTicketsQue.size();
+	size_t inProcess = m_frameTicketsInProcess.size();
+	if((inQue != oldInQue) || (oldInProcess != inProcess))
+		sendFrameQueChangeSignal();
+}
+
+// END OF void VapourSynthScriptProcessor::processFrameTicketsQue()
+//==============================================================================
+
+void VapourSynthScriptProcessor::sendFrameQueChangeSignal()
+{
+	QMutexLocker lock(&m_framesQueMutex);
+	size_t inQue = m_frameTicketsQue.size();
+	size_t inProcess = m_frameTicketsInProcess.size();
+	size_t maxThreads = m_cpCoreInfo->numThreads;
+	QString message = QString("In que: %1, in process: %2, max threads: %3")
+		.arg(inQue).arg(inProcess).arg(maxThreads);
+	emit signalWriteLogMessage(mtDebug, message);
+	emit signalFrameQueStateChanged(inQue, inProcess, maxThreads);
+}
+
+// END OF void VapourSynthScriptProcessor::sendFrameQueChangeSignal()
 //==============================================================================

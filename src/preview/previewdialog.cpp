@@ -60,6 +60,10 @@ PreviewDialog::PreviewDialog(
 	, m_pSettingsDialog(a_pSettingsDialog)
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_pStatusBar(nullptr)
+	, m_pVideoInfoLabel(nullptr)
+	, m_pFramesInQueLabel(nullptr)
+	, m_pFramesInProcessLabel(nullptr)
+	, m_pMaxThreadsLabel(nullptr)
 	, m_currentFrame(0)
 	, m_bigFrameStep(10)
 	, m_scriptName()
@@ -103,6 +107,8 @@ PreviewDialog::PreviewDialog(
 
 	createActionsAndMenus();
 
+	createStatusBar();
+
 	m_ui.frameNumberSlider->setBigStep(m_bigFrameStep);
 	m_ui.frameNumberSlider->setDisplayMode(
 		m_pSettingsManager->getTimeLineMode());
@@ -120,13 +126,18 @@ PreviewDialog::PreviewDialog(
 	m_ui.colorPickerLabel->setVisible(
 		m_pSettingsManager->getColorPickerVisible());
 
-	m_pStatusBar = new QStatusBar(this);
-	m_ui.mainLayout->addWidget(m_pStatusBar);
-
 	QByteArray newGeometry = m_pSettingsManager->getPreviewDialogGeometry();
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
 
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalDistributePixmap(int, const QPixmap &)),
+		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)),
+		Qt::DirectConnection);
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalFrameQueStateChanged(size_t, size_t, size_t)),
+		this, SLOT(slotFrameQueStateChanged(size_t, size_t, size_t)),
+		Qt::DirectConnection);
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
@@ -200,8 +211,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 		m_currentFrame = lastFrameNumber;
 
 	QString newVideoInfoString = vsedit::videoInfoString(m_cpVideoInfo);
-	m_pStatusBar->showMessage(newVideoInfoString);
-	m_pStatusBar->setToolTip(newVideoInfoString);
+	m_pVideoInfoLabel->setText(newVideoInfoString);
+	m_pVideoInfoLabel->setToolTip(newVideoInfoString);
 
 	resetCropSpinBoxes();
 
@@ -932,6 +943,40 @@ void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 //==============================================================================
 
+void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
+	const QPixmap & a_pixmap)
+{
+	emit signalWriteLogMessage(mtDebug, trUtf8("Received preview frame %1")
+		.arg(a_frameNumber));
+
+	if(m_ui.frameNumberSlider->frame() != a_frameNumber)
+	{
+		emit signalWriteLogMessage(mtDebug, trUtf8("No longer needed"));
+		return;
+	}
+
+	if(a_pixmap.isNull())
+		return;
+
+	m_framePixmap = a_pixmap;
+	setPreviewPixmap();
+}
+
+// END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
+//==============================================================================
+
+void PreviewDialog::slotFrameQueStateChanged(size_t a_inQue, size_t a_inProcess,
+	size_t a_maxThreads)
+{
+	m_pFramesInQueLabel->setText(QString::number(a_inQue));
+	m_pFramesInProcessLabel->setText(QString::number(a_inProcess));
+	m_pMaxThreadsLabel->setText(QString::number(a_maxThreads));
+}
+
+// END OF void PreviewDialog::slotFrameQueStateChanged(size_t a_inQue,
+//		size_t a_inProcess, size_t a_maxThreads)
+//==============================================================================
+
 void PreviewDialog::createActionsAndMenus()
 {
 	QKeySequence hotkey;
@@ -1318,6 +1363,27 @@ void PreviewDialog::createActionsAndMenus()
 // END OF void PreviewDialog::createActionsAndMenus()
 //==============================================================================
 
+void PreviewDialog::createStatusBar()
+{
+	m_pStatusBar = new QStatusBar(this);
+	m_ui.mainLayout->addWidget(m_pStatusBar);
+
+	m_pVideoInfoLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pVideoInfoLabel);
+
+	m_pFramesInQueLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pFramesInQueLabel);
+
+	m_pFramesInProcessLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pFramesInProcessLabel);
+
+	m_pMaxThreadsLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pMaxThreadsLabel);
+}
+
+// END OF void PreviewDialog::createStatusBar()
+//==============================================================================
+
 void PreviewDialog::setUpZoomPanel()
 {
 	m_ui.zoomRatioSpinBox->setLocale(QLocale("C"));
@@ -1438,12 +1504,15 @@ bool PreviewDialog::showFrame(int a_frameNumber)
 	if(!m_pVapourSynthScriptProcessor->isInitialized())
 		return false;
 
-	QPixmap newPixmap = m_pVapourSynthScriptProcessor->pixmap(a_frameNumber);
-	if(newPixmap.isNull())
-		return false;
+	m_pVapourSynthScriptProcessor->requestPixmapAsync(a_frameNumber);
 
-	m_framePixmap = newPixmap;
-	setPreviewPixmap();
+//	QPixmap newPixmap = m_pVapourSynthScriptProcessor->pixmap(a_frameNumber);
+//	if(newPixmap.isNull())
+//		return false;
+//
+//	m_framePixmap = newPixmap;
+//	setPreviewPixmap();
+
 	return true;
 }
 

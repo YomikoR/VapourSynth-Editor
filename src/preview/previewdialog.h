@@ -122,9 +122,17 @@ class PreviewDialog : public QDialog
 
 		void slotToggleColorPicker(bool a_colorPickerVisible);
 
+		void slotReceivePreviewFrame(int a_frameNumber,
+			const QPixmap & a_pixmap);
+
+		void slotFrameQueStateChanged(size_t a_inQue, size_t a_inProcess,
+			size_t a_maxThreads);
+
 	private:
 
 		void createActionsAndMenus();
+
+		void createStatusBar();
 
 		void setUpZoomPanel();
 
@@ -154,6 +162,10 @@ class PreviewDialog : public QDialog
 		PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
 
 		QStatusBar * m_pStatusBar;
+		QLabel * m_pVideoInfoLabel;
+		QLabel * m_pFramesInQueLabel;
+		QLabel * m_pFramesInProcessLabel;
+		QLabel * m_pMaxThreadsLabel;
 
 		int m_currentFrame;
 
