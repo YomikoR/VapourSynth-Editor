@@ -220,8 +220,22 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 //		const QString& a_scriptName)
 //==============================================================================
 
-void VapourSynthScriptProcessor::finalize()
+bool VapourSynthScriptProcessor::finalize()
 {
+	{	// Check the processing que.
+		QMutexLocker lock(&m_framesQueMutex);
+		if(!m_frameTicketsInProcess.empty())
+		{
+			m_error = trUtf8("Can not finalize the script processor while "
+				"there are still frames in processing. Please wait for "
+				"the processing to finished and repeat your action.");
+			emit signalWriteLogMessage(mtCritical, m_error);
+			return false;
+		}
+
+		m_frameTicketsQue.clear();
+	}
+
 	freeFrame();
 
 	m_cpVideoInfo = nullptr;
@@ -255,9 +269,11 @@ void VapourSynthScriptProcessor::finalize()
 
 	m_error.clear();
 	m_initialized = false;
+
+	return true;
 }
 
-// END OF void VapourSynthScriptProcessor::finalize()
+// END OF bool VapourSynthScriptProcessor::finalize()
 //==============================================================================
 
 bool VapourSynthScriptProcessor::isInitialized() const
@@ -1012,9 +1028,9 @@ void VapourSynthScriptProcessor::sendFrameQueChangeSignal()
 	size_t inQue = m_frameTicketsQue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
 	size_t maxThreads = m_cpCoreInfo->numThreads;
-	QString message = QString("In que: %1, in process: %2, max threads: %3")
-		.arg(inQue).arg(inProcess).arg(maxThreads);
-	emit signalWriteLogMessage(mtDebug, message);
+//	QString message = QString("In que: %1, in process: %2, max threads: %3")
+//		.arg(inQue).arg(inProcess).arg(maxThreads);
+//	emit signalWriteLogMessage(mtDebug, message);
 	emit signalFrameQueStateChanged(inQue, inProcess, maxThreads);
 }
 

@@ -180,6 +180,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	const QString& a_scriptName)
 {
 	m_ui.cropCheckButton->setChecked(false);
+	clear();
 
 	bool initialized =
 		m_pVapourSynthScriptProcessor->initialize(a_script, a_scriptName);
@@ -230,9 +231,23 @@ void PreviewDialog::previewScript(const QString& a_script,
 //		const QString& a_scriptName)
 //==============================================================================
 
+void PreviewDialog::clear()
+{
+	m_framePixmap = QPixmap();
+	m_ui.previewArea->setPixmap(QPixmap());
+	m_pVideoInfoLabel->clear();
+	m_pFramesInQueLabel->clear();
+	m_pFramesInProcessLabel->clear();
+	m_pMaxThreadsLabel->clear();
+}
+
+// END OF void PreviewDialog::clear()
+//==============================================================================
+
 void PreviewDialog::closeEvent(QCloseEvent * a_pEvent)
 {
 	m_pVapourSynthScriptProcessor->finalize();
+	clear();
 	QDialog::closeEvent(a_pEvent);
 }
 
@@ -946,14 +961,7 @@ void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	const QPixmap & a_pixmap)
 {
-	emit signalWriteLogMessage(mtDebug, trUtf8("Received preview frame %1")
-		.arg(a_frameNumber));
-
-	if(m_ui.frameNumberSlider->frame() != a_frameNumber)
-	{
-		emit signalWriteLogMessage(mtDebug, trUtf8("No longer needed"));
-		return;
-	}
+	(void)(a_frameNumber);
 
 	if(a_pixmap.isNull())
 		return;

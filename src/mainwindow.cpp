@@ -287,8 +287,10 @@ bool MainWindow::slotOpenScript()
 
 void MainWindow::slotPreview()
 {
+	bool finalized = m_pVapourSynthScriptProcessor->finalize();
+	if(!finalized)
+		return;
 	m_ui.logEdit->clear();
-	m_pVapourSynthScriptProcessor->finalize();
 	m_pPreviewDialog->previewScript(m_ui.scriptEdit->text(), m_scriptFilePath);
 }
 

@@ -53,7 +53,7 @@ class VapourSynthScriptProcessor : public QObject
 
 		bool initialize(const QString& a_script, const QString& a_scriptName);
 
-		void finalize();
+		bool finalize();
 
 		bool isInitialized() const;
 

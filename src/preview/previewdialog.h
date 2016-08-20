@@ -41,6 +41,8 @@ class PreviewDialog : public QDialog
 		void previewScript(const QString& a_script,
 			const QString& a_scriptName);
 
+		void clear();
+
 	protected:
 
 		void closeEvent(QCloseEvent * a_pEvent) override;
