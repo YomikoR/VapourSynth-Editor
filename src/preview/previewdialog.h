@@ -2,6 +2,7 @@
 #define PREVIEWDIALOG_H_INCLUDED
 
 #include <QPixmap>
+#include <QMutex>
 #include <map>
 #include <vector>
 
@@ -213,6 +214,8 @@ class PreviewDialog : public QDialog
 		std::map<QString, TimeLineSlider::DisplayMode> m_actionIDToTimeLineMode;
 
 		std::vector<QAction *> m_settableActionsList;
+
+		QMutex m_previewPixmapMutex;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

@@ -18,6 +18,7 @@
 #include <QAction>
 #include <QByteArray>
 #include <QClipboard>
+#include <QMutexLocker>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -98,6 +99,7 @@ PreviewDialog::PreviewDialog(
 	, m_actionIDToZoomScaleMode()
 	, m_actionIDToTimeLineMode()
 	, m_settableActionsList()
+	, m_previewPixmapMutex(QMutex::Recursive)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -132,8 +134,7 @@ PreviewDialog::PreviewDialog(
 
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributePixmap(int, const QPixmap &)),
-		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)),
-		Qt::DirectConnection);
+		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)));
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalFrameQueStateChanged(size_t, size_t, size_t)),
 		this, SLOT(slotFrameQueStateChanged(size_t, size_t, size_t)),
@@ -233,8 +234,11 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 void PreviewDialog::clear()
 {
-	m_framePixmap = QPixmap();
-	m_ui.previewArea->setPixmap(QPixmap());
+	{
+		QMutexLocker lock(&m_previewPixmapMutex);
+		m_framePixmap = QPixmap();
+		m_ui.previewArea->setPixmap(QPixmap());
+	}
 	m_pVideoInfoLabel->clear();
 	m_pFramesInQueLabel->clear();
 	m_pFramesInProcessLabel->clear();
@@ -379,7 +383,12 @@ void PreviewDialog::slotSaveSnapshot()
 
 	if(!snapshotFilePath.isEmpty())
 	{
-		bool success = m_framePixmap.save(snapshotFilePath, "PNG");
+		bool success = false;
+		{
+			QMutexLocker lock(&m_previewPixmapMutex);
+			success = m_framePixmap.save(snapshotFilePath, "PNG");
+		}
+
 		if(!success)
 		{
 			QMessageBox::critical(this, trUtf8("Image save error"),
@@ -883,8 +892,13 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	double value2 = 0.0;
 	double value3 = 0.0;
 
-	size_t frameX = (size_t)((float)m_framePixmap.width() * a_normX);
-	size_t frameY = (size_t)((float)m_framePixmap.height() * a_normY);
+	size_t frameX = 0;
+	size_t frameY = 0;
+	{
+		QMutexLocker lock(&m_previewPixmapMutex);
+		frameX = (size_t)((float)m_framePixmap.width() * a_normX);
+		frameY = (size_t)((float)m_framePixmap.height() * a_normY);
+	}
 	m_pVapourSynthScriptProcessor->colorAtPoint(frameX, frameY,
 		value1, value2, value3);
 
@@ -931,6 +945,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 
 void PreviewDialog::slotFrameToClipboard()
 {
+	QMutexLocker lock(&m_previewPixmapMutex);
 	if(m_framePixmap.isNull())
 		return;
 
@@ -966,8 +981,11 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	if(a_pixmap.isNull())
 		return;
 
-	m_framePixmap = a_pixmap;
-	setPreviewPixmap();
+	{
+		QMutexLocker lock(&m_previewPixmapMutex);
+		m_framePixmap = a_pixmap;
+		setPreviewPixmap();
+	}
 }
 
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
@@ -1514,6 +1532,7 @@ bool PreviewDialog::showFrame(int a_frameNumber)
 
 	m_pVapourSynthScriptProcessor->requestPixmapAsync(a_frameNumber);
 
+	// Old blocking way.
 //	QPixmap newPixmap = m_pVapourSynthScriptProcessor->pixmap(a_frameNumber);
 //	if(newPixmap.isNull())
 //		return false;
@@ -1529,6 +1548,7 @@ bool PreviewDialog::showFrame(int a_frameNumber)
 
 void PreviewDialog::setPreviewPixmap()
 {
+	QMutexLocker lock(&m_previewPixmapMutex);
 	if(m_ui.cropPanel->isVisible())
 	{
 		int cropLeft = m_ui.cropLeftSpinBox->value();
