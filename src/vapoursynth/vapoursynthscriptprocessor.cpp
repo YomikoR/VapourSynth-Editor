@@ -99,8 +99,8 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_pPreviewNode(nullptr)
 	, m_cpVideoInfo(nullptr)
 	, m_cpCoreInfo(nullptr)
-	, m_currentFrame(0)
-	, m_lastRequestedPixmapFrameNumber(-1)
+	, m_currentFrame(-1)
+	, m_currentPreviewFrame(-1)
 	, m_cpCurrentFrameRef(nullptr)
 	, m_chromaResamplingFilter()
 	, m_chromaPlacement()
@@ -397,7 +397,7 @@ void VapourSynthScriptProcessor::requestPixmapAsync(int a_frameNumber)
 	if((!m_pOutputNode) || (!m_pPreviewNode))
 		return;
 
-	m_lastRequestedPixmapFrameNumber = a_frameNumber;
+	requestFrameAsync(a_frameNumber, m_pPreviewNode, &frameForPreviewReady);
 	requestFrameAsync(a_frameNumber, m_pOutputNode, &frameForPreviewReady);
 }
 
@@ -408,9 +408,9 @@ void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 	double & a_rValue1, double & a_rValue2, double & a_rValue3)
 {
 	if(!m_cpCurrentFrameRef)
-		requestFrame(m_currentFrame);
+		return;
 
-	if(!m_cpCurrentFrameRef)
+	if(m_currentFrame != m_currentPreviewFrame)
 		return;
 
 	assert(m_cpVSAPI);
@@ -538,23 +538,17 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 	if(!a_cpFrameRef)
 		return;
 
-	if(a_frameNumber != m_lastRequestedPixmapFrameNumber)
-	{
-		m_cpVSAPI->freeFrame(a_cpFrameRef);
-		return;
-	}
-
 	if(a_pNodeRef == m_pOutputNode)
 	{
 		m_cpVSAPI->freeFrame(m_cpCurrentFrameRef);
 		m_cpCurrentFrameRef = a_cpFrameRef;
-		assert(m_pPreviewNode);
-		requestFrameAsync(a_frameNumber, m_pPreviewNode, &frameForPreviewReady);
+		m_currentFrame = a_frameNumber;
 		return;
 	}
 	else if(a_pNodeRef == m_pPreviewNode)
 	{
 		QPixmap framePixmap = pixmapFromFrame(a_cpFrameRef);
+		m_cpVSAPI->freeFrame(a_cpFrameRef);
 
 		if(framePixmap.isNull())
 		{
@@ -563,7 +557,7 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 			emit signalWriteLogMessage(mtCritical, m_error);
 		}
 
-		m_cpVSAPI->freeFrame(a_cpFrameRef);
+		m_currentPreviewFrame = a_frameNumber;
 		emit signalDistributePixmap(a_frameNumber, framePixmap);
 		return;
 	}

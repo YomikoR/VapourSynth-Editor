@@ -146,7 +146,7 @@ class VapourSynthScriptProcessor : public QObject
 
 		int m_currentFrame;
 
-		int m_lastRequestedPixmapFrameNumber;
+		int m_currentPreviewFrame;
 
 		const VSFrameRef * m_cpCurrentFrameRef;
 
