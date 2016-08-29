@@ -80,7 +80,7 @@ class VapourSynthScriptProcessor : public QObject
 		void signalDistributePixmap(int a_frameNumber,
 			const QPixmap & a_pixmap);
 
-		void signalFrameQueStateChanged(size_t a_inQue, size_t a_inProcess,
+		void signalFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
 			size_t a_maxThreads);
 
 	private slots:
@@ -95,7 +95,7 @@ class VapourSynthScriptProcessor : public QObject
 			int a_frameNumber, VSNodeRef * a_pNodeRef,
 			const QString & a_errorMessage);
 
-		void receiveFrameForPreviewAndProcessQue(
+		void receiveFrameForPreviewAndProcessQueue(
 			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 			VSNodeRef * a_pNodeRef, const QString & a_errorMessage);
 
@@ -112,9 +112,11 @@ class VapourSynthScriptProcessor : public QObject
 		void requestFrameAsync(int a_frameNumber, VSNodeRef * a_pNodeRef,
 			VSFrameDoneCallback a_fpCallback);
 
-		void processFrameTicketsQue();
+		void processFrameTicketsQueue();
 
-		void sendFrameQueChangeSignal();
+		void sendFrameQueueChangeSignal();
+
+		bool flushFrameTicketsQueue();
 
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
@@ -171,10 +173,10 @@ class VapourSynthScriptProcessor : public QObject
 		FNP_vssFreeScript vssFreeScript;
 		FNP_vssFinalize vssFinalize;
 
-		std::deque<FrameTicket> m_frameTicketsQue;
+		std::deque<FrameTicket> m_frameTicketsQueue;
 		std::multiset<FrameTicket> m_frameTicketsInProcess;
 
-		QMutex m_framesQueMutex;
+		QMutex m_framesQueueMutex;
 };
 
 //==============================================================================

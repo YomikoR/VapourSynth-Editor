@@ -75,7 +75,7 @@ void VS_CC frameForPreviewReady(void * a_pUserData,
 {
 	VapourSynthScriptProcessor * scriptProcessor =
 		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
-	scriptProcessor->receiveFrameForPreviewAndProcessQue(a_cpFrameRef,
+	scriptProcessor->receiveFrameForPreviewAndProcessQueue(a_cpFrameRef,
 		a_frameNumber, a_pNodeRef, a_errorMessage);
 }
 
@@ -108,7 +108,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_resamplingFilterParameterB(NAN)
 	, m_yuvMatrix()
 	, m_vsScriptLibrary(this)
-	, m_framesQueMutex(QMutex::Recursive)
+	, m_framesQueueMutex(QMutex::Recursive)
 {
 	initLibrary();
 	slotSettingsChanged();
@@ -211,7 +211,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	m_error.clear();
 	m_initialized = true;
 
-	sendFrameQueChangeSignal();
+	sendFrameQueueChangeSignal();
 
 	return true;
 }
@@ -222,19 +222,9 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 bool VapourSynthScriptProcessor::finalize()
 {
-	{	// Check the processing que.
-		QMutexLocker lock(&m_framesQueMutex);
-		if(!m_frameTicketsInProcess.empty())
-		{
-			m_error = trUtf8("Can not finalize the script processor while "
-				"there are still frames in processing. Please wait for "
-				"the processing to finished and repeat your action.");
-			emit signalWriteLogMessage(mtCritical, m_error);
-			return false;
-		}
-
-		m_frameTicketsQue.clear();
-	}
+	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
+	if(!noFrameTicketsInProcess)
+		return false;
 
 	freeFrame();
 
@@ -464,6 +454,11 @@ void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 
 void VapourSynthScriptProcessor::slotSettingsChanged()
 {
+	// Preview node settings
+	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
+	if(!noFrameTicketsInProcess)
+		return;
+
 	m_yuvMatrix = m_pSettingsManager->getYuvToRgbConversionMatrix();
 
 	m_chromaResamplingFilter = m_pSettingsManager->getChromaResamplingFilter();
@@ -510,14 +505,14 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 	// Commented out for now. Hopefully, will not be needed in future releases.
 	//m_cpVSAPI->freeNode(a_pNodeRef);
 
-	QMutexLocker lock(&m_framesQueMutex);
+	QMutexLocker lock(&m_framesQueueMutex);
 
 	FrameTicket ticket(a_frameNumber, a_pNodeRef, frameForPreviewReady);
 	std::set<FrameTicket>::iterator it = m_frameTicketsInProcess.find(ticket);
 	if(it != m_frameTicketsInProcess.end())
 	{
 		m_frameTicketsInProcess.erase(it);
-		sendFrameQueChangeSignal();
+		sendFrameQueueChangeSignal();
 	}
 	else
 	{
@@ -573,18 +568,18 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 //	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
 //==============================================================================
 
-void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQue(
+void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQueue(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 	const QString & a_errorMessage)
 {
-	QMutexLocker lock(&m_framesQueMutex);
+	QMutexLocker lock(&m_framesQueueMutex);
 	receiveFrameForPreview(a_cpFrameRef, a_frameNumber, a_pNodeRef,
 		a_errorMessage);
-	processFrameTicketsQue();
+	processFrameTicketsQueue();
 }
 
-// END OF void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQue(
-//	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
+// END OF void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQueue
+//	(const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 //	const QString & a_errorMessage)
 //==============================================================================
 
@@ -833,6 +828,10 @@ void VapourSynthScriptProcessor::initPreviewNode()
 		return;
 	}
 
+	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
+	if(!noFrameTicketsInProcess)
+		return;
+
 	if(m_pPreviewNode)
 	{
 		m_cpVSAPI->freeNode(m_pPreviewNode);
@@ -961,7 +960,7 @@ void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 {
 	assert(m_cpVSAPI);
 
-	QMutexLocker lock(&m_framesQueMutex);
+	QMutexLocker lock(&m_framesQueueMutex);
 
 	FrameTicket newFrameTicket(a_frameNumber, a_pNodeRef, a_fpCallback);
 
@@ -978,55 +977,76 @@ void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	}
 	else
 	{
-		m_frameTicketsQue.push_back(newFrameTicket);
+		m_frameTicketsQueue.push_back(newFrameTicket);
 	}
 
-	sendFrameQueChangeSignal();
+	sendFrameQueueChangeSignal();
 }
 
 // END OF void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 //	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
 //==============================================================================
 
-void VapourSynthScriptProcessor::processFrameTicketsQue()
+void VapourSynthScriptProcessor::processFrameTicketsQueue()
 {
 	assert(m_cpVSAPI);
 
-	QMutexLocker lock(&m_framesQueMutex);
+	QMutexLocker lock(&m_framesQueueMutex);
 
-	size_t oldInQue = m_frameTicketsQue.size();
+	size_t oldInQueue = m_frameTicketsQueue.size();
 	size_t oldInProcess = m_frameTicketsInProcess.size();
 
 	while(((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads) &&
-		(!m_frameTicketsQue.empty()))
+		(!m_frameTicketsQueue.empty()))
 	{
-		FrameTicket ticket = std::move(m_frameTicketsQue.front());
-		m_frameTicketsQue.pop_front();
+		FrameTicket ticket = std::move(m_frameTicketsQueue.front());
+		m_frameTicketsQueue.pop_front();
 		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pNode,
 			ticket.fpCallback, this);
 		m_frameTicketsInProcess.insert(ticket);
 	}
 
-	size_t inQue = m_frameTicketsQue.size();
+	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
-	if((inQue != oldInQue) || (oldInProcess != inProcess))
-		sendFrameQueChangeSignal();
+	if((inQueue != oldInQueue) || (oldInProcess != inProcess))
+		sendFrameQueueChangeSignal();
 }
 
-// END OF void VapourSynthScriptProcessor::processFrameTicketsQue()
+// END OF void VapourSynthScriptProcessor::processFrameTicketsQueue()
 //==============================================================================
 
-void VapourSynthScriptProcessor::sendFrameQueChangeSignal()
+void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 {
-	QMutexLocker lock(&m_framesQueMutex);
-	size_t inQue = m_frameTicketsQue.size();
+	QMutexLocker lock(&m_framesQueueMutex);
+	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
 	size_t maxThreads = m_cpCoreInfo->numThreads;
-//	QString message = QString("In que: %1, in process: %2, max threads: %3")
-//		.arg(inQue).arg(inProcess).arg(maxThreads);
+//	QString message = QString("In queue: %1, in process: %2, max threads: %3")
+//		.arg(inQueue).arg(inProcess).arg(maxThreads);
 //	emit signalWriteLogMessage(mtDebug, message);
-	emit signalFrameQueStateChanged(inQue, inProcess, maxThreads);
+	emit signalFrameQueueStateChanged(inQueue, inProcess, maxThreads);
 }
 
-// END OF void VapourSynthScriptProcessor::sendFrameQueChangeSignal()
+// END OF void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
+//==============================================================================
+
+bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
+{
+	// Check the processing queue.
+	QMutexLocker lock(&m_framesQueueMutex);
+
+	if(!m_frameTicketsInProcess.empty())
+	{
+		m_error = trUtf8("Can not finalize the script processor while "
+			"there are still frames in processing. Please wait for "
+			"the processing to finish and repeat your action.");
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return false;
+	}
+
+	m_frameTicketsQueue.clear();
+	return true;
+}
+
+// END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 //==============================================================================

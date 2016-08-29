@@ -62,7 +62,7 @@ PreviewDialog::PreviewDialog(
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_pStatusBar(nullptr)
 	, m_pVideoInfoLabel(nullptr)
-	, m_pFramesInQueLabel(nullptr)
+	, m_pFramesInQueueLabel(nullptr)
 	, m_pFramesInProcessLabel(nullptr)
 	, m_pMaxThreadsLabel(nullptr)
 	, m_currentFrame(0)
@@ -136,8 +136,8 @@ PreviewDialog::PreviewDialog(
 		SIGNAL(signalDistributePixmap(int, const QPixmap &)),
 		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)));
 	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalFrameQueStateChanged(size_t, size_t, size_t)),
-		this, SLOT(slotFrameQueStateChanged(size_t, size_t, size_t)),
+		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
+		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)),
 		Qt::DirectConnection);
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
@@ -240,7 +240,7 @@ void PreviewDialog::clear()
 		m_ui.previewArea->setPixmap(QPixmap());
 	}
 	m_pVideoInfoLabel->clear();
-	m_pFramesInQueLabel->clear();
+	m_pFramesInQueueLabel->clear();
 	m_pFramesInProcessLabel->clear();
 	m_pMaxThreadsLabel->clear();
 }
@@ -991,15 +991,15 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 //==============================================================================
 
-void PreviewDialog::slotFrameQueStateChanged(size_t a_inQue, size_t a_inProcess,
-	size_t a_maxThreads)
+void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
+	size_t a_inProcess, size_t a_maxThreads)
 {
-	m_pFramesInQueLabel->setText(QString::number(a_inQue));
+	m_pFramesInQueueLabel->setText(QString::number(a_inQueue));
 	m_pFramesInProcessLabel->setText(QString::number(a_inProcess));
 	m_pMaxThreadsLabel->setText(QString::number(a_maxThreads));
 }
 
-// END OF void PreviewDialog::slotFrameQueStateChanged(size_t a_inQue,
+// END OF void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 //		size_t a_inProcess, size_t a_maxThreads)
 //==============================================================================
 
@@ -1397,8 +1397,8 @@ void PreviewDialog::createStatusBar()
 	m_pVideoInfoLabel = new QLabel(m_pStatusBar);
 	m_pStatusBar->addPermanentWidget(m_pVideoInfoLabel);
 
-	m_pFramesInQueLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pFramesInQueLabel);
+	m_pFramesInQueueLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pFramesInQueueLabel);
 
 	m_pFramesInProcessLabel = new QLabel(m_pStatusBar);
 	m_pStatusBar->addPermanentWidget(m_pFramesInProcessLabel);
