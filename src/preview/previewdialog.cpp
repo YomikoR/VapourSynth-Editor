@@ -99,6 +99,9 @@ PreviewDialog::PreviewDialog(
 	, m_actionIDToZoomScaleModeMap()
 	, m_actionIDToTimeLineModeMap()
 	, m_settableActionsList()
+	, m_framesInQueue(0)
+	, m_framesInProcess(0)
+	, m_maxThreads(0)
 	, m_playing(false)
 {
 	m_ui.setupUi(this);
@@ -338,6 +341,9 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 
 void PreviewDialog::slotShowFrame(int a_frameNumber)
 {
+	if(m_playing)
+		return;
+
 	static bool requestingFrame = false;
 	if(requestingFrame)
 		return;
@@ -973,23 +979,23 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	m_framePixmap = a_pixmap;
 	setPreviewPixmap();
 
+	if(!m_playing)
+		return;
+
 	if(a_frameNumber != m_ui.frameNumberSlider->frame())
 	{
 		m_ui.frameNumberSlider->setFrame(a_frameNumber);
 		m_ui.frameNumberSpinBox->setValue(a_frameNumber);
 	}
 
-	if(m_playing)
+	if(a_frameNumber < (m_cpVideoInfo->numFrames - 1))
 	{
-		if(a_frameNumber < (m_cpVideoInfo->numFrames - 1))
-		{
-			m_pVapourSynthScriptProcessor->requestPixmapAsync(
-				a_frameNumber + 1);
-		}
-		else
-		{
-			m_pActionPlay->toggle();
-		}
+		m_pVapourSynthScriptProcessor->requestPixmapAsync(
+			a_frameNumber + 1);
+	}
+	else
+	{
+		m_pActionPlay->toggle();
 	}
 }
 
@@ -999,6 +1005,9 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 	size_t a_inProcess, size_t a_maxThreads)
 {
+	m_framesInQueue = a_inQueue;
+	m_framesInProcess = a_inProcess;
+	m_maxThreads = a_maxThreads;
 	m_pFramesInQueueLabel->setText(QString::number(a_inQueue));
 	m_pFramesInProcessLabel->setText(QString::number(a_inProcess));
 	m_pMaxThreadsLabel->setText(QString::number(a_maxThreads));
