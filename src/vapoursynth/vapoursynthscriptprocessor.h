@@ -84,8 +84,9 @@ class VapourSynthScriptProcessor : public QObject
 
 	private slots:
 
-		void slotReceiveFrameForPreview(QObject * a_cpFrameRef,
-			int a_frameNumber, QObject * a_pNodeRef, QString a_errorMessage);
+		void slotReceiveFrameForPreviewAndProcessQueue(
+			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+			VSNodeRef * a_pNodeRef, QString a_errorMessage);
 
 		void slotSettingsChanged();
 
@@ -96,10 +97,6 @@ class VapourSynthScriptProcessor : public QObject
 		void receiveFrameForPreview(const VSFrameRef * a_cpFrameRef,
 			int a_frameNumber, VSNodeRef * a_pNodeRef,
 			const QString & a_errorMessage);
-
-		void receiveFrameForPreviewAndProcessQueue(
-			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-			VSNodeRef * a_pNodeRef, const QString & a_errorMessage);
 
 		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
 

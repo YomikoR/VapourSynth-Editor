@@ -77,11 +77,11 @@ void VS_CC frameForPreviewReady(void * a_pUserData,
 	assert(pScriptProcessor);
 	QString errorMessage(a_errorMessage);
 	QMetaObject::invokeMethod(pScriptProcessor,
-		"slotReceiveFrameForPreview",
+		"slotReceiveFrameForPreviewAndProcessQueue",
 		Qt::QueuedConnection,
-		Q_ARG(QObject *, (QObject *)a_cpFrameRef),
+		Q_ARG(const VSFrameRef *, a_cpFrameRef),
 		Q_ARG(int, a_frameNumber),
-		Q_ARG(QObject *, (QObject *)a_pNodeRef),
+		Q_ARG(VSNodeRef *, a_pNodeRef),
 		Q_ARG(QString, errorMessage));
 }
 
@@ -457,17 +457,19 @@ void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 //		 double & a_rValue1, double & a_rValue2, double & a_rValue3)
 //==============================================================================
 
-void VapourSynthScriptProcessor::slotReceiveFrameForPreview(
-	QObject * a_cpFrameRef, int a_frameNumber, QObject * a_pNodeRef,
+void VapourSynthScriptProcessor::slotReceiveFrameForPreviewAndProcessQueue(
+	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 	QString a_errorMessage)
 {
-	receiveFrameForPreviewAndProcessQueue((const VSFrameRef *)a_cpFrameRef,
-		a_frameNumber, (VSNodeRef *)a_pNodeRef, a_errorMessage);
+	receiveFrameForPreview(a_cpFrameRef, a_frameNumber, a_pNodeRef,
+		a_errorMessage);
+	processFrameTicketsQueue();
 }
 
-// END OF void VapourSynthScriptProcessor::slotReceiveFrameForPreview(
-//		QObject * a_cpFrameRef, int a_frameNumber, QObject * a_pNodeRef,
-//		QString a_errorMessage)
+// END OF void void VapourSynthScriptProcessor::
+//		slotReceiveFrameForPreviewAndProcessQueue(
+//		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+//		VSNodeRef * a_pNodeRef, QString a_errorMessage)
 //==============================================================================
 
 void VapourSynthScriptProcessor::slotSettingsChanged()
@@ -582,20 +584,6 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 // END OF void VapourSynthScriptProcessor::receiveFrameForPreview(
 //	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
-//==============================================================================
-
-void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQueue(
-	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
-	const QString & a_errorMessage)
-{
-	receiveFrameForPreview(a_cpFrameRef, a_frameNumber, a_pNodeRef,
-		a_errorMessage);
-	processFrameTicketsQueue();
-}
-
-// END OF void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQueue
-//	(const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
-//	const QString & a_errorMessage)
 //==============================================================================
 
 QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
