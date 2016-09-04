@@ -86,6 +86,7 @@ extern const char ACTION_ID_TIME_STEP_FORWARD[];
 extern const char ACTION_ID_TIME_STEP_BACK[];
 extern const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[];
 extern const char ACTION_ID_TOGGLE_COLOR_PICKER[];
+extern const char ACTION_ID_PLAY[];
 
 //==============================================================================
 

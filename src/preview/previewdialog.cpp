@@ -18,7 +18,6 @@
 #include <QAction>
 #include <QByteArray>
 #include <QClipboard>
-#include <QMutexLocker>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -95,11 +94,12 @@ PreviewDialog::PreviewDialog(
 	, m_pActionPasteCropSnippetIntoScript(nullptr)
 	, m_pActionAdvancedSettingsDialog(nullptr)
 	, m_pActionToggleColorPicker(nullptr)
-	, m_actionIDToZoomMode()
-	, m_actionIDToZoomScaleMode()
-	, m_actionIDToTimeLineMode()
+	, m_pActionPlay(nullptr)
+	, m_actionIDToZoomModeMap()
+	, m_actionIDToZoomScaleModeMap()
+	, m_actionIDToTimeLineModeMap()
 	, m_settableActionsList()
-	, m_previewPixmapMutex(QMutex::Recursive)
+	, m_playing(false)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -137,8 +137,7 @@ PreviewDialog::PreviewDialog(
 		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)));
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)),
-		Qt::DirectConnection);
+		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
@@ -234,11 +233,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 void PreviewDialog::clear()
 {
-	{
-		QMutexLocker lock(&m_previewPixmapMutex);
-		m_framePixmap = QPixmap();
-		m_ui.previewArea->setPixmap(QPixmap());
-	}
+	m_framePixmap = QPixmap();
+	m_ui.previewArea->setPixmap(QPixmap());
 	m_pVideoInfoLabel->clear();
 	m_pFramesInQueueLabel->clear();
 	m_pFramesInProcessLabel->clear();
@@ -383,12 +379,7 @@ void PreviewDialog::slotSaveSnapshot()
 
 	if(!snapshotFilePath.isEmpty())
 	{
-		bool success = false;
-		{
-			QMutexLocker lock(&m_previewPixmapMutex);
-			success = m_framePixmap.save(snapshotFilePath, "PNG");
-		}
-
+		bool success = m_framePixmap.save(snapshotFilePath, "PNG");
 		if(!success)
 		{
 			QMessageBox::critical(this, trUtf8("Image save error"),
@@ -426,7 +417,7 @@ void PreviewDialog::slotZoomModeChanged()
 		for(QAction * pAction : m_pActionGroupZoomModes->actions())
 		{
 			ZoomMode actionZoomMode =
-				m_actionIDToZoomMode[pAction->data().toString()];
+				m_actionIDToZoomModeMap[pAction->data().toString()];
 			if(actionZoomMode == zoomMode)
 			{
 				pAction->setChecked(true);
@@ -438,7 +429,7 @@ void PreviewDialog::slotZoomModeChanged()
 	{
 		// If signal wasn't sent by combo box - presume it was sent by action.
 		QAction * pSenderAction = qobject_cast<QAction *>(pSender);
-		zoomMode = m_actionIDToZoomMode[pSenderAction->data().toString()];
+		zoomMode = m_actionIDToZoomModeMap[pSenderAction->data().toString()];
 		int zoomModeIndex = m_ui.zoomModeComboBox->findData((int)zoomMode);
 		m_ui.zoomModeComboBox->setCurrentIndex(zoomModeIndex);
 	}
@@ -482,7 +473,7 @@ void PreviewDialog::slotScaleModeChanged()
 		for(QAction * pAction : m_pActionGroupZoomScaleModes->actions())
 		{
 			Qt::TransformationMode actionScaleMode =
-				m_actionIDToZoomScaleMode[pAction->data().toString()];
+				m_actionIDToZoomScaleModeMap[pAction->data().toString()];
 			if(actionScaleMode == scaleMode)
 			{
 				pAction->setChecked(true);
@@ -495,7 +486,7 @@ void PreviewDialog::slotScaleModeChanged()
 		// If signal wasn't sent by combo box - presume it was sent by action.
 		QAction * pSenderAction = qobject_cast<QAction *>(pSender);
 		scaleMode =
-			m_actionIDToZoomScaleMode[pSenderAction->data().toString()];
+			m_actionIDToZoomScaleModeMap[pSenderAction->data().toString()];
 		int scaleModeIndex = m_ui.scaleModeComboBox->findData((int)scaleMode);
 		m_ui.scaleModeComboBox->setCurrentIndex(scaleModeIndex);
 	}
@@ -755,7 +746,7 @@ void PreviewDialog::slotTimeLineModeChanged()
 		for(QAction * pAction : m_pActionGroupTimeLineModes->actions())
 		{
 			TimeLineSlider::DisplayMode actionTimeLineMode =
-				m_actionIDToTimeLineMode[pAction->data().toString()];
+				m_actionIDToTimeLineModeMap[pAction->data().toString()];
 			if(actionTimeLineMode == timeLineMode)
 			{
 				pAction->setChecked(true);
@@ -768,7 +759,7 @@ void PreviewDialog::slotTimeLineModeChanged()
 		// If signal wasn't sent by combo box - presume it was sent by action.
 		QAction * pSenderAction = qobject_cast<QAction *>(pSender);
 		timeLineMode =
-			m_actionIDToTimeLineMode[pSenderAction->data().toString()];
+			m_actionIDToTimeLineModeMap[pSenderAction->data().toString()];
 		int timeLineModeIndex = m_ui.timeLineModeComboBox->findData(
 			(int)timeLineMode);
 		m_ui.timeLineModeComboBox->setCurrentIndex(timeLineModeIndex);
@@ -894,11 +885,10 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 
 	size_t frameX = 0;
 	size_t frameY = 0;
-	{
-		QMutexLocker lock(&m_previewPixmapMutex);
-		frameX = (size_t)((float)m_framePixmap.width() * a_normX);
-		frameY = (size_t)((float)m_framePixmap.height() * a_normY);
-	}
+
+	frameX = (size_t)((float)m_framePixmap.width() * a_normX);
+	frameY = (size_t)((float)m_framePixmap.height() * a_normY);
+
 	m_pVapourSynthScriptProcessor->colorAtPoint(frameX, frameY,
 		value1, value2, value3);
 
@@ -945,7 +935,6 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 
 void PreviewDialog::slotFrameToClipboard()
 {
-	QMutexLocker lock(&m_previewPixmapMutex);
 	if(m_framePixmap.isNull())
 		return;
 
@@ -981,10 +970,26 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	if(a_pixmap.isNull())
 		return;
 
+	m_framePixmap = a_pixmap;
+	setPreviewPixmap();
+
+	if(a_frameNumber != m_ui.frameNumberSlider->frame())
 	{
-		QMutexLocker lock(&m_previewPixmapMutex);
-		m_framePixmap = a_pixmap;
-		setPreviewPixmap();
+		m_ui.frameNumberSlider->setFrame(a_frameNumber);
+		m_ui.frameNumberSpinBox->setValue(a_frameNumber);
+	}
+
+	if(m_playing)
+	{
+		if(a_frameNumber < (m_cpVideoInfo->numFrames - 1))
+		{
+			m_pVapourSynthScriptProcessor->requestPixmapAsync(
+				a_frameNumber + 1);
+		}
+		else
+		{
+			m_pActionPlay->toggle();
+		}
 	}
 }
 
@@ -1001,6 +1006,32 @@ void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 
 // END OF void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 //		size_t a_inProcess, size_t a_maxThreads)
+//==============================================================================
+
+void PreviewDialog::slotPlay(bool a_play)
+{
+	m_playing = a_play;
+	if(m_playing)
+	{
+		disconnect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
+		this, SLOT(slotShowFrame(int)));
+		disconnect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
+			this, SLOT(slotShowFrame(int)));
+		int nextFrame = m_ui.frameNumberSlider->frame() + 1;
+		if(nextFrame >= m_cpVideoInfo->numFrames)
+			nextFrame = 0;
+		m_pVapourSynthScriptProcessor->requestPixmapAsync(nextFrame);
+	}
+	else
+	{
+		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
+		this, SLOT(slotShowFrame(int)));
+		connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
+			this, SLOT(slotShowFrame(int)));
+	}
+}
+
+// END OF void PreviewDialog::slotPlay(bool a_play)
 //==============================================================================
 
 void PreviewDialog::createActionsAndMenus()
@@ -1070,7 +1101,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetZoomModeNoZoom->setShortcut(hotkey);
 	m_pActionSetZoomModeNoZoom->setData(ACTION_ID_SET_ZOOM_MODE_NO_ZOOM);
 	m_settableActionsList.push_back(m_pActionSetZoomModeNoZoom);
-	m_actionIDToZoomMode[ACTION_ID_SET_ZOOM_MODE_NO_ZOOM] = ZoomMode::NoZoom;
+	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_NO_ZOOM] = ZoomMode::NoZoom;
 	addAction(m_pActionSetZoomModeNoZoom);
 
 //------------------------------------------------------------------------------
@@ -1087,7 +1118,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetZoomModeFixedRatio->setData(
 		ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO);
 	m_settableActionsList.push_back(m_pActionSetZoomModeFixedRatio);
-	m_actionIDToZoomMode[ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO] =
+	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO] =
 		ZoomMode::FixedRatio;
 	addAction(m_pActionSetZoomModeFixedRatio);
 
@@ -1105,7 +1136,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetZoomModeFitToFrame->setData(
 		ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME);
 	m_settableActionsList.push_back(m_pActionSetZoomModeFitToFrame);
-	m_actionIDToZoomMode[ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME] =
+	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME] =
 		ZoomMode::FitToFrame;
 	addAction(m_pActionSetZoomModeFitToFrame);
 
@@ -1115,7 +1146,7 @@ void PreviewDialog::createActionsAndMenus()
 	for(QAction * pAction : m_pActionGroupZoomModes->actions())
 	{
 		ZoomMode actionZoomMode =
-			m_actionIDToZoomMode[pAction->data().toString()];
+			m_actionIDToZoomModeMap[pAction->data().toString()];
 		if(actionZoomMode == zoomMode)
 		{
 			pAction->setChecked(true);
@@ -1147,7 +1178,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetZoomScaleModeNearest->setData(
 		ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST);
 	m_settableActionsList.push_back(m_pActionSetZoomScaleModeNearest);
-	m_actionIDToZoomScaleMode[ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST] =
+	m_actionIDToZoomScaleModeMap[ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST] =
 		Qt::FastTransformation;
 	addAction(m_pActionSetZoomScaleModeNearest);
 
@@ -1165,7 +1196,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetZoomScaleModeBilinear->setData(
 		ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR);
 	m_settableActionsList.push_back(m_pActionSetZoomScaleModeBilinear);
-	m_actionIDToZoomScaleMode[ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR] =
+	m_actionIDToZoomScaleModeMap[ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR] =
 		Qt::SmoothTransformation;
 	addAction(m_pActionSetZoomScaleModeBilinear);
 
@@ -1175,7 +1206,7 @@ void PreviewDialog::createActionsAndMenus()
 	for(QAction * pAction : m_pActionGroupZoomScaleModes->actions())
 	{
 		Qt::TransformationMode actionScaleMode =
-			m_actionIDToZoomScaleMode[pAction->data().toString()];
+			m_actionIDToZoomScaleModeMap[pAction->data().toString()];
 
 		if(actionScaleMode == scaleMode)
 		{
@@ -1239,7 +1270,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetTimeLineModeTime->setData(
 		ACTION_ID_SET_TIMELINE_MODE_TIME);
 	m_settableActionsList.push_back(m_pActionSetTimeLineModeTime);
-	m_actionIDToTimeLineMode[ACTION_ID_SET_TIMELINE_MODE_TIME] =
+	m_actionIDToTimeLineModeMap[ACTION_ID_SET_TIMELINE_MODE_TIME] =
 		TimeLineSlider::DisplayMode::Time;
 	addAction(m_pActionSetTimeLineModeTime);
 
@@ -1259,7 +1290,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionSetTimeLineModeFrames->setData(
 		ACTION_ID_SET_TIMELINE_MODE_FRAMES);
 	m_settableActionsList.push_back(m_pActionSetTimeLineModeFrames);
-	m_actionIDToTimeLineMode[ACTION_ID_SET_TIMELINE_MODE_FRAMES] =
+	m_actionIDToTimeLineModeMap[ACTION_ID_SET_TIMELINE_MODE_FRAMES] =
 		TimeLineSlider::DisplayMode::Frames;
 	addAction(m_pActionSetTimeLineModeFrames);
 
@@ -1270,7 +1301,7 @@ void PreviewDialog::createActionsAndMenus()
 	for(QAction * pAction : m_pActionGroupTimeLineModes->actions())
 	{
 		TimeLineSlider::DisplayMode actionTimeLineMode =
-			m_actionIDToTimeLineMode[pAction->data().toString()];
+			m_actionIDToTimeLineModeMap[pAction->data().toString()];
 
 		if(actionTimeLineMode == timeLineMode)
 		{
@@ -1343,6 +1374,19 @@ void PreviewDialog::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
+	m_pActionPlay = new QAction(this);
+	m_pActionPlay->setIconText(trUtf8("Play"));
+	m_pActionPlay->setIcon(QIcon(":play.png"));
+	m_pActionPlay->setCheckable(true);
+	m_pActionPlay->setChecked(false);
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_PLAY);
+	m_pActionPlay->setShortcut(hotkey);
+	m_pActionPlay->setData(ACTION_ID_PLAY);
+	m_settableActionsList.push_back(m_pActionPlay);
+	addAction(m_pActionPlay);
+
+//------------------------------------------------------------------------------
+
 	connect(m_pActionFrameToClipboard, SIGNAL(triggered()),
 		this, SLOT(slotFrameToClipboard()));
 	connect(m_pActionSaveSnapshot, SIGNAL(triggered()),
@@ -1377,6 +1421,8 @@ void PreviewDialog::createActionsAndMenus()
 		m_pAdvancedSettingsDialog, SLOT(slotCall()));
 	connect(m_pActionToggleColorPicker, SIGNAL(toggled(bool)),
 		this, SLOT(slotToggleColorPicker(bool)));
+	connect(m_pActionPlay, SIGNAL(toggled(bool)),
+		this, SLOT(slotPlay(bool)));
 
 //------------------------------------------------------------------------------
 
@@ -1461,9 +1507,14 @@ void PreviewDialog::setUpZoomPanel()
 void PreviewDialog::setUpTimeLinePanel()
 {
     m_ui.timeLinePanel->setVisible(false);
+    m_ui.playButton->setDefaultAction(m_pActionPlay);
     m_ui.timeLineCheckButton->setDefaultAction(m_pActionToggleTimeLinePanel);
     m_ui.timeStepForwardButton->setDefaultAction(m_pActionTimeStepForward);
     m_ui.timeStepBackButton->setDefaultAction(m_pActionTimeStepBack);
+
+    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("No limit"));
+    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("From video"));
+    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("Custom"));
 
     double timeStep = m_pSettingsManager->getTimeStep();
     m_ui.timeStepEdit->setTime(vsedit::secondsToQTime(timeStep));
@@ -1548,7 +1599,6 @@ bool PreviewDialog::showFrame(int a_frameNumber)
 
 void PreviewDialog::setPreviewPixmap()
 {
-	QMutexLocker lock(&m_previewPixmapMutex);
 	if(m_ui.cropPanel->isVisible())
 	{
 		int cropLeft = m_ui.cropLeftSpinBox->value();

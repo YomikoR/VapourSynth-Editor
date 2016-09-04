@@ -10,7 +10,6 @@
 #include <QImage>
 #include <QSettings>
 #include <QProcessEnvironment>
-#include <QMutexLocker>
 
 //==============================================================================
 
@@ -60,9 +59,9 @@ bool FrameTicket::operator==(const FrameTicket & a_other) const
 void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 	void * a_pUserData)
 {
-	VapourSynthScriptProcessor * scriptProcessor =
+	VapourSynthScriptProcessor * pScriptProcessor =
 		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
-	scriptProcessor->handleVSMessage(a_msgType, a_message);
+	pScriptProcessor->handleVSMessage(a_msgType, a_message);
 }
 
 // END OF void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
@@ -73,10 +72,17 @@ void VS_CC frameForPreviewReady(void * a_pUserData,
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
 {
-	VapourSynthScriptProcessor * scriptProcessor =
+	VapourSynthScriptProcessor * pScriptProcessor =
 		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
-	scriptProcessor->receiveFrameForPreviewAndProcessQueue(a_cpFrameRef,
-		a_frameNumber, a_pNodeRef, a_errorMessage);
+	assert(pScriptProcessor);
+	QString errorMessage(a_errorMessage);
+	QMetaObject::invokeMethod(pScriptProcessor,
+		"slotReceiveFrameForPreview",
+		Qt::QueuedConnection,
+		Q_ARG(QObject *, (QObject *)a_cpFrameRef),
+		Q_ARG(int, a_frameNumber),
+		Q_ARG(QObject *, (QObject *)a_pNodeRef),
+		Q_ARG(QString, errorMessage));
 }
 
 // END OF void VS_CC frameForPreviewReady(void * a_pUserData,
@@ -108,7 +114,6 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_resamplingFilterParameterB(NAN)
 	, m_yuvMatrix()
 	, m_vsScriptLibrary(this)
-	, m_framesQueueMutex(QMutex::Recursive)
 {
 	initLibrary();
 	slotSettingsChanged();
@@ -452,6 +457,19 @@ void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 //		 double & a_rValue1, double & a_rValue2, double & a_rValue3)
 //==============================================================================
 
+void VapourSynthScriptProcessor::slotReceiveFrameForPreview(
+	QObject * a_cpFrameRef, int a_frameNumber, QObject * a_pNodeRef,
+	QString a_errorMessage)
+{
+	receiveFrameForPreviewAndProcessQueue((const VSFrameRef *)a_cpFrameRef,
+		a_frameNumber, (VSNodeRef *)a_pNodeRef, a_errorMessage);
+}
+
+// END OF void VapourSynthScriptProcessor::slotReceiveFrameForPreview(
+//		QObject * a_cpFrameRef, int a_frameNumber, QObject * a_pNodeRef,
+//		QString a_errorMessage)
+//==============================================================================
+
 void VapourSynthScriptProcessor::slotSettingsChanged()
 {
 	// Preview node settings
@@ -504,8 +522,6 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 	// Doesn't work as supposed in R31 and earlier.
 	// Commented out for now. Hopefully, will not be needed in future releases.
 	//m_cpVSAPI->freeNode(a_pNodeRef);
-
-	QMutexLocker lock(&m_framesQueueMutex);
 
 	FrameTicket ticket(a_frameNumber, a_pNodeRef, frameForPreviewReady);
 	std::set<FrameTicket>::iterator it = m_frameTicketsInProcess.find(ticket);
@@ -572,7 +588,6 @@ void VapourSynthScriptProcessor::receiveFrameForPreviewAndProcessQueue(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 	const QString & a_errorMessage)
 {
-	QMutexLocker lock(&m_framesQueueMutex);
 	receiveFrameForPreview(a_cpFrameRef, a_frameNumber, a_pNodeRef,
 		a_errorMessage);
 	processFrameTicketsQueue();
@@ -598,7 +613,7 @@ QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
 		stride, QImage::Format_RGB32);
 
 	QImage flippedImage = frameImage.mirrored();
-	QPixmap framePixmap = QPixmap::fromImage(std::move(flippedImage));
+	QPixmap framePixmap = QPixmap::fromImage(flippedImage);
 
 	return framePixmap;
 }
@@ -960,8 +975,6 @@ void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 {
 	assert(m_cpVSAPI);
 
-	QMutexLocker lock(&m_framesQueueMutex);
-
 	FrameTicket newFrameTicket(a_frameNumber, a_pNodeRef, a_fpCallback);
 
 	if((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads)
@@ -991,8 +1004,6 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 {
 	assert(m_cpVSAPI);
 
-	QMutexLocker lock(&m_framesQueueMutex);
-
 	size_t oldInQueue = m_frameTicketsQueue.size();
 	size_t oldInProcess = m_frameTicketsInProcess.size();
 
@@ -1017,7 +1028,6 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 
 void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 {
-	QMutexLocker lock(&m_framesQueueMutex);
 	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
 	size_t maxThreads = m_cpCoreInfo->numThreads;
@@ -1033,7 +1043,6 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 {
 	// Check the processing queue.
-	QMutexLocker lock(&m_framesQueueMutex);
 
 	if(!m_frameTicketsInProcess.empty())
 	{

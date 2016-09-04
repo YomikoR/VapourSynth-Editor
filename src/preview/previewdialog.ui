@@ -64,6 +64,16 @@
        <number>0</number>
       </property>
       <item>
+       <widget class="QToolButton" name="timeLineCheckButton">
+        <property name="toolTip">
+         <string>Timeline</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QSpinBox" name="frameNumberSpinBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -80,7 +90,9 @@
        </widget>
       </item>
       <item>
-       <widget class="TimeLineSlider" name="frameNumberSlider" native="true"/>
+       <widget class="TimeLineSlider" name="frameNumberSlider" native="true">
+        <zorder>frameNumberSpinBox</zorder>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="frameToClipboardButton">
@@ -100,16 +112,6 @@
        <widget class="QToolButton" name="advancedSettingsButton">
         <property name="toolTip">
          <string>Preview Advanced Settings</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="timeLineCheckButton">
-        <property name="toolTip">
-         <string>Timeline</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -208,16 +210,16 @@
       </item>
      </layout>
      <zorder>colorPickerButton</zorder>
-     <zorder>frameNumberSpinBox</zorder>
      <zorder>frameNumberSlider</zorder>
      <zorder>frameToClipboardButton</zorder>
      <zorder>saveSnapshotButton</zorder>
      <zorder>advancedSettingsButton</zorder>
-     <zorder>timeLineCheckButton</zorder>
      <zorder>cropCheckButton</zorder>
      <zorder>zoomCheckButton</zorder>
      <zorder>zoomPanel</zorder>
      <zorder>colorPickerLabel</zorder>
+     <zorder>timeLineCheckButton</zorder>
+     <zorder>frameNumberSpinBox</zorder>
     </widget>
    </item>
    <item>
@@ -238,6 +240,36 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item>
+       <widget class="QToolButton" name="playButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>FPS limit mode:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="playFpsLimitModeComboBox"/>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="playFpsLimitSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+        <property name="maximum">
+         <double>100000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>23.999990000000000</double>
+        </property>
+       </widget>
+      </item>
       <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">

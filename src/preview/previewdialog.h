@@ -2,7 +2,6 @@
 #define PREVIEWDIALOG_H_INCLUDED
 
 #include <QPixmap>
-#include <QMutex>
 #include <map>
 #include <vector>
 
@@ -131,6 +130,8 @@ class PreviewDialog : public QDialog
 		void slotFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
 			size_t a_maxThreads);
 
+		void slotPlay(bool a_play);
+
 	private:
 
 		void createActionsAndMenus();
@@ -206,16 +207,18 @@ class PreviewDialog : public QDialog
 		QAction * m_pActionPasteCropSnippetIntoScript;
 		QAction * m_pActionAdvancedSettingsDialog;
 		QAction * m_pActionToggleColorPicker;
+		QAction * m_pActionPlay;
 
-		std::map<QString, ZoomMode> m_actionIDToZoomMode;
+		std::map<QString, ZoomMode> m_actionIDToZoomModeMap;
 
-		std::map<QString, Qt::TransformationMode> m_actionIDToZoomScaleMode;
+		std::map<QString, Qt::TransformationMode> m_actionIDToZoomScaleModeMap;
 
-		std::map<QString, TimeLineSlider::DisplayMode> m_actionIDToTimeLineMode;
+		std::map<QString, TimeLineSlider::DisplayMode>
+			m_actionIDToTimeLineModeMap;
 
 		std::vector<QAction *> m_settableActionsList;
 
-		QMutex m_previewPixmapMutex;
+		bool m_playing;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

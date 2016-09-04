@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QPixmap>
 #include <QLibrary>
-#include <QMutex>
 #include <vapoursynth/VSScript.h>
 #include <deque>
 #include <set>
@@ -84,6 +83,9 @@ class VapourSynthScriptProcessor : public QObject
 			size_t a_maxThreads);
 
 	private slots:
+
+		void slotReceiveFrameForPreview(QObject * a_cpFrameRef,
+			int a_frameNumber, QObject * a_pNodeRef, QString a_errorMessage);
 
 		void slotSettingsChanged();
 
@@ -175,8 +177,6 @@ class VapourSynthScriptProcessor : public QObject
 
 		std::deque<FrameTicket> m_frameTicketsQueue;
 		std::multiset<FrameTicket> m_frameTicketsInProcess;
-
-		QMutex m_framesQueueMutex;
 };
 
 //==============================================================================
