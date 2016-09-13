@@ -18,6 +18,7 @@ FrameTicket::FrameTicket(int a_frameNumber, VSNodeRef * a_pNode,
 	frameNumber(a_frameNumber)
 	, pNode(a_pNode)
 	, fpCallback(a_fpCallback)
+	, discard(false)
 {
 	assert(pNode);
 	assert(fpCallback);
@@ -457,6 +458,22 @@ void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 //		 double & a_rValue1, double & a_rValue2, double & a_rValue3)
 //==============================================================================
 
+bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()
+{
+    for(FrameTicket & ticket : m_frameTicketsInProcess)
+	{
+		if(ticket.fpCallback == frameForPreviewReady)
+			ticket.discard = true;
+	}
+
+	std::remove_if(m_frameTicketsQueue.begin(), m_frameTicketsQueue.end(),
+		[](const FrameTicket & a_ticket)
+			{return (a_ticket.fpCallback == frameForPreviewReady);});
+}
+
+// END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()
+//==============================================================================
+
 void VapourSynthScriptProcessor::slotReceiveFrameForPreviewAndProcessQueue(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 	QString a_errorMessage)
@@ -525,10 +542,14 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 	// Commented out for now. Hopefully, will not be needed in future releases.
 	//m_cpVSAPI->freeNode(a_pNodeRef);
 
+	bool discard = false;
+
 	FrameTicket ticket(a_frameNumber, a_pNodeRef, frameForPreviewReady);
-	std::set<FrameTicket>::iterator it = m_frameTicketsInProcess.find(ticket);
+	std::vector<FrameTicket>::iterator it = std::find(
+		m_frameTicketsInProcess.begin(), m_frameTicketsInProcess.end(), ticket);
 	if(it != m_frameTicketsInProcess.end())
 	{
+		discard = it->discard;
 		m_frameTicketsInProcess.erase(it);
 		sendFrameQueueChangeSignal();
 	}
@@ -550,6 +571,12 @@ void VapourSynthScriptProcessor::receiveFrameForPreview(
 
 	if(!a_cpFrameRef)
 		return;
+
+	if(discard)
+	{
+		m_cpVSAPI->freeFrame(a_cpFrameRef);
+		return;
+	}
 
 	if(a_pNodeRef == m_pOutputNode)
 	{
@@ -973,7 +1000,7 @@ void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 		// in future releases.
 		//VSNodeRef * pNewRef = m_cpVSAPI->cloneNodeRef(a_pNodeRef);
 
-		m_frameTicketsInProcess.insert(newFrameTicket);
+		m_frameTicketsInProcess.push_back(newFrameTicket);
 		m_cpVSAPI->getFrameAsync(a_frameNumber, a_pNodeRef, a_fpCallback, this);
 	}
 	else
@@ -1002,7 +1029,7 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 		m_frameTicketsQueue.pop_front();
 		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pNode,
 			ticket.fpCallback, this);
-		m_frameTicketsInProcess.insert(ticket);
+		m_frameTicketsInProcess.push_back(ticket);
 	}
 
 	size_t inQueue = m_frameTicketsQueue.size();
@@ -1032,6 +1059,12 @@ bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 {
 	// Check the processing queue.
 
+	for(FrameTicket & ticket : m_frameTicketsInProcess)
+	{
+		ticket.discard = true;
+	}
+	m_frameTicketsQueue.clear();
+
 	if(!m_frameTicketsInProcess.empty())
 	{
 		m_error = trUtf8("Can not finalize the script processor while "
@@ -1041,7 +1074,6 @@ bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 		return false;
 	}
 
-	m_frameTicketsQueue.clear();
 	return true;
 }
 

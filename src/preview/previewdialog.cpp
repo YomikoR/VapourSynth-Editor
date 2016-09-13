@@ -64,7 +64,9 @@ PreviewDialog::PreviewDialog(
 	, m_pFramesInQueueLabel(nullptr)
 	, m_pFramesInProcessLabel(nullptr)
 	, m_pMaxThreadsLabel(nullptr)
-	, m_currentFrame(0)
+	, m_frameExpected(0)
+	, m_frameShown(-1)
+	, m_lastFrameRequestedForPlay(-1)
 	, m_bigFrameStep(10)
 	, m_scriptName()
 	, m_framePixmap()
@@ -103,6 +105,7 @@ PreviewDialog::PreviewDialog(
 	, m_framesInProcess(0)
 	, m_maxThreads(0)
 	, m_playing(false)
+	, m_processingPlayQueue(false)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -147,7 +150,7 @@ PreviewDialog::PreviewDialog(
 		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
-	connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
+	connect(m_ui.expectedFrameNumberSpinBox, SIGNAL(valueChanged(int)),
 		this, SLOT(slotShowFrame(int)));
 	connect(m_ui.previewArea, SIGNAL(signalSizeChanged()),
 		this, SLOT(slotPreviewAreaSizeChanged()));
@@ -201,7 +204,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 	assert(m_cpVideoInfo);
 
 	int lastFrameNumber = m_cpVideoInfo->numFrames - 1;
-	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
+	m_ui.shownFrameSpinBox->setMaximum(lastFrameNumber);
+	m_ui.expectedFrameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(m_cpVideoInfo->numFrames);
 	if(m_cpVideoInfo->fpsDen == 0)
 		m_ui.frameNumberSlider->setFPS(0.0);
@@ -211,8 +215,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 			(double)m_cpVideoInfo->fpsDen);
 	}
 
-	if(m_currentFrame > lastFrameNumber)
-		m_currentFrame = lastFrameNumber;
+	if(m_frameExpected > lastFrameNumber)
+		m_frameExpected = lastFrameNumber;
 
 	QString newVideoInfoString = vsedit::videoInfoString(m_cpVideoInfo);
 	m_pVideoInfoLabel->setText(newVideoInfoString);
@@ -227,7 +231,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	else
 		showNormal();
 
-	slotShowFrame(m_currentFrame);
+	slotShowFrame(m_frameExpected);
 }
 
 // END OF void PreviewDialog::previewScript(const QString& a_script,
@@ -236,6 +240,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 void PreviewDialog::clear()
 {
+	m_frameShown = -1;
+	m_ui.shownFrameSpinBox->setValue(-1);
 	m_framePixmap = QPixmap();
 	m_ui.previewArea->setPixmap(QPixmap());
 	m_pVideoInfoLabel->clear();
@@ -313,18 +319,19 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 
 	int key = a_pEvent->key();
 
-	if(((key == Qt::Key_Left) || (key == Qt::Key_Down)) && (m_currentFrame > 0))
-		slotShowFrame(m_currentFrame - 1);
+	if(((key == Qt::Key_Left) || (key == Qt::Key_Down)) &&
+		(m_frameExpected > 0))
+		slotShowFrame(m_frameExpected - 1);
 	else if(((key == Qt::Key_Right) || (key == Qt::Key_Up)) &&
-		(m_currentFrame < (m_cpVideoInfo->numFrames - 1)))
-		slotShowFrame(m_currentFrame + 1);
-	else if((key == Qt::Key_PageDown) && (m_currentFrame > 0))
-		slotShowFrame(std::max(0, m_currentFrame - m_bigFrameStep));
+		(m_frameExpected < (m_cpVideoInfo->numFrames - 1)))
+		slotShowFrame(m_frameExpected + 1);
+	else if((key == Qt::Key_PageDown) && (m_frameExpected > 0))
+		slotShowFrame(std::max(0, m_frameExpected - m_bigFrameStep));
 	else if((key == Qt::Key_PageUp) &&
-		(m_currentFrame < (m_cpVideoInfo->numFrames - 1)))
+		(m_frameExpected < (m_cpVideoInfo->numFrames - 1)))
 	{
 		slotShowFrame(std::min(m_cpVideoInfo->numFrames - 1,
-			m_currentFrame + m_bigFrameStep));
+			m_frameExpected + m_bigFrameStep));
 	}
 	else if(key == Qt::Key_Home)
 		slotShowFrame(0);
@@ -341,6 +348,9 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 
 void PreviewDialog::slotShowFrame(int a_frameNumber)
 {
+	if((m_frameExpected == a_frameNumber) && (!m_framePixmap.isNull()))
+		return;
+
 	if(m_playing)
 		return;
 
@@ -349,16 +359,16 @@ void PreviewDialog::slotShowFrame(int a_frameNumber)
 		return;
 	requestingFrame = true;
 
-	m_ui.frameNumberSpinBox->setValue(a_frameNumber);
+	m_ui.expectedFrameNumberSpinBox->setValue(a_frameNumber);
 	m_ui.frameNumberSlider->setFrame(a_frameNumber);
 
 	bool frameShown = showFrame(a_frameNumber);
 	if(frameShown)
-		m_currentFrame = a_frameNumber;
+		m_frameExpected = a_frameNumber;
 	else
 	{
-		m_ui.frameNumberSpinBox->setValue(m_currentFrame);
-		m_ui.frameNumberSlider->setFrame(m_currentFrame);
+		m_ui.expectedFrameNumberSpinBox->setValue(m_frameExpected);
+		m_ui.frameNumberSlider->setFrame(m_frameExpected);
 	}
 
 	requestingFrame = false;
@@ -373,10 +383,10 @@ void PreviewDialog::slotSaveSnapshot()
 	{
 		snapshotFilePath =
 			QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-		snapshotFilePath += QString("/%1.png").arg(m_currentFrame);
+		snapshotFilePath += QString("/%1.png").arg(m_frameShown);
 	}
 	else
-		snapshotFilePath += QString(" - %1.png").arg(m_currentFrame);
+		snapshotFilePath += QString(" - %1.png").arg(m_frameShown);
 
 	snapshotFilePath = QFileDialog::getSaveFileName(this,
 		trUtf8("Save frame as image"),
@@ -953,7 +963,7 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
-	showFrame(m_currentFrame);
+	showFrame(m_frameExpected);
 }
 
 // END OF void PreviewDialog::slotAdvancedSettingsChanged()
@@ -971,32 +981,21 @@ void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	const QPixmap & a_pixmap)
 {
-	(void)(a_frameNumber);
-
 	if(a_pixmap.isNull())
 		return;
 
 	m_framePixmap = a_pixmap;
 	setPreviewPixmap();
 
+	m_frameShown = a_frameNumber;
+	m_ui.shownFrameSpinBox->setValue(m_frameShown);
+
 	if(!m_playing)
 		return;
 
-	if(a_frameNumber != m_ui.frameNumberSlider->frame())
-	{
-		m_ui.frameNumberSlider->setFrame(a_frameNumber);
-		m_ui.frameNumberSpinBox->setValue(a_frameNumber);
-	}
-
-	if(a_frameNumber < (m_cpVideoInfo->numFrames - 1))
-	{
-		m_pVapourSynthScriptProcessor->requestPixmapAsync(
-			a_frameNumber + 1);
-	}
-	else
-	{
-		m_pActionPlay->toggle();
-	}
+	m_ui.expectedFrameNumberSpinBox->setValue(m_frameShown);
+	m_ui.frameNumberSlider->setFrame(m_frameShown);
+	slotProcessPlayQueue();
 }
 
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
@@ -1008,9 +1007,13 @@ void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 	m_framesInQueue = a_inQueue;
 	m_framesInProcess = a_inProcess;
 	m_maxThreads = a_maxThreads;
+
 	m_pFramesInQueueLabel->setText(QString::number(a_inQueue));
 	m_pFramesInProcessLabel->setText(QString::number(a_inProcess));
 	m_pMaxThreadsLabel->setText(QString::number(a_maxThreads));
+
+	if(m_playing)
+		slotProcessPlayQueue();
 }
 
 // END OF void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
@@ -1024,20 +1027,46 @@ void PreviewDialog::slotPlay(bool a_play)
 	{
 		disconnect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
-		disconnect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
+		disconnect(m_ui.expectedFrameNumberSpinBox, SIGNAL(valueChanged(int)),
 			this, SLOT(slotShowFrame(int)));
-		int nextFrame = m_ui.frameNumberSlider->frame() + 1;
-		if(nextFrame >= m_cpVideoInfo->numFrames)
-			nextFrame = 0;
-		m_pVapourSynthScriptProcessor->requestPixmapAsync(nextFrame);
+		m_lastFrameRequestedForPlay = m_frameShown;
+		slotProcessPlayQueue();
 	}
 	else
 	{
+		m_pVapourSynthScriptProcessor->flushFrameTicketsQueueForPreview();
 		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
-		connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
+		connect(m_ui.expectedFrameNumberSpinBox, SIGNAL(valueChanged(int)),
 			this, SLOT(slotShowFrame(int)));
 	}
+}
+
+// END OF void PreviewDialog::slotPlay(bool a_play)
+//==============================================================================
+
+void PreviewDialog::slotProcessPlayQueue()
+{
+	if(!m_playing)
+		return;
+
+	if(m_processingPlayQueue)
+		return;
+	m_processingPlayQueue = true;
+
+	int nextFrame = m_lastFrameRequestedForPlay + 1;
+	if(nextFrame >= m_cpVideoInfo->numFrames)
+		nextFrame = 0;
+
+	while((nextFrame < m_cpVideoInfo->numFrames) &&
+		((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 2)))
+	{
+		m_pVapourSynthScriptProcessor->requestPixmapAsync(nextFrame);
+		m_lastFrameRequestedForPlay = nextFrame;
+		nextFrame++;
+	}
+
+	m_processingPlayQueue = false;
 }
 
 // END OF void PreviewDialog::slotPlay(bool a_play)

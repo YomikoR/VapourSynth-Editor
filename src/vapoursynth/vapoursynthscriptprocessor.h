@@ -6,7 +6,7 @@
 #include <QLibrary>
 #include <vapoursynth/VSScript.h>
 #include <deque>
-#include <set>
+#include <vector>
 
 #include "../settings/settingsmanager.h"
 
@@ -30,6 +30,7 @@ struct FrameTicket
 	int frameNumber;
 	VSNodeRef * pNode;
 	VSFrameDoneCallback fpCallback;
+	bool discard;
 
 	FrameTicket(int a_frameNumber, VSNodeRef * a_pNode,
 		VSFrameDoneCallback a_fpCallback);
@@ -70,6 +71,8 @@ class VapourSynthScriptProcessor : public QObject
 
 		void colorAtPoint(size_t a_x, size_t a_y, double & a_rValue1,
 			double & a_rValue2, double & a_rValue3);
+
+		bool flushFrameTicketsQueueForPreview();
 
 	signals:
 
@@ -173,7 +176,7 @@ class VapourSynthScriptProcessor : public QObject
 		FNP_vssFinalize vssFinalize;
 
 		std::deque<FrameTicket> m_frameTicketsQueue;
-		std::multiset<FrameTicket> m_frameTicketsInProcess;
+		std::vector<FrameTicket> m_frameTicketsInProcess;
 };
 
 //==============================================================================

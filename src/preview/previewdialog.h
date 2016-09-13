@@ -132,6 +132,8 @@ class PreviewDialog : public QDialog
 
 		void slotPlay(bool a_play);
 
+		void slotProcessPlayQueue();
+
 	private:
 
 		void createActionsAndMenus();
@@ -171,7 +173,9 @@ class PreviewDialog : public QDialog
 		QLabel * m_pFramesInProcessLabel;
 		QLabel * m_pMaxThreadsLabel;
 
-		int m_currentFrame;
+		int m_frameExpected;
+		int m_frameShown;
+		int m_lastFrameRequestedForPlay;
 
 		int m_bigFrameStep;
 
@@ -223,6 +227,7 @@ class PreviewDialog : public QDialog
 		size_t m_maxThreads;
 
 		bool m_playing;
+		bool m_processingPlayQueue;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED
