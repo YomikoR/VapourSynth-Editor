@@ -120,7 +120,8 @@ PreviewDialog::PreviewDialog(
 	, m_maxThreads(0)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
-	, m_secondsBetweenFrames(0.2)
+	, m_secondsBetweenFrames(0)
+	, m_pPlayTimer(nullptr)
 	, m_cachedPixmapsLimit(120)
 {
 	m_ui.setupUi(this);
@@ -128,6 +129,10 @@ PreviewDialog::PreviewDialog(
 
 	m_pAdvancedSettingsDialog = new PreviewAdvancedSettingsDialog(
 		m_pSettingsManager, this);
+
+	m_pPlayTimer = new QTimer(this);
+	m_pPlayTimer->setTimerType(Qt::PreciseTimer);
+	m_pPlayTimer->setSingleShot(true);
 
 	createActionsAndMenus();
 
@@ -182,6 +187,8 @@ PreviewDialog::PreviewDialog(
 		this, SLOT(slotPreviewAreaMouseOverPoint(float, float)));
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotSettingsChanged()));
+	connect(m_pPlayTimer, SIGNAL(timeout()),
+		this, SLOT(slotProcessPlayQueue()));
 
 	slotSettingsChanged();
 }
@@ -1119,8 +1126,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		if(secondsToNextFrame > 0)
 		{
 			int millisecondsToNextFrame = std::ceil(secondsToNextFrame * 1000);
-			QTimer::singleShot(millisecondsToNextFrame, this,
-				SLOT(slotProcessPlayQueue()));
+			m_pPlayTimer->start(millisecondsToNextFrame);
 			break;
 		}
 
@@ -1128,7 +1134,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		setPreviewPixmap();
 
 		m_frameShown = m_framePixmapsQueue.front().number;
-		m_ui.shownFrameSpinBox->setValue(m_frameExpected);
+		m_ui.shownFrameSpinBox->setValue(m_frameShown);
 		m_frameExpected = m_frameShown;
 		m_ui.expectedFrameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);

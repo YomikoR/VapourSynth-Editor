@@ -22,6 +22,7 @@ class QStatusBar;
 class QMenu;
 class QActionGroup;
 class QAction;
+class QTimer;
 class VapourSynthScriptProcessor;
 class SettingsDialog;
 struct VSVideoInfo;
@@ -247,6 +248,7 @@ class PreviewDialog : public QDialog
 		bool m_processingPlayQueue;
 		double m_secondsBetweenFrames;
 		hr_time_point m_lastFrameShowTime;
+		QTimer * m_pPlayTimer;
 
 		std::deque<NumberedPixmap> m_framePixmapsQueue;
 		size_t m_cachedPixmapsLimit;
