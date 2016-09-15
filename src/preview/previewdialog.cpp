@@ -127,6 +127,11 @@ PreviewDialog::PreviewDialog(
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
 
+	m_iconPlay = QIcon(":play.png");
+	m_iconPause = QIcon(":pause.png");
+	m_readyPixmap = QPixmap(":tick.png");
+	m_busyPixmap = QPixmap(":time.png");
+
 	m_pAdvancedSettingsDialog = new PreviewAdvancedSettingsDialog(
 		m_pSettingsManager, this);
 
@@ -171,7 +176,7 @@ PreviewDialog::PreviewDialog(
 		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
-	connect(m_ui.expectedFrameNumberSpinBox, SIGNAL(valueChanged(int)),
+	connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
 		this, SLOT(slotShowFrame(int)));
 	connect(m_ui.previewArea, SIGNAL(signalSizeChanged()),
 		this, SLOT(slotPreviewAreaSizeChanged()));
@@ -227,8 +232,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	assert(m_cpVideoInfo);
 
 	int lastFrameNumber = m_cpVideoInfo->numFrames - 1;
-	m_ui.shownFrameSpinBox->setMaximum(lastFrameNumber);
-	m_ui.expectedFrameNumberSpinBox->setMaximum(lastFrameNumber);
+	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(m_cpVideoInfo->numFrames);
 	if(m_cpVideoInfo->fpsDen == 0)
 		m_ui.frameNumberSlider->setFPS(0.0);
@@ -266,7 +270,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 void PreviewDialog::clear()
 {
 	m_frameShown = -1;
-	m_ui.shownFrameSpinBox->setValue(-1);
 	m_framePixmap = QPixmap();
 	m_ui.previewArea->setPixmap(QPixmap());
 	m_pVideoInfoLabel->clear();
@@ -384,15 +387,18 @@ void PreviewDialog::slotShowFrame(int a_frameNumber)
 		return;
 	requestingFrame = true;
 
-	m_ui.expectedFrameNumberSpinBox->setValue(a_frameNumber);
+	m_ui.frameNumberSpinBox->setValue(a_frameNumber);
 	m_ui.frameNumberSlider->setFrame(a_frameNumber);
 
-	bool frameShown = showFrame(a_frameNumber);
-	if(frameShown)
+	bool requested = requestShowFrame(a_frameNumber);
+	if(requested)
+	{
 		m_frameExpected = a_frameNumber;
+		m_ui.frameStatusLabel->setPixmap(m_busyPixmap);
+	}
 	else
 	{
-		m_ui.expectedFrameNumberSpinBox->setValue(m_frameExpected);
+		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);
 	}
 
@@ -988,7 +994,7 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
-	showFrame(m_frameExpected);
+	requestShowFrame(m_frameExpected);
 }
 
 // END OF void PreviewDialog::slotAdvancedSettingsChanged()
@@ -1054,7 +1060,8 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 		setPreviewPixmap();
 
 		m_frameShown = a_frameNumber;
-		m_ui.shownFrameSpinBox->setValue(m_frameShown);
+		if(m_frameShown == m_frameExpected)
+			m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
 	}
 }
 
@@ -1087,8 +1094,9 @@ void PreviewDialog::slotPlay(bool a_play)
 	{
 		disconnect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
-		disconnect(m_ui.expectedFrameNumberSpinBox, SIGNAL(valueChanged(int)),
+		disconnect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
 			this, SLOT(slotShowFrame(int)));
+		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
 		slotProcessPlayQueue();
 	}
@@ -1096,9 +1104,10 @@ void PreviewDialog::slotPlay(bool a_play)
 	{
 		m_framePixmapsQueue.clear();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueueForPreview();
+		m_pActionPlay->setIcon(m_iconPlay);
 		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
-		connect(m_ui.expectedFrameNumberSpinBox, SIGNAL(valueChanged(int)),
+		connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
 			this, SLOT(slotShowFrame(int)));
 	}
 }
@@ -1134,9 +1143,8 @@ void PreviewDialog::slotProcessPlayQueue()
 		setPreviewPixmap();
 
 		m_frameShown = m_framePixmapsQueue.front().number;
-		m_ui.shownFrameSpinBox->setValue(m_frameShown);
 		m_frameExpected = m_frameShown;
-		m_ui.expectedFrameNumberSpinBox->setValue(m_frameExpected);
+		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);
 		m_framePixmapsQueue.pop_front();
 		m_lastFrameShowTime = hr_clock::now();
@@ -1503,7 +1511,7 @@ void PreviewDialog::createActionsAndMenus()
 
 	m_pActionPlay = new QAction(this);
 	m_pActionPlay->setIconText(trUtf8("Play"));
-	m_pActionPlay->setIcon(QIcon(":play.png"));
+	m_pActionPlay->setIcon(m_iconPlay);
 	m_pActionPlay->setCheckable(true);
 	m_pActionPlay->setChecked(false);
 	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_PLAY);
@@ -1722,25 +1730,19 @@ void PreviewDialog::setUpCropPanel()
 // END OF void PreviewDialog::setUpCropPanel()
 //==============================================================================
 
-bool PreviewDialog::showFrame(int a_frameNumber)
+bool PreviewDialog::requestShowFrame(int a_frameNumber)
 {
 	if(!m_pVapourSynthScriptProcessor->isInitialized())
 		return false;
 
+	if((m_frameShown != -1) && (m_frameShown != m_frameExpected))
+		return false;
+
 	m_pVapourSynthScriptProcessor->requestPixmapAsync(a_frameNumber);
-
-	// Old blocking way.
-//	QPixmap newPixmap = m_pVapourSynthScriptProcessor->pixmap(a_frameNumber);
-//	if(newPixmap.isNull())
-//		return false;
-//
-//	m_framePixmap = newPixmap;
-//	setPreviewPixmap();
-
 	return true;
 }
 
-// END OF bool PreviewDialog::showFrame(int a_frameNumber)
+// END OF bool PreviewDialog::requestShowFrame(int a_frameNumber)
 //==============================================================================
 
 void PreviewDialog::setPreviewPixmap()

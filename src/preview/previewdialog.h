@@ -2,6 +2,7 @@
 #define PREVIEWDIALOG_H_INCLUDED
 
 #include <QPixmap>
+#include <QIcon>
 #include <map>
 #include <vector>
 #include <deque>
@@ -167,7 +168,7 @@ class PreviewDialog : public QDialog
 		void evaluateScript(const QString& a_script,
 			const QString& a_scriptName);
 
-		bool showFrame(int a_frameNumber);
+		bool requestShowFrame(int a_frameNumber);
 
 		void setPreviewPixmap();
 
@@ -249,9 +250,14 @@ class PreviewDialog : public QDialog
 		double m_secondsBetweenFrames;
 		hr_time_point m_lastFrameShowTime;
 		QTimer * m_pPlayTimer;
+		QIcon m_iconPlay;
+		QIcon m_iconPause;
 
 		std::deque<NumberedPixmap> m_framePixmapsQueue;
 		size_t m_cachedPixmapsLimit;
+
+		QPixmap m_readyPixmap;
+		QPixmap m_busyPixmap;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED
