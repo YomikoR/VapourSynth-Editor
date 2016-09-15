@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <deque>
+#include <chrono>
 
 #include "../settings/settingsmanager.h"
 #include "timelineslider.h"
@@ -25,6 +26,10 @@ class VapourSynthScriptProcessor;
 class SettingsDialog;
 struct VSVideoInfo;
 class PreviewAdvancedSettingsDialog;
+
+typedef std::chrono::high_resolution_clock::time_point hr_time_point;
+typedef std::chrono::high_resolution_clock hr_clock;
+typedef std::chrono::duration<double> double_duration;
 
 struct NumberedPixmap
 {
@@ -134,6 +139,8 @@ class PreviewDialog : public QDialog
 
 		void slotToggleColorPicker(bool a_colorPickerVisible);
 
+		void slotSetPlayFPSLimit();
+
 		void slotReceivePreviewFrame(int a_frameNumber,
 			const QPixmap & a_pixmap);
 
@@ -238,6 +245,8 @@ class PreviewDialog : public QDialog
 
 		bool m_playing;
 		bool m_processingPlayQueue;
+		double m_secondsBetweenFrames;
+		hr_time_point m_lastFrameShowTime;
 
 		std::deque<NumberedPixmap> m_framePixmapsQueue;
 		size_t m_cachedPixmapsLimit;

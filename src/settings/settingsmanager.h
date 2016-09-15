@@ -48,6 +48,13 @@ enum class ChromaPlacement
 	MPEG2
 };
 
+enum class PlayFPSLimitMode
+{
+	FromVideo,
+	NoLimit,
+	Custom
+};
+
 //==============================================================================
 
 extern const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER;
@@ -261,6 +268,14 @@ class SettingsManager : public QObject
 		bool getColorPickerVisible() const;
 
 		bool setColorPickerVisible(bool a_colorPickerVisible);
+
+		PlayFPSLimitMode getPlayFPSLimitMode() const;
+
+		bool setPlayFPSLimitMode(PlayFPSLimitMode a_mode);
+
+		double getPlayFPSLimit() const;
+
+		bool setPlayFPSLimit(double a_limit);
 
 	private:
 

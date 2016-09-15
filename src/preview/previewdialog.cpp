@@ -18,6 +18,7 @@
 #include <QAction>
 #include <QByteArray>
 #include <QClipboard>
+#include <QTimer>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -119,6 +120,7 @@ PreviewDialog::PreviewDialog(
 	, m_maxThreads(0)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
+	, m_secondsBetweenFrames(0.2)
 	, m_cachedPixmapsLimit(120)
 {
 	m_ui.setupUi(this);
@@ -237,6 +239,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 	m_pVideoInfoLabel->setToolTip(newVideoInfoString);
 
 	resetCropSpinBoxes();
+
+	slotSetPlayFPSLimit();
 
 	m_scriptName = a_scriptName;
 
@@ -992,6 +996,38 @@ void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 //==============================================================================
 
+void PreviewDialog::slotSetPlayFPSLimit()
+{
+	double limit = m_ui.playFpsLimitSpinBox->value();
+
+	PlayFPSLimitMode mode =
+		(PlayFPSLimitMode)m_ui.playFpsLimitModeComboBox->currentData().toInt();
+	if(mode == PlayFPSLimitMode::NoLimit)
+		m_secondsBetweenFrames = 0.0;
+	else if(mode == PlayFPSLimitMode::Custom)
+		m_secondsBetweenFrames = 1.0 / limit;
+	else if(mode == PlayFPSLimitMode::FromVideo)
+	{
+		if(!m_cpVideoInfo)
+			m_secondsBetweenFrames = 0.0;
+		else if(m_cpVideoInfo->fpsNum == 0ll)
+			m_secondsBetweenFrames = 0.0;
+		else
+		{
+			m_secondsBetweenFrames =
+				(double)m_cpVideoInfo->fpsDen / (double)m_cpVideoInfo->fpsNum;
+		}
+	}
+	else
+		assert(false);
+
+	m_pSettingsManager->setPlayFPSLimitMode(mode);
+	m_pSettingsManager->setPlayFPSLimit(limit);
+}
+
+// END OF void PreviewDialog::void slotSetPlayFPSLimit()
+//==============================================================================
+
 void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	const QPixmap & a_pixmap)
 {
@@ -1074,8 +1110,20 @@ void PreviewDialog::slotProcessPlayQueue()
 
 	while((!m_framePixmapsQueue.empty()) &&
 		(m_framePixmapsQueue.front().number ==
-		(m_frameShown + 1) % m_cpVideoInfo->numFrames))
+		((m_frameShown + 1) % m_cpVideoInfo->numFrames)))
 	{
+		hr_time_point now = hr_clock::now();
+		double_duration passed = std::chrono::duration_cast<double_duration>(
+			now - m_lastFrameShowTime);
+		double secondsToNextFrame = m_secondsBetweenFrames - passed.count();
+		if(secondsToNextFrame > 0)
+		{
+			int millisecondsToNextFrame = std::ceil(secondsToNextFrame * 1000);
+			QTimer::singleShot(millisecondsToNextFrame, this,
+				SLOT(slotProcessPlayQueue()));
+			break;
+		}
+
 		m_framePixmap = m_framePixmapsQueue.front().pixmap;
 		setPreviewPixmap();
 
@@ -1085,6 +1133,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		m_ui.expectedFrameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);
 		m_framePixmapsQueue.pop_front();
+		m_lastFrameShowTime = hr_clock::now();
 	}
 
 	int nextFrame = (m_lastFrameRequestedForPlay + 1) %
@@ -1584,9 +1633,24 @@ void PreviewDialog::setUpTimeLinePanel()
     m_ui.timeStepForwardButton->setDefaultAction(m_pActionTimeStepForward);
     m_ui.timeStepBackButton->setDefaultAction(m_pActionTimeStepBack);
 
-    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("No limit"));
-    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("From video"));
-    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("Custom"));
+    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("From video"),
+		(int)PlayFPSLimitMode::FromVideo);
+    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("No limit"),
+		(int)PlayFPSLimitMode::NoLimit);
+    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("Custom"),
+		(int)PlayFPSLimitMode::Custom);
+
+	PlayFPSLimitMode playFpsLimitMode =
+		m_pSettingsManager->getPlayFPSLimitMode();
+	int comboIndex = m_ui.playFpsLimitModeComboBox->findData(
+		(int)playFpsLimitMode);
+	if(comboIndex != -1)
+		m_ui.playFpsLimitModeComboBox->setCurrentIndex(comboIndex);
+
+	double customFPS = m_pSettingsManager->getPlayFPSLimit();
+	m_ui.playFpsLimitSpinBox->setValue(customFPS);
+
+	slotSetPlayFPSLimit();
 
     double timeStep = m_pSettingsManager->getTimeStep();
     m_ui.timeStepEdit->setTime(vsedit::secondsToQTime(timeStep));
@@ -1598,7 +1662,7 @@ void PreviewDialog::setUpTimeLinePanel()
 
 	TimeLineSlider::DisplayMode timeLineMode =
 		m_pSettingsManager->getTimeLineMode();
-	int comboIndex = m_ui.timeLineModeComboBox->findData((int)timeLineMode);
+	comboIndex = m_ui.timeLineModeComboBox->findData((int)timeLineMode);
 	if(comboIndex != -1)
 		m_ui.timeLineModeComboBox->setCurrentIndex(comboIndex);
 
@@ -1606,6 +1670,10 @@ void PreviewDialog::setUpTimeLinePanel()
 		this, SLOT(slotTimeStepChanged(const QTime &)));
 	connect(m_ui.timeLineModeComboBox, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(slotTimeLineModeChanged()));
+	connect(m_ui.playFpsLimitModeComboBox, SIGNAL(currentIndexChanged(int)),
+		this, SLOT(slotSetPlayFPSLimit()));
+	connect(m_ui.playFpsLimitSpinBox, SIGNAL(valueChanged(double)),
+		this, SLOT(slotSetPlayFPSLimit()));
 }
 
 // END OF void PreviewDialog::setUpTimeLinePanel()

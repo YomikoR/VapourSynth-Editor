@@ -66,8 +66,13 @@ const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
 const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 1.0 / 3.0;
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
 const int DEFAULT_LANCZOS_FILTER_TAPS = 3;
-const bool DEFAULT_COLOR_PICKER_VISIBLE = false;
 const char COLOR_PICKER_VISIBLE_KEY[] = "color_picker_visible";
+const bool DEFAULT_COLOR_PICKER_VISIBLE = false;
+const char PLAY_FPS_LIMIT_MODE_KEY[] = "play_fps_limit_mode";
+const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE =
+	PlayFPSLimitMode::FromVideo;
+const char PLAY_FPS_LIMIT_KEY[] = "play_fps_limit";
+const double DEFAULT_PLAY_FPS_LIMIT = 23.976;
 
 //==============================================================================
 
@@ -802,6 +807,31 @@ bool SettingsManager::getColorPickerVisible() const
 bool SettingsManager::setColorPickerVisible(bool a_colorPickerVisible)
 {
 	return setValue(COLOR_PICKER_VISIBLE_KEY, a_colorPickerVisible);
+}
+
+//==============================================================================
+
+PlayFPSLimitMode SettingsManager::getPlayFPSLimitMode() const
+{
+	return (PlayFPSLimitMode)value(PLAY_FPS_LIMIT_MODE_KEY,
+		(int)DEFAULT_PLAY_FPS_LIMIT_MODE).toInt();
+}
+
+bool SettingsManager::setPlayFPSLimitMode(PlayFPSLimitMode a_mode)
+{
+	return setValue(PLAY_FPS_LIMIT_MODE_KEY, (int)a_mode);
+}
+
+//==============================================================================
+
+double SettingsManager::getPlayFPSLimit() const
+{
+	return value(PLAY_FPS_LIMIT_KEY, DEFAULT_PLAY_FPS_LIMIT).toDouble();
+}
+
+bool SettingsManager::setPlayFPSLimit(double a_limit)
+{
+	return setValue(PLAY_FPS_LIMIT_KEY, a_limit);
 }
 
 //==============================================================================
