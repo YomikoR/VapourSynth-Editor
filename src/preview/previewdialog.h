@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <map>
 #include <vector>
+#include <deque>
 
 #include "../settings/settingsmanager.h"
 #include "timelineslider.h"
@@ -24,6 +25,15 @@ class VapourSynthScriptProcessor;
 class SettingsDialog;
 struct VSVideoInfo;
 class PreviewAdvancedSettingsDialog;
+
+struct NumberedPixmap
+{
+	int number;
+	QPixmap pixmap;
+
+	NumberedPixmap(int a_number, const QPixmap & a_pixmap);
+	bool operator<(const NumberedPixmap & a_other) const;
+};
 
 class PreviewDialog : public QDialog
 {
@@ -228,6 +238,9 @@ class PreviewDialog : public QDialog
 
 		bool m_playing;
 		bool m_processingPlayQueue;
+
+		std::deque<NumberedPixmap> m_framePixmapsQueue;
+		size_t m_cachedPixmapsLimit;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

@@ -469,6 +469,8 @@ bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()
 	std::remove_if(m_frameTicketsQueue.begin(), m_frameTicketsQueue.end(),
 		[](const FrameTicket & a_ticket)
 			{return (a_ticket.fpCallback == frameForPreviewReady);});
+
+	return (m_frameTicketsInProcess.empty());
 }
 
 // END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()

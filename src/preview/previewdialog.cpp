@@ -45,6 +45,25 @@
 
 //==============================================================================
 
+NumberedPixmap::NumberedPixmap(int a_number, const QPixmap & a_pixmap):
+	number(a_number)
+	, pixmap(a_pixmap)
+{
+}
+
+bool NumberedPixmap::operator<(const NumberedPixmap & a_other) const
+{
+	if(this == &a_other)
+		return false;
+
+	if(number < a_other.number)
+		return true;
+
+	return false;
+}
+
+//==============================================================================
+
 PreviewDialog::PreviewDialog(
 	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 	SettingsManager * a_pSettingsManager,
@@ -68,8 +87,6 @@ PreviewDialog::PreviewDialog(
 	, m_frameShown(-1)
 	, m_lastFrameRequestedForPlay(-1)
 	, m_bigFrameStep(10)
-	, m_scriptName()
-	, m_framePixmap()
 	, m_cpVideoInfo(nullptr)
 	, m_changingCropValues(false)
 	, m_pPreviewContextMenu(nullptr)
@@ -97,15 +114,12 @@ PreviewDialog::PreviewDialog(
 	, m_pActionAdvancedSettingsDialog(nullptr)
 	, m_pActionToggleColorPicker(nullptr)
 	, m_pActionPlay(nullptr)
-	, m_actionIDToZoomModeMap()
-	, m_actionIDToZoomScaleModeMap()
-	, m_actionIDToTimeLineModeMap()
-	, m_settableActionsList()
 	, m_framesInQueue(0)
 	, m_framesInProcess(0)
 	, m_maxThreads(0)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
+	, m_cachedPixmapsLimit(120)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -984,18 +998,21 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	if(a_pixmap.isNull())
 		return;
 
-	m_framePixmap = a_pixmap;
-	setPreviewPixmap();
+	if(m_playing)
+	{
+		NumberedPixmap newPixmap(a_frameNumber, a_pixmap);
+		m_framePixmapsQueue.insert(std::upper_bound(m_framePixmapsQueue.begin(),
+			m_framePixmapsQueue.end(), newPixmap), newPixmap);
+		slotProcessPlayQueue();
+	}
+	else
+	{
+		m_framePixmap = a_pixmap;
+		setPreviewPixmap();
 
-	m_frameShown = a_frameNumber;
-	m_ui.shownFrameSpinBox->setValue(m_frameShown);
-
-	if(!m_playing)
-		return;
-
-	m_ui.expectedFrameNumberSpinBox->setValue(m_frameShown);
-	m_ui.frameNumberSlider->setFrame(m_frameShown);
-	slotProcessPlayQueue();
+		m_frameShown = a_frameNumber;
+		m_ui.shownFrameSpinBox->setValue(m_frameShown);
+	}
 }
 
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
@@ -1034,6 +1051,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	}
 	else
 	{
+		m_framePixmapsQueue.clear();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueueForPreview();
 		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
@@ -1054,16 +1072,32 @@ void PreviewDialog::slotProcessPlayQueue()
 		return;
 	m_processingPlayQueue = true;
 
-	int nextFrame = m_lastFrameRequestedForPlay + 1;
-	if(nextFrame >= m_cpVideoInfo->numFrames)
-		nextFrame = 0;
+	while((!m_framePixmapsQueue.empty()) &&
+		(m_framePixmapsQueue.front().number ==
+		(m_frameShown + 1) % m_cpVideoInfo->numFrames))
+	{
+		m_framePixmap = m_framePixmapsQueue.front().pixmap;
+		setPreviewPixmap();
 
-	while((nextFrame < m_cpVideoInfo->numFrames) &&
-		((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 2)))
+		m_frameShown = m_framePixmapsQueue.front().number;
+		m_ui.shownFrameSpinBox->setValue(m_frameExpected);
+		m_frameExpected = m_frameShown;
+		m_ui.expectedFrameNumberSpinBox->setValue(m_frameExpected);
+		m_ui.frameNumberSlider->setFrame(m_frameExpected);
+		m_framePixmapsQueue.pop_front();
+	}
+
+	int nextFrame = (m_lastFrameRequestedForPlay + 1) %
+		m_cpVideoInfo->numFrames;
+
+	// Each preview request results in two frame requests to synchronize
+	// between the preview and the actual output.
+	while(((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 2)) &&
+		(m_framePixmapsQueue.size() <= m_cachedPixmapsLimit))
 	{
 		m_pVapourSynthScriptProcessor->requestPixmapAsync(nextFrame);
 		m_lastFrameRequestedForPlay = nextFrame;
-		nextFrame++;
+		nextFrame = (nextFrame + 1) % m_cpVideoInfo->numFrames;
 	}
 
 	m_processingPlayQueue = false;
