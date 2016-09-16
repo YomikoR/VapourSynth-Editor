@@ -283,7 +283,16 @@ void PreviewDialog::clear()
 
 void PreviewDialog::closeEvent(QCloseEvent * a_pEvent)
 {
-	m_pVapourSynthScriptProcessor->finalize();
+	if(m_ui.playButton->isChecked())
+		m_ui.playButton->click();
+
+	bool finalized = m_pVapourSynthScriptProcessor->finalize();
+	if(!finalized)
+	{
+		a_pEvent->ignore();
+		return;
+	}
+
 	clear();
 	QDialog::closeEvent(a_pEvent);
 }
