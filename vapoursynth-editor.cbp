@@ -220,7 +220,9 @@
 		<Unit filename="LICENSE" />
 		<Unit filename="README" />
 		<Unit filename="TODO.txt" />
+		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
 		<Unit filename="generated/ui/ui_mainwindow.h" />
+		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_previewdialog.h" />
 		<Unit filename="generated/ui/ui_settingsdialog.h" />
 		<Unit filename="pro/pro.pro" />
@@ -232,6 +234,8 @@
 		<Unit filename="src/common/aligned_vector.h" />
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
+		<Unit filename="src/frame_consumers/benchmark_dialog.cpp" />
+		<Unit filename="src/frame_consumers/benchmark_dialog.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mainwindow.cpp" />
 		<Unit filename="src/mainwindow.h" />
@@ -292,13 +296,13 @@
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
+				<remote_debugging target="release-64bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-32bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
-				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

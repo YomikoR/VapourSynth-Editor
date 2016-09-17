@@ -73,6 +73,7 @@ extern const char ACTION_ID_SAVE_SCRIPT_AS[];
 extern const char ACTION_ID_SETTINGS[];
 extern const char ACTION_ID_PREVIEW[];
 extern const char ACTION_ID_CHECK_SCRIPT[];
+extern const char ACTION_ID_BENCHMARK[];
 extern const char ACTION_ID_EXIT[];
 extern const char ACTION_ID_ABOUT[];
 extern const char ACTION_ID_AUTOCOMPLETE[];

@@ -23,6 +23,7 @@
 #include "vapoursynth/vapoursynthpluginsmanager.h"
 #include "preview/previewdialog.h"
 #include "settings/settingsdialog.h"
+#include "frame_consumers/benchmark_dialog.h"
 #include "common/helpers.h"
 
 #include "mainwindow.h"
@@ -40,6 +41,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionSettings(nullptr)
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
+	, m_pActionBenchmark(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
 	, m_pActionAutocomplete(nullptr)
@@ -47,6 +49,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pMenuRecentScripts(nullptr)
 	, m_pPreviewDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
+	, m_pBenchmarkDialog(nullptr)
 	, m_scriptFilePath()
 	, m_lastSavedText()
 {
@@ -99,6 +102,9 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalInsertLineIntoScript(const QString &)),
 		this, SLOT(slotInsertLineIntoScript(const QString &)));
 
+	m_pBenchmarkDialog = new ScriptBenchmarkDialog(
+		m_pVapourSynthScriptProcessor);
+
 	createActionsAndMenus();
 	slotChangeWindowTitle();
 
@@ -121,6 +127,8 @@ MainWindow::~MainWindow()
 		delete m_pPreviewDialog;
 	if(m_pSettingsDialog)
 		delete m_pSettingsDialog;
+	if(m_pBenchmarkDialog)
+		delete m_pBenchmarkDialog;
 }
 
 // END OF MainWindow::~MainWindow()
@@ -316,6 +324,18 @@ void MainWindow::slotCheckScript()
 // END OF void MainWindow::slotCheckScript()
 //==============================================================================
 
+void MainWindow::slotBenchmark()
+{
+	m_pPreviewDialog->close();
+	if(m_pPreviewDialog->isVisible())
+		return;
+
+	m_pBenchmarkDialog->show();
+}
+
+// END OF void MainWindow::slotBenchmark()
+//==============================================================================
+
 void MainWindow::slotAbout()
 {
 	QResource aboutResource(":readme");
@@ -504,6 +524,17 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
+	m_pActionBenchmark = new QAction(this);
+	m_pActionBenchmark->setIconText(trUtf8("Benchmark"));
+	m_pActionBenchmark->setIcon(QIcon(QString(":time.png")));
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_BENCHMARK);
+	m_pActionBenchmark->setShortcut(hotkey);
+	pScriptMenu->addAction(m_pActionBenchmark);
+	m_pActionBenchmark->setData(ACTION_ID_BENCHMARK);
+	m_settableActionsList.push_back(m_pActionBenchmark);
+
+//------------------------------------------------------------------------------
+
 	QMenu * pHelpMenu = m_ui.menuBar->addMenu(trUtf8("Help"));
 
 //------------------------------------------------------------------------------
@@ -542,6 +573,8 @@ void MainWindow::createActionsAndMenus()
 	connect(m_pActionPreview, SIGNAL(triggered()), this, SLOT(slotPreview()));
 	connect(m_pActionCheckScript, SIGNAL(triggered()),
 		this, SLOT(slotCheckScript()));
+	connect(m_pActionBenchmark, SIGNAL(triggered()),
+		this, SLOT(slotBenchmark()));
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
 	connect(m_pActionAutocomplete, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotComplete()));

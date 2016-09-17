@@ -85,6 +85,7 @@ const char ACTION_ID_SAVE_SCRIPT_AS[] = "save_script_as";
 const char ACTION_ID_SETTINGS[] = "settings";
 const char ACTION_ID_PREVIEW[] = "preview";
 const char ACTION_ID_CHECK_SCRIPT[] = "check_script";
+const char ACTION_ID_BENCHMARK[] = "benchmark";
 const char ACTION_ID_EXIT[] = "exit";
 const char ACTION_ID_ABOUT[] = "about";
 const char ACTION_ID_AUTOCOMPLETE[] = "autocomplete";
@@ -256,8 +257,10 @@ QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID) const
 		return QKeySequence(Qt::CTRL + Qt::Key_S);
 	else if(a_actionID == ACTION_ID_PREVIEW)
 		return QKeySequence(Qt::Key_F5);
-		else if(a_actionID == ACTION_ID_CHECK_SCRIPT)
+	else if(a_actionID == ACTION_ID_CHECK_SCRIPT)
 		return QKeySequence(Qt::Key_F6);
+	else if(a_actionID == ACTION_ID_BENCHMARK)
+		return QKeySequence(Qt::Key_F7);
 	else if(a_actionID == ACTION_ID_EXIT)
 		return QKeySequence(Qt::ALT + Qt::Key_F4);
 	else if(a_actionID == ACTION_ID_AUTOCOMPLETE)

@@ -146,6 +146,7 @@ RESOURCES = ../resources/resources.qrc
 FORMS += ../src/settings/settingsdialog.ui
 FORMS += ../src/preview/preview_advanced_settings_dialog.ui
 FORMS += ../src/preview/previewdialog.ui
+FORMS += ../src/frame_consumers/benchmark_dialog.ui
 FORMS += ../src/mainwindow.ui
 
 HEADERS += ../src/common/helpers.h
@@ -168,6 +169,7 @@ HEADERS += ../src/scripteditor/scripteditor.h
 HEADERS += ../src/vapoursynth/vsplugindata.h
 HEADERS += ../src/vapoursynth/vapoursynthpluginsmanager.h
 HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
+HEADERS += ../src/frame_consumers/benchmark_dialog.h
 HEADERS += ../src/mainwindow.h
 
 SOURCES += ../src/common/helpers.cpp
@@ -189,5 +191,6 @@ SOURCES += ../src/scripteditor/scripteditor.cpp
 SOURCES += ../src/vapoursynth/vsplugindata.cpp
 SOURCES += ../src/vapoursynth/vapoursynthpluginsmanager.cpp
 SOURCES += ../src/vapoursynth/vapoursynthscriptprocessor.cpp
+SOURCES += ../src/frame_consumers/benchmark_dialog.cpp
 SOURCES += ../src/mainwindow.cpp
 SOURCES += ../src/main.cpp

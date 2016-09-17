@@ -10,6 +10,7 @@ class VapourSynthScriptProcessor;
 class VapourSynthPluginsManager;
 class PreviewDialog;
 class SettingsDialog;
+class ScriptBenchmarkDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +51,8 @@ class MainWindow : public QMainWindow
 		void slotPreview();
 
 		void slotCheckScript();
+
+		void slotBenchmark();
 
 		void slotAbout();
 
@@ -92,6 +95,7 @@ class MainWindow : public QMainWindow
 		QAction * m_pActionSettings;
 		QAction * m_pActionPreview;
 		QAction * m_pActionCheckScript;
+		QAction * m_pActionBenchmark;
 		QAction * m_pActionExit;
 		QAction * m_pActionAbout;
 		QAction * m_pActionAutocomplete;
@@ -102,6 +106,7 @@ class MainWindow : public QMainWindow
 
 		PreviewDialog * m_pPreviewDialog;
 		SettingsDialog * m_pSettingsDialog;
+		ScriptBenchmarkDialog * m_pBenchmarkDialog;
 
 		QString m_scriptFilePath;
 		QString m_lastSavedText;
