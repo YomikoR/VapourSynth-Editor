@@ -299,21 +299,18 @@ void MainWindow::slotPreview()
 
 void MainWindow::slotCheckScript()
 {
-	m_ui.logEdit->clear();
+	VapourSynthScriptProcessor tempProcessor(m_pSettingsManager, this);
 
-	m_pPreviewDialog->close();
-
-	bool correct = m_pVapourSynthScriptProcessor->initialize(
+	bool correct = tempProcessor.initialize(
 		m_ui.scriptEdit->text(), m_scriptFilePath);
 	if(correct)
 	{
 		QString message = trUtf8("Script was successfully evaluated. "
 			"Output video info:\n");
-		message += vsedit::videoInfoString(
-			m_pVapourSynthScriptProcessor->videoInfo());
+		message += vsedit::videoInfoString(tempProcessor.videoInfo());
 		slotWriteLogMessage(mtDebug, message);
 	}
-	m_pVapourSynthScriptProcessor->finalize();
+	tempProcessor.finalize();
 }
 
 // END OF void MainWindow::slotCheckScript()
