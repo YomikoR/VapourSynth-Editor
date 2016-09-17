@@ -309,6 +309,9 @@ void MainWindow::slotCheckScript()
 {
 	VapourSynthScriptProcessor tempProcessor(m_pSettingsManager, this);
 
+	connect(&tempProcessor, SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
+
 	bool correct = tempProcessor.initialize(
 		m_ui.scriptEdit->text(), m_scriptFilePath);
 	if(correct)
