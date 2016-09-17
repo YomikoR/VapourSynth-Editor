@@ -8,6 +8,7 @@
 #include <QKeySequence>
 #include <QTextCharFormat>
 #include <QColor>
+#include <map>
 
 #include "../preview/timelineslider.h"
 
@@ -291,7 +292,11 @@ class SettingsManager : public QObject
 
 		bool setValue(const QString & a_key, const QVariant & a_value);
 
+		void initializeDefaultHotkeysMap();
+
 		QString m_settingsFilePath;
+
+		std::map<QString, QKeySequence> m_defaultHotkeysMap;
 };
 
 //==============================================================================

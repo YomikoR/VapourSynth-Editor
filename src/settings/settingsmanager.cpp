@@ -136,7 +136,6 @@ const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 //==============================================================================
 
 SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
-	, m_settingsFilePath()
 {
 	QString applicationDir = QCoreApplication::applicationDirPath();
 
@@ -148,6 +147,8 @@ SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 		m_settingsFilePath = QStandardPaths::writableLocation(
 			QStandardPaths::GenericConfigLocation) + SETTINGS_FILE_NAME;
 	}
+
+	initializeDefaultHotkeysMap();
 }
 
 SettingsManager::~SettingsManager()
@@ -247,42 +248,36 @@ bool SettingsManager::setValue(const QString & a_key,
 
 //==============================================================================
 
+void SettingsManager::initializeDefaultHotkeysMap()
+{
+	m_defaultHotkeysMap =
+	{
+		{ACTION_ID_NEW_SCRIPT, QKeySequence(Qt::CTRL + Qt::Key_N)},
+		{ACTION_ID_OPEN_SCRIPT, QKeySequence(Qt::CTRL + Qt::Key_O)},
+		{ACTION_ID_SAVE_SCRIPT, QKeySequence(Qt::CTRL + Qt::Key_S)},
+		{ACTION_ID_PREVIEW, QKeySequence(Qt::Key_F5)},
+		{ACTION_ID_CHECK_SCRIPT, QKeySequence(Qt::Key_F6)},
+		{ACTION_ID_BENCHMARK, QKeySequence(Qt::Key_F7)},
+		{ACTION_ID_EXIT, QKeySequence(Qt::ALT + Qt::Key_F4)},
+		{ACTION_ID_AUTOCOMPLETE, QKeySequence(Qt::CTRL + Qt::Key_Space)},
+		{ACTION_ID_SAVE_SNAPSHOT, QKeySequence(Qt::Key_S)},
+		{ACTION_ID_TOGGLE_ZOOM_PANEL, QKeySequence(Qt::Key_Z)},
+		{ACTION_ID_TOGGLE_CROP_PANEL, QKeySequence(Qt::Key_C)},
+		{ACTION_ID_SET_ZOOM_MODE_NO_ZOOM, QKeySequence(Qt::Key_1)},
+		{ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO, QKeySequence(Qt::Key_2)},
+		{ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME, QKeySequence(Qt::Key_3)},
+		{ACTION_ID_TIME_STEP_FORWARD, QKeySequence(Qt::CTRL + Qt::Key_Right)},
+		{ACTION_ID_TIME_STEP_BACK, QKeySequence(Qt::CTRL + Qt::Key_Left)},
+		{ACTION_ID_FRAME_TO_CLIPBOARD, QKeySequence(Qt::Key_X)},
+	};
+}
+
 QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID) const
 {
-	if(a_actionID == ACTION_ID_NEW_SCRIPT)
-		return QKeySequence(Qt::CTRL + Qt::Key_N);
-	else if(a_actionID == ACTION_ID_OPEN_SCRIPT)
-		return QKeySequence(Qt::CTRL + Qt::Key_O);
-	else if(a_actionID == ACTION_ID_SAVE_SCRIPT)
-		return QKeySequence(Qt::CTRL + Qt::Key_S);
-	else if(a_actionID == ACTION_ID_PREVIEW)
-		return QKeySequence(Qt::Key_F5);
-	else if(a_actionID == ACTION_ID_CHECK_SCRIPT)
-		return QKeySequence(Qt::Key_F6);
-	else if(a_actionID == ACTION_ID_BENCHMARK)
-		return QKeySequence(Qt::Key_F7);
-	else if(a_actionID == ACTION_ID_EXIT)
-		return QKeySequence(Qt::ALT + Qt::Key_F4);
-	else if(a_actionID == ACTION_ID_AUTOCOMPLETE)
-		return QKeySequence(Qt::CTRL + Qt::Key_Space);
-	else if(a_actionID == ACTION_ID_SAVE_SNAPSHOT)
-		return QKeySequence(Qt::Key_S);
-	else if(a_actionID == ACTION_ID_TOGGLE_ZOOM_PANEL)
-		return QKeySequence(Qt::Key_Z);
-	else if(a_actionID == ACTION_ID_TOGGLE_CROP_PANEL)
-		return QKeySequence(Qt::Key_C);
-	else if(a_actionID == ACTION_ID_SET_ZOOM_MODE_NO_ZOOM)
-		return QKeySequence(Qt::Key_1);
-	else if(a_actionID == ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO)
-		return QKeySequence(Qt::Key_2);
-	else if(a_actionID == ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME)
-		return QKeySequence(Qt::Key_3);
-	else if(a_actionID == ACTION_ID_TIME_STEP_FORWARD)
-		return QKeySequence(Qt::CTRL + Qt::Key_Right);
-	else if(a_actionID == ACTION_ID_TIME_STEP_BACK)
-		return QKeySequence(Qt::CTRL + Qt::Key_Left);
-	else if(a_actionID == ACTION_ID_FRAME_TO_CLIPBOARD)
-		return QKeySequence(Qt::Key_X);
+	std::map<QString, QKeySequence>::const_iterator it =
+		m_defaultHotkeysMap.find(a_actionID);
+	if(it != m_defaultHotkeysMap.end())
+		return it->second;
 
 	return QKeySequence();
 }
