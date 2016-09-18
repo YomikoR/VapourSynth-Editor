@@ -132,9 +132,11 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 	m_framesProcessed++;
 	m_ui.processingProgressBar->setValue(m_framesProcessed);
 	double passed = duration_to_double(now - m_benchmarkStartTime);
+	QString passedString = vsedit::timeToString(passed);
 	double fps = (double)m_framesProcessed / passed;
-	QString text = trUtf8("%1 / %2\n%3 FPS").arg(m_framesProcessed)
-		.arg(m_framesTotal).arg(QString::number(fps, 'f', 20));
+	QString text = trUtf8("%1 / %2\nTime elapsed: %3\n%4 FPS")
+		.arg(m_framesProcessed).arg(m_framesTotal).arg(passedString)
+		.arg(QString::number(fps, 'f', 20));
 	m_ui.outputTextEdit->setPlainText(text);
 
 	if(m_framesProcessed == m_framesTotal)
