@@ -59,7 +59,9 @@ class VapourSynthScriptProcessor : public QObject
 
 		QString error() const;
 
-		const VSVideoInfo * videoInfo();
+		const VSVideoInfo * videoInfo() const;
+
+		const VSAPI * api() const;
 
 		bool requestFrame(int a_frameNumber);
 

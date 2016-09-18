@@ -1,23 +1,25 @@
-#ifndef BENCHMARK_DIALOG_H_INCLUDED
-#define BENCHMARK_DIALOG_H_INCLUDED
+#ifndef CLI_ENCODE_DIALOG_H_INCLUDED
+#define CLI_ENCODE_DIALOG_H_INCLUDED
 
-#include <ui_benchmark_dialog.h>
+#include <QProcess>
+
+#include <ui_cli_encode_dialog.h>
 
 #include "../common/chrono.h"
 
 struct VSFrameRef;
 class VapourSynthScriptProcessor;
 
-class ScriptBenchmarkDialog : public QDialog
+class CLIEncodeDialog : public QDialog
 {
 	Q_OBJECT
 
 	public:
 
-		ScriptBenchmarkDialog(
+		CLIEncodeDialog(
 			VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 			QWidget * a_pParent = nullptr);
-		virtual ~ScriptBenchmarkDialog();
+		virtual ~CLIEncodeDialog();
 
 	public slots:
 
@@ -40,7 +42,9 @@ class ScriptBenchmarkDialog : public QDialog
 
 		void stopProcessing();
 
-		Ui::ScriptBenchmarkDialog m_ui;
+		QString decodeArguments(const QString & a_arguments);
+
+		Ui::CLIEncodeDialog m_ui;
 
 		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 
@@ -49,7 +53,9 @@ class ScriptBenchmarkDialog : public QDialog
 		int m_framesTotal;
 		int m_framesProcessed;
 
-		hr_time_point m_benchmarkStartTime;
+		hr_time_point m_encodeStartTime;
+
+		QProcess m_encoder;
 };
 
-#endif // BENCHMARK_DIALOG_H_INCLUDED
+#endif // CLI_ENCODE_DIALOG_H_INCLUDED

@@ -310,7 +310,7 @@ QString VapourSynthScriptProcessor::error() const
 // END OF QString VapourSynthScriptProcessor::error() const
 //==============================================================================
 
-const VSVideoInfo * VapourSynthScriptProcessor::videoInfo()
+const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
 {
 	if(!m_initialized)
 		return nullptr;
@@ -319,7 +319,15 @@ const VSVideoInfo * VapourSynthScriptProcessor::videoInfo()
 	return m_cpVideoInfo;
 }
 
-// END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo()
+// END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
+//==============================================================================
+
+const VSAPI * VapourSynthScriptProcessor::api() const
+{
+	return m_cpVSAPI;
+}
+
+// END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
 //==============================================================================
 
 bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber)

@@ -86,6 +86,7 @@ const char ACTION_ID_SETTINGS[] = "settings";
 const char ACTION_ID_PREVIEW[] = "preview";
 const char ACTION_ID_CHECK_SCRIPT[] = "check_script";
 const char ACTION_ID_BENCHMARK[] = "benchmark";
+const char ACTION_ID_CLI_ENCODE[] = "cli_encode";
 const char ACTION_ID_EXIT[] = "exit";
 const char ACTION_ID_ABOUT[] = "about";
 const char ACTION_ID_AUTOCOMPLETE[] = "autocomplete";
@@ -258,6 +259,7 @@ void SettingsManager::initializeDefaultHotkeysMap()
 		{ACTION_ID_PREVIEW, QKeySequence(Qt::Key_F5)},
 		{ACTION_ID_CHECK_SCRIPT, QKeySequence(Qt::Key_F6)},
 		{ACTION_ID_BENCHMARK, QKeySequence(Qt::Key_F7)},
+		{ACTION_ID_CLI_ENCODE, QKeySequence(Qt::Key_F8)},
 		{ACTION_ID_EXIT, QKeySequence(Qt::ALT + Qt::Key_F4)},
 		{ACTION_ID_AUTOCOMPLETE, QKeySequence(Qt::CTRL + Qt::Key_Space)},
 		{ACTION_ID_SAVE_SNAPSHOT, QKeySequence(Qt::Key_S)},

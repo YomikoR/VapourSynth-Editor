@@ -1,4 +1,4 @@
-#include "benchmark_dialog.h"
+#include "cli_encode_dialog.h"
 
 #include "../common/helpers.h"
 #include "../vapoursynth/vapoursynthscriptprocessor.h"
@@ -7,7 +7,7 @@
 
 //==============================================================================
 
-ScriptBenchmarkDialog::ScriptBenchmarkDialog(
+CLIEncodeDialog::CLIEncodeDialog(
 	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 	QWidget * a_pParent) :
 	QDialog(a_pParent, (Qt::WindowFlags)0
@@ -22,7 +22,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	, m_framesProcessed(0)
 {
 	m_ui.setupUi(this);
-	setWindowIcon(QIcon(":benchmark.png"));
+	setWindowIcon(QIcon(":cli.png"));
 
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
@@ -30,19 +30,19 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 		this, SLOT(slotStartStopBenchmarkButtonPressed()));
 }
 
-// END OF ScriptBenchmarkDialog::ScriptBenchmarkDialog(
+// END OF CLIEncodeDialog::CLIEncodeDialog(
 //		VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 //		QWidget * a_pParent
 //==============================================================================
 
-ScriptBenchmarkDialog::~ScriptBenchmarkDialog()
+CLIEncodeDialog::~CLIEncodeDialog()
 {
 }
 
-// END OF ScriptBenchmarkDialog::~ScriptBenchmarkDialog()
+// END OF CLIEncodeDialog::~CLIEncodeDialog()
 //==============================================================================
 
-void ScriptBenchmarkDialog::call()
+void CLIEncodeDialog::call()
 {
 	if(m_processing)
 	{
@@ -68,10 +68,10 @@ void ScriptBenchmarkDialog::call()
 	show();
 }
 
-// END OF void ScriptBenchmarkDialog::call()
+// END OF void CLIEncodeDialog::call()
 //==============================================================================
 
-void ScriptBenchmarkDialog::closeEvent(QCloseEvent * a_pEvent)
+void CLIEncodeDialog::closeEvent(QCloseEvent * a_pEvent)
 {
 	stopProcessing();
 
@@ -85,10 +85,10 @@ void ScriptBenchmarkDialog::closeEvent(QCloseEvent * a_pEvent)
 	QDialog::closeEvent(a_pEvent);
 }
 
-// END OF void ScriptBenchmarkDialog::call()
+// END OF void CLIEncodeDialog::call()
 //==============================================================================
 
-void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
+void CLIEncodeDialog::slotWholeVideoButtonPressed()
 {
 	const VSVideoInfo * cpVideoInfo =
 		m_pVapourSynthScriptProcessor->videoInfo();
@@ -99,10 +99,10 @@ void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
 	m_ui.toFrameSpinBox->setValue(lastFrame);
 }
 
-// END OF void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
+// END OF void CLIEncodeDialog::slotWholeVideoButtonPressed()
 //==============================================================================
 
-void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
+void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 {
 	if(m_processing)
 	{
@@ -124,31 +124,76 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_framesTotal = lastFrame - firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
-	m_processing = true;
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
 		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
-	m_benchmarkStartTime = hr_clock::now();
+
+	m_ui.outputTextEdit->appendPlainText(trUtf8("Command line:"));
+	QString executable = m_ui.executablePathEdit->text();
+	QString decodedArguments =
+		decodeArguments(m_ui.argumentsTextEdit->toPlainText());
+	QString commandLine = QString("\"%1\" %2").arg(executable)
+		.arg(decodedArguments);
+	m_ui.outputTextEdit->appendPlainText(commandLine);
+
+	m_encoder.start(commandLine);
+	if(!m_encoder.waitForStarted())
+	{
+		m_ui.outputTextEdit->appendPlainText(
+			trUtf8("\nCouldn't start the encoder."));
+	}
+
+	m_processing = true;
+	m_encodeStartTime = hr_clock::now();
+
 	for(int i = firstFrame; i <= lastFrame; ++i)
 		m_pVapourSynthScriptProcessor->requestFrameAsync(i);
 }
 
-// END OF void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
+// END OF void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 //==============================================================================
 
-void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
+void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 	const VSFrameRef * a_cpFrameRef)
 {
 	(void)(a_frameNumber);
-	(void)(a_cpFrameRef);
 
 	if(!m_processing)
 		return;
 
+	const VSAPI * cpVSAPI = m_pVapourSynthScriptProcessor->api();
+	assert(cpVSAPI);
+	const VSVideoInfo * cpVideoInfo =
+		m_pVapourSynthScriptProcessor->videoInfo();
+	assert(cpVideoInfo);
+	const VSFormat * cpFormat = cpVideoInfo->format;
+	assert(cpFormat);
+
+	const VSFrameRef * cpFrameRef = cpVSAPI->cloneFrameRef(a_cpFrameRef);
+
+	for(int i = 0; i < cpFormat->numPlanes; ++i)
+	{
+		const uint8_t * cpPlane = cpVSAPI->getReadPtr(cpFrameRef, i);
+		int stride = cpVSAPI->getStride(cpFrameRef, i);
+		int width = cpVSAPI->getFrameWidth(cpFrameRef, i);
+		int height = cpVSAPI->getFrameHeight(cpFrameRef, i);
+		int bytes = cpFormat->bytesPerSample;
+		qint64 dataSize = (qint64)width * (qint64)bytes;
+		const char * pLine = (const char *)cpPlane;
+		for(int h = 0; h < height; ++h)
+		{
+			m_encoder.write(pLine, dataSize);
+			m_encoder.waitForBytesWritten(-1);
+			pLine += stride;
+		}
+	}
+
+	cpVSAPI->freeFrame(cpFrameRef);
+
 	hr_time_point now = hr_clock::now();
 	m_framesProcessed++;
 	m_ui.processingProgressBar->setValue(m_framesProcessed);
-	double passed = duration_to_double(now - m_benchmarkStartTime);
+	double passed = duration_to_double(now - m_encodeStartTime);
 	QString passedString = vsedit::timeToString(passed);
 	double fps = (double)m_framesProcessed / passed;
 	QString text = trUtf8("%1 / %2\nTime elapsed: %3\n%4 FPS")
@@ -160,11 +205,11 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 		stopProcessing();
 }
 
-// END OF void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
+// END OF void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 //		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-void ScriptBenchmarkDialog::stopProcessing()
+void CLIEncodeDialog::stopProcessing()
 {
 	if(!m_processing)
 		return;
@@ -175,7 +220,56 @@ void ScriptBenchmarkDialog::stopProcessing()
 		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
 		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
+
+	m_encoder.closeWriteChannel();
+    if(!m_encoder.waitForFinished())
+        m_ui.outputTextEdit->appendPlainText(
+			trUtf8("\nCouldn't close the encoder."));
+	QByteArray standardError = m_encoder.readAllStandardError();
+	QString standardErrorText = QString::fromUtf8(standardError);
+	if(!standardErrorText.isEmpty())
+		m_ui.outputTextEdit->appendPlainText(standardErrorText);
 }
 
-// END OF void ScriptBenchmarkDialog::stopProcessing()
+// END OF void CLIEncodeDialog::stopProcessing()
+//==============================================================================
+
+QString CLIEncodeDialog::decodeArguments(const QString & a_arguments)
+{
+	QString decodedString = a_arguments.simplified();
+
+	const VSVideoInfo * cpVideoInfo =
+		m_pVapourSynthScriptProcessor->videoInfo();
+	assert(cpVideoInfo);
+	const VSFormat * cpFormat = cpVideoInfo->format;
+	assert(cpFormat);
+
+	double fps = 0.0;
+	if(cpVideoInfo->fpsDen > 0)
+		fps = (double)cpVideoInfo->fpsNum / (double)cpVideoInfo->fpsDen;
+
+	struct ReplacePair
+	{
+		QString from;
+		QString to;
+	};
+
+	ReplacePair replaceList[] =
+	{
+		{"%w", QString::number(cpVideoInfo->width)},
+		{"%h", QString::number(cpVideoInfo->height)},
+		{"%fpsnum", QString::number(cpVideoInfo->fpsNum)},
+		{"%fpsden", QString::number(cpVideoInfo->fpsDen)},
+		{"%fps", QString::number(fps, 'f', 10)},
+		{"%bits", QString::number(cpFormat->bitsPerSample)},
+	};
+
+	for(const ReplacePair & record : replaceList)
+		decodedString = decodedString.replace(record.from, record.to);
+
+	return decodedString;
+}
+
+// END OF void QString CLIEncodeDialog::decodeArguments(
+//		const QString & a_arguments)
 //==============================================================================

@@ -24,6 +24,7 @@
 #include "preview/previewdialog.h"
 #include "settings/settingsdialog.h"
 #include "frame_consumers/benchmark_dialog.h"
+#include "frame_consumers/cli_encode_dialog.h"
 #include "common/helpers.h"
 
 #include "mainwindow.h"
@@ -42,6 +43,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
 	, m_pActionBenchmark(nullptr)
+	, m_pActionCLIEncode(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
 	, m_pActionAutocomplete(nullptr)
@@ -104,6 +106,8 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pBenchmarkDialog = new ScriptBenchmarkDialog(
 		m_pVapourSynthScriptProcessor);
+
+	m_pCLIEncodeDialog = new CLIEncodeDialog(m_pVapourSynthScriptProcessor);
 
 	createActionsAndMenus();
 	slotChangeWindowTitle();
@@ -342,6 +346,21 @@ void MainWindow::slotBenchmark()
 // END OF void MainWindow::slotBenchmark()
 //==============================================================================
 
+void MainWindow::slotCLIEncode()
+{
+	m_pPreviewDialog->close();
+	if(m_pPreviewDialog->isVisible())
+		return;
+
+	m_pVapourSynthScriptProcessor->initialize(m_ui.scriptEdit->text(),
+		m_scriptFilePath);
+
+	m_pCLIEncodeDialog->call();
+}
+
+// END OF void MainWindow::slotCLIEncode()
+//==============================================================================
+
 void MainWindow::slotAbout()
 {
 	QResource aboutResource(":readme");
@@ -532,12 +551,23 @@ void MainWindow::createActionsAndMenus()
 
 	m_pActionBenchmark = new QAction(this);
 	m_pActionBenchmark->setIconText(trUtf8("Benchmark"));
-	m_pActionBenchmark->setIcon(QIcon(QString(":time.png")));
+	m_pActionBenchmark->setIcon(QIcon(QString(":benchmark.png")));
 	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_BENCHMARK);
 	m_pActionBenchmark->setShortcut(hotkey);
 	pScriptMenu->addAction(m_pActionBenchmark);
 	m_pActionBenchmark->setData(ACTION_ID_BENCHMARK);
 	m_settableActionsList.push_back(m_pActionBenchmark);
+
+//------------------------------------------------------------------------------
+
+	m_pActionCLIEncode = new QAction(this);
+	m_pActionCLIEncode->setIconText(trUtf8("CLI encode"));
+	m_pActionCLIEncode->setIcon(QIcon(QString(":cli.png")));
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_CLI_ENCODE);
+	m_pActionCLIEncode->setShortcut(hotkey);
+	pScriptMenu->addAction(m_pActionCLIEncode);
+	m_pActionCLIEncode->setData(ACTION_ID_CLI_ENCODE);
+	m_settableActionsList.push_back(m_pActionCLIEncode);
 
 //------------------------------------------------------------------------------
 
@@ -581,6 +611,8 @@ void MainWindow::createActionsAndMenus()
 		this, SLOT(slotCheckScript()));
 	connect(m_pActionBenchmark, SIGNAL(triggered()),
 		this, SLOT(slotBenchmark()));
+	connect(m_pActionCLIEncode, SIGNAL(triggered()),
+		this, SLOT(slotCLIEncode()));
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
 	connect(m_pActionAutocomplete, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotComplete()));
