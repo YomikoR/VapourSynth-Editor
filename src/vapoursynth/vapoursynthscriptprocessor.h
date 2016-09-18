@@ -67,10 +67,12 @@ class VapourSynthScriptProcessor : public QObject
 
 		QPixmap pixmap(int a_frameNumber);
 
-		void requestPixmapAsync(int a_frameNumber);
+		bool requestFrameAsync(int a_frameNumber, bool a_forPreview = false);
 
 		void colorAtPoint(size_t a_x, size_t a_y, double & a_rValue1,
 			double & a_rValue2, double & a_rValue3);
+
+		bool flushFrameTicketsQueueForConsumer();
 
 		bool flushFrameTicketsQueueForPreview();
 
@@ -79,6 +81,9 @@ class VapourSynthScriptProcessor : public QObject
 		void signalWriteLogMessage(int a_messageType,
 			const QString & a_message);
 
+		void signalDistributeFrame(int a_frameNumber,
+			const VSFrameRef * a_cpFrameRef);
+
 		void signalDistributePixmap(int a_frameNumber,
 			const QPixmap & a_pixmap);
 
@@ -86,6 +91,10 @@ class VapourSynthScriptProcessor : public QObject
 			size_t a_maxThreads);
 
 	private slots:
+
+		void slotReceiveFrameForConsumerAndProcessQueue(
+			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+			VSNodeRef * a_pNodeRef, QString a_errorMessage);
 
 		void slotReceiveFrameForPreviewAndProcessQueue(
 			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
@@ -96,6 +105,14 @@ class VapourSynthScriptProcessor : public QObject
 	private:
 
 		void handleVSMessage(int a_messageType, const QString & a_message);
+
+		bool checkReceivedFrame(const VSFrameRef * a_cpFrameRef,
+			int a_frameNumber, VSNodeRef * a_pNodeRef,
+			VSFrameDoneCallback a_fpCallback, const QString & a_errorMessage);
+
+		void receiveFrameForConsumer(const VSFrameRef * a_cpFrameRef,
+			int a_frameNumber, VSNodeRef * a_pNodeRef,
+			const QString & a_errorMessage);
 
 		void receiveFrameForPreview(const VSFrameRef * a_cpFrameRef,
 			int a_frameNumber, VSNodeRef * a_pNodeRef,
@@ -122,10 +139,6 @@ class VapourSynthScriptProcessor : public QObject
 
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);
-
-		friend void VS_CC frameForPreviewReady(void * a_pUserData,
-			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-			VSNodeRef * a_pNodeRef, const char * a_errorMessage);
 
 		SettingsManager * m_pSettingsManager;
 

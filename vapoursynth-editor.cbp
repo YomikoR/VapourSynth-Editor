@@ -232,6 +232,7 @@
 			<Option compilerVar="WINDRES" />
 		</Unit>
 		<Unit filename="src/common/aligned_vector.h" />
+		<Unit filename="src/common/chrono.h" />
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.cpp" />

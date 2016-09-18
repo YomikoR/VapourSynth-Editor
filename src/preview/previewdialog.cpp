@@ -1138,9 +1138,8 @@ void PreviewDialog::slotProcessPlayQueue()
 		((m_frameShown + 1) % m_cpVideoInfo->numFrames)))
 	{
 		hr_time_point now = hr_clock::now();
-		double_duration passed = std::chrono::duration_cast<double_duration>(
-			now - m_lastFrameShowTime);
-		double secondsToNextFrame = m_secondsBetweenFrames - passed.count();
+		double passed = duration_to_double(now - m_lastFrameShowTime);
+		double secondsToNextFrame = m_secondsBetweenFrames - passed;
 		if(secondsToNextFrame > 0)
 		{
 			int millisecondsToNextFrame = std::ceil(secondsToNextFrame * 1000);
@@ -1167,7 +1166,7 @@ void PreviewDialog::slotProcessPlayQueue()
 	while(((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 2)) &&
 		(m_framePixmapsQueue.size() <= m_cachedPixmapsLimit))
 	{
-		m_pVapourSynthScriptProcessor->requestPixmapAsync(nextFrame);
+		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame, true);
 		m_lastFrameRequestedForPlay = nextFrame;
 		nextFrame = (nextFrame + 1) % m_cpVideoInfo->numFrames;
 	}
@@ -1747,7 +1746,7 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 	if((m_frameShown != -1) && (m_frameShown != m_frameExpected))
 		return false;
 
-	m_pVapourSynthScriptProcessor->requestPixmapAsync(a_frameNumber);
+	m_pVapourSynthScriptProcessor->requestFrameAsync(a_frameNumber, true);
 	return true;
 }
 

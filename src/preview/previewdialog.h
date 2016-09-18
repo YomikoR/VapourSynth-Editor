@@ -9,6 +9,7 @@
 #include <chrono>
 
 #include "../settings/settingsmanager.h"
+#include "../common/chrono.h"
 #include "timelineslider.h"
 
 #include <ui_previewdialog.h>
@@ -28,10 +29,6 @@ class VapourSynthScriptProcessor;
 class SettingsDialog;
 struct VSVideoInfo;
 class PreviewAdvancedSettingsDialog;
-
-typedef std::chrono::high_resolution_clock::time_point hr_time_point;
-typedef std::chrono::high_resolution_clock hr_clock;
-typedef std::chrono::duration<double> double_duration;
 
 struct NumberedPixmap
 {

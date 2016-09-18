@@ -151,6 +151,7 @@ FORMS += ../src/mainwindow.ui
 
 HEADERS += ../src/common/helpers.h
 HEADERS += ../src/common/aligned_vector.h
+HEADERS += ../src/common/chrono.h
 HEADERS += ../src/settings/settingsmanager.h
 HEADERS += ../src/settings/actionshotkeyeditmodel.h
 HEADERS += ../src/settings/itemdelegateforhotkey.h

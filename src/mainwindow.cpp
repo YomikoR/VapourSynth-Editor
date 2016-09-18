@@ -312,8 +312,8 @@ void MainWindow::slotCheckScript()
 	connect(&tempProcessor, SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
-	bool correct = tempProcessor.initialize(
-		m_ui.scriptEdit->text(), m_scriptFilePath);
+	bool correct = tempProcessor.initialize(m_ui.scriptEdit->text(),
+		m_scriptFilePath);
 	if(correct)
 	{
 		QString message = trUtf8("Script was successfully evaluated. "
@@ -333,7 +333,10 @@ void MainWindow::slotBenchmark()
 	if(m_pPreviewDialog->isVisible())
 		return;
 
-	m_pBenchmarkDialog->show();
+	m_pVapourSynthScriptProcessor->initialize(m_ui.scriptEdit->text(),
+		m_scriptFilePath);
+
+	m_pBenchmarkDialog->call();
 }
 
 // END OF void MainWindow::slotBenchmark()
