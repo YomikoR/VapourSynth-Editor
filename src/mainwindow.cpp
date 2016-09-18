@@ -133,6 +133,8 @@ MainWindow::~MainWindow()
 		delete m_pSettingsDialog;
 	if(m_pBenchmarkDialog)
 		delete m_pBenchmarkDialog;
+	if(m_pCLIEncodeDialog)
+		delete m_pCLIEncodeDialog;
 }
 
 // END OF MainWindow::~MainWindow()
