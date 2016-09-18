@@ -4,6 +4,7 @@
 #include "../vapoursynth/vapoursynthscriptprocessor.h"
 
 #include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VSHelper.h>
 
 //==============================================================================
 
@@ -171,6 +172,8 @@ void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 
 	const VSFrameRef * cpFrameRef = cpVSAPI->cloneFrameRef(a_cpFrameRef);
 
+	size_t currentDataSize = 0;
+
 	for(int i = 0; i < cpFormat->numPlanes; ++i)
 	{
 		const uint8_t * cpPlane = cpVSAPI->getReadPtr(cpFrameRef, i);
@@ -178,15 +181,21 @@ void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 		int width = cpVSAPI->getFrameWidth(cpFrameRef, i);
 		int height = cpVSAPI->getFrameHeight(cpFrameRef, i);
 		int bytes = cpFormat->bytesPerSample;
-		qint64 dataSize = (qint64)width * (qint64)bytes;
-		const char * pLine = (const char *)cpPlane;
-		for(int h = 0; h < height; ++h)
-		{
-			m_encoder.write(pLine, dataSize);
-			m_encoder.waitForBytesWritten(-1);
-			pLine += stride;
-		}
+
+		size_t planeSize = width * bytes * height;
+		size_t neededFramebufferSize = currentDataSize + planeSize;
+		if(neededFramebufferSize > m_framebuffer.size())
+			m_framebuffer.resize(neededFramebufferSize);
+		size_t framebufferStride = width * bytes;
+
+		vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
+			cpPlane, stride, framebufferStride, height);
+
+		currentDataSize += planeSize;
 	}
+
+	m_encoder.write(m_framebuffer.data(), (qint64)currentDataSize);
+	m_encoder.waitForBytesWritten(-1);
 
 	cpVSAPI->freeFrame(cpFrameRef);
 
@@ -229,6 +238,7 @@ void CLIEncodeDialog::stopProcessing()
 	QString standardErrorText = QString::fromUtf8(standardError);
 	if(!standardErrorText.isEmpty())
 		m_ui.outputTextEdit->appendPlainText(standardErrorText);
+	m_framebuffer.clear();
 }
 
 // END OF void CLIEncodeDialog::stopProcessing()

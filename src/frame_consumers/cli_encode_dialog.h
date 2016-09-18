@@ -2,6 +2,7 @@
 #define CLI_ENCODE_DIALOG_H_INCLUDED
 
 #include <QProcess>
+#include <vector>
 
 #include <ui_cli_encode_dialog.h>
 
@@ -56,6 +57,8 @@ class CLIEncodeDialog : public QDialog
 		hr_time_point m_encodeStartTime;
 
 		QProcess m_encoder;
+
+		std::vector<char> m_framebuffer;
 };
 
 #endif // CLI_ENCODE_DIALOG_H_INCLUDED

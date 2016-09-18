@@ -83,6 +83,7 @@
 -r %fpsnum/%fpsden
 -i pipe:0
 -c:v prores_ks
+-y
 D:\vstests\prores-test.mov</string>
      </property>
     </widget>
