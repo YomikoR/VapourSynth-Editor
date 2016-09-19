@@ -221,6 +221,7 @@
 		<Unit filename="README" />
 		<Unit filename="TODO.txt" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
+		<Unit filename="generated/ui/ui_encode_dialog.h" />
 		<Unit filename="generated/ui/ui_mainwindow.h" />
 		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_previewdialog.h" />

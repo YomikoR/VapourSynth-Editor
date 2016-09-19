@@ -21,16 +21,16 @@ struct NumberedFrameRef
 	bool operator<(const NumberedFrameRef & a_other) const;
 };
 
-class CLIEncodeDialog : public QDialog
+class EncodeDialog : public QDialog
 {
 	Q_OBJECT
 
 	public:
 
-		CLIEncodeDialog(
+		EncodeDialog(
 			VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 			QWidget * a_pParent = nullptr);
-		virtual ~CLIEncodeDialog();
+		virtual ~EncodeDialog();
 
 	public slots:
 
@@ -63,7 +63,7 @@ class CLIEncodeDialog : public QDialog
 
 		void outputStandardError();
 
-		Ui::CLIEncodeDialog m_ui;
+		Ui::EncodeDialog m_ui;
 
 		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 

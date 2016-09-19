@@ -31,7 +31,7 @@ bool NumberedFrameRef::operator<(const NumberedFrameRef & a_other) const
 
 //==============================================================================
 
-CLIEncodeDialog::CLIEncodeDialog(
+EncodeDialog::EncodeDialog(
 	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 	QWidget * a_pParent) :
 	QDialog(a_pParent, (Qt::WindowFlags)0
@@ -47,7 +47,7 @@ CLIEncodeDialog::CLIEncodeDialog(
 	, m_lastFrameProcessed(-1)
 {
 	m_ui.setupUi(this);
-	setWindowIcon(QIcon(":cli.png"));
+	setWindowIcon(QIcon(":film_save.png"));
 
 	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
 
@@ -63,20 +63,20 @@ CLIEncodeDialog::CLIEncodeDialog(
 		this, SLOT(slotArgumentsHelpButtonPressed()));
 }
 
-// END OF CLIEncodeDialog::CLIEncodeDialog(
+// END OF EncodeDialog::EncodeDialog(
 //		VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 //		QWidget * a_pParent
 //==============================================================================
 
-CLIEncodeDialog::~CLIEncodeDialog()
+EncodeDialog::~EncodeDialog()
 {
 	stopProcessing();
 }
 
-// END OF CLIEncodeDialog::~CLIEncodeDialog()
+// END OF EncodeDialog::~EncodeDialog()
 //==============================================================================
 
-void CLIEncodeDialog::call()
+void EncodeDialog::call()
 {
 	if(m_processing)
 	{
@@ -103,10 +103,10 @@ void CLIEncodeDialog::call()
 	show();
 }
 
-// END OF void CLIEncodeDialog::call()
+// END OF void EncodeDialog::call()
 //==============================================================================
 
-void CLIEncodeDialog::closeEvent(QCloseEvent * a_pEvent)
+void EncodeDialog::closeEvent(QCloseEvent * a_pEvent)
 {
 	stopProcessing();
 
@@ -120,10 +120,10 @@ void CLIEncodeDialog::closeEvent(QCloseEvent * a_pEvent)
 	QDialog::closeEvent(a_pEvent);
 }
 
-// END OF void CLIEncodeDialog::call()
+// END OF void EncodeDialog::call()
 //==============================================================================
 
-void CLIEncodeDialog::slotWholeVideoButtonPressed()
+void EncodeDialog::slotWholeVideoButtonPressed()
 {
 	const VSVideoInfo * cpVideoInfo =
 		m_pVapourSynthScriptProcessor->videoInfo();
@@ -134,10 +134,10 @@ void CLIEncodeDialog::slotWholeVideoButtonPressed()
 	m_ui.toFrameSpinBox->setValue(lastFrame);
 }
 
-// END OF void CLIEncodeDialog::slotWholeVideoButtonPressed()
+// END OF void EncodeDialog::slotWholeVideoButtonPressed()
 //==============================================================================
 
-void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
+void EncodeDialog::slotStartStopBenchmarkButtonPressed()
 {
 	if(m_processing)
 	{
@@ -187,10 +187,10 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 		m_pVapourSynthScriptProcessor->requestFrameAsync(i);
 }
 
-// END OF void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
+// END OF void EncodeDialog::slotStartStopBenchmarkButtonPressed()
 //==============================================================================
 
-void CLIEncodeDialog::slotExecutableBrowseButtonPressed()
+void EncodeDialog::slotExecutableBrowseButtonPressed()
 {
 	QString applicationPath = QCoreApplication::applicationDirPath();
 	QFileDialog fileDialog;
@@ -208,10 +208,10 @@ void CLIEncodeDialog::slotExecutableBrowseButtonPressed()
 	m_ui.executablePathEdit->setText(filesList[0]);
 }
 
-// END OF void CLIEncodeDialog::slotExecutableBrowseButtonPressed()
+// END OF void EncodeDialog::slotExecutableBrowseButtonPressed()
 //==============================================================================
 
-void CLIEncodeDialog::slotArgumentsHelpButtonPressed()
+void EncodeDialog::slotArgumentsHelpButtonPressed()
 {
 	QString argumentsHelpString = trUtf8("Use following placeholders:\n"
 		"%w - video width\n"
@@ -224,11 +224,11 @@ void CLIEncodeDialog::slotArgumentsHelpButtonPressed()
 	QMessageBox::information(this, title, argumentsHelpString);
 }
 
-// END OF void CLIEncodeDialog::slotArgumentsHelpButtonPressed()
+// END OF void EncodeDialog::slotArgumentsHelpButtonPressed()
 //==============================================================================
 
 
-void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
+void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 	const VSFrameRef * a_cpFrameRef)
 {
 	if(!m_processing)
@@ -298,11 +298,11 @@ void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 		stopProcessing();
 }
 
-// END OF void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
+// END OF void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 //		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
-void CLIEncodeDialog::stopProcessing()
+void EncodeDialog::stopProcessing()
 {
 	if(!m_processing)
 		return;
@@ -324,10 +324,10 @@ void CLIEncodeDialog::stopProcessing()
 	clearFramesQueue();
 }
 
-// END OF void CLIEncodeDialog::stopProcessing()
+// END OF void EncodeDialog::stopProcessing()
 //==============================================================================
 
-QString CLIEncodeDialog::decodeArguments(const QString & a_arguments)
+QString EncodeDialog::decodeArguments(const QString & a_arguments)
 {
 	QString decodedString = a_arguments.simplified();
 
@@ -363,11 +363,11 @@ QString CLIEncodeDialog::decodeArguments(const QString & a_arguments)
 	return decodedString;
 }
 
-// END OF void QString CLIEncodeDialog::decodeArguments(
+// END OF void QString EncodeDialog::decodeArguments(
 //		const QString & a_arguments)
 //==============================================================================
 
-void CLIEncodeDialog::clearFramesQueue()
+void EncodeDialog::clearFramesQueue()
 {
 	const VSAPI * cpVSAPI = m_pVapourSynthScriptProcessor->api();
 	assert(cpVSAPI);
@@ -378,10 +378,10 @@ void CLIEncodeDialog::clearFramesQueue()
 	m_framesQueue.clear();
 }
 
-// END OF void CLIEncodeDialog::clearFramesQueue()
+// END OF void EncodeDialog::clearFramesQueue()
 //==============================================================================
 
-void CLIEncodeDialog::outputStandardError()
+void EncodeDialog::outputStandardError()
 {
 	QByteArray standardError = m_encoder.readAllStandardError();
 	QString standardErrorText = QString::fromUtf8(standardError);
@@ -390,5 +390,5 @@ void CLIEncodeDialog::outputStandardError()
 		m_ui.feedbackTextEdit->appendPlainText(standardErrorText);
 }
 
-// END OF void CLIEncodeDialog::clearFramesQueue()
+// END OF void EncodeDialog::clearFramesQueue()
 //==============================================================================

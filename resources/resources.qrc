@@ -32,7 +32,7 @@
 		<file alias="pause.png">pause_green.png</file>
 		<file alias="tick.png">tick.png</file>
 		<file alias="benchmark.png">benchmark.png</file>
-		<file alias="cli.png">application_xp_terminal.png</file>
+		<file alias="film_save.png">film_save.png</file>
 		<file alias="information.png">information.png</file>
 
 		<file alias="readme">../README</file>

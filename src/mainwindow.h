@@ -11,7 +11,7 @@ class VapourSynthPluginsManager;
 class PreviewDialog;
 class SettingsDialog;
 class ScriptBenchmarkDialog;
-class CLIEncodeDialog;
+class EncodeDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -101,7 +101,7 @@ class MainWindow : public QMainWindow
 		QAction * m_pActionPreview;
 		QAction * m_pActionCheckScript;
 		QAction * m_pActionBenchmark;
-		QAction * m_pActionCLIEncode;
+		QAction * m_pActionEncode;
 		QAction * m_pActionExit;
 		QAction * m_pActionAbout;
 		QAction * m_pActionAutocomplete;
@@ -113,7 +113,7 @@ class MainWindow : public QMainWindow
 		PreviewDialog * m_pPreviewDialog;
 		SettingsDialog * m_pSettingsDialog;
 		ScriptBenchmarkDialog * m_pBenchmarkDialog;
-		CLIEncodeDialog * m_pCLIEncodeDialog;
+		EncodeDialog * m_pEncodeDialog;
 
 		QString m_scriptFilePath;
 		QString m_lastSavedText;

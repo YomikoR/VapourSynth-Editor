@@ -24,7 +24,7 @@
 #include "preview/previewdialog.h"
 #include "settings/settingsdialog.h"
 #include "frame_consumers/benchmark_dialog.h"
-#include "frame_consumers/cli_encode_dialog.h"
+#include "frame_consumers/encode_dialog.h"
 #include "common/helpers.h"
 
 #include "mainwindow.h"
@@ -43,7 +43,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
 	, m_pActionBenchmark(nullptr)
-	, m_pActionCLIEncode(nullptr)
+	, m_pActionEncode(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
 	, m_pActionAutocomplete(nullptr)
@@ -52,7 +52,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pPreviewDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
 	, m_pBenchmarkDialog(nullptr)
-	, m_pCLIEncodeDialog(nullptr)
+	, m_pEncodeDialog(nullptr)
 	, m_scriptFilePath()
 	, m_lastSavedText()
 {
@@ -104,7 +104,7 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pBenchmarkDialog = new ScriptBenchmarkDialog(
 		m_pVapourSynthScriptProcessor);
 
-	m_pCLIEncodeDialog = new CLIEncodeDialog(m_pVapourSynthScriptProcessor);
+	m_pEncodeDialog = new EncodeDialog(m_pVapourSynthScriptProcessor);
 
 	createActionsAndMenus();
 	slotChangeWindowTitle();
@@ -114,7 +114,7 @@ MainWindow::MainWindow() : QMainWindow()
 		(QObject **)&m_pPreviewDialog,
 		(QObject **)&m_pSettingsDialog,
 		(QObject **)&m_pBenchmarkDialog,
-		(QObject **)&m_pCLIEncodeDialog
+		(QObject **)&m_pEncodeDialog
 	};
 
 	QByteArray newGeometry = m_pSettingsManager->getMainWindowGeometry();
@@ -352,7 +352,7 @@ void MainWindow::slotCLIEncode()
 	m_pVapourSynthScriptProcessor->initialize(m_ui.scriptEdit->text(),
 		m_scriptFilePath);
 
-	m_pCLIEncodeDialog->call();
+	m_pEncodeDialog->call();
 }
 
 // END OF void MainWindow::slotCLIEncode()
@@ -557,14 +557,14 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	m_pActionCLIEncode = new QAction(this);
-	m_pActionCLIEncode->setIconText(trUtf8("CLI encode"));
-	m_pActionCLIEncode->setIcon(QIcon(QString(":cli.png")));
+	m_pActionEncode = new QAction(this);
+	m_pActionEncode->setIconText(trUtf8("Encode video"));
+	m_pActionEncode->setIcon(QIcon(QString(":film_save.png")));
 	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_CLI_ENCODE);
-	m_pActionCLIEncode->setShortcut(hotkey);
-	pScriptMenu->addAction(m_pActionCLIEncode);
-	m_pActionCLIEncode->setData(ACTION_ID_CLI_ENCODE);
-	m_settableActionsList.push_back(m_pActionCLIEncode);
+	m_pActionEncode->setShortcut(hotkey);
+	pScriptMenu->addAction(m_pActionEncode);
+	m_pActionEncode->setData(ACTION_ID_CLI_ENCODE);
+	m_settableActionsList.push_back(m_pActionEncode);
 
 //------------------------------------------------------------------------------
 
@@ -608,7 +608,7 @@ void MainWindow::createActionsAndMenus()
 		this, SLOT(slotCheckScript()));
 	connect(m_pActionBenchmark, SIGNAL(triggered()),
 		this, SLOT(slotBenchmark()));
-	connect(m_pActionCLIEncode, SIGNAL(triggered()),
+	connect(m_pActionEncode, SIGNAL(triggered()),
 		this, SLOT(slotCLIEncode()));
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
 	connect(m_pActionAutocomplete, SIGNAL(triggered()),
