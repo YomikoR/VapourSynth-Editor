@@ -57,6 +57,8 @@ class CLIEncodeDialog : public QDialog
 
 		void clearFramesQueue();
 
+		void outputStandardError();
+
 		Ui::CLIEncodeDialog m_ui;
 
 		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;

@@ -80,7 +80,8 @@ void CLIEncodeDialog::call()
 		m_pVapourSynthScriptProcessor->videoInfo();
 	assert(cpVideoInfo);
 
-	m_ui.outputTextEdit->clear();
+	m_ui.feedbackTextEdit->clear();
+	m_ui.metricsEdit->clear();
 	int lastFrame = cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
 	m_ui.fromFrameSpinBox->setValue(0);
@@ -139,7 +140,7 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 
 	if(firstFrame > lastFrame)
 	{
-		m_ui.outputTextEdit->setPlainText(trUtf8(
+		m_ui.feedbackTextEdit->appendPlainText(trUtf8(
 			"First frame number is larger than the last frame number."));
 			return;
 	}
@@ -152,18 +153,18 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
 		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 
-	m_ui.outputTextEdit->appendPlainText(trUtf8("Command line:"));
+	m_ui.feedbackTextEdit->appendPlainText(trUtf8("Command line:"));
 	QString executable = m_ui.executablePathEdit->text();
 	QString decodedArguments =
 		decodeArguments(m_ui.argumentsTextEdit->toPlainText());
 	QString commandLine = QString("\"%1\" %2").arg(executable)
 		.arg(decodedArguments);
-	m_ui.outputTextEdit->appendPlainText(commandLine);
+	m_ui.feedbackTextEdit->appendPlainText(commandLine);
 
 	m_encoder.start(commandLine);
 	if(!m_encoder.waitForStarted())
 	{
-		m_ui.outputTextEdit->appendPlainText(
+		m_ui.feedbackTextEdit->appendPlainText(
 			trUtf8("\nCouldn't start the encoder."));
 	}
 
@@ -180,8 +181,6 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 	const VSFrameRef * a_cpFrameRef)
 {
-	(void)(a_frameNumber);
-
 	if(!m_processing)
 		return;
 
@@ -238,11 +237,12 @@ void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 		double passed = duration_to_double(now - m_encodeStartTime);
 		QString passedString = vsedit::timeToString(passed);
 		double fps = (double)m_framesProcessed / passed;
-		QString text = trUtf8("%1 / %2\nTime elapsed: %3\n%4 FPS")
-			.arg(m_framesProcessed).arg(m_framesTotal).arg(passedString)
-			.arg(QString::number(fps, 'f', 20));
-		m_ui.outputTextEdit->setPlainText(text);
+		QString text = trUtf8("Time elapsed: %1 - %2 FPS")
+			.arg(passedString).arg(QString::number(fps, 'f', 20));
+		m_ui.metricsEdit->setText(text);
 	}
+
+	outputStandardError();
 
 	if(m_framesProcessed == m_framesTotal)
 		stopProcessing();
@@ -266,12 +266,10 @@ void CLIEncodeDialog::stopProcessing()
 
 	m_encoder.closeWriteChannel();
     if(!m_encoder.waitForFinished())
-        m_ui.outputTextEdit->appendPlainText(
+        m_ui.feedbackTextEdit->appendPlainText(
 			trUtf8("\nCouldn't close the encoder."));
-	QByteArray standardError = m_encoder.readAllStandardError();
-	QString standardErrorText = QString::fromUtf8(standardError);
-	if(!standardErrorText.isEmpty())
-		m_ui.outputTextEdit->appendPlainText(standardErrorText);
+	outputStandardError();
+
 	m_framebuffer.clear();
 	clearFramesQueue();
 }
@@ -328,6 +326,18 @@ void CLIEncodeDialog::clearFramesQueue()
 		cpVSAPI->freeFrame(ref.cpFrameRef);
 
 	m_framesQueue.clear();
+}
+
+// END OF void CLIEncodeDialog::clearFramesQueue()
+//==============================================================================
+
+void CLIEncodeDialog::outputStandardError()
+{
+	QByteArray standardError = m_encoder.readAllStandardError();
+	QString standardErrorText = QString::fromUtf8(standardError);
+	standardErrorText = standardErrorText.trimmed();
+	if(!standardErrorText.isEmpty())
+		m_ui.feedbackTextEdit->appendPlainText(standardErrorText);
 }
 
 // END OF void CLIEncodeDialog::clearFramesQueue()

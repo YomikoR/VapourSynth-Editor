@@ -52,6 +52,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pPreviewDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
 	, m_pBenchmarkDialog(nullptr)
+	, m_pCLIEncodeDialog(nullptr)
 	, m_scriptFilePath()
 	, m_lastSavedText()
 {
@@ -178,6 +179,10 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 	m_pPreviewDialog = nullptr;
 	delete m_pSettingsDialog;
 	m_pSettingsDialog = nullptr;
+	delete m_pBenchmarkDialog;
+	m_pBenchmarkDialog = nullptr;
+	delete m_pCLIEncodeDialog;
+	m_pCLIEncodeDialog = nullptr;
 
 	QMainWindow::closeEvent(a_pEvent);
 }

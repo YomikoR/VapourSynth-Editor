@@ -57,7 +57,8 @@ void ScriptBenchmarkDialog::call()
 		m_pVapourSynthScriptProcessor->videoInfo();
 	assert(cpVideoInfo);
 
-	m_ui.outputTextEdit->clear();
+	m_ui.feedbackTextEdit->clear();
+	m_ui.metricsEdit->clear();
 	int lastFrame = cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
 	m_ui.fromFrameSpinBox->setValue(0);
@@ -116,7 +117,7 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 
 	if(firstFrame > lastFrame)
 	{
-		m_ui.outputTextEdit->setPlainText(trUtf8(
+		m_ui.feedbackTextEdit->appendPlainText(trUtf8(
 			"First frame number is larger than the last frame number."));
 			return;
 	}
@@ -151,10 +152,9 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 	double passed = duration_to_double(now - m_benchmarkStartTime);
 	QString passedString = vsedit::timeToString(passed);
 	double fps = (double)m_framesProcessed / passed;
-	QString text = trUtf8("%1 / %2\nTime elapsed: %3\n%4 FPS")
-		.arg(m_framesProcessed).arg(m_framesTotal).arg(passedString)
-		.arg(QString::number(fps, 'f', 20));
-	m_ui.outputTextEdit->setPlainText(text);
+	QString text = trUtf8("Time elapsed: %1 - %2 FPS")
+		.arg(passedString).arg(QString::number(fps, 'f', 20));
+	m_ui.metricsEdit->setText(text);
 
 	if(m_framesProcessed == m_framesTotal)
 		stopProcessing();
