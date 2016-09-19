@@ -75,10 +75,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pVapourSynthPluginsManager =
 		new VapourSynthPluginsManager(m_pSettingsManager, this);
 
-	// Just a debug.
-//	for(const QString & function : m_pVapourSynthPluginsManager->functions())
-//		slotWriteLogMessage(mtDebug, QString("core.") + function);
-
 	m_ui.scriptEdit->setPluginsList(
 		m_pVapourSynthPluginsManager->pluginsList());
 	m_ui.scriptEdit->setCharactersTypedToStartCompletion(
@@ -113,6 +109,14 @@ MainWindow::MainWindow() : QMainWindow()
 	createActionsAndMenus();
 	slotChangeWindowTitle();
 
+	m_orphanQObjects =
+	{
+		(QObject **)&m_pPreviewDialog,
+		(QObject **)&m_pSettingsDialog,
+		(QObject **)&m_pBenchmarkDialog,
+		(QObject **)&m_pCLIEncodeDialog
+	};
+
 	QByteArray newGeometry = m_pSettingsManager->getMainWindowGeometry();
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
@@ -128,14 +132,7 @@ MainWindow::MainWindow() : QMainWindow()
 
 MainWindow::~MainWindow()
 {
-	if(m_pPreviewDialog)
-		delete m_pPreviewDialog;
-	if(m_pSettingsDialog)
-		delete m_pSettingsDialog;
-	if(m_pBenchmarkDialog)
-		delete m_pBenchmarkDialog;
-	if(m_pCLIEncodeDialog)
-		delete m_pCLIEncodeDialog;
+	destroyOrphanQObjects();
 }
 
 // END OF MainWindow::~MainWindow()
@@ -175,14 +172,7 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 		return;
 	}
 
-	delete m_pPreviewDialog;
-	m_pPreviewDialog = nullptr;
-	delete m_pSettingsDialog;
-	m_pSettingsDialog = nullptr;
-	delete m_pBenchmarkDialog;
-	m_pBenchmarkDialog = nullptr;
-	delete m_pCLIEncodeDialog;
-	m_pCLIEncodeDialog = nullptr;
+	destroyOrphanQObjects();
 
 	QMainWindow::closeEvent(a_pEvent);
 }
@@ -802,6 +792,22 @@ void MainWindow::loadFonts()
 	QByteArray digitalMiniFontData((const char *)digitalMiniFontResource.data(),
 		digitalMiniFontResource.size());
 	QFontDatabase::addApplicationFontFromData(digitalMiniFontData);
+}
+
+// END OF void MainWindow::loadFonts()
+//==============================================================================
+
+void MainWindow::destroyOrphanQObjects()
+{
+	for(QObject ** ppObject : m_orphanQObjects)
+	{
+		if(!ppObject)
+			continue;
+		if(!*ppObject)
+			continue;
+		delete *ppObject;
+		*ppObject = nullptr;
+	}
 }
 
 // END OF void MainWindow::loadFonts()

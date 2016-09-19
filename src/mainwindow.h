@@ -85,6 +85,8 @@ class MainWindow : public QMainWindow
 
 		void loadFonts();
 
+		void destroyOrphanQObjects();
+
 		Ui::MainWindow m_ui;
 
 		SettingsManager * m_pSettingsManager;
@@ -115,6 +117,8 @@ class MainWindow : public QMainWindow
 
 		QString m_scriptFilePath;
 		QString m_lastSavedText;
+
+		std::vector<QObject **> m_orphanQObjects;
 };
 
 #endif // MAINWINDOW_H
