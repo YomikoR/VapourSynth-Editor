@@ -221,7 +221,6 @@
 		<Unit filename="README" />
 		<Unit filename="TODO.txt" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
-		<Unit filename="generated/ui/ui_cli_encode_dialog.h" />
 		<Unit filename="generated/ui/ui_mainwindow.h" />
 		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_previewdialog.h" />
@@ -239,9 +238,9 @@
 		<Unit filename="src/frame_consumers/benchmark_dialog.cpp" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.h" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.ui" />
-		<Unit filename="src/frame_consumers/cli_encode_dialog.cpp" />
-		<Unit filename="src/frame_consumers/cli_encode_dialog.h" />
-		<Unit filename="src/frame_consumers/cli_encode_dialog.ui" />
+		<Unit filename="src/frame_consumers/encode_dialog.cpp" />
+		<Unit filename="src/frame_consumers/encode_dialog.h" />
+		<Unit filename="src/frame_consumers/encode_dialog.ui" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mainwindow.cpp" />
 		<Unit filename="src/mainwindow.h" />

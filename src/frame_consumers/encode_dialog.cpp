@@ -1,4 +1,4 @@
-#include "cli_encode_dialog.h"
+#include "encode_dialog.h"
 
 #include "../common/helpers.h"
 #include "../vapoursynth/vapoursynthscriptprocessor.h"

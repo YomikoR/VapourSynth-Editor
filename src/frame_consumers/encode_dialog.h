@@ -1,11 +1,11 @@
-#ifndef CLI_ENCODE_DIALOG_H_INCLUDED
-#define CLI_ENCODE_DIALOG_H_INCLUDED
+#ifndef ENCODE_DIALOG_H_INCLUDED
+#define ENCODE_DIALOG_H_INCLUDED
 
 #include <QProcess>
 #include <vector>
 #include <deque>
 
-#include <ui_cli_encode_dialog.h>
+#include <ui_encode_dialog.h>
 
 #include "../common/chrono.h"
 
@@ -83,4 +83,4 @@ class CLIEncodeDialog : public QDialog
 		int m_lastFrameProcessed;
 };
 
-#endif // CLI_ENCODE_DIALOG_H_INCLUDED
+#endif // ENCODE_DIALOG_H_INCLUDED
