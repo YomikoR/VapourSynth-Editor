@@ -8,6 +8,26 @@
 
 //==============================================================================
 
+NumberedFrameRef::NumberedFrameRef(int a_number,
+	const VSFrameRef * a_cpFrameRef):
+	number(a_number)
+	, cpFrameRef(a_cpFrameRef)
+{
+}
+
+bool NumberedFrameRef::operator<(const NumberedFrameRef & a_other) const
+{
+	if(this == &a_other)
+		return false;
+
+	if(number < a_other.number)
+		return true;
+
+	return false;
+}
+
+//==============================================================================
+
 CLIEncodeDialog::CLIEncodeDialog(
 	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
 	QWidget * a_pParent) :
@@ -21,6 +41,7 @@ CLIEncodeDialog::CLIEncodeDialog(
 	, m_processing(false)
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
+	, m_lastFrameProcessed(-1)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":cli.png"));
@@ -38,6 +59,7 @@ CLIEncodeDialog::CLIEncodeDialog(
 
 CLIEncodeDialog::~CLIEncodeDialog()
 {
+	stopProcessing();
 }
 
 // END OF CLIEncodeDialog::~CLIEncodeDialog()
@@ -122,6 +144,7 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 			return;
 	}
 
+	m_lastFrameProcessed = firstFrame - 1;
 	m_framesTotal = lastFrame - firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
@@ -171,44 +194,55 @@ void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 	assert(cpFormat);
 
 	const VSFrameRef * cpFrameRef = cpVSAPI->cloneFrameRef(a_cpFrameRef);
+	NumberedFrameRef newFrame(a_frameNumber, cpFrameRef);
+	m_framesQueue.insert(std::upper_bound(m_framesQueue.begin(),
+		m_framesQueue.end(), newFrame), newFrame);
 
-	size_t currentDataSize = 0;
-
-	for(int i = 0; i < cpFormat->numPlanes; ++i)
+	while((!m_framesQueue.empty()) &&
+		(m_framesQueue.front().number == (m_lastFrameProcessed + 1)))
 	{
-		const uint8_t * cpPlane = cpVSAPI->getReadPtr(cpFrameRef, i);
-		int stride = cpVSAPI->getStride(cpFrameRef, i);
-		int width = cpVSAPI->getFrameWidth(cpFrameRef, i);
-		int height = cpVSAPI->getFrameHeight(cpFrameRef, i);
-		int bytes = cpFormat->bytesPerSample;
+		cpFrameRef = m_framesQueue.front().cpFrameRef;
+		size_t currentDataSize = 0;
 
-		size_t planeSize = width * bytes * height;
-		size_t neededFramebufferSize = currentDataSize + planeSize;
-		if(neededFramebufferSize > m_framebuffer.size())
-			m_framebuffer.resize(neededFramebufferSize);
-		size_t framebufferStride = width * bytes;
+		for(int i = 0; i < cpFormat->numPlanes; ++i)
+		{
+			const uint8_t * cpPlane = cpVSAPI->getReadPtr(cpFrameRef, i);
+			int stride = cpVSAPI->getStride(cpFrameRef, i);
+			int width = cpVSAPI->getFrameWidth(cpFrameRef, i);
+			int height = cpVSAPI->getFrameHeight(cpFrameRef, i);
+			int bytes = cpFormat->bytesPerSample;
 
-		vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
-			cpPlane, stride, framebufferStride, height);
+			size_t planeSize = width * bytes * height;
+			size_t neededFramebufferSize = currentDataSize + planeSize;
+			if(neededFramebufferSize > m_framebuffer.size())
+				m_framebuffer.resize(neededFramebufferSize);
+			size_t framebufferStride = width * bytes;
 
-		currentDataSize += planeSize;
+			vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
+				cpPlane, stride, framebufferStride, height);
+
+			currentDataSize += planeSize;
+		}
+
+		m_encoder.write(m_framebuffer.data(), (qint64)currentDataSize);
+		m_encoder.waitForBytesWritten(-1);
+
+		hr_time_point now = hr_clock::now();
+
+		m_lastFrameProcessed = m_framesQueue.front().number;
+		cpVSAPI->freeFrame(cpFrameRef);
+		m_framesQueue.pop_front();
+
+		m_framesProcessed++;
+		m_ui.processingProgressBar->setValue(m_framesProcessed);
+		double passed = duration_to_double(now - m_encodeStartTime);
+		QString passedString = vsedit::timeToString(passed);
+		double fps = (double)m_framesProcessed / passed;
+		QString text = trUtf8("%1 / %2\nTime elapsed: %3\n%4 FPS")
+			.arg(m_framesProcessed).arg(m_framesTotal).arg(passedString)
+			.arg(QString::number(fps, 'f', 20));
+		m_ui.outputTextEdit->setPlainText(text);
 	}
-
-	m_encoder.write(m_framebuffer.data(), (qint64)currentDataSize);
-	m_encoder.waitForBytesWritten(-1);
-
-	cpVSAPI->freeFrame(cpFrameRef);
-
-	hr_time_point now = hr_clock::now();
-	m_framesProcessed++;
-	m_ui.processingProgressBar->setValue(m_framesProcessed);
-	double passed = duration_to_double(now - m_encodeStartTime);
-	QString passedString = vsedit::timeToString(passed);
-	double fps = (double)m_framesProcessed / passed;
-	QString text = trUtf8("%1 / %2\nTime elapsed: %3\n%4 FPS")
-		.arg(m_framesProcessed).arg(m_framesTotal).arg(passedString)
-		.arg(QString::number(fps, 'f', 20));
-	m_ui.outputTextEdit->setPlainText(text);
 
 	if(m_framesProcessed == m_framesTotal)
 		stopProcessing();
@@ -239,6 +273,7 @@ void CLIEncodeDialog::stopProcessing()
 	if(!standardErrorText.isEmpty())
 		m_ui.outputTextEdit->appendPlainText(standardErrorText);
 	m_framebuffer.clear();
+	clearFramesQueue();
 }
 
 // END OF void CLIEncodeDialog::stopProcessing()
@@ -282,4 +317,18 @@ QString CLIEncodeDialog::decodeArguments(const QString & a_arguments)
 
 // END OF void QString CLIEncodeDialog::decodeArguments(
 //		const QString & a_arguments)
+//==============================================================================
+
+void CLIEncodeDialog::clearFramesQueue()
+{
+	const VSAPI * cpVSAPI = m_pVapourSynthScriptProcessor->api();
+	assert(cpVSAPI);
+
+	for(NumberedFrameRef & ref : m_framesQueue)
+		cpVSAPI->freeFrame(ref.cpFrameRef);
+
+	m_framesQueue.clear();
+}
+
+// END OF void CLIEncodeDialog::clearFramesQueue()
 //==============================================================================

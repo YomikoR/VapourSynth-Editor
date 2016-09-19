@@ -3,6 +3,7 @@
 
 #include <QProcess>
 #include <vector>
+#include <deque>
 
 #include <ui_cli_encode_dialog.h>
 
@@ -10,6 +11,15 @@
 
 struct VSFrameRef;
 class VapourSynthScriptProcessor;
+
+struct NumberedFrameRef
+{
+	int number;
+	const VSFrameRef * cpFrameRef;
+
+	NumberedFrameRef(int a_number, const VSFrameRef * a_cpFrameRef);
+	bool operator<(const NumberedFrameRef & a_other) const;
+};
 
 class CLIEncodeDialog : public QDialog
 {
@@ -45,6 +55,8 @@ class CLIEncodeDialog : public QDialog
 
 		QString decodeArguments(const QString & a_arguments);
 
+		void clearFramesQueue();
+
 		Ui::CLIEncodeDialog m_ui;
 
 		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
@@ -59,6 +71,10 @@ class CLIEncodeDialog : public QDialog
 		QProcess m_encoder;
 
 		std::vector<char> m_framebuffer;
+
+		std::deque<NumberedFrameRef> m_framesQueue;
+
+		int m_lastFrameProcessed;
 };
 
 #endif // CLI_ENCODE_DIALOG_H_INCLUDED
