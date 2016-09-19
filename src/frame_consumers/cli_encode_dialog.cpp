@@ -6,6 +6,9 @@
 #include <vapoursynth/VapourSynth.h>
 #include <vapoursynth/VSHelper.h>
 
+#include <QMessageBox>
+#include <QFileDialog>
+
 //==============================================================================
 
 NumberedFrameRef::NumberedFrameRef(int a_number,
@@ -46,10 +49,18 @@ CLIEncodeDialog::CLIEncodeDialog(
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":cli.png"));
 
+	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
+
+	m_ui.argumentsHelpButton->setIcon(QIcon(":information.png"));
+
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startStopBenchmarkButton, SIGNAL(clicked()),
 		this, SLOT(slotStartStopBenchmarkButtonPressed()));
+	connect(m_ui.executableBrowseButton, SIGNAL(clicked()),
+		this, SLOT(slotExecutableBrowseButtonPressed()));
+	connect(m_ui.argumentsHelpButton, SIGNAL(clicked()),
+		this, SLOT(slotArgumentsHelpButtonPressed()));
 }
 
 // END OF CLIEncodeDialog::CLIEncodeDialog(
@@ -145,14 +156,6 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 			return;
 	}
 
-	m_lastFrameProcessed = firstFrame - 1;
-	m_framesTotal = lastFrame - firstFrame + 1;
-	m_ui.processingProgressBar->setMaximum(m_framesTotal);
-	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
-
 	m_ui.feedbackTextEdit->appendPlainText(trUtf8("Command line:"));
 	QString executable = m_ui.executablePathEdit->text();
 	QString decodedArguments =
@@ -165,10 +168,19 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 	if(!m_encoder.waitForStarted())
 	{
 		m_ui.feedbackTextEdit->appendPlainText(
-			trUtf8("\nCouldn't start the encoder."));
+			trUtf8("Couldn't start the encoder."));
+		return;
 	}
 
 	m_processing = true;
+	m_lastFrameProcessed = firstFrame - 1;
+	m_framesTotal = lastFrame - firstFrame + 1;
+	m_ui.processingProgressBar->setMaximum(m_framesTotal);
+	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
+		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
+
 	m_encodeStartTime = hr_clock::now();
 
 	for(int i = firstFrame; i <= lastFrame; ++i)
@@ -177,6 +189,44 @@ void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 
 // END OF void CLIEncodeDialog::slotStartStopBenchmarkButtonPressed()
 //==============================================================================
+
+void CLIEncodeDialog::slotExecutableBrowseButtonPressed()
+{
+	QString applicationPath = QCoreApplication::applicationDirPath();
+	QFileDialog fileDialog;
+	fileDialog.setWindowTitle(trUtf8("Choose encoder executable"));
+	fileDialog.setDirectory(applicationPath);
+
+#ifdef Q_OS_WIN
+	fileDialog.setNameFilter("*.exe");
+#endif
+
+	if(!fileDialog.exec())
+		return;
+
+	QStringList filesList = fileDialog.selectedFiles();
+	m_ui.executablePathEdit->setText(filesList[0]);
+}
+
+// END OF void CLIEncodeDialog::slotExecutableBrowseButtonPressed()
+//==============================================================================
+
+void CLIEncodeDialog::slotArgumentsHelpButtonPressed()
+{
+	QString argumentsHelpString = trUtf8("Use following placeholders:\n"
+		"%w - video width\n"
+		"%h - video height\n"
+		"%fpsnum - video framerate numerator\n"
+		"%fpsden - video framerate denominator\n"
+		"%fps - video framerate as fraction\n"
+		"%bits - video colour bitdepth");
+	QString title = trUtf8("Encoder arguments");
+	QMessageBox::information(this, title, argumentsHelpString);
+}
+
+// END OF void CLIEncodeDialog::slotArgumentsHelpButtonPressed()
+//==============================================================================
+
 
 void CLIEncodeDialog::slotReceiveFrame(int a_frameNumber,
 	const VSFrameRef * a_cpFrameRef)

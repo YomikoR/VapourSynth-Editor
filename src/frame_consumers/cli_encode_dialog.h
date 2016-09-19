@@ -46,6 +46,10 @@ class CLIEncodeDialog : public QDialog
 
 		void slotStartStopBenchmarkButtonPressed();
 
+		void slotExecutableBrowseButtonPressed();
+
+		void slotArgumentsHelpButtonPressed();
+
 		void slotReceiveFrame(int a_frameNumber,
 			const VSFrameRef * a_cpFrameRef);
 
