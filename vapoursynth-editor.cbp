@@ -283,6 +283,8 @@
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.h" />
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.cpp" />
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.h" />
+		<Unit filename="src/vapoursynth/vs_script_processor_dialog.cpp" />
+		<Unit filename="src/vapoursynth/vs_script_processor_dialog.h" />
 		<Unit filename="src/vapoursynth/vsplugindata.cpp" />
 		<Unit filename="src/vapoursynth/vsplugindata.h" />
 		<Extensions>
