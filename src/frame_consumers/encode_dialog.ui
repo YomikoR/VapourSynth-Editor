@@ -104,11 +104,11 @@
       <string>-f rawvideo
 -pix_fmt yuv422p10le
 -s %wx%h
--r %fpsnum/%fpsden
+-r %fpsn/%fpsd
 -i pipe:0
 -c:v prores_ks
 -y
-D:\vstests\prores-test.mov</string>
+%sd/%sn.mov</string>
      </property>
     </widget>
    </item>

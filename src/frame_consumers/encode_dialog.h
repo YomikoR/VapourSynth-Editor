@@ -4,6 +4,7 @@
 #include <QProcess>
 #include <vector>
 #include <deque>
+#include <functional>
 
 #include <ui_encode_dialog.h>
 
@@ -20,6 +21,13 @@ struct NumberedFrameRef
 
 	NumberedFrameRef(int a_number, const VSFrameRef * a_cpFrameRef);
 	bool operator<(const NumberedFrameRef & a_other) const;
+};
+
+struct VariableToken
+{
+	QString token;
+	QString description;
+	std::function<QString()> evaluate;
 };
 
 class EncodeDialog : public VSScriptProcessorDialog
@@ -64,6 +72,8 @@ class EncodeDialog : public VSScriptProcessorDialog
 
 		void outputStandardError();
 
+		void fillVariables();
+
 		Ui::EncodeDialog m_ui;
 
 		bool m_processing;
@@ -80,6 +90,8 @@ class EncodeDialog : public VSScriptProcessorDialog
 		std::deque<NumberedFrameRef> m_framesQueue;
 
 		int m_lastFrameProcessed;
+
+		std::vector<VariableToken> m_variables;
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

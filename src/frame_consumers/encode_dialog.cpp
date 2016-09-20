@@ -48,6 +48,8 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
 
+	fillVariables();
+
 	createStatusBar();
 
 	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
@@ -201,13 +203,12 @@ void EncodeDialog::slotExecutableBrowseButtonPressed()
 
 void EncodeDialog::slotArgumentsHelpButtonPressed()
 {
-	QString argumentsHelpString = trUtf8("Use following placeholders:\n"
-		"%w - video width\n"
-		"%h - video height\n"
-		"%fpsnum - video framerate numerator\n"
-		"%fpsden - video framerate denominator\n"
-		"%fps - video framerate as fraction\n"
-		"%bits - video colour bitdepth");
+	QString argumentsHelpString = trUtf8("Use following placeholders:");
+	for(const VariableToken & variable : m_variables)
+	{
+		argumentsHelpString += QString("\n%1 - %2")
+			.arg(variable.token).arg(variable.description);
+	}
 	QString title = trUtf8("Encoder arguments");
 	QMessageBox::information(this, title, argumentsHelpString);
 }
@@ -323,32 +324,11 @@ QString EncodeDialog::decodeArguments(const QString & a_arguments)
 {
 	QString decodedString = a_arguments.simplified();
 
-	assert(m_cpVideoInfo);
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	assert(cpFormat);
-
-	double fps = 0.0;
-	if(m_cpVideoInfo->fpsDen > 0)
-		fps = (double)m_cpVideoInfo->fpsNum / (double)m_cpVideoInfo->fpsDen;
-
-	struct ReplacePair
+	for(const VariableToken & variable : m_variables)
 	{
-		QString from;
-		QString to;
-	};
-
-	ReplacePair replaceList[] =
-	{
-		{"%w", QString::number(m_cpVideoInfo->width)},
-		{"%h", QString::number(m_cpVideoInfo->height)},
-		{"%fpsnum", QString::number(m_cpVideoInfo->fpsNum)},
-		{"%fpsden", QString::number(m_cpVideoInfo->fpsDen)},
-		{"%fps", QString::number(fps, 'f', 10)},
-		{"%bits", QString::number(cpFormat->bitsPerSample)},
-	};
-
-	for(const ReplacePair & record : replaceList)
-		decodedString = decodedString.replace(record.from, record.to);
+		decodedString = decodedString.replace(variable.token,
+			variable.evaluate());
+	}
 
 	return decodedString;
 }
@@ -380,4 +360,73 @@ void EncodeDialog::outputStandardError()
 }
 
 // END OF void EncodeDialog::clearFramesQueue()
+//==============================================================================
+
+void EncodeDialog::fillVariables()
+{
+	m_variables =
+	{
+		{"%w", trUtf8("video width"),
+			[&]()
+			{
+				return QString::number(m_cpVideoInfo->width);
+			}
+		},
+
+		{"%h", trUtf8("video height"),
+			[&]()
+			{
+				return QString::number(m_cpVideoInfo->height);
+			}
+		},
+
+		{"%fpsn", trUtf8("video framerate numerator"),
+			[&]()
+			{
+				return QString::number(m_cpVideoInfo->fpsNum);
+			}
+		},
+
+		{"%fpsd", trUtf8("video framerate denominator"),
+			[&]()
+			{
+				return QString::number(m_cpVideoInfo->fpsDen);
+			}
+		},
+
+		{"%fps", trUtf8("video framerate as fraction"),
+			[&]()
+			{
+				double fps = (double)m_cpVideoInfo->fpsNum /
+					(double)m_cpVideoInfo->fpsDen;
+				return QString::number(fps, 'f', 10);
+			}
+		},
+
+		{"%bits", trUtf8("video colour bitdepth"),
+			[&]()
+			{
+				return QString::number(m_cpVideoInfo->format->bitsPerSample);
+			}
+		},
+
+		{"%sd", trUtf8("script directory"),
+			[&]()
+			{
+				QFileInfo scriptFile(m_scriptName);
+				return scriptFile.canonicalPath();
+			}
+		},
+
+		{"%sn", trUtf8("script name without extension"),
+			[&]()
+			{
+				QFileInfo scriptFile(m_scriptName);
+				return scriptFile.completeBaseName();
+			}
+		},
+	};
+}
+
+// END OF void EncodeDialog::fillVariables()
 //==============================================================================
