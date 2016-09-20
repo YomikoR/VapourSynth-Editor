@@ -148,6 +148,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 
 VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 {
+	finalize();
 	freeLibrary();
 }
 
@@ -252,7 +253,13 @@ bool VapourSynthScriptProcessor::finalize()
 {
 	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
 	if(!noFrameTicketsInProcess)
+	{
+		m_error = trUtf8("Can not finalize the script processor while "
+			"there are still frames in processing. Please wait for "
+			"the processing to finish and repeat your action.");
+		emit signalWriteLogMessage(mtCritical, m_error);
 		return false;
+	}
 
 	freeFrame();
 
@@ -500,40 +507,23 @@ void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
 //		 double & a_rValue1, double & a_rValue2, double & a_rValue3)
 //==============================================================================
 
-bool VapourSynthScriptProcessor::flushFrameTicketsQueueForConsumer()
+bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 {
-    for(FrameTicket & ticket : m_frameTicketsInProcess)
+	// Check the processing queue.
+	for(FrameTicket & ticket : m_frameTicketsInProcess)
 	{
-		if(ticket.fpCallback == frameForConsumerReady)
-			ticket.discard = true;
+		ticket.discard = true;
 	}
 
-	std::remove_if(m_frameTicketsQueue.begin(), m_frameTicketsQueue.end(),
-		[](const FrameTicket & a_ticket)
-			{return (a_ticket.fpCallback == frameForConsumerReady);});
+	size_t queueSize = m_frameTicketsQueue.size();
+	m_frameTicketsQueue.clear();
+	if(queueSize)
+		sendFrameQueueChangeSignal();
 
-	return (m_frameTicketsInProcess.empty());
+	return m_frameTicketsInProcess.empty();
 }
 
-// END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()
-//==============================================================================
-
-bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()
-{
-    for(FrameTicket & ticket : m_frameTicketsInProcess)
-	{
-		if(ticket.fpCallback == frameForPreviewReady)
-			ticket.discard = true;
-	}
-
-	std::remove_if(m_frameTicketsQueue.begin(), m_frameTicketsQueue.end(),
-		[](const FrameTicket & a_ticket)
-			{return (a_ticket.fpCallback == frameForPreviewReady);});
-
-	return (m_frameTicketsInProcess.empty());
-}
-
-// END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueueForPreview()
+// END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 //==============================================================================
 
 void VapourSynthScriptProcessor::slotReceiveFrameForConsumerAndProcessQueue(
@@ -1179,29 +1169,4 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 }
 
 // END OF void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
-//==============================================================================
-
-bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
-{
-	// Check the processing queue.
-
-	for(FrameTicket & ticket : m_frameTicketsInProcess)
-	{
-		ticket.discard = true;
-	}
-	m_frameTicketsQueue.clear();
-
-	if(!m_frameTicketsInProcess.empty())
-	{
-		m_error = trUtf8("Can not finalize the script processor while "
-			"there are still frames in processing. Please wait for "
-			"the processing to finish and repeat your action.");
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return false;
-	}
-
-	return true;
-}
-
-// END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 //==============================================================================

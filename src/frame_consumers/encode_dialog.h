@@ -7,10 +7,11 @@
 
 #include <ui_encode_dialog.h>
 
+#include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
 
 struct VSFrameRef;
-class VapourSynthScriptProcessor;
+class SettingsManager;
 
 struct NumberedFrameRef
 {
@@ -21,14 +22,13 @@ struct NumberedFrameRef
 	bool operator<(const NumberedFrameRef & a_other) const;
 };
 
-class EncodeDialog : public QDialog
+class EncodeDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
 
 	public:
 
-		EncodeDialog(
-			VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
+		EncodeDialog(SettingsManager * a_pSettingsManager,
 			QWidget * a_pParent = nullptr);
 		virtual ~EncodeDialog();
 
@@ -36,11 +36,10 @@ class EncodeDialog : public QDialog
 
 		void call();
 
-	protected:
+	protected slots:
 
-		void closeEvent(QCloseEvent * a_pEvent) override;
-
-	private slots:
+		virtual void slotWriteLogMessage(int a_messageType,
+			const QString & a_message) override;
 
 		void slotWholeVideoButtonPressed();
 
@@ -53,7 +52,9 @@ class EncodeDialog : public QDialog
 		void slotReceiveFrame(int a_frameNumber,
 			const VSFrameRef * a_cpFrameRef);
 
-	private:
+	protected:
+
+		virtual void stopAndCleanUp() override;
 
 		void stopProcessing();
 
@@ -64,8 +65,6 @@ class EncodeDialog : public QDialog
 		void outputStandardError();
 
 		Ui::EncodeDialog m_ui;
-
-		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 
 		bool m_processing;
 

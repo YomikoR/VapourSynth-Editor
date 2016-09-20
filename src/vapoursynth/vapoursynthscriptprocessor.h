@@ -74,9 +74,7 @@ class VapourSynthScriptProcessor : public QObject
 		void colorAtPoint(size_t a_x, size_t a_y, double & a_rValue1,
 			double & a_rValue2, double & a_rValue3);
 
-		bool flushFrameTicketsQueueForConsumer();
-
-		bool flushFrameTicketsQueueForPreview();
+		bool flushFrameTicketsQueue();
 
 	signals:
 
@@ -136,8 +134,6 @@ class VapourSynthScriptProcessor : public QObject
 		void processFrameTicketsQueue();
 
 		void sendFrameQueueChangeSignal();
-
-		bool flushFrameTicketsQueue();
 
 		friend void VS_CC vsMessageHandler(int a_msgType,
 			const char * a_message, void * a_pUserData);

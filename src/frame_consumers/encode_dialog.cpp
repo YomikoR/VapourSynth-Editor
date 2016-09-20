@@ -2,6 +2,7 @@
 
 #include "../common/helpers.h"
 #include "../vapoursynth/vapoursynthscriptprocessor.h"
+#include "../settings/settingsdialog.h"
 
 #include <vapoursynth/VapourSynth.h>
 #include <vapoursynth/VSHelper.h>
@@ -31,16 +32,14 @@ bool NumberedFrameRef::operator<(const NumberedFrameRef & a_other) const
 
 //==============================================================================
 
-EncodeDialog::EncodeDialog(
-	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
+EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	QWidget * a_pParent) :
-	QDialog(a_pParent, (Qt::WindowFlags)0
+	VSScriptProcessorDialog(a_pSettingsManager, a_pParent, (Qt::WindowFlags)0
 		| Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
 		| Qt::WindowCloseButtonHint
 		)
-	, m_pVapourSynthScriptProcessor(a_pVapourSynthScriptProcessor)
 	, m_processing(false)
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
@@ -49,10 +48,15 @@ EncodeDialog::EncodeDialog(
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
 
+	createStatusBar();
+
 	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
 
 	m_ui.argumentsHelpButton->setIcon(QIcon(":information.png"));
 
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
+		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startStopBenchmarkButton, SIGNAL(clicked()),
@@ -63,14 +67,12 @@ EncodeDialog::EncodeDialog(
 		this, SLOT(slotArgumentsHelpButtonPressed()));
 }
 
-// END OF EncodeDialog::EncodeDialog(
-//		VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
-//		QWidget * a_pParent
+// END OF EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
+//		QWidget * a_pParent)
 //==============================================================================
 
 EncodeDialog::~EncodeDialog()
 {
-	stopProcessing();
 }
 
 // END OF EncodeDialog::~EncodeDialog()
@@ -84,21 +86,20 @@ void EncodeDialog::call()
 		return;
 	}
 
-	if(!m_pVapourSynthScriptProcessor->isInitialized())
+	if((!m_pVapourSynthScriptProcessor->isInitialized()) || m_wantToFinalize)
 		return;
 
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo();
-	assert(cpVideoInfo);
+	assert(m_cpVideoInfo);
 
-	m_ui.feedbackTextEdit->clear();
+	QString text = trUtf8("Ready to encode script %1").arg(m_scriptName);
+	m_ui.feedbackTextEdit->setPlainText(text);
 	m_ui.metricsEdit->clear();
-	int lastFrame = cpVideoInfo->numFrames - 1;
+	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setMaximum(lastFrame);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
-	m_ui.processingProgressBar->setMaximum(cpVideoInfo->numFrames);
+	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
 	m_ui.processingProgressBar->setValue(0);
 	show();
 }
@@ -106,30 +107,20 @@ void EncodeDialog::call()
 // END OF void EncodeDialog::call()
 //==============================================================================
 
-void EncodeDialog::closeEvent(QCloseEvent * a_pEvent)
+void EncodeDialog::slotWriteLogMessage(int a_messageType,
+	const QString & a_message)
 {
-	stopProcessing();
-
-	bool finalized = m_pVapourSynthScriptProcessor->finalize();
-	if(!finalized)
-	{
-		a_pEvent->ignore();
-		return;
-	}
-
-	QDialog::closeEvent(a_pEvent);
+	m_ui.feedbackTextEdit->appendPlainText(a_message);
 }
 
-// END OF void EncodeDialog::call()
+// END OF void EncodeDialog::slotWriteLogMessage(int a_messageType,
+//		const QString & a_message)
 //==============================================================================
 
 void EncodeDialog::slotWholeVideoButtonPressed()
 {
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo();
-	assert(cpVideoInfo);
-
-	int lastFrame = cpVideoInfo->numFrames - 1;
+	assert(m_cpVideoInfo);
+	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
 }
@@ -177,9 +168,6 @@ void EncodeDialog::slotStartStopBenchmarkButtonPressed()
 	m_framesTotal = lastFrame - firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 
 	m_encodeStartTime = hr_clock::now();
 
@@ -234,15 +222,12 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 	if(!m_processing)
 		return;
 
-	const VSAPI * cpVSAPI = m_pVapourSynthScriptProcessor->api();
-	assert(cpVSAPI);
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo();
-	assert(cpVideoInfo);
-	const VSFormat * cpFormat = cpVideoInfo->format;
+	assert(m_cpVSAPI);
+	assert(m_cpVideoInfo);
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
 	assert(cpFormat);
 
-	const VSFrameRef * cpFrameRef = cpVSAPI->cloneFrameRef(a_cpFrameRef);
+	const VSFrameRef * cpFrameRef = m_cpVSAPI->cloneFrameRef(a_cpFrameRef);
 	NumberedFrameRef newFrame(a_frameNumber, cpFrameRef);
 	m_framesQueue.insert(std::upper_bound(m_framesQueue.begin(),
 		m_framesQueue.end(), newFrame), newFrame);
@@ -255,10 +240,10 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 
 		for(int i = 0; i < cpFormat->numPlanes; ++i)
 		{
-			const uint8_t * cpPlane = cpVSAPI->getReadPtr(cpFrameRef, i);
-			int stride = cpVSAPI->getStride(cpFrameRef, i);
-			int width = cpVSAPI->getFrameWidth(cpFrameRef, i);
-			int height = cpVSAPI->getFrameHeight(cpFrameRef, i);
+			const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(cpFrameRef, i);
+			int stride = m_cpVSAPI->getStride(cpFrameRef, i);
+			int width = m_cpVSAPI->getFrameWidth(cpFrameRef, i);
+			int height = m_cpVSAPI->getFrameHeight(cpFrameRef, i);
 			int bytes = cpFormat->bytesPerSample;
 
 			size_t planeSize = width * bytes * height;
@@ -279,7 +264,7 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 		hr_time_point now = hr_clock::now();
 
 		m_lastFrameProcessed = m_framesQueue.front().number;
-		cpVSAPI->freeFrame(cpFrameRef);
+		m_cpVSAPI->freeFrame(cpFrameRef);
 		m_framesQueue.pop_front();
 
 		m_framesProcessed++;
@@ -302,16 +287,23 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 //		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
+void EncodeDialog::stopAndCleanUp()
+{
+	stopProcessing();
+	m_ui.metricsEdit->clear();
+	m_ui.processingProgressBar->setValue(0);
+}
+
+// END OF void EncodeDialog::stopAndCleanUp()
+//==============================================================================
+
 void EncodeDialog::stopProcessing()
 {
 	if(!m_processing)
 		return;
 
 	m_processing = false;
-	m_pVapourSynthScriptProcessor->flushFrameTicketsQueueForConsumer();
-	disconnect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
+	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
 
 	m_encoder.closeWriteChannel();
@@ -331,15 +323,13 @@ QString EncodeDialog::decodeArguments(const QString & a_arguments)
 {
 	QString decodedString = a_arguments.simplified();
 
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo();
-	assert(cpVideoInfo);
-	const VSFormat * cpFormat = cpVideoInfo->format;
+	assert(m_cpVideoInfo);
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
 	assert(cpFormat);
 
 	double fps = 0.0;
-	if(cpVideoInfo->fpsDen > 0)
-		fps = (double)cpVideoInfo->fpsNum / (double)cpVideoInfo->fpsDen;
+	if(m_cpVideoInfo->fpsDen > 0)
+		fps = (double)m_cpVideoInfo->fpsNum / (double)m_cpVideoInfo->fpsDen;
 
 	struct ReplacePair
 	{
@@ -349,10 +339,10 @@ QString EncodeDialog::decodeArguments(const QString & a_arguments)
 
 	ReplacePair replaceList[] =
 	{
-		{"%w", QString::number(cpVideoInfo->width)},
-		{"%h", QString::number(cpVideoInfo->height)},
-		{"%fpsnum", QString::number(cpVideoInfo->fpsNum)},
-		{"%fpsden", QString::number(cpVideoInfo->fpsDen)},
+		{"%w", QString::number(m_cpVideoInfo->width)},
+		{"%h", QString::number(m_cpVideoInfo->height)},
+		{"%fpsnum", QString::number(m_cpVideoInfo->fpsNum)},
+		{"%fpsden", QString::number(m_cpVideoInfo->fpsDen)},
 		{"%fps", QString::number(fps, 'f', 10)},
 		{"%bits", QString::number(cpFormat->bitsPerSample)},
 	};
@@ -369,11 +359,10 @@ QString EncodeDialog::decodeArguments(const QString & a_arguments)
 
 void EncodeDialog::clearFramesQueue()
 {
-	const VSAPI * cpVSAPI = m_pVapourSynthScriptProcessor->api();
-	assert(cpVSAPI);
+	assert(m_cpVSAPI);
 
 	for(NumberedFrameRef & ref : m_framesQueue)
-		cpVSAPI->freeFrame(ref.cpFrameRef);
+		m_cpVSAPI->freeFrame(ref.cpFrameRef);
 
 	m_framesQueue.clear();
 }

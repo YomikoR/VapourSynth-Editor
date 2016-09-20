@@ -33,7 +33,6 @@
 
 MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsManager(nullptr)
-	, m_pVapourSynthScriptProcessor(nullptr)
 	, m_pVapourSynthPluginsManager(nullptr)
 	, m_pActionNewScript(nullptr)
 	, m_pActionOpenScript(nullptr)
@@ -65,13 +64,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pSettingsManager = new SettingsManager(this);
 	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 
-	m_pVapourSynthScriptProcessor =
-		new VapourSynthScriptProcessor(m_pSettingsManager, this);
-
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalWriteLogMessage(int, const QString &)),
-		this, SLOT(slotWriteLogMessage(int, const QString &)));
-
 	m_pVapourSynthPluginsManager =
 		new VapourSynthPluginsManager(m_pSettingsManager, this);
 
@@ -91,8 +83,7 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotSettingsChanged()));
 
-	m_pPreviewDialog = new PreviewDialog(m_pVapourSynthScriptProcessor,
-		m_pSettingsManager, m_pSettingsDialog);
+	m_pPreviewDialog = new PreviewDialog(m_pSettingsManager, m_pSettingsDialog);
 
 	connect(m_pPreviewDialog,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
@@ -101,10 +92,9 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalInsertLineIntoScript(const QString &)),
 		this, SLOT(slotInsertLineIntoScript(const QString &)));
 
-	m_pBenchmarkDialog = new ScriptBenchmarkDialog(
-		m_pVapourSynthScriptProcessor);
+	m_pBenchmarkDialog = new ScriptBenchmarkDialog(m_pSettingsManager);
 
-	m_pEncodeDialog = new EncodeDialog(m_pVapourSynthScriptProcessor);
+	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager);
 
 	createActionsAndMenus();
 	slotChangeWindowTitle();
@@ -296,10 +286,15 @@ bool MainWindow::slotOpenScript()
 
 void MainWindow::slotPreview()
 {
-	bool finalized = m_pVapourSynthScriptProcessor->finalize();
-	if(!finalized)
+	if(m_pPreviewDialog->busy())
+	{
+		QString message = trUtf8("Preview dialog appears busy processing "
+			"frames. Please stop any active actions in the dialog and wait "
+			"for script processor to finish processing.");
+		slotWriteLogMessage(mtDebug, message);
 		return;
-	m_ui.logEdit->clear();
+	}
+
 	m_pPreviewDialog->previewScript(m_ui.scriptEdit->text(), m_scriptFilePath);
 }
 
@@ -330,32 +325,38 @@ void MainWindow::slotCheckScript()
 
 void MainWindow::slotBenchmark()
 {
-	m_pPreviewDialog->close();
-	if(m_pPreviewDialog->isVisible())
+	if(m_pBenchmarkDialog->busy())
+	{
+		QString message = trUtf8("Benchmark dialog appears busy processing "
+			"frames. Please stop any active actions in the dialog and wait "
+			"for script processor to finish processing.");
+		slotWriteLogMessage(mtDebug, message);
 		return;
+	}
 
-	m_pVapourSynthScriptProcessor->initialize(m_ui.scriptEdit->text(),
-		m_scriptFilePath);
-
+	m_pBenchmarkDialog->initialize(m_ui.scriptEdit->text(), m_scriptFilePath);
 	m_pBenchmarkDialog->call();
 }
 
 // END OF void MainWindow::slotBenchmark()
 //==============================================================================
 
-void MainWindow::slotCLIEncode()
+void MainWindow::slotEncode()
 {
-	m_pPreviewDialog->close();
-	if(m_pPreviewDialog->isVisible())
+	if(m_pEncodeDialog->busy())
+	{
+		QString message = trUtf8("Encode dialog appears busy processing "
+			"frames. Please stop any active actions in the dialog and wait "
+			"for script processor to finish processing.");
+		slotWriteLogMessage(mtDebug, message);
 		return;
+	}
 
-	m_pVapourSynthScriptProcessor->initialize(m_ui.scriptEdit->text(),
-		m_scriptFilePath);
-
+	m_pEncodeDialog->initialize(m_ui.scriptEdit->text(), m_scriptFilePath);
 	m_pEncodeDialog->call();
 }
 
-// END OF void MainWindow::slotCLIEncode()
+// END OF void MainWindow::slotEncode()
 //==============================================================================
 
 void MainWindow::slotAbout()
@@ -608,8 +609,7 @@ void MainWindow::createActionsAndMenus()
 		this, SLOT(slotCheckScript()));
 	connect(m_pActionBenchmark, SIGNAL(triggered()),
 		this, SLOT(slotBenchmark()));
-	connect(m_pActionEncode, SIGNAL(triggered()),
-		this, SLOT(slotCLIEncode()));
+	connect(m_pActionEncode, SIGNAL(triggered()), this, SLOT(slotEncode()));
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
 	connect(m_pActionAutocomplete, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotComplete()));

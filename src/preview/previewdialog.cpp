@@ -65,30 +65,17 @@ bool NumberedPixmap::operator<(const NumberedPixmap & a_other) const
 
 //==============================================================================
 
-PreviewDialog::PreviewDialog(
-	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
-	SettingsManager * a_pSettingsManager,
+PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	SettingsDialog * a_pSettingsDialog,  QWidget * a_pParent) :
-	QDialog(a_pParent, (Qt::WindowFlags)0
-		| Qt::Window
-		| Qt::CustomizeWindowHint
-		| Qt::WindowMinimizeButtonHint
-		| Qt::WindowMaximizeButtonHint
-		| Qt::WindowCloseButtonHint)
-	, m_pVapourSynthScriptProcessor(a_pVapourSynthScriptProcessor)
+	VSScriptProcessorDialog(a_pSettingsManager, a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pSettingsDialog(a_pSettingsDialog)
 	, m_pAdvancedSettingsDialog(nullptr)
-	, m_pStatusBar(nullptr)
 	, m_pVideoInfoLabel(nullptr)
-	, m_pFramesInQueueLabel(nullptr)
-	, m_pFramesInProcessLabel(nullptr)
-	, m_pMaxThreadsLabel(nullptr)
 	, m_frameExpected(0)
 	, m_frameShown(-1)
 	, m_lastFrameRequestedForPlay(-1)
 	, m_bigFrameStep(10)
-	, m_cpVideoInfo(nullptr)
 	, m_changingCropValues(false)
 	, m_pPreviewContextMenu(nullptr)
 	, m_pActionFrameToClipboard(nullptr)
@@ -115,9 +102,6 @@ PreviewDialog::PreviewDialog(
 	, m_pActionAdvancedSettingsDialog(nullptr)
 	, m_pActionToggleColorPicker(nullptr)
 	, m_pActionPlay(nullptr)
-	, m_framesInQueue(0)
-	, m_framesInProcess(0)
-	, m_maxThreads(0)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
@@ -129,8 +113,6 @@ PreviewDialog::PreviewDialog(
 
 	m_iconPlay = QIcon(":play.png");
 	m_iconPause = QIcon(":pause.png");
-	m_readyPixmap = QPixmap(":tick.png");
-	m_busyPixmap = QPixmap(":time.png");
 
 	m_pAdvancedSettingsDialog = new PreviewAdvancedSettingsDialog(
 		m_pSettingsManager, this);
@@ -167,9 +149,6 @@ PreviewDialog::PreviewDialog(
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributePixmap(int, const QPixmap &)),
 		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)));
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
@@ -199,12 +178,11 @@ PreviewDialog::PreviewDialog(
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-//		QWidget * a_pParent, Qt::WindowFlags a_flags)
+//		SettingsDialog * a_pSettingsDialog,  QWidget * a_pParent)
 //==============================================================================
 
 PreviewDialog::~PreviewDialog()
 {
-	m_pVapourSynthScriptProcessor->finalize();
 }
 
 // END OF PreviewDialog::~PreviewDialog()
@@ -213,11 +191,9 @@ PreviewDialog::~PreviewDialog()
 void PreviewDialog::previewScript(const QString& a_script,
 	const QString& a_scriptName)
 {
-	m_ui.cropCheckButton->setChecked(false);
-	clear();
+	stopAndCleanUp();
 
-	bool initialized =
-		m_pVapourSynthScriptProcessor->initialize(a_script, a_scriptName);
+	bool initialized = initialize(a_script, a_scriptName);
 	if(!initialized)
 	{
 		hide();
@@ -227,9 +203,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 	QString title = "Preview - ";
 	title += a_scriptName;
 	setWindowTitle(title);
-
-	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
-	assert(m_cpVideoInfo);
 
 	int lastFrameNumber = m_cpVideoInfo->numFrames - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
@@ -253,8 +226,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	slotSetPlayFPSLimit();
 
-	m_scriptName = a_scriptName;
-
 	if(m_pSettingsManager->getPreviewDialogMaximized())
 		showMaximized();
 	else
@@ -267,37 +238,20 @@ void PreviewDialog::previewScript(const QString& a_script,
 //		const QString& a_scriptName)
 //==============================================================================
 
-void PreviewDialog::clear()
-{
-	m_frameShown = -1;
-	m_framePixmap = QPixmap();
-	m_ui.previewArea->setPixmap(QPixmap());
-	m_pVideoInfoLabel->clear();
-	m_pFramesInQueueLabel->clear();
-	m_pFramesInProcessLabel->clear();
-	m_pMaxThreadsLabel->clear();
-}
-
-// END OF void PreviewDialog::clear()
-//==============================================================================
-
-void PreviewDialog::closeEvent(QCloseEvent * a_pEvent)
+void PreviewDialog::stopAndCleanUp()
 {
 	if(m_ui.playButton->isChecked())
 		m_ui.playButton->click();
 
-	bool finalized = m_pVapourSynthScriptProcessor->finalize();
-	if(!finalized)
-	{
-		a_pEvent->ignore();
-		return;
-	}
+	if(m_ui.cropCheckButton->isChecked())
+		m_ui.cropCheckButton->click();
 
-	clear();
-	QDialog::closeEvent(a_pEvent);
+	m_frameShown = -1;
+	m_framePixmap = QPixmap();
+	m_ui.previewArea->setPixmap(QPixmap());
 }
 
-// END OF void PreviewDialog::closeEvent(QCloseEvent * a_pEvent)
+// END OF void PreviewDialog::clear()
 //==============================================================================
 
 void PreviewDialog::moveEvent(QMoveEvent * a_pEvent)
@@ -1077,25 +1031,6 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 // END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 //==============================================================================
 
-void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
-	size_t a_inProcess, size_t a_maxThreads)
-{
-	m_framesInQueue = a_inQueue;
-	m_framesInProcess = a_inProcess;
-	m_maxThreads = a_maxThreads;
-
-	m_pFramesInQueueLabel->setText(QString::number(a_inQueue));
-	m_pFramesInProcessLabel->setText(QString::number(a_inProcess));
-	m_pMaxThreadsLabel->setText(QString::number(a_maxThreads));
-
-	if(m_playing)
-		slotProcessPlayQueue();
-}
-
-// END OF void PreviewDialog::slotFrameQueueStateChanged(size_t a_inQueue,
-//		size_t a_inProcess, size_t a_maxThreads)
-//==============================================================================
-
 void PreviewDialog::slotPlay(bool a_play)
 {
 	m_playing = a_play;
@@ -1112,7 +1047,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	else
 	{
 		m_framePixmapsQueue.clear();
-		m_pVapourSynthScriptProcessor->flushFrameTicketsQueueForPreview();
+		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 		m_pActionPlay->setIcon(m_iconPlay);
 		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
@@ -1580,20 +1515,9 @@ void PreviewDialog::createActionsAndMenus()
 
 void PreviewDialog::createStatusBar()
 {
-	m_pStatusBar = new QStatusBar(this);
-	m_ui.mainLayout->addWidget(m_pStatusBar);
-
+	VSScriptProcessorDialog::createStatusBar();
 	m_pVideoInfoLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pVideoInfoLabel);
-
-	m_pFramesInQueueLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pFramesInQueueLabel);
-
-	m_pFramesInProcessLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pFramesInProcessLabel);
-
-	m_pMaxThreadsLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pMaxThreadsLabel);
+	m_pStatusBar->insertPermanentWidget(0, m_pVideoInfoLabel);
 }
 
 // END OF void PreviewDialog::createStatusBar()

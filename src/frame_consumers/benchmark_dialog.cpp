@@ -8,15 +8,13 @@
 //==============================================================================
 
 ScriptBenchmarkDialog::ScriptBenchmarkDialog(
-	VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
-	QWidget * a_pParent) :
-	QDialog(a_pParent, (Qt::WindowFlags)0
+	SettingsManager * a_pSettingsManager, QWidget * a_pParent):
+	VSScriptProcessorDialog(a_pSettingsManager, a_pParent, (Qt::WindowFlags)0
 		| Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
 		| Qt::WindowCloseButtonHint
 		)
-	, m_pVapourSynthScriptProcessor(a_pVapourSynthScriptProcessor)
 	, m_processing(false)
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
@@ -24,6 +22,11 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":benchmark.png"));
 
+	createStatusBar();
+
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
+		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startStopBenchmarkButton, SIGNAL(clicked()),
@@ -50,21 +53,20 @@ void ScriptBenchmarkDialog::call()
 		return;
 	}
 
-	if(!m_pVapourSynthScriptProcessor->isInitialized())
+	if((!m_pVapourSynthScriptProcessor->isInitialized()) || m_wantToFinalize)
 		return;
 
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo();
-	assert(cpVideoInfo);
+	assert(m_cpVideoInfo);
 
-	m_ui.feedbackTextEdit->clear();
+	QString text = trUtf8("Ready to benchmark script %1").arg(m_scriptName);
+	m_ui.feedbackTextEdit->setPlainText(text);
 	m_ui.metricsEdit->clear();
-	int lastFrame = cpVideoInfo->numFrames - 1;
+	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setMaximum(lastFrame);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
-	m_ui.processingProgressBar->setMaximum(cpVideoInfo->numFrames);
+	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
 	m_ui.processingProgressBar->setValue(0);
 	show();
 }
@@ -72,30 +74,30 @@ void ScriptBenchmarkDialog::call()
 // END OF void ScriptBenchmarkDialog::call()
 //==============================================================================
 
-void ScriptBenchmarkDialog::closeEvent(QCloseEvent * a_pEvent)
+void ScriptBenchmarkDialog::stopAndCleanUp()
 {
 	stopProcessing();
-
-	bool finalized = m_pVapourSynthScriptProcessor->finalize();
-	if(!finalized)
-	{
-		a_pEvent->ignore();
-		return;
-	}
-
-	QDialog::closeEvent(a_pEvent);
+	m_ui.metricsEdit->clear();
+	m_ui.processingProgressBar->setValue(0);
 }
 
-// END OF void ScriptBenchmarkDialog::call()
+// END OF void ScriptBenchmarkDialog::stopAndCleanUp()
+//==============================================================================
+
+void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
+	const QString & a_message)
+{
+	m_ui.feedbackTextEdit->appendPlainText(a_message);
+}
+
+// END OF void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
+//		const QString & a_message)
 //==============================================================================
 
 void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
 {
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo();
-	assert(cpVideoInfo);
-
-	int lastFrame = cpVideoInfo->numFrames - 1;
+	assert(m_cpVideoInfo);
+	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
 }
@@ -126,10 +128,9 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
 	m_processing = true;
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
+
 	m_benchmarkStartTime = hr_clock::now();
+
 	for(int i = firstFrame; i <= lastFrame; ++i)
 		m_pVapourSynthScriptProcessor->requestFrameAsync(i);
 }
@@ -170,10 +171,7 @@ void ScriptBenchmarkDialog::stopProcessing()
 		return;
 
 	m_processing = false;
-	m_pVapourSynthScriptProcessor->flushFrameTicketsQueueForConsumer();
-	disconnect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
+	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
 }
 

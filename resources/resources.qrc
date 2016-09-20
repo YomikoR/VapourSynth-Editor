@@ -34,6 +34,7 @@
 		<file alias="benchmark.png">benchmark.png</file>
 		<file alias="film_save.png">film_save.png</file>
 		<file alias="information.png">information.png</file>
+		<file alias="busy.png">hourglass.png</file>
 
 		<file alias="readme">../README</file>
 

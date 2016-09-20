@@ -6,7 +6,6 @@
 #include <ui_mainwindow.h>
 
 class SettingsManager;
-class VapourSynthScriptProcessor;
 class VapourSynthPluginsManager;
 class PreviewDialog;
 class SettingsDialog;
@@ -55,7 +54,7 @@ class MainWindow : public QMainWindow
 
 		void slotBenchmark();
 
-		void slotCLIEncode();
+		void slotEncode();
 
 		void slotAbout();
 
@@ -90,7 +89,6 @@ class MainWindow : public QMainWindow
 		Ui::MainWindow m_ui;
 
 		SettingsManager * m_pSettingsManager;
-		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 		VapourSynthPluginsManager * m_pVapourSynthPluginsManager;
 
 		QAction * m_pActionNewScript;

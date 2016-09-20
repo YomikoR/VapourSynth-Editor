@@ -3,19 +3,19 @@
 
 #include <ui_benchmark_dialog.h>
 
+#include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
 
 struct VSFrameRef;
-class VapourSynthScriptProcessor;
+class SettingsManager;
 
-class ScriptBenchmarkDialog : public QDialog
+class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
 
 	public:
 
-		ScriptBenchmarkDialog(
-			VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
+		ScriptBenchmarkDialog(SettingsManager * a_pSettingsManager,
 			QWidget * a_pParent = nullptr);
 		virtual ~ScriptBenchmarkDialog();
 
@@ -23,11 +23,10 @@ class ScriptBenchmarkDialog : public QDialog
 
 		void call();
 
-	protected:
+	protected slots:
 
-		void closeEvent(QCloseEvent * a_pEvent) override;
-
-	private slots:
+		virtual void slotWriteLogMessage(int a_messageType,
+			const QString & a_message) override;
 
 		void slotWholeVideoButtonPressed();
 
@@ -36,13 +35,13 @@ class ScriptBenchmarkDialog : public QDialog
 		void slotReceiveFrame(int a_frameNumber,
 			const VSFrameRef * a_cpFrameRef);
 
-	private:
+	protected:
+
+		virtual void stopAndCleanUp() override;
 
 		void stopProcessing();
 
 		Ui::ScriptBenchmarkDialog m_ui;
-
-		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 
 		bool m_processing;
 

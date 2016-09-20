@@ -8,9 +8,9 @@
 #include <deque>
 #include <chrono>
 
+#include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../settings/settingsmanager.h"
 #include "../common/chrono.h"
-#include "timelineslider.h"
 
 #include <ui_previewdialog.h>
 
@@ -25,7 +25,6 @@ class QMenu;
 class QActionGroup;
 class QAction;
 class QTimer;
-class VapourSynthScriptProcessor;
 class SettingsDialog;
 struct VSVideoInfo;
 class PreviewAdvancedSettingsDialog;
@@ -39,15 +38,13 @@ struct NumberedPixmap
 	bool operator<(const NumberedPixmap & a_other) const;
 };
 
-class PreviewDialog : public QDialog
+class PreviewDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
 
 	public:
 
-		PreviewDialog(
-			VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
-			SettingsManager * a_pSettingsManager,
+		PreviewDialog(SettingsManager * a_pSettingsManager,
 			SettingsDialog * a_pSettingsDialog,
 			QWidget * a_pParent = nullptr);
 		virtual ~PreviewDialog();
@@ -55,28 +52,11 @@ class PreviewDialog : public QDialog
 		void previewScript(const QString& a_script,
 			const QString& a_scriptName);
 
-		void clear();
-
-	protected:
-
-		void closeEvent(QCloseEvent * a_pEvent) override;
-
-		void moveEvent(QMoveEvent * a_pEvent) override;
-
-		void resizeEvent(QResizeEvent * a_pEvent) override;
-
-		void changeEvent(QEvent * a_pEvent) override;
-
-		void keyPressEvent(QKeyEvent * a_pEvent) override;
-
 	signals:
-
-		void signalWriteLogMessage(int a_messageType,
-			const QString & a_message);
 
 		void signalInsertLineIntoScript(const QString& a_line);
 
-	private slots:
+	protected slots:
 
 		void slotShowFrame(int a_frameNumber);
 
@@ -143,27 +123,31 @@ class PreviewDialog : public QDialog
 		void slotReceivePreviewFrame(int a_frameNumber,
 			const QPixmap & a_pixmap);
 
-		void slotFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
-			size_t a_maxThreads);
-
 		void slotPlay(bool a_play);
 
 		void slotProcessPlayQueue();
 
-	private:
+	protected:
+
+		virtual void stopAndCleanUp() override;
+
+		void moveEvent(QMoveEvent * a_pEvent) override;
+
+		void resizeEvent(QResizeEvent * a_pEvent) override;
+
+		void changeEvent(QEvent * a_pEvent) override;
+
+		void keyPressEvent(QKeyEvent * a_pEvent) override;
 
 		void createActionsAndMenus();
 
-		void createStatusBar();
+		virtual void createStatusBar() override;
 
 		void setUpZoomPanel();
 
 		void setUpTimeLinePanel();
 
 		void setUpCropPanel();
-
-		void evaluateScript(const QString& a_script,
-			const QString& a_scriptName);
 
 		bool requestShowFrame(int a_frameNumber);
 
@@ -175,19 +159,13 @@ class PreviewDialog : public QDialog
 
 		Ui::PreviewDialog m_ui;
 
-		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
-
 		SettingsManager * m_pSettingsManager;
 
 		SettingsDialog * m_pSettingsDialog;
 
 		PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
 
-		QStatusBar * m_pStatusBar;
 		QLabel * m_pVideoInfoLabel;
-		QLabel * m_pFramesInQueueLabel;
-		QLabel * m_pFramesInProcessLabel;
-		QLabel * m_pMaxThreadsLabel;
 
 		int m_frameExpected;
 		int m_frameShown;
@@ -195,11 +173,7 @@ class PreviewDialog : public QDialog
 
 		int m_bigFrameStep;
 
-		QString m_scriptName;
-
 		QPixmap m_framePixmap;
-
-		const VSVideoInfo * m_cpVideoInfo;
 
 		bool m_changingCropValues;
 
@@ -238,10 +212,6 @@ class PreviewDialog : public QDialog
 
 		std::vector<QAction *> m_settableActionsList;
 
-		size_t m_framesInQueue;
-		size_t m_framesInProcess;
-		size_t m_maxThreads;
-
 		bool m_playing;
 		bool m_processingPlayQueue;
 		double m_secondsBetweenFrames;
@@ -252,9 +222,6 @@ class PreviewDialog : public QDialog
 
 		std::deque<NumberedPixmap> m_framePixmapsQueue;
 		size_t m_cachedPixmapsLimit;
-
-		QPixmap m_readyPixmap;
-		QPixmap m_busyPixmap;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

@@ -2,7 +2,11 @@
 #define VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 
 #include <QDialog>
+#include <QPixmap>
 
+class QCloseEvent;
+class QStatusBar;
+class QLabel;
 class SettingsManager;
 class VapourSynthScriptProcessor;
 struct VSAPI;
@@ -28,6 +32,8 @@ class VSScriptProcessorDialog : public QDialog
 		virtual bool initialize(const QString & a_script,
 			const QString & a_scriptName);
 
+		virtual bool busy() const;
+
 	protected slots:
 
 		virtual void slotWriteLogMessage(int a_messageType,
@@ -42,6 +48,12 @@ class VSScriptProcessorDialog : public QDialog
 			const QString & a_message);
 
 	protected:
+
+		virtual void closeEvent(QCloseEvent * a_pEvent) override;
+
+		virtual void stopAndCleanUp();
+
+		virtual void createStatusBar();
 
 		SettingsManager * m_pSettingsManager;
 
@@ -58,6 +70,15 @@ class VSScriptProcessorDialog : public QDialog
 		size_t m_framesInQueue;
 		size_t m_framesInProcess;
 		size_t m_maxThreads;
+
+		bool m_wantToFinalize;
+
+		QStatusBar * m_pStatusBar;
+		QLabel * m_pScriptProcessorStatusPixmapLabel;
+		QLabel * m_pScriptProcessorStatusLabel;
+
+		QPixmap m_readyPixmap;
+		QPixmap m_busyPixmap;
 };
 
 #endif // VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
