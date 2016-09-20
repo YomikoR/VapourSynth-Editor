@@ -141,8 +141,6 @@ class PreviewDialog : public VSScriptProcessorDialog
 
 		void createActionsAndMenus();
 
-		virtual void createStatusBar() override;
-
 		void setUpZoomPanel();
 
 		void setUpTimeLinePanel();
@@ -164,8 +162,6 @@ class PreviewDialog : public VSScriptProcessorDialog
 		SettingsDialog * m_pSettingsDialog;
 
 		PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
-
-		QLabel * m_pVideoInfoLabel;
 
 		int m_frameExpected;
 		int m_frameShown;

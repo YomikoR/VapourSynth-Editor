@@ -53,6 +53,9 @@ class VSScriptProcessorDialog : public QDialog
 
 		virtual void stopAndCleanUp();
 
+		/// Adds status bar to the dialog.
+		/// Relies on dialog having a layout.
+		/// Call in derived class after GUI is created.
 		virtual void createStatusBar();
 
 		SettingsManager * m_pSettingsManager;
@@ -76,6 +79,7 @@ class VSScriptProcessorDialog : public QDialog
 		QStatusBar * m_pStatusBar;
 		QLabel * m_pScriptProcessorStatusPixmapLabel;
 		QLabel * m_pScriptProcessorStatusLabel;
+		QLabel * m_pVideoInfoLabel;
 
 		QPixmap m_readyPixmap;
 		QPixmap m_busyPixmap;

@@ -1,5 +1,6 @@
 #include "vs_script_processor_dialog.h"
 
+#include "../common/helpers.h"
 #include "../settings/settingsmanager.h"
 #include "vapoursynthscriptprocessor.h"
 
@@ -28,6 +29,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_pStatusBar(nullptr)
 	, m_pScriptProcessorStatusLabel(nullptr)
 	, m_pScriptProcessorStatusPixmapLabel(nullptr)
+	, m_pVideoInfoLabel(nullptr)
 	, m_readyPixmap(":tick.png")
 	, m_busyPixmap(":busy.png")
 {
@@ -86,6 +88,12 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
 	assert(m_cpVideoInfo);
+
+	if(m_pVideoInfoLabel)
+	{
+		QString infoString = vsedit::videoInfoString(m_cpVideoInfo);
+		m_pVideoInfoLabel->setText(infoString);
+	}
 
 	return true;
 }
@@ -180,6 +188,9 @@ void VSScriptProcessorDialog::createStatusBar()
 	assert(pLayout);
 	m_pStatusBar = new QStatusBar(this);
 	pLayout->addWidget(m_pStatusBar);
+
+	m_pVideoInfoLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pVideoInfoLabel);
 
 	m_pScriptProcessorStatusPixmapLabel = new QLabel(m_pStatusBar);
 	m_pStatusBar->addPermanentWidget(m_pScriptProcessorStatusPixmapLabel);

@@ -71,7 +71,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pSettingsDialog(a_pSettingsDialog)
 	, m_pAdvancedSettingsDialog(nullptr)
-	, m_pVideoInfoLabel(nullptr)
 	, m_frameExpected(0)
 	, m_frameShown(-1)
 	, m_lastFrameRequestedForPlay(-1)
@@ -1511,16 +1510,6 @@ void PreviewDialog::createActionsAndMenus()
 }
 
 // END OF void PreviewDialog::createActionsAndMenus()
-//==============================================================================
-
-void PreviewDialog::createStatusBar()
-{
-	VSScriptProcessorDialog::createStatusBar();
-	m_pVideoInfoLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->insertPermanentWidget(0, m_pVideoInfoLabel);
-}
-
-// END OF void PreviewDialog::createStatusBar()
 //==============================================================================
 
 void PreviewDialog::setUpZoomPanel()
