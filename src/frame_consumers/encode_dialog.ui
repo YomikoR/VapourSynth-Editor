@@ -179,6 +179,9 @@ D:\vstests\prores-test.mov</string>
        <property name="text">
         <string>Start</string>
        </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
     </layout>
