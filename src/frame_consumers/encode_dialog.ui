@@ -175,7 +175,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="startStopBenchmarkButton">
+      <widget class="QPushButton" name="startStopEncodeButton">
        <property name="text">
         <string>Start</string>
        </property>

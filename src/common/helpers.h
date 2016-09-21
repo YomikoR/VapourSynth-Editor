@@ -5,6 +5,7 @@
 #include <QTime>
 #include <cassert>
 #include <vapoursynth/VapourSynth.h>
+#include <algorithm>
 
 namespace vsedit
 {
@@ -26,6 +27,13 @@ namespace vsedit
 			a_value = a_low;
 		else if(a_value > a_high)
 			a_value = a_high;
+	}
+
+	template<typename Container_T, typename Value_T>
+	bool contains(const Container_T & a_container, const Value_T & a_value)
+	{
+		return (std::find(std::begin(a_container), std::end(a_container),
+			a_value) != std::end(a_container));
 	}
 
 	//--------------------------------------------------------------------------

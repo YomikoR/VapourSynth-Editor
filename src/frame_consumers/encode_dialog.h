@@ -40,6 +40,18 @@ class EncodeDialog : public VSScriptProcessorDialog
 			QWidget * a_pParent = nullptr);
 		virtual ~EncodeDialog();
 
+		enum class State
+		{
+			Idle,
+			StartingEncoder,
+			WritingHeader,
+			WaitingForFrames,
+			WritingFrame,
+			EncoderCrashed,
+			Finishing,
+			Aborting,
+		};
+
 	public slots:
 
 		void call();
@@ -51,7 +63,7 @@ class EncodeDialog : public VSScriptProcessorDialog
 
 		void slotWholeVideoButtonPressed();
 
-		void slotStartStopBenchmarkButtonPressed();
+		void slotStartStopEncodeButtonPressed();
 
 		void slotExecutableBrowseButtonPressed();
 
@@ -60,11 +72,21 @@ class EncodeDialog : public VSScriptProcessorDialog
 		void slotReceiveFrame(int a_frameNumber,
 			const VSFrameRef * a_cpFrameRef);
 
+		void slotEncoderStarted();
+		void slotEncoderFinished(int a_exitCode,
+			QProcess::ExitStatus a_exitStatus);
+		void slotEncoderError(QProcess::ProcessError a_error);
+		void slotEncoderReadChannelFinished();
+		void slotEncoderBytesWritten(qint64 a_bytes);
+		void slotEncoderReadyReadStandardError();
+
 	protected:
 
 		virtual void stopAndCleanUp() override;
 
 		void stopProcessing();
+
+		void processFramesQueue();
 
 		QString decodeArguments(const QString & a_arguments);
 
@@ -76,8 +98,8 @@ class EncodeDialog : public VSScriptProcessorDialog
 
 		Ui::EncodeDialog m_ui;
 
-		bool m_processing;
-
+		int m_firstFrame;
+		int m_lastFrame;
 		int m_framesTotal;
 		int m_framesProcessed;
 
@@ -88,10 +110,16 @@ class EncodeDialog : public VSScriptProcessorDialog
 		std::vector<char> m_framebuffer;
 
 		std::deque<NumberedFrameRef> m_framesQueue;
+		size_t m_cachedFramesLimit;
 
 		int m_lastFrameProcessed;
+		int m_lastFrameRequested;
 
 		std::vector<VariableToken> m_variables;
+
+		State m_state;
+
+		size_t m_bytesToWrite;
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

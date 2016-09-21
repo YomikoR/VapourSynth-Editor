@@ -87,6 +87,7 @@ void ScriptBenchmarkDialog::stopAndCleanUp()
 void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
+	(void)(a_messageType);
 	m_ui.feedbackTextEdit->appendPlainText(a_message);
 }
 

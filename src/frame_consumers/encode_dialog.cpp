@@ -9,6 +9,7 @@
 
 #include <QMessageBox>
 #include <QFileDialog>
+#include <cassert>
 
 //==============================================================================
 
@@ -40,10 +41,15 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 		| Qt::WindowMinimizeButtonHint
 		| Qt::WindowCloseButtonHint
 		)
-	, m_processing(false)
+	, m_firstFrame(-1)
+	, m_lastFrame(-1)
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
+	, m_cachedFramesLimit(120)
 	, m_lastFrameProcessed(-1)
+	, m_lastFrameRequested(-1)
+	, m_state(State::Idle)
+	, m_bytesToWrite(0)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
@@ -59,14 +65,28 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
 		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
+
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
-	connect(m_ui.startStopBenchmarkButton, SIGNAL(clicked()),
-		this, SLOT(slotStartStopBenchmarkButtonPressed()));
+	connect(m_ui.startStopEncodeButton, SIGNAL(clicked()),
+		this, SLOT(slotStartStopEncodeButtonPressed()));
 	connect(m_ui.executableBrowseButton, SIGNAL(clicked()),
 		this, SLOT(slotExecutableBrowseButtonPressed()));
 	connect(m_ui.argumentsHelpButton, SIGNAL(clicked()),
 		this, SLOT(slotArgumentsHelpButtonPressed()));
+
+	connect(&m_encoder, SIGNAL(started()),
+		this, SLOT(slotEncoderStarted()));
+	connect(&m_encoder, SIGNAL(finished(int, QProcess::ExitStatus)),
+		this, SLOT(slotEncoderFinished(int, QProcess::ExitStatus)));
+	connect(&m_encoder, SIGNAL(error(QProcess::ProcessError)),
+		this, SLOT(slotEncoderError(QProcess::ProcessError)));
+	connect(&m_encoder, SIGNAL(readChannelFinished()),
+		this, SLOT(slotEncoderReadChannelFinished()));
+	connect(&m_encoder, SIGNAL(bytesWritten(qint64)),
+		this, SLOT(slotEncoderBytesWritten(qint64)));
+	connect(&m_encoder, SIGNAL(readyReadStandardError()),
+		this, SLOT(slotEncoderReadyReadStandardError()));
 }
 
 // END OF EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
@@ -82,7 +102,7 @@ EncodeDialog::~EncodeDialog()
 
 void EncodeDialog::call()
 {
-	if(m_processing)
+	if(m_state != State::Idle)
 	{
 		show();
 		return;
@@ -96,13 +116,12 @@ void EncodeDialog::call()
 	QString text = trUtf8("Ready to encode script %1").arg(m_scriptName);
 	m_ui.feedbackTextEdit->setPlainText(text);
 	m_ui.metricsEdit->clear();
-	int lastFrame = m_cpVideoInfo->numFrames - 1;
-	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
-	m_ui.fromFrameSpinBox->setValue(0);
-	m_ui.toFrameSpinBox->setMaximum(lastFrame);
-	m_ui.toFrameSpinBox->setValue(lastFrame);
+	slotWholeVideoButtonPressed();
+	m_ui.fromFrameSpinBox->setMaximum(m_lastFrame);
+	m_ui.toFrameSpinBox->setMaximum(m_lastFrame);
 	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
 	m_ui.processingProgressBar->setValue(0);
+	m_state = State::Idle;
 	show();
 }
 
@@ -112,6 +131,7 @@ void EncodeDialog::call()
 void EncodeDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
+	(void)(a_messageType);
 	m_ui.feedbackTextEdit->appendPlainText(a_message);
 }
 
@@ -122,27 +142,34 @@ void EncodeDialog::slotWriteLogMessage(int a_messageType,
 void EncodeDialog::slotWholeVideoButtonPressed()
 {
 	assert(m_cpVideoInfo);
-	int lastFrame = m_cpVideoInfo->numFrames - 1;
-	m_ui.fromFrameSpinBox->setValue(0);
-	m_ui.toFrameSpinBox->setValue(lastFrame);
+	m_firstFrame = 0;
+	m_lastFrame = m_cpVideoInfo->numFrames - 1;
+	m_ui.fromFrameSpinBox->setValue(m_firstFrame);
+	m_ui.toFrameSpinBox->setValue(m_lastFrame);
 }
 
 // END OF void EncodeDialog::slotWholeVideoButtonPressed()
 //==============================================================================
 
-void EncodeDialog::slotStartStopBenchmarkButtonPressed()
+void EncodeDialog::slotStartStopEncodeButtonPressed()
 {
-	if(m_processing)
+	State validStates[] = {State::Idle, State::WaitingForFrames,
+		State::WritingHeader, State::WritingFrame};
+	if(!vsedit::contains(validStates, m_state))
+		return;
+
+	if(m_state != State::Idle)
 	{
+		m_state = State::Aborting;
 		stopProcessing();
 		return;
 	}
 
 	m_framesProcessed = 0;
-	int firstFrame = m_ui.fromFrameSpinBox->value();
-	int lastFrame = m_ui.toFrameSpinBox->value();
+	m_firstFrame = m_ui.fromFrameSpinBox->value();
+	m_lastFrame = m_ui.toFrameSpinBox->value();
 
-	if(firstFrame > lastFrame)
+	if(m_firstFrame > m_lastFrame)
 	{
 		m_ui.feedbackTextEdit->appendPlainText(trUtf8(
 			"First frame number is larger than the last frame number."));
@@ -157,24 +184,14 @@ void EncodeDialog::slotStartStopBenchmarkButtonPressed()
 		.arg(decodedArguments);
 	m_ui.feedbackTextEdit->appendPlainText(commandLine);
 
-	m_encoder.start(commandLine);
-	if(!m_encoder.waitForStarted())
-	{
-		m_ui.feedbackTextEdit->appendPlainText(
-			trUtf8("Couldn't start the encoder."));
-		return;
-	}
-
-	m_processing = true;
-	m_lastFrameProcessed = firstFrame - 1;
-	m_framesTotal = lastFrame - firstFrame + 1;
+	m_lastFrameProcessed = m_firstFrame - 1;
+	m_lastFrameRequested = m_firstFrame - 1;
+	m_framesTotal = m_lastFrame - m_firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
-	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
+	m_ui.startStopEncodeButton->setText(trUtf8("Stop"));
 
-	m_encodeStartTime = hr_clock::now();
-
-	for(int i = firstFrame; i <= lastFrame; ++i)
-		m_pVapourSynthScriptProcessor->requestFrameAsync(i);
+	m_state = State::StartingEncoder;
+	m_encoder.start(commandLine);
 }
 
 // END OF void EncodeDialog::slotStartStopBenchmarkButtonPressed()
@@ -220,55 +237,182 @@ void EncodeDialog::slotArgumentsHelpButtonPressed()
 void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 	const VSFrameRef * a_cpFrameRef)
 {
-	if(!m_processing)
+	State validStates[] = {State::WaitingForFrames, State::WritingHeader,
+		State::WritingFrame};
+	if(!vsedit::contains(validStates, m_state))
+		return;
+
+	if((a_frameNumber < m_firstFrame) || (a_frameNumber > m_lastFrame))
 		return;
 
 	assert(m_cpVSAPI);
-	assert(m_cpVideoInfo);
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	assert(cpFormat);
-
 	const VSFrameRef * cpFrameRef = m_cpVSAPI->cloneFrameRef(a_cpFrameRef);
 	NumberedFrameRef newFrame(a_frameNumber, cpFrameRef);
 	m_framesQueue.insert(std::upper_bound(m_framesQueue.begin(),
 		m_framesQueue.end(), newFrame), newFrame);
 
-	while((!m_framesQueue.empty()) &&
-		(m_framesQueue.front().number == (m_lastFrameProcessed + 1)))
+	if(m_state == State::WaitingForFrames)
+		processFramesQueue();
+}
+
+// END OF void EncodeDialog::slotReceiveFrame(int a_frameNumber,
+//		const VSFrameRef * a_cpFrameRef)
+//==============================================================================
+
+void EncodeDialog::slotEncoderStarted()
+{
+	slotWriteLogMessage(mtDebug, trUtf8("Encoder started. "
+		"Beginning encoding."));
+	m_state = State::WaitingForFrames;
+	m_encodeStartTime = hr_clock::now();
+	processFramesQueue();
+}
+
+// END OF void EncodeDialog::slotEncoderStarted()
+//==============================================================================
+
+void EncodeDialog::slotEncoderFinished(int a_exitCode,
+	QProcess::ExitStatus a_exitStatus)
+{
+	(void)(a_exitCode);
+	(void)(a_exitStatus);
+
+	if(m_state == State::Idle)
 	{
-		cpFrameRef = m_framesQueue.front().cpFrameRef;
-		size_t currentDataSize = 0;
+		slotWriteLogMessage(mtDebug, trUtf8("Encoder has finished working "
+			"while it shouldn't be running at all. Ignoring."));
+		return;
+	}
 
-		for(int i = 0; i < cpFormat->numPlanes; ++i)
+	slotWriteLogMessage(mtDebug, trUtf8("Finished encoding."));
+	m_ui.startStopEncodeButton->setText(trUtf8("Start"));
+	m_state = State::Idle;
+}
+
+// END OF void EncodeDialog::slotEncoderFinished(int a_exitCode,
+//		QProcess::ExitStatus a_exitStatus)
+//==============================================================================
+
+void EncodeDialog::slotEncoderError(QProcess::ProcessError a_error)
+{
+	if(m_state == State::Idle)
+	{
+		slotWriteLogMessage(mtDebug, trUtf8("Encoder has reported an error "
+			"while it shouldn't be running at all. Ignoring."));
+		return;
+	}
+
+	switch(a_error)
+	{
+	case QProcess::FailedToStart:
+		slotWriteLogMessage(mtCritical, trUtf8("Encoder has failed to start. "
+			"Aborting."));
+		m_state = State::Aborting;
+		stopProcessing();
+		break;
+
+	case QProcess::Crashed:
+		slotWriteLogMessage(mtCritical, trUtf8("Encoder has crashed. "
+			"Aborting."));
+		m_state = State::EncoderCrashed;
+		stopProcessing();
+		break;
+
+	case QProcess::Timedout:
+		break;
+
+	case QProcess::WriteError:
+		if(m_state == State::WritingFrame)
 		{
-			const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(cpFrameRef, i);
-			int stride = m_cpVSAPI->getStride(cpFrameRef, i);
-			int width = m_cpVSAPI->getFrameWidth(cpFrameRef, i);
-			int height = m_cpVSAPI->getFrameHeight(cpFrameRef, i);
-			int bytes = cpFormat->bytesPerSample;
-
-			size_t planeSize = width * bytes * height;
-			size_t neededFramebufferSize = currentDataSize + planeSize;
-			if(neededFramebufferSize > m_framebuffer.size())
-				m_framebuffer.resize(neededFramebufferSize);
-			size_t framebufferStride = width * bytes;
-
-			vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
-				cpPlane, stride, framebufferStride, height);
-
-			currentDataSize += planeSize;
+			slotWriteLogMessage(mtCritical, trUtf8("Writing to encoder failed. "
+				"Aborting."));
+			m_state = State::Aborting;
+			stopProcessing();
 		}
+		else
+		{
+			slotWriteLogMessage(mtDebug, trUtf8("Encoder has returned a "
+				"writing error, but we were not writing. Ignoring."));
+		}
+		break;
 
-		m_encoder.write(m_framebuffer.data(), (qint64)currentDataSize);
-		m_encoder.waitForBytesWritten(-1);
+	case QProcess::ReadError:
+		slotWriteLogMessage(mtDebug, trUtf8("Error on reading the encoder "
+			"feedback."));
+		break;
 
-		hr_time_point now = hr_clock::now();
+	case QProcess::UnknownError:
+		slotWriteLogMessage(mtDebug, trUtf8("Unknown error in encoder."));
+		break;
 
+	default:
+		assert(false);
+	}
+}
+
+// END OF void EncodeDialog::slotEncoderError(QProcess::ProcessError a_error)
+//==============================================================================
+
+void EncodeDialog::slotEncoderReadChannelFinished()
+{
+	if(m_state == State::Idle)
+	{
+		slotWriteLogMessage(mtDebug, trUtf8("Encoder has suddenly stopped "
+			"accepting data while it shouldn't be running at all. Ignoring."));
+		return;
+	}
+
+	if((m_state != State::Finishing) && (m_state != State::Aborting))
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Encoder has suddenly stopped "
+			"accepting data. Aborting."));
+		m_state = State::Aborting;
+		stopProcessing();
+	}
+}
+
+// END OF void EncodeDialog::slotEncoderReadChannelFinished()
+//==============================================================================
+
+void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
+{
+	if(m_state == State::Idle)
+	{
+		slotWriteLogMessage(mtDebug, trUtf8("Encoder has reported written "
+			"data while it shouldn't be running at all. Ignoring."));
+		return;
+	}
+
+	if((m_state != State::WritingFrame) && (m_state != State::WritingHeader))
+	{
+		slotWriteLogMessage(mtDebug, trUtf8("Encoder reports successful "
+			"write, but we were not writing anything.\nData written: "
+			"%1 bytes.").arg(a_bytes));
+		return;
+	}
+
+	if((size_t)a_bytes != m_bytesToWrite)
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Error on writing data to "
+			"encoder.\nExpected to write: %1 bytes. Data written: %2 bytes.\n"
+			"Aborting.").arg(m_bytesToWrite).arg(a_bytes));
+		m_state = State::Aborting;
+		stopProcessing();
+		return;
+	}
+
+	assert(m_cpVSAPI);
+	if(m_state == State::WritingHeader)
+	{
+		m_encodeStartTime = hr_clock::now();
+	}
+	else if(m_state == State::WritingFrame)
+	{
 		m_lastFrameProcessed = m_framesQueue.front().number;
-		m_cpVSAPI->freeFrame(cpFrameRef);
+		m_cpVSAPI->freeFrame(m_framesQueue.front().cpFrameRef);
 		m_framesQueue.pop_front();
-
 		m_framesProcessed++;
+		hr_time_point now = hr_clock::now();
 		m_ui.processingProgressBar->setValue(m_framesProcessed);
 		double passed = duration_to_double(now - m_encodeStartTime);
 		QString passedString = vsedit::timeToString(passed);
@@ -278,14 +422,19 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 		m_ui.metricsEdit->setText(text);
 	}
 
-	outputStandardError();
-
-	if(m_framesProcessed == m_framesTotal)
-		stopProcessing();
+	m_state = State::WaitingForFrames;
+	processFramesQueue();
 }
 
-// END OF void EncodeDialog::slotReceiveFrame(int a_frameNumber,
-//		const VSFrameRef * a_cpFrameRef)
+// END OF void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
+//==============================================================================
+
+void EncodeDialog::slotEncoderReadyReadStandardError()
+{
+	outputStandardError();
+}
+
+// END OF void EncodeDialog::slotEncoderReadyReadStandardError()
 //==============================================================================
 
 void EncodeDialog::stopAndCleanUp()
@@ -300,21 +449,92 @@ void EncodeDialog::stopAndCleanUp()
 
 void EncodeDialog::stopProcessing()
 {
-	if(!m_processing)
+	if(m_state == State::Idle)
 		return;
 
-	m_processing = false;
 	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
-	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
-
-	m_encoder.closeWriteChannel();
-    if(!m_encoder.waitForFinished())
-        m_ui.feedbackTextEdit->appendPlainText(
-			trUtf8("\nCouldn't close the encoder."));
-	outputStandardError();
-
-	m_framebuffer.clear();
 	clearFramesQueue();
+	m_framebuffer.clear();
+
+	if(m_encoder.state() != QProcess::Running)
+	{
+		m_ui.startStopEncodeButton->setText(trUtf8("Start"));
+		m_state = State::Idle;
+	}
+	else
+	{
+		m_encoder.closeWriteChannel();
+	}
+}
+
+// END OF void EncodeDialog::stopProcessing()
+//==============================================================================
+
+void EncodeDialog::processFramesQueue()
+{
+	if(m_state != State::WaitingForFrames)
+		return;
+
+	if(m_framesProcessed == m_framesTotal)
+	{
+		assert(m_framesQueue.empty());
+		m_state = State::Finishing;
+		stopProcessing();
+		return;
+	}
+
+	while((m_lastFrameRequested < m_lastFrame) &&
+		(m_framesInProcess < m_maxThreads) &&
+		(m_framesQueue.size() < m_cachedFramesLimit))
+	{
+		m_pVapourSynthScriptProcessor->requestFrameAsync(
+			m_lastFrameRequested + 1);
+		m_lastFrameRequested++;
+	}
+
+	bool frameReady = ((!m_framesQueue.empty()) &&
+		(m_framesQueue.front().number == (m_lastFrameProcessed + 1)));
+	if(!frameReady)
+		return;
+
+	// VapourSynth frames are padded so every line has aligned address.
+	// But encoder expects frames tightly packed. We pack frame lines
+	// into an intermediate buffer, because writing whole frame at once
+	// is faster than feeding it to encoder line by line.
+
+	const VSFrameRef * cpFrameRef = m_framesQueue.front().cpFrameRef;
+	size_t currentDataSize = 0;
+
+	assert(m_cpVideoInfo);
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
+	assert(cpFormat);
+
+	for(int i = 0; i < cpFormat->numPlanes; ++i)
+	{
+		const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(cpFrameRef, i);
+		int stride = m_cpVSAPI->getStride(cpFrameRef, i);
+		int width = m_cpVSAPI->getFrameWidth(cpFrameRef, i);
+		int height = m_cpVSAPI->getFrameHeight(cpFrameRef, i);
+		int bytes = cpFormat->bytesPerSample;
+
+		size_t planeSize = width * bytes * height;
+		size_t neededFramebufferSize = currentDataSize + planeSize;
+		if(neededFramebufferSize > m_framebuffer.size())
+			m_framebuffer.resize(neededFramebufferSize);
+		size_t framebufferStride = width * bytes;
+
+		vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
+			cpPlane, stride, framebufferStride, height);
+
+		currentDataSize += planeSize;
+	}
+
+	m_state = State::WritingFrame;
+	m_bytesToWrite = currentDataSize;
+	m_encoder.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
+
+	// Wait until encoder reads the frame.
+	// Then this function will be called again.
 }
 
 // END OF void EncodeDialog::stopProcessing()
