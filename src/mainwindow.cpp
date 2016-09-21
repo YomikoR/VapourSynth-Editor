@@ -122,6 +122,7 @@ MainWindow::MainWindow() : QMainWindow()
 
 MainWindow::~MainWindow()
 {
+	qInstallMessageHandler(0);
 	destroyOrphanQObjects();
 }
 
