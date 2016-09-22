@@ -277,8 +277,8 @@ void EncodeDialog::slotEncoderStarted()
 void EncodeDialog::slotEncoderFinished(int a_exitCode,
 	QProcess::ExitStatus a_exitStatus)
 {
-	(void)(a_exitCode);
-	(void)(a_exitStatus);
+	State workingStates[] = {State::WaitingForFrames, State::WritingFrame,
+		State::WritingHeader};
 
 	if(m_state == State::Idle)
 	{
@@ -286,10 +286,20 @@ void EncodeDialog::slotEncoderFinished(int a_exitCode,
 			"while it shouldn't be running at all. Ignoring."));
 		return;
 	}
+	else if(m_state == State::Finishing)
+	{
+		slotWriteLogMessage(mtDebug, trUtf8("Finished encoding."));
+	}
+	else if(vsedit::contains(workingStates, m_state))
+	{
+		QString exitStatusString = (a_exitStatus == QProcess::CrashExit) ?
+			trUtf8("crash") : trUtf8("normal exit");
+		slotWriteLogMessage(mtDebug, trUtf8("Encoder has finished "
+			"unexpectedly.\nReason: %1; exit code: %2")
+			.arg(exitStatusString).arg(a_exitCode));
+	}
 
-	slotWriteLogMessage(mtDebug, trUtf8("Finished encoding."));
-	m_ui.startStopEncodeButton->setText(trUtf8("Start"));
-	m_state = State::Idle;
+	stopProcessing();
 }
 
 // END OF void EncodeDialog::slotEncoderFinished(int a_exitCode,
@@ -385,6 +395,9 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 			"data while it shouldn't be running at all. Ignoring."));
 		return;
 	}
+
+	if((m_state == State::Aborting) || (m_state == State::Finishing))
+		return;
 
 	if((m_state != State::WritingFrame) && (m_state != State::WritingHeader))
 	{
