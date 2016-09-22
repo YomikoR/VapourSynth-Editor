@@ -4,7 +4,7 @@ QT += widgets
 
 CONFIG(debug, debug|release) {
 
-	contains(QMAKE_HOST.arch, x86_64) {
+	contains(QMAKE_TARGET.arch, x86_64) {
 		contains(QMAKE_COMPILER, gcc) {
 			DESTDIR = ../build/debug-64bit-gcc
 			TARGET = vsedit-debug-64bit-gcc
@@ -44,7 +44,7 @@ CONFIG(debug, debug|release) {
 
 	CONFIG += warn_off
 
-	contains(QMAKE_HOST.arch, x86_64) {
+	contains(QMAKE_TARGET.arch, x86_64) {
 		contains(QMAKE_COMPILER, gcc) {
 			DESTDIR = ../build/release-64bit-gcc
 			TARGET = vsedit
