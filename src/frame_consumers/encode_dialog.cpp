@@ -116,10 +116,13 @@ void EncodeDialog::call()
 	QString text = trUtf8("Ready to encode script %1").arg(m_scriptName);
 	m_ui.feedbackTextEdit->setPlainText(text);
 	m_ui.metricsEdit->clear();
-	slotWholeVideoButtonPressed();
+	m_firstFrame = 0;
+	m_lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(m_lastFrame);
 	m_ui.toFrameSpinBox->setMaximum(m_lastFrame);
-	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
+	m_ui.fromFrameSpinBox->setValue(m_firstFrame);
+	m_ui.toFrameSpinBox->setValue(m_lastFrame);
+	m_ui.processingProgressBar->setMaximum(m_lastFrame);
 	m_ui.processingProgressBar->setValue(0);
 	m_state = State::Idle;
 	show();
