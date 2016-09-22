@@ -114,7 +114,7 @@
 				<Option output="build/debug-64bit-msvc/vsedit-debug-64bit-msvc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
-				<Option compiler="microsoft_visual_c_2013_express_64bit" />
+				<Option compiler="ms_visual_c_14_-_2015_community" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="src" />
@@ -138,7 +138,7 @@
 				<Option output="build/release-64bit-msvc/vsedit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
-				<Option compiler="microsoft_visual_c_2013_express_64bit" />
+				<Option compiler="ms_visual_c_14_-_2015_community" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="src" />
@@ -226,6 +226,7 @@
 		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_previewdialog.h" />
 		<Unit filename="generated/ui/ui_settingsdialog.h" />
+		<Unit filename="pro/local_quirks.pri" />
 		<Unit filename="pro/pro.pro" />
 		<Unit filename="resources/resources.h" />
 		<Unit filename="resources/resources.qrc" />
@@ -301,16 +302,16 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="debug-64bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
 				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-32bit-gcc">
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
+				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

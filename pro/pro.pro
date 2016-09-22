@@ -77,6 +77,18 @@ CONFIG(debug, debug|release) {
 	}
 }
 
+S = $${DIR_SEPARATOR}
+D = $$DESTDIR
+D = $$replace(D, $$escape_expand(\\), $$S)
+D = $$replace(D, /, $$S)
+E = $$escape_expand(\n\t)
+
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.ico $${D}$${S}vsedit.ico $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.svg $${D}$${S}vsedit.svg $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}README $${D}$${S}README $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}LICENSE $${D}$${S}LICENSE $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}CHANGELOG $${D}$${S}CHANGELOG $${E}
+
 macx {
 	INCLUDEPATH += /usr/local/include
 	ICON = ../resources/vsedit.icns
@@ -85,20 +97,18 @@ macx {
 win32 {
 	INCLUDEPATH += 'C:/Program Files (x86)/VapourSynth/sdk/include/'
 
+	DEPLOY_COMMAND = windeployqt
+	DEPLOY_TARGET = $$shell_quote($$shell_path($${D}/$${TARGET}.exe))
+	QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_TARGET} $${E}
+
 	contains(QMAKE_HOST.arch, x86_64) {
 		message("x86_64 build")
-		contains(QMAKE_COMPILER, msvc) {
-			QMAKE_LIBDIR += "E:/SDK/msvc-2013-express/VC/lib/amd64/"
-			QMAKE_LIBDIR += "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64/"
-		}
 	} else {
 		message("x86 build")
 		contains(QMAKE_COMPILER, gcc) {
 			QMAKE_LFLAGS += -Wl,--large-address-aware
 		}
 		contains(QMAKE_COMPILER, msvc) {
-			QMAKE_LIBDIR += "E:/SDK/msvc-2013-express/VC/lib/"
-			QMAKE_LIBDIR += "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86/"
 			QMAKE_LFLAGS += /LARGEADDRESSAWARE
 		}
 	}
@@ -114,18 +124,6 @@ contains(QMAKE_COMPILER, gcc) {
 } else {
 	CONFIG += c++11
 }
-
-S = $${DIR_SEPARATOR}
-D = $$DESTDIR
-D = $$replace(D, $$escape_expand(\\), $$S)
-D = $$replace(D, /, $$S)
-E = $$escape_expand(\n\t)
-
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.ico $${D}$${S}vsedit.ico $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.svg $${D}$${S}vsedit.svg $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}README $${D}$${S}README $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}LICENSE $${D}$${S}LICENSE $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}CHANGELOG $${D}$${S}CHANGELOG $${E}
 
 TEMPLATE = app
 
@@ -200,3 +198,5 @@ SOURCES += ../src/frame_consumers/benchmark_dialog.cpp
 SOURCES += ../src/frame_consumers/encode_dialog.cpp
 SOURCES += ../src/mainwindow.cpp
 SOURCES += ../src/main.cpp
+
+include(local_quirks.pri)
