@@ -2,33 +2,23 @@ CONFIG += qt
 
 QT += widgets
 
+HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
+TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")
+ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
+
 CONFIG(debug, debug|release) {
 
-	contains(QMAKE_TARGET.arch, x86_64) {
-		contains(QMAKE_COMPILER, gcc) {
+	contains(QMAKE_COMPILER, gcc) {
+		if($$ARCHITECTURE_64_BIT) {
 			DESTDIR = ../build/debug-64bit-gcc
 			TARGET = vsedit-debug-64bit-gcc
 			OBJECTS_DIR = ../generated/obj-debug-64bit-gcc
-		}
-		contains(QMAKE_COMPILER, msvc) {
-			DESTDIR = ../build/debug-64bit-msvc
-			TARGET = vsedit-debug-64bit-msvc
-			OBJECTS_DIR = ../generated/obj-debug-64bit-msvc
-		}
-	} else {
-		contains(QMAKE_COMPILER, gcc) {
+		} else {
 			DESTDIR = ../build/debug-32bit-gcc
 			TARGET = vsedit-debug-32bit-gcc
 			OBJECTS_DIR = ../generated/obj-debug-32bit-gcc
 		}
-		contains(QMAKE_COMPILER, msvc) {
-			DESTDIR = ../build/debug-32bit-msvc
-			TARGET = vsedit-debug-32bit-msvc
-			OBJECTS_DIR = ../generated/obj-debug-32bit-msvc
-		}
-	}
 
-	contains(QMAKE_COMPILER, gcc) {
 		QMAKE_CXXFLAGS += -O0
 		QMAKE_CXXFLAGS += -g
 		QMAKE_CXXFLAGS += -ggdb3
@@ -40,41 +30,51 @@ CONFIG(debug, debug|release) {
 		QMAKE_CXXFLAGS += -pedantic
 	}
 
+	contains(QMAKE_COMPILER, msvc) {
+		if($$ARCHITECTURE_64_BIT) {
+			DESTDIR = ../build/debug-64bit-msvc
+			TARGET = vsedit-debug-64bit-msvc
+			OBJECTS_DIR = ../generated/obj-debug-64bit-msvc
+		} else {
+			DESTDIR = ../build/debug-32bit-msvc
+			TARGET = vsedit-debug-32bit-msvc
+			OBJECTS_DIR = ../generated/obj-debug-32bit-msvc
+		}
+	}
+
 } else {
 
-	CONFIG += warn_off
-
-	contains(QMAKE_TARGET.arch, x86_64) {
-		contains(QMAKE_COMPILER, gcc) {
+	contains(QMAKE_COMPILER, gcc) {
+		if($$ARCHITECTURE_64_BIT) {
 			DESTDIR = ../build/release-64bit-gcc
 			TARGET = vsedit
 			OBJECTS_DIR = ../generated/obj-release-64bit-gcc
-		}
-		contains(QMAKE_COMPILER, msvc) {
-			DESTDIR = ../build/release-64bit-msvc
-			TARGET = vsedit
-			OBJECTS_DIR = ../generated/obj-release-64bit-msvc
-		}
-	} else {
-		contains(QMAKE_COMPILER, gcc) {
+		} else {
 			DESTDIR = ../build/release-32bit-gcc
 			TARGET = vsedit-32bit
 			OBJECTS_DIR = ../generated/obj-release-32bit-gcc
 		}
-		contains(QMAKE_COMPILER, msvc) {
+
+		QMAKE_CXXFLAGS += -O2
+		QMAKE_CXXFLAGS += -fexpensive-optimizations
+		QMAKE_CXXFLAGS += -funit-at-a-time
+	}
+
+	contains(QMAKE_COMPILER, msvc) {
+		if($$ARCHITECTURE_64_BIT) {
+			DESTDIR = ../build/release-64bit-msvc
+			TARGET = vsedit
+			OBJECTS_DIR = ../generated/obj-release-64bit-msvc
+		} else {
 			DESTDIR = ../build/release-32bit-msvc
 			TARGET = vsedit-32bit
 			OBJECTS_DIR = ../generated/obj-release-32bit-msvc
 		}
 	}
 
+	CONFIG += warn_off
 	DEFINES += NDEBUG
 
-	contains(QMAKE_COMPILER, gcc) {
-		QMAKE_CXXFLAGS += -O2
-		QMAKE_CXXFLAGS += -fexpensive-optimizations
-		QMAKE_CXXFLAGS += -funit-at-a-time
-	}
 }
 
 S = $${DIR_SEPARATOR}
