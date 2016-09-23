@@ -9,6 +9,7 @@
 #include <QTextCharFormat>
 #include <QColor>
 #include <map>
+#include <vector>
 
 #include "../preview/timelineslider.h"
 
@@ -54,6 +55,33 @@ enum class PlayFPSLimitMode
 	FromVideo,
 	NoLimit,
 	Custom
+};
+
+enum class EncodingType
+{
+	CLI,
+	Raw,
+	VfW,
+};
+
+enum class EncodingHeaderType
+{
+	NoHeader,
+};
+
+struct EncodingPreset
+{
+	QString name;
+	EncodingType type;
+	EncodingHeaderType headerType;
+	QString executablePath;
+	QString arguments;
+
+	EncodingPreset();
+	EncodingPreset(const QString & a_name);
+	bool operator==(const EncodingPreset & a_other) const;
+	bool operator<(const EncodingPreset & a_other) const;
+	bool isEmpty() const;
 };
 
 //==============================================================================
@@ -114,6 +142,11 @@ extern const char TEXT_FORMAT_ID_TIMELINE[];
 
 extern const char COLOR_ID_TEXT_BACKGROUND[];
 extern const char COLOR_ID_ACTIVE_LINE[];
+
+//==============================================================================
+
+extern const EncodingType DEFAULT_ENCODING_TYPE;
+extern const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE;
 
 //==============================================================================
 
@@ -279,6 +312,14 @@ class SettingsManager : public QObject
 		double getPlayFPSLimit() const;
 
 		bool setPlayFPSLimit(double a_limit);
+
+		std::vector<EncodingPreset> getAllEncodingPresets();
+
+		EncodingPreset getEncodingPreset(const QString & a_name);
+
+		bool saveEncodingPreset(const EncodingPreset & a_preset);
+
+		bool deleteEncodingPreset(const EncodingPreset & a_preset);
 
 	private:
 

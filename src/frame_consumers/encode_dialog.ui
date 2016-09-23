@@ -40,6 +40,50 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="encodingPresetLabel">
+       <property name="text">
+        <string>Preset:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="encodingPresetComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::NoInsert</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="encodingPresetSaveButton">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="encodingPresetDeleteButton">
+       <property name="text">
+        <string>Delete</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">
       <number>4</number>
@@ -54,7 +98,7 @@
      <item>
       <widget class="QLineEdit" name="executablePathEdit">
        <property name="text">
-        <string>ffmpeg</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -101,14 +145,7 @@
    <item>
     <widget class="QPlainTextEdit" name="argumentsTextEdit">
      <property name="plainText">
-      <string>-f rawvideo
--pix_fmt yuv422p10le
--s %wx%h
--r %fpsn/%fpsd
--i pipe:0
--c:v prores_ks
--y
-%sd/%sn.mov</string>
+      <string/>
      </property>
     </widget>
    </item>

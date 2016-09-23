@@ -10,9 +10,9 @@
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
+#include "../settings/settingsmanager.h"
 
 struct VSFrameRef;
-class SettingsManager;
 
 struct NumberedFrameRef
 {
@@ -70,6 +70,10 @@ class EncodeDialog : public VSScriptProcessorDialog
 
 		void slotArgumentsHelpButtonPressed();
 
+		void slotEncodingPresetSaveButtonPressed();
+		void slotEncodingPresetDeleteButtonPressed();
+		void slotEncodingPresetComboBoxActivated(const QString & a_text);
+
 		void slotReceiveFrame(int a_frameNumber,
 			const VSFrameRef * a_cpFrameRef);
 
@@ -97,6 +101,8 @@ class EncodeDialog : public VSScriptProcessorDialog
 
 		void fillVariables();
 
+		void setUpEncodingPresets();
+
 		Ui::EncodeDialog m_ui;
 
 		int m_firstFrame;
@@ -121,6 +127,8 @@ class EncodeDialog : public VSScriptProcessorDialog
 		State m_state;
 
 		size_t m_bytesToWrite;
+
+		std::vector<EncodingPreset> m_encodingPresets;
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

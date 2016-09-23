@@ -136,6 +136,49 @@ const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 
 //==============================================================================
 
+const char ENCODING_PRESETS_GROUP[] = "encoding_presets";
+
+const char ENCODING_PRESET_ENCODING_TYPE_KEY[] = "encoding_type";
+const char ENCODING_PRESET_HEADER_TYPE_KEY[] = "header_type";
+const char ENCODING_PRESET_EXECUTABLE_PATH_KEY[] = "executable_path";
+const char ENCODING_PRESET_ARGUMENTS_KEY[] = "arguments";
+
+const EncodingType DEFAULT_ENCODING_TYPE = EncodingType::CLI;
+const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =
+	EncodingHeaderType::NoHeader;
+
+//==============================================================================
+
+EncodingPreset::EncodingPreset():
+	  type(DEFAULT_ENCODING_TYPE)
+	, headerType(DEFAULT_ENCODING_HEADER_TYPE)
+{
+}
+
+EncodingPreset::EncodingPreset(const QString & a_name):
+	  name(a_name)
+	, type(DEFAULT_ENCODING_TYPE)
+	, headerType(DEFAULT_ENCODING_HEADER_TYPE)
+{
+}
+
+bool EncodingPreset::operator==(const EncodingPreset & a_other) const
+{
+	return (name == a_other.name);
+}
+
+bool EncodingPreset::operator<(const EncodingPreset & a_other) const
+{
+	return (name < a_other.name);
+}
+
+bool EncodingPreset::isEmpty() const
+{
+	return name.isEmpty();
+}
+
+//==============================================================================
+
 SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 {
 	QString applicationDir = QCoreApplication::applicationDirPath();
@@ -832,6 +875,101 @@ double SettingsManager::getPlayFPSLimit() const
 bool SettingsManager::setPlayFPSLimit(double a_limit)
 {
 	return setValue(PLAY_FPS_LIMIT_KEY, a_limit);
+}
+
+//==============================================================================
+
+std::vector<EncodingPreset> SettingsManager::getAllEncodingPresets()
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(ENCODING_PRESETS_GROUP);
+
+	std::vector<EncodingPreset> presets;
+
+	QStringList presetNames = settings.childGroups();
+	for(const QString & presetName : presetNames)
+	{
+		settings.beginGroup(presetName);
+
+		EncodingPreset preset;
+		preset.name = presetName;
+		preset.type = (EncodingType)settings.value(
+			ENCODING_PRESET_ENCODING_TYPE_KEY, (int)DEFAULT_ENCODING_TYPE)
+			.toInt();
+		preset.headerType = (EncodingHeaderType)settings.value(
+			ENCODING_PRESET_HEADER_TYPE_KEY, (int)DEFAULT_ENCODING_HEADER_TYPE)
+			.toInt();
+		preset.executablePath = settings.value(
+			ENCODING_PRESET_EXECUTABLE_PATH_KEY).toString();
+		preset.arguments = settings.value(
+			ENCODING_PRESET_ARGUMENTS_KEY).toString();
+		presets.push_back(preset);
+
+		settings.endGroup();
+	}
+
+	return presets;
+}
+
+EncodingPreset SettingsManager::getEncodingPreset(const QString & a_name)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(ENCODING_PRESETS_GROUP);
+
+	EncodingPreset preset;
+
+	QStringList presetNames = settings.childGroups();
+	if(!presetNames.contains(a_name))
+		return preset;
+
+	preset.name = a_name;
+	settings.beginGroup(a_name);
+
+	preset.type = (EncodingType)settings.value(
+		ENCODING_PRESET_ENCODING_TYPE_KEY, (int)DEFAULT_ENCODING_TYPE)
+		.toInt();
+	preset.headerType = (EncodingHeaderType)settings.value(
+		ENCODING_PRESET_HEADER_TYPE_KEY, (int)DEFAULT_ENCODING_HEADER_TYPE)
+		.toInt();
+	preset.executablePath = settings.value(
+		ENCODING_PRESET_EXECUTABLE_PATH_KEY).toString();
+	preset.arguments = settings.value(
+		ENCODING_PRESET_ARGUMENTS_KEY).toString();
+
+	return preset;
+}
+
+bool SettingsManager::saveEncodingPreset(const EncodingPreset & a_preset)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(ENCODING_PRESETS_GROUP);
+	settings.beginGroup(a_preset.name);
+
+	settings.setValue(ENCODING_PRESET_ENCODING_TYPE_KEY, (int)a_preset.type);
+	settings.setValue(ENCODING_PRESET_HEADER_TYPE_KEY,
+		(int)a_preset.headerType);
+	settings.setValue(ENCODING_PRESET_EXECUTABLE_PATH_KEY,
+		a_preset.executablePath);
+	settings.setValue(ENCODING_PRESET_ARGUMENTS_KEY, a_preset.arguments);
+
+	settings.sync();
+	bool success = (QSettings::NoError == settings.status());
+	return success;
+}
+
+bool SettingsManager::deleteEncodingPreset(const EncodingPreset & a_preset)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(ENCODING_PRESETS_GROUP);
+
+	QStringList subGroups = settings.childGroups();
+	if(!subGroups.contains(a_preset.name))
+		return false;
+	settings.remove(a_preset.name);
+
+	settings.sync();
+	bool success = (QSettings::NoError == settings.status());
+	return success;
 }
 
 //==============================================================================

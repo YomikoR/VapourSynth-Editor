@@ -58,6 +58,8 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 
 	createStatusBar();
 
+	setUpEncodingPresets();
+
 	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
 
 	m_ui.argumentsHelpButton->setIcon(QIcon(":information.png"));
@@ -261,6 +263,135 @@ void EncodeDialog::slotArgumentsHelpButtonPressed()
 }
 
 // END OF void EncodeDialog::slotArgumentsHelpButtonPressed()
+//==============================================================================
+
+void EncodeDialog::slotEncodingPresetSaveButtonPressed()
+{
+	EncodingPreset preset(m_ui.encodingPresetComboBox->currentText());
+	if(preset.name.isEmpty())
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Error saving preset. "
+			"Preset name must not be empty."));
+		return;
+	}
+
+	if(preset.type == EncodingType::CLI)
+	{
+		preset.executablePath = m_ui.executablePathEdit->text();
+		if(preset.executablePath.isEmpty())
+		{
+			slotWriteLogMessage(mtCritical, trUtf8("Error saving preset. "
+				"Executable path must not be empty."));
+			return;
+		}
+
+		preset.arguments = m_ui.argumentsTextEdit->toPlainText();
+	}
+
+	bool success = m_pSettingsManager->saveEncodingPreset(preset);
+	if(!success)
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Error saving preset."));
+		return;
+	}
+
+	std::vector<EncodingPreset>::iterator it = std::find(
+		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
+	if(it == m_encodingPresets.end())
+	{
+		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
+		m_encodingPresets.push_back(preset);
+		m_ui.encodingPresetComboBox->addItem(preset.name);
+		m_ui.encodingPresetComboBox->model()->sort(0);
+	}
+	else
+	{
+		assert(m_ui.encodingPresetComboBox->findText(preset.name) != -1);
+		*it = preset;
+	}
+
+	slotWriteLogMessage(mtDebug, trUtf8("Preset \'%1\' saved.")
+		.arg(preset.name));
+}
+
+// END OF void EncodeDialog::slotEncodingPresetSaveButtonPressed()
+//==============================================================================
+
+void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
+{
+	EncodingPreset preset(m_ui.encodingPresetComboBox->currentText());
+	if(preset.name.isEmpty())
+		return;
+
+	QMessageBox::StandardButton result = QMessageBox::question(this,
+		trUtf8("Delete preset"), trUtf8("Do you really want to delete "
+		"preset \'%1\'?").arg(preset.name),
+		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
+		QMessageBox::No);
+	if(result == QMessageBox::No)
+		return;
+
+	std::vector<EncodingPreset>::iterator it = std::find(
+		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
+	if(it == m_encodingPresets.end())
+	{
+		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
+		slotWriteLogMessage(mtCritical, trUtf8("Error deleting preset. "
+			"Preset was never saved."));
+		return;
+	}
+
+	int index = m_ui.encodingPresetComboBox->findText(preset.name);
+	assert(index != -1);
+	m_ui.encodingPresetComboBox->removeItem(index);
+	m_encodingPresets.erase(it);
+	m_ui.encodingPresetComboBox->setCurrentIndex(0);
+	slotEncodingPresetComboBoxActivated(
+		m_ui.encodingPresetComboBox->currentText());
+
+	bool success = m_pSettingsManager->deleteEncodingPreset(preset);
+	if(!success)
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Error deleting "
+			"preset \'%1\'.").arg(preset.name));
+		return;
+	}
+
+	slotWriteLogMessage(mtDebug, trUtf8("Preset \'%1\' deleted.")
+		.arg(preset.name));
+}
+
+// END OF void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
+//==============================================================================
+
+void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
+{
+	if(a_text.isEmpty())
+	{
+		m_ui.executablePathEdit->clear();
+		m_ui.argumentsTextEdit->clear();
+		return;
+	}
+
+	EncodingPreset preset(a_text);
+
+	std::vector<EncodingPreset>::iterator it = std::find(
+		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
+	if(it == m_encodingPresets.end())
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Error. There is no preset "
+			"named \'%1\'.").arg(preset.name));
+		return;
+	}
+
+	preset = *it;
+
+	m_ui.executablePathEdit->setText(preset.executablePath);
+	m_ui.argumentsTextEdit->setPlainText(preset.arguments);
+}
+
+// END OF void EncodeDialog::slotEncodingPresetComboBoxActivated(
+//		const QString & a_text)
 //==============================================================================
 
 
@@ -726,4 +857,25 @@ void EncodeDialog::fillVariables()
 }
 
 // END OF void EncodeDialog::fillVariables()
+//==============================================================================
+
+void EncodeDialog::setUpEncodingPresets()
+{
+	m_encodingPresets = m_pSettingsManager->getAllEncodingPresets();
+	for(const EncodingPreset & preset : m_encodingPresets)
+		m_ui.encodingPresetComboBox->addItem(preset.name);
+
+	connect(m_ui.encodingPresetSaveButton, SIGNAL(clicked()),
+		this, SLOT(slotEncodingPresetSaveButtonPressed()));
+	connect(m_ui.encodingPresetDeleteButton, SIGNAL(clicked()),
+		this, SLOT(slotEncodingPresetDeleteButtonPressed()));
+	connect(m_ui.encodingPresetComboBox, SIGNAL(activated(const QString &)),
+		this, SLOT(slotEncodingPresetComboBoxActivated(const QString &)));
+
+	m_ui.encodingPresetComboBox->setCurrentIndex(0);
+	slotEncodingPresetComboBoxActivated(
+		m_ui.encodingPresetComboBox->currentText());
+}
+
+// END OF void EncodeDialog::setUpEncodingPresets()
 //==============================================================================
