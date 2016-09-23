@@ -127,7 +127,13 @@ contains(QMAKE_COMPILER, gcc) {
 
 TEMPLATE = app
 
-RC_FILE = ../resources/windowsresources.rc
+VERSION = 8.0
+
+RC_ICONS = ../resources/vsedit.ico
+QMAKE_TARGET_PRODUCT = 'VapourSynth Editor'
+QMAKE_TARGET_COMPANY = 'Aleksey [Mystery Keeper] Lyashin'
+QMAKE_TARGET_COPYRIGHT = $$QMAKE_TARGET_COMPANY
+QMAKE_TARGET_DESCRIPTION = 'VapourSynth script editor'
 
 #SUBDIRS
 

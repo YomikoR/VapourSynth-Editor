@@ -228,11 +228,7 @@
 		<Unit filename="generated/ui/ui_settingsdialog.h" />
 		<Unit filename="pro/local_quirks.pri" />
 		<Unit filename="pro/pro.pro" />
-		<Unit filename="resources/resources.h" />
 		<Unit filename="resources/resources.qrc" />
-		<Unit filename="resources/windowsresources.rc">
-			<Option compilerVar="WINDRES" />
-		</Unit>
 		<Unit filename="src/common/aligned_vector.h" />
 		<Unit filename="src/common/chrono.h" />
 		<Unit filename="src/common/helpers.cpp" />
