@@ -101,7 +101,7 @@ win32 {
 	DEPLOY_TARGET = $$shell_quote($$shell_path($${D}/$${TARGET}.exe))
 	QMAKE_POST_LINK += $${DEPLOY_COMMAND} $${DEPLOY_TARGET} $${E}
 
-	contains(QMAKE_HOST.arch, x86_64) {
+	if($$ARCHITECTURE_64_BIT) {
 		message("x86_64 build")
 	} else {
 		message("x86 build")
@@ -127,7 +127,8 @@ contains(QMAKE_COMPILER, gcc) {
 
 TEMPLATE = app
 
-VERSION = 8.0
+VER_MAJ = 8
+VERSION = $$VER_MAJ
 
 RC_ICONS = ../resources/vsedit.ico
 QMAKE_TARGET_PRODUCT = 'VapourSynth Editor'
