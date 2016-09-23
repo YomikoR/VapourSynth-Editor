@@ -5,7 +5,7 @@
 #include <QIcon>
 #include <map>
 #include <vector>
-#include <deque>
+#include <set>
 #include <chrono>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
@@ -216,7 +216,7 @@ class PreviewDialog : public VSScriptProcessorDialog
 		QIcon m_iconPlay;
 		QIcon m_iconPause;
 
-		std::deque<NumberedPixmap> m_framePixmapsQueue;
+		std::set<NumberedPixmap> m_framePixmapsCache;
 		size_t m_cachedPixmapsLimit;
 };
 

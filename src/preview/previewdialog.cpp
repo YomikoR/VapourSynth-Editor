@@ -1012,8 +1012,7 @@ void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
 	if(m_playing)
 	{
 		NumberedPixmap newPixmap(a_frameNumber, a_pixmap);
-		m_framePixmapsQueue.insert(std::upper_bound(m_framePixmapsQueue.begin(),
-			m_framePixmapsQueue.end(), newPixmap), newPixmap);
+		m_framePixmapsCache.insert(newPixmap);
 		slotProcessPlayQueue();
 	}
 	else
@@ -1045,7 +1044,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	}
 	else
 	{
-		m_framePixmapsQueue.clear();
+		m_framePixmapsCache.clear();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 		m_pActionPlay->setIcon(m_iconPlay);
 		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
@@ -1067,10 +1066,18 @@ void PreviewDialog::slotProcessPlayQueue()
 		return;
 	m_processingPlayQueue = true;
 
-	while((!m_framePixmapsQueue.empty()) &&
-		(m_framePixmapsQueue.front().number ==
-		((m_frameShown + 1) % m_cpVideoInfo->numFrames)))
+	int nextFrame = (m_frameShown + 1) % m_cpVideoInfo->numFrames;
+
+	while(!m_framePixmapsCache.empty())
 	{
+		std::set<NumberedPixmap>::const_iterator it =
+			std::find_if(m_framePixmapsCache.begin(), m_framePixmapsCache.end(),
+			[&](const NumberedPixmap & a_pixmap){
+				return (a_pixmap.number == nextFrame);});
+
+		if(it == m_framePixmapsCache.end())
+			break;
+
 		hr_time_point now = hr_clock::now();
 		double passed = duration_to_double(now - m_lastFrameShowTime);
 		double secondsToNextFrame = m_secondsBetweenFrames - passed;
@@ -1081,24 +1088,25 @@ void PreviewDialog::slotProcessPlayQueue()
 			break;
 		}
 
-		m_framePixmap = m_framePixmapsQueue.front().pixmap;
+		m_framePixmap = it->pixmap;
 		setPreviewPixmap();
+		m_lastFrameShowTime = hr_clock::now();
 
-		m_frameShown = m_framePixmapsQueue.front().number;
+		m_frameShown = nextFrame;
 		m_frameExpected = m_frameShown;
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);
-		m_framePixmapsQueue.pop_front();
-		m_lastFrameShowTime = hr_clock::now();
+		m_framePixmapsCache.erase(it);
+		nextFrame = (m_frameShown + 1) % m_cpVideoInfo->numFrames;
 	}
 
-	int nextFrame = (m_lastFrameRequestedForPlay + 1) %
+	nextFrame = (m_lastFrameRequestedForPlay + 1) %
 		m_cpVideoInfo->numFrames;
 
 	// Each preview request results in two frame requests to synchronize
 	// between the preview and the actual output.
 	while(((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 2)) &&
-		(m_framePixmapsQueue.size() <= m_cachedPixmapsLimit))
+		(m_framePixmapsCache.size() <= m_cachedPixmapsLimit))
 	{
 		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame, true);
 		m_lastFrameRequestedForPlay = nextFrame;
