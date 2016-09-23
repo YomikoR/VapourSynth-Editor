@@ -178,8 +178,8 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 
 	if(m_firstFrame > m_lastFrame)
 	{
-		m_ui.feedbackTextEdit->appendPlainText(trUtf8(
-			"First frame number is larger than the last frame number."));
+		slotWriteLogMessage(mtCritical, trUtf8("First frame number is "
+			"larger than the last frame number."));
 			return;
 	}
 
@@ -197,6 +197,29 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopEncodeButton->setText(trUtf8("Stop"));
 
+	slotWriteLogMessage(mtDebug, trUtf8("Checking the encoder sanity."));
+	m_state = State::CheckingEncoderSanity;
+
+	m_encoder.start(commandLine);
+	if(!m_encoder.waitForStarted(3000))
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Encoder wouldn't start."));
+		m_state = State::Idle;
+		return;
+	}
+
+	m_encoder.closeWriteChannel();
+	if(!m_encoder.waitForFinished(3000))
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Program is not behaving "
+			"like a CLI encoder. Terminating."));
+		m_encoder.kill();
+		m_encoder.waitForFinished(-1);
+		m_state = State::Idle;
+		return;
+	}
+
+	slotWriteLogMessage(mtDebug, trUtf8("Encoder seems sane. Starting."));
 	m_state = State::StartingEncoder;
 	m_encoder.start(commandLine);
 }
@@ -268,8 +291,21 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 
 void EncodeDialog::slotEncoderStarted()
 {
+	if(m_state == State::CheckingEncoderSanity)
+		return;
+
 	slotWriteLogMessage(mtDebug, trUtf8("Encoder started. "
 		"Beginning encoding."));
+
+	if(!m_encoder.isWritable())
+	{
+		m_state = State::Aborting;
+		slotWriteLogMessage(mtDebug, trUtf8("Can not write into encoder. "
+			"Aborting."));
+		stopProcessing();
+		return;
+	}
+
 	m_state = State::WaitingForFrames;
 	m_encodeStartTime = hr_clock::now();
 	processFramesQueue();
@@ -281,6 +317,9 @@ void EncodeDialog::slotEncoderStarted()
 void EncodeDialog::slotEncoderFinished(int a_exitCode,
 	QProcess::ExitStatus a_exitStatus)
 {
+	if(m_state == State::CheckingEncoderSanity)
+		return;
+
 	State workingStates[] = {State::WaitingForFrames, State::WritingFrame,
 		State::WritingHeader};
 
@@ -312,6 +351,9 @@ void EncodeDialog::slotEncoderFinished(int a_exitCode,
 
 void EncodeDialog::slotEncoderError(QProcess::ProcessError a_error)
 {
+	if(m_state == State::CheckingEncoderSanity)
+		return;
+
 	if(m_state == State::Idle)
 	{
 		slotWriteLogMessage(mtDebug, trUtf8("Encoder has reported an error "
@@ -372,6 +414,9 @@ void EncodeDialog::slotEncoderError(QProcess::ProcessError a_error)
 
 void EncodeDialog::slotEncoderReadChannelFinished()
 {
+	if(m_state == State::CheckingEncoderSanity)
+		return;
+
 	if(m_state == State::Idle)
 	{
 		slotWriteLogMessage(mtDebug, trUtf8("Encoder has suddenly stopped "
@@ -393,6 +438,9 @@ void EncodeDialog::slotEncoderReadChannelFinished()
 
 void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 {
+	if(m_state == State::CheckingEncoderSanity)
+		return;
+
 	if(m_state == State::Idle)
 	{
 		slotWriteLogMessage(mtDebug, trUtf8("Encoder has reported written "
@@ -551,7 +599,16 @@ void EncodeDialog::processFramesQueue()
 
 	m_state = State::WritingFrame;
 	m_bytesToWrite = currentDataSize;
-	m_encoder.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
+	qint64 bytesWritten =
+		m_encoder.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
+	if(bytesWritten <= 0)
+	{
+		m_state = State::Aborting;
+		slotWriteLogMessage(mtCritical, trUtf8("Error on writing data to "
+			"encoder. Aborting."));
+		stopProcessing();
+		return;
+	}
 
 	// Wait until encoder reads the frame.
 	// Then this function will be called again.

@@ -43,6 +43,7 @@ class EncodeDialog : public VSScriptProcessorDialog
 		enum class State
 		{
 			Idle,
+			CheckingEncoderSanity,
 			StartingEncoder,
 			WritingHeader,
 			WaitingForFrames,
