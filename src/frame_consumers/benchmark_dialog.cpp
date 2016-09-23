@@ -87,8 +87,12 @@ void ScriptBenchmarkDialog::stopAndCleanUp()
 void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
-	(void)(a_messageType);
-	m_ui.feedbackTextEdit->appendPlainText(a_message);
+	QColor textColor = m_ui.feedbackTextEdit->palette().text().color();
+	if((a_messageType == mtCritical) ||(a_messageType == mtFatal))
+		textColor = QColor(255, 0, 0);
+	QString html = QString("<font color=\"%1\">%2</font>")
+		.arg(textColor.name()).arg(a_message);
+	m_ui.feedbackTextEdit->appendHtml(html);
 }
 
 // END OF void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
