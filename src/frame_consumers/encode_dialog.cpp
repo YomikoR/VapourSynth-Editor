@@ -602,6 +602,16 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 	}
 
 	m_bytesWritten += a_bytes;
+
+	if((m_bytesWritten + m_encoder.bytesToWrite()) < m_bytesToWrite)
+	{
+		slotWriteLogMessage(mtCritical, trUtf8("Encoder has lost written "
+		"data. Aborting."));
+		m_state = State::Aborting;
+		stopProcessing();
+		return;
+	}
+
 	if(m_bytesWritten < m_bytesToWrite)
 		return;
 
