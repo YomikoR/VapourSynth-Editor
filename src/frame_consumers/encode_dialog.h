@@ -127,6 +127,7 @@ class EncodeDialog : public VSScriptProcessorDialog
 		State m_state;
 
 		size_t m_bytesToWrite;
+		size_t m_bytesWritten;
 
 		std::vector<EncodingPreset> m_encodingPresets;
 };

@@ -50,6 +50,7 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	, m_lastFrameRequested(-1)
 	, m_state(State::Idle)
 	, m_bytesToWrite(0)
+	, m_bytesWritten(0)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
@@ -590,15 +591,19 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 		return;
 	}
 
-	if((size_t)a_bytes != m_bytesToWrite)
+	if(a_bytes <= 0)
 	{
 		slotWriteLogMessage(mtCritical, trUtf8("Error on writing data to "
 			"encoder.\nExpected to write: %1 bytes. Data written: %2 bytes.\n"
-			"Aborting.").arg(m_bytesToWrite).arg(a_bytes));
+			"Aborting.").arg(m_bytesToWrite).arg(m_bytesWritten));
 		m_state = State::Aborting;
 		stopProcessing();
 		return;
 	}
+
+	m_bytesWritten += a_bytes;
+	if(m_bytesWritten < m_bytesToWrite)
+		return;
 
 	assert(m_cpVSAPI);
 	if(m_state == State::WritingHeader)
@@ -730,9 +735,10 @@ void EncodeDialog::processFramesQueue()
 
 	m_state = State::WritingFrame;
 	m_bytesToWrite = currentDataSize;
+	m_bytesWritten = 0;
 	qint64 bytesWritten =
 		m_encoder.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
-	if(bytesWritten <= 0)
+	if(bytesWritten < 0)
 	{
 		m_state = State::Aborting;
 		slotWriteLogMessage(mtCritical, trUtf8("Error on writing data to "
