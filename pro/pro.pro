@@ -114,15 +114,20 @@ win32 {
 	}
 }
 
-contains(QMAKE_COMPILER, clang){
+contains(QMAKE_COMPILER, clang) {
 	QMAKE_CXXFLAGS += -stdlib=libc++
 }
 
 contains(QMAKE_COMPILER, gcc) {
 	QMAKE_CXXFLAGS += -std=c++11
 	LIBS += -L$$[QT_INSTALL_LIBS]
+	LIBS += -lzimg
 } else {
 	CONFIG += c++11
+}
+
+contains(QMAKE_COMPILER, msvc) {
+	LIBS += zimg.lib
 }
 
 TEMPLATE = app

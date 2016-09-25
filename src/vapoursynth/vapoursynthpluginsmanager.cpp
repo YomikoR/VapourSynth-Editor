@@ -390,7 +390,7 @@ VSData::Function VapourSynthPluginsManager::parseFunctionSignature(
 	for(const QString& argumentString : argumentsList)
 	{
 		QStringList argumentParts = argumentString.split(':');
-		size_t partsNumber = argumentParts.size();
+		int partsNumber = argumentParts.size();
 		if(partsNumber < 2)
 			continue;
 
@@ -399,7 +399,7 @@ VSData::Function VapourSynthPluginsManager::parseFunctionSignature(
 		argument.name = argumentParts[0];
 		argument.type = argumentParts[1];
 
-		for(size_t i = 2; i < partsNumber; ++i)
+		for(int i = 2; i < partsNumber; ++i)
 		{
 			if(argumentParts[i] == "opt")
 				argument.optional = true;

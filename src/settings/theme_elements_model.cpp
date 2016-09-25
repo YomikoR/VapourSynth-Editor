@@ -81,7 +81,7 @@ QVariant ThemeElementsModel::data(const QModelIndex & a_index, int a_role) const
 int ThemeElementsModel::rowCount(const QModelIndex & a_parent) const
 {
 	(void)a_parent;
-	return m_themeElementsList.size();
+	return (int)m_themeElementsList.size();
 }
 
 //==============================================================================

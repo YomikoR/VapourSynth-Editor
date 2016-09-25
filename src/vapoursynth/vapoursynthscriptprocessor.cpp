@@ -1,11 +1,13 @@
 #include "vapoursynthscriptprocessor.h"
 
 #include "../common/helpers.h"
+#include "../settings/settingsmanager.h"
 
 #include <cassert>
 #include <vector>
 #include <cmath>
 #include <utility>
+#include <memory>
 
 #include <QImage>
 #include <QSettings>
@@ -13,15 +15,14 @@
 
 //==============================================================================
 
-FrameTicket::FrameTicket(int a_frameNumber, VSNodeRef * a_pNode,
-	VSFrameDoneCallback a_fpCallback):
+FrameTicket::FrameTicket(int a_frameNumber, int a_outputIndex,
+	VSNodeRef * a_pNode):
 	frameNumber(a_frameNumber)
+	, outputIndex(a_outputIndex)
 	, pNode(a_pNode)
-	, fpCallback(a_fpCallback)
 	, discard(false)
 {
 	assert(pNode);
-	assert(fpCallback);
 }
 
 //==============================================================================
@@ -38,10 +39,6 @@ bool FrameTicket::operator<(const FrameTicket & a_other) const
 	{
 		if(frameNumber < a_other.frameNumber)
 			return true;
-
-		if((frameNumber == a_other.frameNumber) &&
-			(fpCallback < a_other.fpCallback))
-			return true;
 	}
 
 	return false;
@@ -51,8 +48,7 @@ bool FrameTicket::operator<(const FrameTicket & a_other) const
 
 bool FrameTicket::operator==(const FrameTicket & a_other) const
 {
-	return ((pNode == a_other.pNode) && (frameNumber == a_other.frameNumber) &&
-		(fpCallback == a_other.fpCallback));
+	return ((pNode == a_other.pNode) && (frameNumber == a_other.frameNumber));
 }
 
 //==============================================================================
@@ -69,7 +65,7 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 //	void * a_pUserData)
 //==============================================================================
 
-void VS_CC frameForConsumerReady(void * a_pUserData,
+void VS_CC frameReady(void * a_pUserData,
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
 {
@@ -78,7 +74,7 @@ void VS_CC frameForConsumerReady(void * a_pUserData,
 	assert(pScriptProcessor);
 	QString errorMessage(a_errorMessage);
 	QMetaObject::invokeMethod(pScriptProcessor,
-		"slotReceiveFrameForConsumerAndProcessQueue",
+		"slotReceiveFrameAndProcessQueue",
 		Qt::QueuedConnection,
 		Q_ARG(const VSFrameRef *, a_cpFrameRef),
 		Q_ARG(int, a_frameNumber),
@@ -86,29 +82,7 @@ void VS_CC frameForConsumerReady(void * a_pUserData,
 		Q_ARG(QString, errorMessage));
 }
 
-// END OF void VS_CC frameForConsumerReady(void * a_pUserData,
-//	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-//	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
-//==============================================================================
-
-void VS_CC frameForPreviewReady(void * a_pUserData,
-	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
-{
-	VapourSynthScriptProcessor * pScriptProcessor =
-		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
-	assert(pScriptProcessor);
-	QString errorMessage(a_errorMessage);
-	QMetaObject::invokeMethod(pScriptProcessor,
-		"slotReceiveFrameForPreviewAndProcessQueue",
-		Qt::QueuedConnection,
-		Q_ARG(const VSFrameRef *, a_cpFrameRef),
-		Q_ARG(int, a_frameNumber),
-		Q_ARG(VSNodeRef *, a_pNodeRef),
-		Q_ARG(QString, errorMessage));
-}
-
-// END OF void VS_CC frameForPreviewReady(void * a_pUserData,
+// END OF void VS_CC frameReady(void * a_pUserData,
 //	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //	VSNodeRef * a_pNodeRef, const char * a_errorMessage)
 //==============================================================================
@@ -124,22 +98,11 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_initialized(false)
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
-	, m_pOutputNode(nullptr)
-	, m_pPreviewNode(nullptr)
 	, m_cpVideoInfo(nullptr)
 	, m_cpCoreInfo(nullptr)
-	, m_currentFrame(-1)
-	, m_currentPreviewFrame(-1)
-	, m_cpCurrentFrameRef(nullptr)
-	, m_chromaResamplingFilter()
-	, m_chromaPlacement()
-	, m_resamplingFilterParameterA(NAN)
-	, m_resamplingFilterParameterB(NAN)
-	, m_yuvMatrix()
 	, m_vsScriptLibrary(this)
 {
 	initLibrary();
-	slotSettingsChanged();
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -218,8 +181,8 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	m_pOutputNode = vssGetOutput(m_pVSScript, 0);
-	if(!m_pOutputNode)
+	VSNodeRef * pOutputNode = vssGetOutput(m_pVSScript, 0);
+	if(!pOutputNode)
 	{
 		m_error = trUtf8("Failed to get the script output node.");
 		emit signalWriteLogMessage(mtCritical, m_error);
@@ -227,16 +190,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(m_pOutputNode);
+	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(pOutputNode);
 
-	initPreviewNode();
-	if(!m_pPreviewNode)
-	{
-		finalize();
-		return false;
-	}
+	m_cpVSAPI->freeNode(pOutputNode);
 
-	m_currentFrame = 0;
 	m_error.clear();
 	m_initialized = true;
 
@@ -261,22 +218,8 @@ bool VapourSynthScriptProcessor::finalize()
 		return false;
 	}
 
-	freeFrame();
-
 	m_cpVideoInfo = nullptr;
 	m_cpCoreInfo = nullptr;
-
-	if(m_pPreviewNode)
-	{
-		m_cpVSAPI->freeNode(m_pPreviewNode);
-		m_pPreviewNode = nullptr;
-	}
-
-	if(m_pOutputNode)
-	{
-		m_cpVSAPI->freeNode(m_pOutputNode);
-		m_pOutputNode = nullptr;
-	}
 
 	if(m_pVSScript)
 	{
@@ -317,13 +260,29 @@ QString VapourSynthScriptProcessor::error() const
 // END OF QString VapourSynthScriptProcessor::error() const
 //==============================================================================
 
-const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
+const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
 {
 	if(!m_initialized)
 		return nullptr;
 
-	assert(m_cpVideoInfo);
-	return m_cpVideoInfo;
+	assert(m_cpVSAPI);
+	assert(m_pVSScript);
+
+	VSNodeRef * pNode = vssGetOutput(m_pVSScript, a_outputIndex);
+	if(!pNode)
+	{
+		m_error = trUtf8("Couldn't resolve output node number %1.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return nullptr;
+	}
+
+	const VSVideoInfo * cpVideoInfo = m_cpVSAPI->getVideoInfo(pNode);
+	assert(cpVideoInfo);
+
+	m_cpVSAPI->freeNode(pNode);
+
+	return cpVideoInfo;
 }
 
 // END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
@@ -337,174 +296,124 @@ const VSAPI * VapourSynthScriptProcessor::api() const
 // END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
 //==============================================================================
 
-bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber)
+const VSFrameRef * VapourSynthScriptProcessor::requestFrame(int a_frameNumber,
+	int a_outputIndex)
 {
 	if(!m_initialized)
-		return false;
+		return nullptr;
 
-	assert(m_pOutputNode);
+	if(a_frameNumber < 0)
+	{
+		m_error = trUtf8("Requested frame number %1 is negative.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return nullptr;
+	}
+
 	assert(m_cpVSAPI);
 
-	char getFrameErrorMessage[1024] = {0};
+	VSNodeRef * pNode = vssGetOutput(m_pVSScript, a_outputIndex);
+	if(!pNode)
+	{
+		m_error = trUtf8("Couldn't resolve output node number %1.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return nullptr;
+	}
 
+	std::unique_ptr<VSNodeRef, std::function<void(VSNodeRef *)> >
+		nodeDeleter(pNode, [&](VSNodeRef * a_pNode)
+		{m_cpVSAPI->freeNode(a_pNode);});
+
+	const VSVideoInfo * cpVideoInfo = m_cpVSAPI->getVideoInfo(pNode);
+	assert(cpVideoInfo);
+
+	if(a_frameNumber >= cpVideoInfo->numFrames)
+	{
+		m_error = trUtf8("Requested frame number %1 is outside the frame "
+			"range.").arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return nullptr;
+	}
+
+	char getFrameErrorMessage[1024] = {0};
 	const VSFrameRef * cpNewFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		m_pOutputNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
+		pNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
 
 	if(!cpNewFrameRef)
 	{
 		m_error = trUtf8("Error getting the frame number %1:\n%2")
 			.arg(a_frameNumber).arg(QString::fromUtf8(getFrameErrorMessage));
 		emit signalWriteLogMessage(mtCritical, m_error);
-		return false;
+		return nullptr;
 	}
 
-	if(m_cpCurrentFrameRef)
-		m_cpVSAPI->freeFrame(m_cpCurrentFrameRef);
-
-	m_cpCurrentFrameRef = cpNewFrameRef;
-	m_currentFrame = a_frameNumber;
 	m_error.clear();
-	return true;
+	return cpNewFrameRef;
 }
 
-// END OF bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber)
-//==============================================================================
-
-void VapourSynthScriptProcessor::freeFrame()
-{
-	if(!m_cpCurrentFrameRef)
-		return;
-
-	m_cpVSAPI->freeFrame(m_cpCurrentFrameRef);
-	m_cpCurrentFrameRef = nullptr;
-}
-
-// END OF void VapourSynthScriptProcessor::freeFrame()
-//==============================================================================
-
-QPixmap VapourSynthScriptProcessor::pixmap(int a_frameNumber)
-{
-	if(!m_initialized)
-		return QPixmap();
-
-	// Pixmap will likely be used for preview, so current frame, referenced
-	// from the output node, must be of the same number with the frame
-	// from the preview node. That ensures the work of color picker and such.
-	requestFrame(a_frameNumber);
-
-	assert(m_pPreviewNode);
-	assert(m_cpVSAPI);
-
-	char getFrameErrorMessage[1024] = {0};
-
-	const VSFrameRef * cpFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		m_pPreviewNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
-
-	if(!cpFrameRef)
-	{
-		m_error = trUtf8("Error getting the frame number %1:\n%2")
-			.arg(a_frameNumber).arg(QString::fromUtf8(getFrameErrorMessage));
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return QPixmap();
-	}
-
-	QPixmap framePixmap = pixmapFromFrame(cpFrameRef);
-
-	if(framePixmap.isNull())
-	{
-		m_error = trUtf8("Can not convert from format \"%1\" for preview!")
-			.arg(m_cpVideoInfo->format->name);
-		emit signalWriteLogMessage(mtCritical, m_error);
-	}
-
-	m_cpVSAPI->freeFrame(cpFrameRef);
-
-	return framePixmap;
-}
-
-// END OF QPixmap VapourSynthScriptProcessor::pixmap()
+// END OF bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber,
+//		int a_outputIndex)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
-	bool a_forPreview)
+	int a_outputIndex)
 {
-	if((!m_pOutputNode) || (!m_pPreviewNode))
+	if(!m_initialized)
 		return false;
 
-	if((a_frameNumber < 0) || (a_frameNumber >= m_cpVideoInfo->numFrames))
-		return false;
-
-	if(a_forPreview)
+	if(a_frameNumber < 0)
 	{
-		requestFrameAsync(a_frameNumber, m_pPreviewNode, &frameForPreviewReady);
-		requestFrameAsync(a_frameNumber, m_pOutputNode, &frameForPreviewReady);
+		m_error = trUtf8("Requested frame number %1 is negative.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return false;
+	}
+
+	assert(m_cpVSAPI);
+
+	VSNodeRef * pNode = vssGetOutput(m_pVSScript, a_outputIndex);
+	if(!pNode)
+	{
+		m_error = trUtf8("Couldn't resolve output node number %1.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return false;
+	}
+
+	std::unique_ptr<VSNodeRef, std::function<void(VSNodeRef *)> >
+		nodeDeleter(pNode, [&](VSNodeRef * a_pNode)
+		{m_cpVSAPI->freeNode(a_pNode);});
+
+	const VSVideoInfo * cpVideoInfo = m_cpVSAPI->getVideoInfo(pNode);
+	assert(cpVideoInfo);
+
+	if(a_frameNumber >= cpVideoInfo->numFrames)
+	{
+		m_error = trUtf8("Requested frame number %1 is outside the frame "
+			"range.").arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return false;
+	}
+
+	FrameTicket newFrameTicket(a_frameNumber, a_outputIndex, pNode);
+
+	if((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads)
+	{
+		m_frameTicketsInProcess.push_back(newFrameTicket);
+		m_cpVSAPI->getFrameAsync(a_frameNumber, pNode, frameReady, this);
 	}
 	else
-		requestFrameAsync(a_frameNumber, m_pOutputNode, &frameForConsumerReady);
+	{
+		m_frameTicketsQueue.push_back(newFrameTicket);
+	}
 
+	sendFrameQueueChangeSignal();
 	return true;
 }
 
 // END OF void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
-//		bool a_forPreview)
-//==============================================================================
-
-void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
-	double & a_rValue1, double & a_rValue2, double & a_rValue3)
-{
-	if(!m_cpCurrentFrameRef)
-		return;
-
-	if(m_currentFrame != m_currentPreviewFrame)
-		return;
-
-	assert(m_cpVSAPI);
-
-	int width = m_cpVSAPI->getFrameWidth(m_cpCurrentFrameRef, 0);
-	int height = m_cpVSAPI->getFrameHeight(m_cpCurrentFrameRef, 0);
-	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpCurrentFrameRef);
-
-	if((a_x >= (size_t)width) || (a_y >= (size_t)height))
-		return;
-
-	if(cpFormat->id == pfCompatBGR32)
-	{
-		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, 0);
-		int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, 0);
-		const uint32_t * cpLine = (const uint32_t *)(cpData + a_y * stride);
-		uint32_t packedValue = cpLine[a_x];
-		a_rValue3 = (double)(packedValue & 0xFF);
-		a_rValue2 = (double)((packedValue >> 8) & 0xFF);
-		a_rValue1 = (double)((packedValue >> 16) & 0xFF);
-		return;
-	}
-	else if(cpFormat->id == pfCompatYUY2)
-	{
-		size_t x = a_x >> 1;
-		size_t rem = a_x & 0x1;
-		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, 0);
-		int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, 0);
-		const uint32_t * cpLine = (const uint32_t *)(cpData + a_y * stride);
-		uint32_t packedValue = cpLine[x];
-
-		if(rem == 0)
-			a_rValue1 = (double)(packedValue & 0xFF);
-		else
-			a_rValue1 = (double)((packedValue >> 16) & 0xFF);
-		a_rValue2 = (double)((packedValue >> 8) & 0xFF);
-		a_rValue3 = (double)((packedValue >> 24) & 0xFF);
-		return;
-	}
-
-	a_rValue1 = valueAtPoint(a_x, a_y, 0);
-	if(cpFormat->numPlanes > 1)
-		a_rValue2 = valueAtPoint(a_x, a_y, 1);
-	if(cpFormat->numPlanes > 2)
-		a_rValue3 = valueAtPoint(a_x, a_y, 2);
-}
-
-// END OF void VapourSynthScriptProcessor::colorAtPoint(size_t a_x, size_t a_y,
-//		 double & a_rValue1, double & a_rValue2, double & a_rValue3)
+//		int a_outputIndex)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
@@ -526,67 +435,17 @@ bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 // END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 //==============================================================================
 
-void VapourSynthScriptProcessor::slotReceiveFrameForConsumerAndProcessQueue(
+void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 	QString a_errorMessage)
 {
-	receiveFrameForConsumer(a_cpFrameRef, a_frameNumber, a_pNodeRef,
-		a_errorMessage);
+	receiveFrame(a_cpFrameRef, a_frameNumber, a_pNodeRef, a_errorMessage);
 	processFrameTicketsQueue();
 }
 
-// END OF void void VapourSynthScriptProcessor::
-//		slotReceiveFrameForConsumerAndProcessQueue(
+// END OF void void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 //		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //		VSNodeRef * a_pNodeRef, QString a_errorMessage)
-//==============================================================================
-
-void VapourSynthScriptProcessor::slotReceiveFrameForPreviewAndProcessQueue(
-	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
-	QString a_errorMessage)
-{
-	receiveFrameForPreview(a_cpFrameRef, a_frameNumber, a_pNodeRef,
-		a_errorMessage);
-	processFrameTicketsQueue();
-}
-
-// END OF void void VapourSynthScriptProcessor::
-//		slotReceiveFrameForPreviewAndProcessQueue(
-//		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-//		VSNodeRef * a_pNodeRef, QString a_errorMessage)
-//==============================================================================
-
-void VapourSynthScriptProcessor::slotSettingsChanged()
-{
-	// Preview node settings
-	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
-	if(!noFrameTicketsInProcess)
-		return;
-
-	m_yuvMatrix = m_pSettingsManager->getYuvToRgbConversionMatrix();
-
-	m_chromaResamplingFilter = m_pSettingsManager->getChromaResamplingFilter();
-	m_resamplingFilterParameterA = NAN;
-	m_resamplingFilterParameterB = NAN;
-	if(m_chromaResamplingFilter == ResamplingFilter::Bicubic)
-	{
-		m_resamplingFilterParameterA =
-			m_pSettingsManager->getBicubicFilterParameterB();
-		m_resamplingFilterParameterB =
-			m_pSettingsManager->getBicubicFilterParameterC();
-	}
-	else if(m_chromaResamplingFilter == ResamplingFilter::Lanczos)
-	{
-		m_resamplingFilterParameterA =
-			(double)m_pSettingsManager->getLanczosFilterTaps();
-	}
-
-	m_chromaPlacement = m_pSettingsManager->getChromaPlacement();
-
-	initPreviewNode();
-}
-
-// END OF void VapourSynthScriptProcessor::slotSettingsChanged()
 //==============================================================================
 
 void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
@@ -599,39 +458,35 @@ void VapourSynthScriptProcessor::handleVSMessage(int a_messageType,
 //		const QString & a_message)
 //==============================================================================
 
-bool VapourSynthScriptProcessor::checkReceivedFrame(
+void VapourSynthScriptProcessor::receiveFrame(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback,
-	const QString & a_errorMessage)
+	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
 {
 	assert(m_cpVSAPI);
-	// Was supposed to keep the node from being destroyed or lost midway.
-	// Doesn't work as supposed in R31 and earlier.
-	// Commented out for now. Hopefully, will not be needed in future releases.
-	//m_cpVSAPI->freeNode(a_pNodeRef);
+
+	std::unique_ptr<const VSFrameRef, std::function<void(const VSFrameRef *)> >
+		frameDeleter(a_cpFrameRef, [&](const VSFrameRef * la_cpFrameRef)
+		{m_cpVSAPI->freeFrame(la_cpFrameRef);});
+
 
 	bool discard = false;
 
-	FrameTicket ticket(a_frameNumber, a_pNodeRef, a_fpCallback);
+	FrameTicket ticket(a_frameNumber, -1, a_pNodeRef);
+
 	std::vector<FrameTicket>::iterator it = std::find(
 		m_frameTicketsInProcess.begin(), m_frameTicketsInProcess.end(), ticket);
 	if(it != m_frameTicketsInProcess.end())
 	{
+		ticket.outputIndex = it->outputIndex;
 		discard = it->discard;
 		m_frameTicketsInProcess.erase(it);
 		sendFrameQueueChangeSignal();
 	}
 	else
 	{
-		QString callback = trUtf8("unknown");
-		if(a_fpCallback == frameForConsumerReady)
-			callback = "frameForConsumerReady";
-		else if(a_fpCallback == frameForPreviewReady)
-			callback = "frameForPreviewReady";
-
 		QString warning = trUtf8("Warning: received frame not registered in "
-			"processing. Frame number: %1; Node: %2; Callback: %3\n")
-			.arg(a_frameNumber).arg((intptr_t)a_pNodeRef).arg(callback);
+			"processing. Frame number: %1; Node: %2\n")
+			.arg(a_frameNumber).arg((intptr_t)a_pNodeRef);
 		emit signalWriteLogMessage(mtCritical, warning);
 	}
 
@@ -642,115 +497,15 @@ bool VapourSynthScriptProcessor::checkReceivedFrame(
 		emit signalWriteLogMessage(mtCritical, m_error);
 	}
 
-	if(!a_cpFrameRef)
-		return false;
-
-	if(discard)
-	{
-		m_cpVSAPI->freeFrame(a_cpFrameRef);
-		return false;
-	}
-
-	return true;
-}
-
-// END OF void VapourSynthScriptProcessor::checkReceivedFrame(
-//		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-//		VSNodeRef * a_pNodeRef, VSFrameDoneCallback fpCallback,
-//		const QString & a_errorMessage)
-//==============================================================================
-
-void VapourSynthScriptProcessor::receiveFrameForConsumer(
-	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
-{
-	assert(m_cpVSAPI);
-
-	bool goodFrame = checkReceivedFrame(a_cpFrameRef, a_frameNumber,
-		a_pNodeRef, frameForConsumerReady, a_errorMessage);
-	if(!goodFrame)
+	if((!a_cpFrameRef) || discard)
 		return;
 
-	assert(a_pNodeRef == m_pOutputNode);
-
-	emit signalDistributeFrame(a_frameNumber, a_cpFrameRef);
-	m_cpVSAPI->freeFrame(a_cpFrameRef);
-	return;
+	emit signalDistributeFrame(a_frameNumber, ticket.outputIndex, a_cpFrameRef);
 }
 
-// END OF void VapourSynthScriptProcessor::receiveFrameForConsumer(
+// END OF void VapourSynthScriptProcessor::receiveFrame(
 //		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //		VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
-//==============================================================================
-
-void VapourSynthScriptProcessor::receiveFrameForPreview(
-	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
-{
-	assert(m_cpVSAPI);
-
-	bool goodFrame = checkReceivedFrame(a_cpFrameRef, a_frameNumber,
-		a_pNodeRef, frameForPreviewReady, a_errorMessage);
-	if(!goodFrame)
-		return;
-
-	if(a_pNodeRef == m_pOutputNode)
-	{
-		m_cpVSAPI->freeFrame(m_cpCurrentFrameRef);
-		m_cpCurrentFrameRef = a_cpFrameRef;
-		m_currentFrame = a_frameNumber;
-		return;
-	}
-	else if(a_pNodeRef == m_pPreviewNode)
-	{
-		QPixmap framePixmap = pixmapFromFrame(a_cpFrameRef);
-		m_cpVSAPI->freeFrame(a_cpFrameRef);
-
-		if(framePixmap.isNull())
-		{
-			m_error = trUtf8("Can not convert from format \"%1\" for preview!")
-				.arg(m_cpVideoInfo->format->name);
-			emit signalWriteLogMessage(mtCritical, m_error);
-		}
-
-		m_currentPreviewFrame = a_frameNumber;
-		emit signalDistributePixmap(a_frameNumber, framePixmap);
-		return;
-	}
-	else
-	{
-		m_cpVSAPI->freeFrame(a_cpFrameRef);
-		return;
-	}
-}
-
-// END OF void VapourSynthScriptProcessor::receiveFrameForPreview(
-//		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-//		VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
-//==============================================================================
-
-QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
-	const VSFrameRef * a_cpFrameRef)
-{
-	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(a_cpFrameRef);
-	assert(cpFormat->id == pfCompatBGR32);
-
-	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
-
-	QImage frameImage(static_cast<const uchar *>(pData), width, height,
-		stride, QImage::Format_RGB32);
-
-	QImage flippedImage = frameImage.mirrored();
-	QPixmap framePixmap = QPixmap::fromImage(flippedImage);
-
-	return framePixmap;
-}
-
-// END OF QPixmap VapourSynthScriptProcessor::pixmapFromFrame(
-//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::initLibrary()
@@ -911,226 +666,6 @@ void VapourSynthScriptProcessor::freeLibrary()
 // END OF void VapourSynthScriptProcessor::freeLibrary()
 //==============================================================================
 
-double VapourSynthScriptProcessor::valueAtPoint(size_t a_x, size_t a_y,
-	int a_plane)
-{
-	assert(m_cpCurrentFrameRef);
-	assert(m_cpVSAPI);
-
-	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpCurrentFrameRef);
-
-	assert((a_plane >= 0) && (a_plane < cpFormat->numPlanes));
-
-    const uint8_t * cpPlane =
-		m_cpVSAPI->getReadPtr(m_cpCurrentFrameRef, a_plane);
-
-	size_t x = a_x;
-	size_t y = a_y;
-
-	if(a_plane != 0)
-	{
-		x = (a_x >> cpFormat->subSamplingW);
-		y = (a_y >> cpFormat->subSamplingH);
-	}
-	int stride = m_cpVSAPI->getStride(m_cpCurrentFrameRef, a_plane);
-	const uint8_t * cpLine = cpPlane + y * stride;
-
-	double value = 0.0;
-
-	if(cpFormat->sampleType == stInteger)
-	{
-		if(cpFormat->bytesPerSample == 1)
-			value = (double)cpLine[x];
-		else if(cpFormat->bytesPerSample == 2)
-			value = (double)((uint16_t *)cpLine)[x];
-		else if(cpFormat->bytesPerSample == 4)
-			value = (double)((uint32_t *)cpLine)[x];
-	}
-	else if(cpFormat->sampleType == stFloat)
-	{
-		if(cpFormat->bytesPerSample == 2)
-		{
-			vsedit::FP16 half;
-			half.u = ((uint16_t *)cpLine)[x];
-			vsedit::FP32 single = vsedit::halfToSingle(half);
-			value = (double)single.f;
-		}
-		else if(cpFormat->bytesPerSample == 4)
-			value = (double)((float *)cpLine)[x];
-	}
-
-	return value;
-}
-
-// END OF double VapourSynthScriptProcessor::valueAtPoint(size_t a_x,
-//		size_t a_y, int a_plane)
-//==============================================================================
-
-void VapourSynthScriptProcessor::initPreviewNode()
-{
-	if(!m_cpVSAPI)
-	{
-		// Function was called while VapourSynth was not initialized.
-		return;
-	}
-
-	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
-	if(!noFrameTicketsInProcess)
-		return;
-
-	if(m_pPreviewNode)
-	{
-		m_cpVSAPI->freeNode(m_pPreviewNode);
-		m_pPreviewNode = nullptr;
-	}
-
-	if(!m_pOutputNode)
-	{
-		m_error = trUtf8("Failed to create preview node: "
-			"there is no output node.\n");
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return;
-	}
-
-	assert(m_cpVideoInfo);
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
-
-	if(cpFormat->id == pfCompatBGR32)
-	{
-		m_pPreviewNode = m_cpVSAPI->cloneNodeRef(m_pOutputNode);
-		return;
-	}
-
-	VSCore * pCore = vssGetCore(m_pVSScript);
-	VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
-		"com.vapoursynth.resize", pCore);
-	const char * resizeName = nullptr;
-
-	VSMap * pArgumentMap = m_cpVSAPI->createMap();
-	m_cpVSAPI->propSetNode(pArgumentMap, "clip", m_pOutputNode, paReplace);
-	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
-
-	switch(m_chromaResamplingFilter)
-	{
-	case ResamplingFilter::Point:
-		resizeName = "Point";
-		break;
-	case ResamplingFilter::Bilinear:
-		resizeName = "Bilinear";
-		break;
-	case ResamplingFilter::Bicubic:
-		resizeName = "Bicubic";
-		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-			m_resamplingFilterParameterA, paReplace);
-		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
-			m_resamplingFilterParameterB, paReplace);
-		break;
-	case ResamplingFilter::Lanczos:
-		resizeName = "Lanczos";
-		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-			m_resamplingFilterParameterA, paReplace);
-		break;
-	case ResamplingFilter::Spline16:
-		resizeName = "Spline16";
-		break;
-	case ResamplingFilter::Spline36:
-		resizeName = "Spline36";
-		break;
-	default:
-		assert(false);
-	}
-
-	if(cpFormat->colorFamily == cmYUV)
-	{
-		const char * matrixInS = nullptr;
-		switch(m_yuvMatrix)
-		{
-		case YuvToRgbConversionMatrix::Bt601:
-			matrixInS = "470bg";
-			break;
-		case YuvToRgbConversionMatrix::Bt709:
-			matrixInS = "709";
-			break;
-		default:
-			assert(false);
-		}
-		int matrixStringLength = (int)strlen(matrixInS);
-		m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
-			matrixInS, matrixStringLength, paReplace);
-
-		int64_t chromaLoc = 0;
-		switch(m_chromaPlacement)
-		{
-		case ChromaPlacement::MPEG1:
-			chromaLoc = 1;
-			break;
-		case ChromaPlacement::MPEG2:
-			chromaLoc = 0;
-			break;
-		default:
-			assert(false);
-		}
-		m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
-			chromaLoc, paReplace);
-	}
-
-	VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
-		pArgumentMap);
-
-	m_cpVSAPI->freeMap(pArgumentMap);
-
-	const char * cpResultError = m_cpVSAPI->getError(pResultMap);
-
-	if(cpResultError)
-	{
-		m_error = trUtf8("Failed to convert to RGB:\n");
-		m_error += cpResultError;
-		emit signalWriteLogMessage(mtCritical, m_error);
-		m_cpVSAPI->freeMap(pResultMap);
-		return;
-	}
-
-	VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pResultMap, "clip", 0,
-		nullptr);
-	assert(pPreviewNode);
-	m_pPreviewNode = pPreviewNode;
-
-	m_cpVSAPI->freeMap(pResultMap);
-}
-
-// END OF void VapourSynthScriptProcessor::initPreviewNode()
-//==============================================================================
-
-void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
-	VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
-{
-	assert(m_cpVSAPI);
-
-	FrameTicket newFrameTicket(a_frameNumber, a_pNodeRef, a_fpCallback);
-
-	if((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads)
-	{
-		// Was supposed to keep the node from being destroyed or lost midway.
-		// Doesn't work as supposed in R31 and earlier.
-		// Commented out for now. Hopefully, will not be needed
-		// in future releases.
-		//VSNodeRef * pNewRef = m_cpVSAPI->cloneNodeRef(a_pNodeRef);
-
-		m_frameTicketsInProcess.push_back(newFrameTicket);
-		m_cpVSAPI->getFrameAsync(a_frameNumber, a_pNodeRef, a_fpCallback, this);
-	}
-	else
-	{
-		m_frameTicketsQueue.push_back(newFrameTicket);
-	}
-
-	sendFrameQueueChangeSignal();
-}
-
-// END OF void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
-//			VSNodeRef * a_pNodeRef, VSFrameDoneCallback a_fpCallback)
-//==============================================================================
-
 void VapourSynthScriptProcessor::processFrameTicketsQueue()
 {
 	assert(m_cpVSAPI);
@@ -1143,8 +678,10 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 	{
 		FrameTicket ticket = std::move(m_frameTicketsQueue.front());
 		m_frameTicketsQueue.pop_front();
+		ticket.pNode = vssGetOutput(m_pVSScript, ticket.outputIndex);
 		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pNode,
-			ticket.fpCallback, this);
+			frameReady, this);
+		m_cpVSAPI->freeNode(ticket.pNode);
 		m_frameTicketsInProcess.push_back(ticket);
 	}
 
@@ -1162,9 +699,6 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
 	size_t maxThreads = m_cpCoreInfo->numThreads;
-//	QString message = QString("In queue: %1, in process: %2, max threads: %3")
-//		.arg(inQueue).arg(inProcess).arg(maxThreads);
-//	emit signalWriteLogMessage(mtDebug, message);
 	emit signalFrameQueueStateChanged(inQueue, inProcess, maxThreads);
 }
 

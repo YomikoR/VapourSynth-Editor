@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QPixmap>
+#include <list>
 
 class QCloseEvent;
 class QStatusBar;
@@ -11,6 +12,21 @@ class SettingsManager;
 class VapourSynthScriptProcessor;
 struct VSAPI;
 struct VSVideoInfo;
+struct VSFrameRef;
+
+namespace vsedit
+{
+	struct Frame
+	{
+		int number;
+		int outputIndex;
+		const VSFrameRef * cpFrameRef;
+
+		Frame(int a_number, int a_outputIndex,
+			const VSFrameRef * a_cpFrameRef);
+		bool operator==(const Frame & a_other) const;
+	};
+}
 
 class VSScriptProcessorDialog : public QDialog
 {
@@ -42,6 +58,9 @@ class VSScriptProcessorDialog : public QDialog
 		virtual void slotFrameQueueStateChanged(size_t a_inQueue,
 			size_t a_inProcess, size_t a_maxThreads);
 
+		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+			const VSFrameRef * a_cpFrameRef) = 0;
+
 	signals:
 
 		void signalWriteLogMessage(int a_messageType,
@@ -52,6 +71,8 @@ class VSScriptProcessorDialog : public QDialog
 		virtual void closeEvent(QCloseEvent * a_pEvent) override;
 
 		virtual void stopAndCleanUp();
+
+		virtual void clearFramesCache();
 
 		/// Adds status bar to the dialog.
 		/// Relies on dialog having a layout.
@@ -83,6 +104,9 @@ class VSScriptProcessorDialog : public QDialog
 
 		QPixmap m_readyPixmap;
 		QPixmap m_busyPixmap;
+
+		std::list<vsedit::Frame> m_framesCache;
+		size_t m_cachedFramesLimit;
 };
 
 #endif // VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED

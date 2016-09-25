@@ -13,26 +13,6 @@
 
 //==============================================================================
 
-NumberedFrameRef::NumberedFrameRef(int a_number,
-	const VSFrameRef * a_cpFrameRef):
-	number(a_number)
-	, cpFrameRef(a_cpFrameRef)
-{
-}
-
-bool NumberedFrameRef::operator<(const NumberedFrameRef & a_other) const
-{
-	if(this == &a_other)
-		return false;
-
-	if(number < a_other.number)
-		return true;
-
-	return false;
-}
-
-//==============================================================================
-
 EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pParent, (Qt::WindowFlags)0
@@ -45,7 +25,6 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	, m_lastFrame(-1)
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
-	, m_cachedFramesLimit(120)
 	, m_lastFrameProcessed(-1)
 	, m_lastFrameRequested(-1)
 	, m_state(State::Idle)
@@ -64,10 +43,6 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
 
 	m_ui.argumentsHelpButton->setIcon(QIcon(":information.png"));
-
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
@@ -396,7 +371,7 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 //==============================================================================
 
 
-void EncodeDialog::slotReceiveFrame(int a_frameNumber,
+void EncodeDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 	const VSFrameRef * a_cpFrameRef)
 {
 	State validStates[] = {State::WaitingForFrames, State::WritingHeader,
@@ -409,16 +384,15 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber,
 
 	assert(m_cpVSAPI);
 	const VSFrameRef * cpFrameRef = m_cpVSAPI->cloneFrameRef(a_cpFrameRef);
-	NumberedFrameRef newFrame(a_frameNumber, cpFrameRef);
-	m_framesQueue.insert(std::upper_bound(m_framesQueue.begin(),
-		m_framesQueue.end(), newFrame), newFrame);
+	vsedit::Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
+	m_framesCache.push_back(newFrame);
 
 	if(m_state == State::WaitingForFrames)
 		processFramesQueue();
 }
 
 // END OF void EncodeDialog::slotReceiveFrame(int a_frameNumber,
-//		const VSFrameRef * a_cpFrameRef)
+//		int a_outputIndex, const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
 void EncodeDialog::slotEncoderStarted()
@@ -622,9 +596,15 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 	}
 	else if(m_state == State::WritingFrame)
 	{
-		m_lastFrameProcessed = m_framesQueue.front().number;
-		m_cpVSAPI->freeFrame(m_framesQueue.front().cpFrameRef);
-		m_framesQueue.pop_front();
+		vsedit::Frame referenceFrame(m_lastFrameProcessed + 1, 0, nullptr);
+		std::list<vsedit::Frame>::iterator it =
+			std::find(m_framesCache.begin(), m_framesCache.end(),
+			referenceFrame);
+		assert(it != m_framesCache.end());
+
+		m_cpVSAPI->freeFrame(it->cpFrameRef);
+		m_framesCache.erase(it);
+		m_lastFrameProcessed++;
 		m_framesProcessed++;
 		hr_time_point now = hr_clock::now();
 		m_ui.processingProgressBar->setValue(m_framesProcessed);
@@ -656,6 +636,7 @@ void EncodeDialog::stopAndCleanUp()
 	stopProcessing();
 	m_ui.metricsEdit->clear();
 	m_ui.processingProgressBar->setValue(0);
+	VSScriptProcessorDialog::stopAndCleanUp();
 }
 
 // END OF void EncodeDialog::stopAndCleanUp()
@@ -667,7 +648,7 @@ void EncodeDialog::stopProcessing()
 		return;
 
 	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
-	clearFramesQueue();
+	clearFramesCache();
 	m_framebuffer.clear();
 
 	if(m_encoder.state() != QProcess::Running)
@@ -691,7 +672,7 @@ void EncodeDialog::processFramesQueue()
 
 	if(m_framesProcessed == m_framesTotal)
 	{
-		assert(m_framesQueue.empty());
+		assert(m_framesCache.empty());
 		m_state = State::Finishing;
 		stopProcessing();
 		return;
@@ -699,24 +680,26 @@ void EncodeDialog::processFramesQueue()
 
 	while((m_lastFrameRequested < m_lastFrame) &&
 		(m_framesInProcess < m_maxThreads) &&
-		(m_framesQueue.size() < m_cachedFramesLimit))
+		(m_framesCache.size() < m_cachedFramesLimit))
 	{
 		m_pVapourSynthScriptProcessor->requestFrameAsync(
 			m_lastFrameRequested + 1);
 		m_lastFrameRequested++;
 	}
 
-	bool frameReady = ((!m_framesQueue.empty()) &&
-		(m_framesQueue.front().number == (m_lastFrameProcessed + 1)));
-	if(!frameReady)
+	vsedit::Frame frame(m_lastFrameProcessed + 1, 0, nullptr);
+	std::list<vsedit::Frame>::iterator it = std::find(m_framesCache.begin(),
+		m_framesCache.end(), frame);
+	if(it == m_framesCache.end())
 		return;
+
+	frame.cpFrameRef = it->cpFrameRef;
 
 	// VapourSynth frames are padded so every line has aligned address.
 	// But encoder expects frames tightly packed. We pack frame lines
 	// into an intermediate buffer, because writing whole frame at once
 	// is faster than feeding it to encoder line by line.
 
-	const VSFrameRef * cpFrameRef = m_framesQueue.front().cpFrameRef;
 	size_t currentDataSize = 0;
 
 	assert(m_cpVideoInfo);
@@ -725,17 +708,17 @@ void EncodeDialog::processFramesQueue()
 
 	for(int i = 0; i < cpFormat->numPlanes; ++i)
 	{
-		const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(cpFrameRef, i);
-		int stride = m_cpVSAPI->getStride(cpFrameRef, i);
-		int width = m_cpVSAPI->getFrameWidth(cpFrameRef, i);
-		int height = m_cpVSAPI->getFrameHeight(cpFrameRef, i);
+		const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(frame.cpFrameRef, i);
+		int stride = m_cpVSAPI->getStride(frame.cpFrameRef, i);
+		int width = m_cpVSAPI->getFrameWidth(frame.cpFrameRef, i);
+		int height = m_cpVSAPI->getFrameHeight(frame.cpFrameRef, i);
 		int bytes = cpFormat->bytesPerSample;
 
 		size_t planeSize = width * bytes * height;
 		size_t neededFramebufferSize = currentDataSize + planeSize;
 		if(neededFramebufferSize > m_framebuffer.size())
 			m_framebuffer.resize(neededFramebufferSize);
-		size_t framebufferStride = width * bytes;
+		int framebufferStride = width * bytes;
 
 		vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
 			cpPlane, stride, framebufferStride, height);
@@ -779,19 +762,6 @@ QString EncodeDialog::decodeArguments(const QString & a_arguments)
 
 // END OF void QString EncodeDialog::decodeArguments(
 //		const QString & a_arguments)
-//==============================================================================
-
-void EncodeDialog::clearFramesQueue()
-{
-	assert(m_cpVSAPI);
-
-	for(NumberedFrameRef & ref : m_framesQueue)
-		m_cpVSAPI->freeFrame(ref.cpFrameRef);
-
-	m_framesQueue.clear();
-}
-
-// END OF void EncodeDialog::clearFramesQueue()
 //==============================================================================
 
 void EncodeDialog::outputStandardError()

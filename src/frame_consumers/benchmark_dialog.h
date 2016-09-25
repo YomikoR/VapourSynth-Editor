@@ -28,12 +28,12 @@ class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 		virtual void slotWriteLogMessage(int a_messageType,
 			const QString & a_message) override;
 
+		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+			const VSFrameRef * a_cpFrameRef) override;
+
 		void slotWholeVideoButtonPressed();
 
 		void slotStartStopBenchmarkButtonPressed();
-
-		void slotReceiveFrame(int a_frameNumber,
-			const VSFrameRef * a_cpFrameRef);
 
 	protected:
 

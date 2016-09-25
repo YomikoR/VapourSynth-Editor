@@ -24,9 +24,6 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 
 	createStatusBar();
 
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, const VSFrameRef *)));
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startStopBenchmarkButton, SIGNAL(clicked()),
@@ -144,9 +141,10 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 //==============================================================================
 
 void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
-	const VSFrameRef * a_cpFrameRef)
+	int a_outputIndex, const VSFrameRef * a_cpFrameRef)
 {
 	(void)(a_frameNumber);
+	(void)(a_outputIndex);
 	(void)(a_cpFrameRef);
 
 	if(!m_processing)
@@ -167,7 +165,7 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 }
 
 // END OF void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
-//		const VSFrameRef * a_cpFrameRef)
+//		int a_outputIndex, const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
 void ScriptBenchmarkDialog::stopProcessing()

@@ -26,17 +26,7 @@ class QActionGroup;
 class QAction;
 class QTimer;
 class SettingsDialog;
-struct VSVideoInfo;
 class PreviewAdvancedSettingsDialog;
-
-struct NumberedPixmap
-{
-	int number;
-	QPixmap pixmap;
-
-	NumberedPixmap(int a_number, const QPixmap & a_pixmap);
-	bool operator<(const NumberedPixmap & a_other) const;
-};
 
 class PreviewDialog : public VSScriptProcessorDialog
 {
@@ -57,6 +47,9 @@ class PreviewDialog : public VSScriptProcessorDialog
 		void signalInsertLineIntoScript(const QString& a_line);
 
 	protected slots:
+
+		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+			const VSFrameRef * a_cpFrameRef) override;
 
 		void slotShowFrame(int a_frameNumber);
 
@@ -120,9 +113,6 @@ class PreviewDialog : public VSScriptProcessorDialog
 
 		void slotSetPlayFPSLimit();
 
-		void slotReceivePreviewFrame(int a_frameNumber,
-			const QPixmap & a_pixmap);
-
 		void slotPlay(bool a_play);
 
 		void slotProcessPlayQueue();
@@ -155,6 +145,12 @@ class PreviewDialog : public VSScriptProcessorDialog
 
 		void resetCropSpinBoxes();
 
+		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
+
+		void setCurrentFrame(const VSFrameRef * a_cpFrameRef);
+
+		double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
+
 		Ui::PreviewDialog m_ui;
 
 		SettingsManager * m_pSettingsManager;
@@ -169,6 +165,7 @@ class PreviewDialog : public VSScriptProcessorDialog
 
 		int m_bigFrameStep;
 
+		const VSFrameRef * m_cpFrameRef;
 		QPixmap m_framePixmap;
 
 		bool m_changingCropValues;
@@ -215,9 +212,6 @@ class PreviewDialog : public VSScriptProcessorDialog
 		QTimer * m_pPlayTimer;
 		QIcon m_iconPlay;
 		QIcon m_iconPause;
-
-		std::set<NumberedPixmap> m_framePixmapsCache;
-		size_t m_cachedPixmapsLimit;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

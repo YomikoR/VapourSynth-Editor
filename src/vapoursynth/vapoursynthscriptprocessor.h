@@ -8,7 +8,9 @@
 #include <deque>
 #include <vector>
 
-#include "../settings/settingsmanager.h"
+//==============================================================================
+
+class SettingsManager;
 
 //==============================================================================
 
@@ -28,12 +30,11 @@ typedef int (VS_CC *FNP_vssFinalize)(void);
 struct FrameTicket
 {
 	int frameNumber;
+	int outputIndex;
 	VSNodeRef * pNode;
-	VSFrameDoneCallback fpCallback;
 	bool discard;
 
-	FrameTicket(int a_frameNumber, VSNodeRef * a_pNode,
-		VSFrameDoneCallback a_fpCallback);
+	FrameTicket(int a_frameNumber, int a_outputIndex, VSNodeRef * a_pNode);
 	bool operator<(const FrameTicket & a_other) const;
 	bool operator==(const FrameTicket & a_other) const;
 };
@@ -59,20 +60,14 @@ class VapourSynthScriptProcessor : public QObject
 
 		QString error() const;
 
-		const VSVideoInfo * videoInfo() const;
+		const VSVideoInfo * videoInfo(int a_outputIndex = 0);
 
 		const VSAPI * api() const;
 
-		bool requestFrame(int a_frameNumber);
+		const VSFrameRef * requestFrame(int a_frameNumber,
+			int a_outputIndex = 0);
 
-		void freeFrame();
-
-		QPixmap pixmap(int a_frameNumber);
-
-		bool requestFrameAsync(int a_frameNumber, bool a_forPreview = false);
-
-		void colorAtPoint(size_t a_x, size_t a_y, double & a_rValue1,
-			double & a_rValue2, double & a_rValue3);
+		bool requestFrameAsync(int a_frameNumber, int a_outputIndex = 0);
 
 		bool flushFrameTicketsQueue();
 
@@ -81,7 +76,7 @@ class VapourSynthScriptProcessor : public QObject
 		void signalWriteLogMessage(int a_messageType,
 			const QString & a_message);
 
-		void signalDistributeFrame(int a_frameNumber,
+		void signalDistributeFrame(int a_frameNumber, int a_outputIndex,
 			const VSFrameRef * a_cpFrameRef);
 
 		void signalDistributePixmap(int a_frameNumber,
@@ -92,44 +87,20 @@ class VapourSynthScriptProcessor : public QObject
 
 	private slots:
 
-		void slotReceiveFrameForConsumerAndProcessQueue(
+		void slotReceiveFrameAndProcessQueue(
 			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 			VSNodeRef * a_pNodeRef, QString a_errorMessage);
-
-		void slotReceiveFrameForPreviewAndProcessQueue(
-			const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-			VSNodeRef * a_pNodeRef, QString a_errorMessage);
-
-		void slotSettingsChanged();
 
 	private:
 
 		void handleVSMessage(int a_messageType, const QString & a_message);
 
-		bool checkReceivedFrame(const VSFrameRef * a_cpFrameRef,
-			int a_frameNumber, VSNodeRef * a_pNodeRef,
-			VSFrameDoneCallback a_fpCallback, const QString & a_errorMessage);
-
-		void receiveFrameForConsumer(const VSFrameRef * a_cpFrameRef,
-			int a_frameNumber, VSNodeRef * a_pNodeRef,
-			const QString & a_errorMessage);
-
-		void receiveFrameForPreview(const VSFrameRef * a_cpFrameRef,
-			int a_frameNumber, VSNodeRef * a_pNodeRef,
-			const QString & a_errorMessage);
-
-		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
+		void receiveFrame(const VSFrameRef * a_cpFrameRef, int a_frameNumber,
+			VSNodeRef * a_pNodeRef, const QString & a_errorMessage);
 
 		bool initLibrary();
 
 		void freeLibrary();
-
-		double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
-
-		void initPreviewNode();
-
-		void requestFrameAsync(int a_frameNumber, VSNodeRef * a_pNodeRef,
-			VSFrameDoneCallback a_fpCallback);
 
 		void processFrameTicketsQueue();
 
@@ -153,27 +124,8 @@ class VapourSynthScriptProcessor : public QObject
 
 		VSScript * m_pVSScript;
 
-		VSNodeRef * m_pOutputNode;
-		VSNodeRef * m_pPreviewNode;
-
 		const VSVideoInfo * m_cpVideoInfo;
 		const VSCoreInfo * m_cpCoreInfo;
-
-		int m_currentFrame;
-
-		int m_currentPreviewFrame;
-
-		const VSFrameRef * m_cpCurrentFrameRef;
-
-		ResamplingFilter m_chromaResamplingFilter;
-
-		ChromaPlacement m_chromaPlacement;
-
-		double m_resamplingFilterParameterA;
-
-		double m_resamplingFilterParameterB;
-
-		YuvToRgbConversionMatrix m_yuvMatrix;
 
 		QLibrary m_vsScriptLibrary;
 

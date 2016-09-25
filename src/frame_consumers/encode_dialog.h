@@ -3,7 +3,6 @@
 
 #include <QProcess>
 #include <vector>
-#include <deque>
 #include <functional>
 
 #include <ui_encode_dialog.h>
@@ -11,17 +10,6 @@
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
 #include "../settings/settingsmanager.h"
-
-struct VSFrameRef;
-
-struct NumberedFrameRef
-{
-	int number;
-	const VSFrameRef * cpFrameRef;
-
-	NumberedFrameRef(int a_number, const VSFrameRef * a_cpFrameRef);
-	bool operator<(const NumberedFrameRef & a_other) const;
-};
 
 struct VariableToken
 {
@@ -62,6 +50,9 @@ class EncodeDialog : public VSScriptProcessorDialog
 		virtual void slotWriteLogMessage(int a_messageType,
 			const QString & a_message) override;
 
+		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+			const VSFrameRef * a_cpFrameRef) override;
+
 		void slotWholeVideoButtonPressed();
 
 		void slotStartStopEncodeButtonPressed();
@@ -73,9 +64,6 @@ class EncodeDialog : public VSScriptProcessorDialog
 		void slotEncodingPresetSaveButtonPressed();
 		void slotEncodingPresetDeleteButtonPressed();
 		void slotEncodingPresetComboBoxActivated(const QString & a_text);
-
-		void slotReceiveFrame(int a_frameNumber,
-			const VSFrameRef * a_cpFrameRef);
 
 		void slotEncoderStarted();
 		void slotEncoderFinished(int a_exitCode,
@@ -95,8 +83,6 @@ class EncodeDialog : public VSScriptProcessorDialog
 
 		QString decodeArguments(const QString & a_arguments);
 
-		void clearFramesQueue();
-
 		void outputStandardError();
 
 		void fillVariables();
@@ -115,9 +101,6 @@ class EncodeDialog : public VSScriptProcessorDialog
 		QProcess m_encoder;
 
 		std::vector<char> m_framebuffer;
-
-		std::deque<NumberedFrameRef> m_framesQueue;
-		size_t m_cachedFramesLimit;
 
 		int m_lastFrameProcessed;
 		int m_lastFrameRequested;

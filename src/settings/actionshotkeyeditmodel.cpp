@@ -101,7 +101,7 @@ QVariant ActionsHotkeyEditModel::data(const QModelIndex & a_index, int a_role)
 int ActionsHotkeyEditModel::rowCount(const QModelIndex & a_parent) const
 {
 	(void)a_parent;
-	return m_actionsList.size();
+	return (int)m_actionsList.size();
 }
 
 //==============================================================================
@@ -155,7 +155,7 @@ void ActionsHotkeyEditModel::reloadHotkeysSettings()
 	for(ActionData & actionData : m_actionsList)
 		actionData.hotkey = m_pSettingsManager->getHotkey(actionData.id);
 	emit dataChanged(createIndex(2, 0),
-		createIndex(2, m_actionsList.size() - 1));
+		createIndex(2, (int)m_actionsList.size() - 1));
 }
 
 //==============================================================================

@@ -46,25 +46,6 @@
 
 //==============================================================================
 
-NumberedPixmap::NumberedPixmap(int a_number, const QPixmap & a_pixmap):
-	number(a_number)
-	, pixmap(a_pixmap)
-{
-}
-
-bool NumberedPixmap::operator<(const NumberedPixmap & a_other) const
-{
-	if(this == &a_other)
-		return false;
-
-	if(number < a_other.number)
-		return true;
-
-	return false;
-}
-
-//==============================================================================
-
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	SettingsDialog * a_pSettingsDialog,  QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pParent)
@@ -75,6 +56,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_frameShown(-1)
 	, m_lastFrameRequestedForPlay(-1)
 	, m_bigFrameStep(10)
+	, m_cpFrameRef(nullptr)
 	, m_changingCropValues(false)
 	, m_pPreviewContextMenu(nullptr)
 	, m_pActionFrameToClipboard(nullptr)
@@ -105,7 +87,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
-	, m_cachedPixmapsLimit(120)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -145,9 +126,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
 
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributePixmap(int, const QPixmap &)),
-		this, SLOT(slotReceivePreviewFrame(int, const QPixmap &)));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
@@ -248,6 +226,15 @@ void PreviewDialog::stopAndCleanUp()
 	m_frameShown = -1;
 	m_framePixmap = QPixmap();
 	m_ui.previewArea->setPixmap(QPixmap());
+
+	if(m_cpFrameRef)
+	{
+		assert(m_cpVSAPI);
+		m_cpVSAPI->freeFrame(m_cpFrameRef);
+		m_cpFrameRef = nullptr;
+	}
+
+	VSScriptProcessorDialog::stopAndCleanUp();
 }
 
 // END OF void PreviewDialog::clear()
@@ -336,6 +323,34 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 // END OF void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 //==============================================================================
 
+void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+	const VSFrameRef * a_cpFrameRef)
+{
+	if(!a_cpFrameRef)
+		return;
+
+	assert(m_cpVSAPI);
+	const VSFrameRef * cpFrameRef = m_cpVSAPI->cloneFrameRef(a_cpFrameRef);
+
+	if(m_playing)
+	{
+		vsedit::Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
+		m_framesCache.push_back(newFrame);
+		slotProcessPlayQueue();
+	}
+	else
+	{
+		setCurrentFrame(cpFrameRef);
+		m_frameShown = a_frameNumber;
+		if(m_frameShown == m_frameExpected)
+			m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
+	}
+}
+
+// END OF void PreviewDialog::slotReceiveFrame(int a_frameNumber,
+//		int a_outputIndex, const VSFrameRef * a_cpFrameRef)
+//==============================================================================
+
 void PreviewDialog::slotShowFrame(int a_frameNumber)
 {
 	if((m_frameExpected == a_frameNumber) && (!m_framePixmap.isNull()))
@@ -366,7 +381,7 @@ void PreviewDialog::slotShowFrame(int a_frameNumber)
 
 	requestingFrame = false;
 }
-// END OF void PreviewDialog::slotFrameNumberSliderMoved(int a_position)
+// END OF void PreviewDialog::slotShowFrame(int a_frameNumber)
 //==============================================================================
 
 void PreviewDialog::slotSaveSnapshot()
@@ -898,8 +913,50 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	frameX = (size_t)((float)m_framePixmap.width() * a_normX);
 	frameY = (size_t)((float)m_framePixmap.height() * a_normY);
 
-	m_pVapourSynthScriptProcessor->colorAtPoint(frameX, frameY,
-		value1, value2, value3);
+	int width = m_cpVSAPI->getFrameWidth(m_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(m_cpFrameRef, 0);
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
+
+	if((frameX >= (size_t)width) || (frameY >= (size_t)height))
+	{
+		m_ui.colorPickerLabel->clear();
+		return;
+	}
+
+	if(cpFormat->id == pfCompatBGR32)
+	{
+		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpFrameRef, 0);
+		int stride = m_cpVSAPI->getStride(m_cpFrameRef, 0);
+		const uint32_t * cpLine = (const uint32_t *)(cpData + frameY * stride);
+		uint32_t packedValue = cpLine[frameX];
+		value3 = (double)(packedValue & 0xFF);
+		value2 = (double)((packedValue >> 8) & 0xFF);
+		value1 = (double)((packedValue >> 16) & 0xFF);
+	}
+	else if(cpFormat->id == pfCompatYUY2)
+	{
+		size_t x = frameX >> 1;
+		size_t rem = frameX & 0x1;
+		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpFrameRef, 0);
+		int stride = m_cpVSAPI->getStride(m_cpFrameRef, 0);
+		const uint32_t * cpLine = (const uint32_t *)(cpData + frameY * stride);
+		uint32_t packedValue = cpLine[x];
+
+		if(rem == 0)
+			value1 = (double)(packedValue & 0xFF);
+		else
+			value1 = (double)((packedValue >> 16) & 0xFF);
+		value2 = (double)((packedValue >> 8) & 0xFF);
+		value3 = (double)((packedValue >> 24) & 0xFF);
+	}
+	else
+	{
+		value1 = valueAtPoint(frameX, frameY, 0);
+		if(cpFormat->numPlanes > 1)
+			value2 = valueAtPoint(frameX, frameY, 1);
+		if(cpFormat->numPlanes > 2)
+			value3 = valueAtPoint(frameX, frameY, 2);
+	}
 
 	QString l1("1");
 	QString l2("2");
@@ -1003,32 +1060,6 @@ void PreviewDialog::slotSetPlayFPSLimit()
 // END OF void PreviewDialog::void slotSetPlayFPSLimit()
 //==============================================================================
 
-void PreviewDialog::slotReceivePreviewFrame(int a_frameNumber,
-	const QPixmap & a_pixmap)
-{
-	if(a_pixmap.isNull())
-		return;
-
-	if(m_playing)
-	{
-		NumberedPixmap newPixmap(a_frameNumber, a_pixmap);
-		m_framePixmapsCache.insert(newPixmap);
-		slotProcessPlayQueue();
-	}
-	else
-	{
-		m_framePixmap = a_pixmap;
-		setPreviewPixmap();
-
-		m_frameShown = a_frameNumber;
-		if(m_frameShown == m_frameExpected)
-			m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
-	}
-}
-
-// END OF void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
-//==============================================================================
-
 void PreviewDialog::slotPlay(bool a_play)
 {
 	m_playing = a_play;
@@ -1044,7 +1075,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	}
 	else
 	{
-		m_framePixmapsCache.clear();
+		clearFramesCache();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 		m_pActionPlay->setIcon(m_iconPlay);
 		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
@@ -1067,15 +1098,15 @@ void PreviewDialog::slotProcessPlayQueue()
 	m_processingPlayQueue = true;
 
 	int nextFrame = (m_frameShown + 1) % m_cpVideoInfo->numFrames;
+	vsedit::Frame referenceFrame(nextFrame, 0, nullptr);
 
-	while(!m_framePixmapsCache.empty())
+	while(!m_framesCache.empty())
 	{
-		std::set<NumberedPixmap>::const_iterator it =
-			std::find_if(m_framePixmapsCache.begin(), m_framePixmapsCache.end(),
-			[&](const NumberedPixmap & a_pixmap){
-				return (a_pixmap.number == nextFrame);});
+		std::list<vsedit::Frame>::const_iterator it =
+			std::find(m_framesCache.begin(), m_framesCache.end(),
+			referenceFrame);
 
-		if(it == m_framePixmapsCache.end())
+		if(it == m_framesCache.end())
 			break;
 
 		hr_time_point now = hr_clock::now();
@@ -1088,27 +1119,25 @@ void PreviewDialog::slotProcessPlayQueue()
 			break;
 		}
 
-		m_framePixmap = it->pixmap;
-		setPreviewPixmap();
+		setCurrentFrame(it->cpFrameRef);
 		m_lastFrameShowTime = hr_clock::now();
 
 		m_frameShown = nextFrame;
 		m_frameExpected = m_frameShown;
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);
-		m_framePixmapsCache.erase(it);
+		m_framesCache.erase(it);
 		nextFrame = (m_frameShown + 1) % m_cpVideoInfo->numFrames;
+		referenceFrame.number = nextFrame;
 	}
 
 	nextFrame = (m_lastFrameRequestedForPlay + 1) %
 		m_cpVideoInfo->numFrames;
 
-	// Each preview request results in two frame requests to synchronize
-	// between the preview and the actual output.
-	while(((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 2)) &&
-		(m_framePixmapsCache.size() <= m_cachedPixmapsLimit))
+	while(((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 1)) &&
+		(m_framesCache.size() <= m_cachedFramesLimit))
 	{
-		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame, true);
+		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame);
 		m_lastFrameRequestedForPlay = nextFrame;
 		nextFrame = (nextFrame + 1) % m_cpVideoInfo->numFrames;
 	}
@@ -1667,7 +1696,7 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 	if((m_frameShown != -1) && (m_frameShown != m_frameExpected))
 		return false;
 
-	m_pVapourSynthScriptProcessor->requestFrameAsync(a_frameNumber, true);
+	m_pVapourSynthScriptProcessor->requestFrameAsync(a_frameNumber);
 	return true;
 }
 
@@ -1781,4 +1810,82 @@ void PreviewDialog::resetCropSpinBoxes()
 }
 
 // END OF void PreviewDialog::resetCropSpinBoxes()
+//==============================================================================
+
+QPixmap PreviewDialog::pixmapFromFrame(const VSFrameRef * a_cpFrameRef)
+{
+	assert(m_cpVSAPI);
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	return QPixmap(width, height);
+}
+
+// END OF QPixmap PreviewDialog::pixmapFromFrame(
+//		const VSFrameRef * a_cpFrameRef)
+//==============================================================================
+
+void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpFrameRef)
+{
+	assert(m_cpVSAPI);
+	m_cpVSAPI->freeFrame(m_cpFrameRef);
+	m_cpFrameRef = a_cpFrameRef;
+	m_framePixmap = pixmapFromFrame(m_cpFrameRef);
+	setPreviewPixmap();
+}
+
+// END OF void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpFrameRef)
+//==============================================================================
+
+double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
+{
+	assert(m_cpFrameRef);
+	assert(m_cpVSAPI);
+
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
+
+	assert((a_plane >= 0) && (a_plane < cpFormat->numPlanes));
+
+    const uint8_t * cpPlane =
+		m_cpVSAPI->getReadPtr(m_cpFrameRef, a_plane);
+
+	size_t x = a_x;
+	size_t y = a_y;
+
+	if(a_plane != 0)
+	{
+		x = (a_x >> cpFormat->subSamplingW);
+		y = (a_y >> cpFormat->subSamplingH);
+	}
+	int stride = m_cpVSAPI->getStride(m_cpFrameRef, a_plane);
+	const uint8_t * cpLine = cpPlane + y * stride;
+
+	double value = 0.0;
+
+	if(cpFormat->sampleType == stInteger)
+	{
+		if(cpFormat->bytesPerSample == 1)
+			value = (double)cpLine[x];
+		else if(cpFormat->bytesPerSample == 2)
+			value = (double)((uint16_t *)cpLine)[x];
+		else if(cpFormat->bytesPerSample == 4)
+			value = (double)((uint32_t *)cpLine)[x];
+	}
+	else if(cpFormat->sampleType == stFloat)
+	{
+		if(cpFormat->bytesPerSample == 2)
+		{
+			vsedit::FP16 half;
+			half.u = ((uint16_t *)cpLine)[x];
+			vsedit::FP32 single = vsedit::halfToSingle(half);
+			value = (double)single.f;
+		}
+		else if(cpFormat->bytesPerSample == 4)
+			value = (double)((float *)cpLine)[x];
+	}
+
+	return value;
+}
+
+// END OF double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y,
+//		int a_plane)
 //==============================================================================

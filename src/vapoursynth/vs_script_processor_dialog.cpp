@@ -14,6 +14,21 @@
 
 //==============================================================================
 
+vsedit::Frame::Frame(int a_number, int a_outputIndex,
+	const VSFrameRef * a_cpFrameRef):
+	  number(a_number)
+	, outputIndex(a_outputIndex)
+	, cpFrameRef(a_cpFrameRef)
+{
+}
+
+bool vsedit::Frame::operator==(const vsedit::Frame & a_other) const
+{
+	return ((number == a_other.number) && (outputIndex == a_other.outputIndex));
+}
+
+//==============================================================================
+
 VSScriptProcessorDialog::VSScriptProcessorDialog(
 	SettingsManager * a_pSettingsManager, QWidget * a_pParent,
 	Qt::WindowFlags a_flags):
@@ -32,6 +47,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_pVideoInfoLabel(nullptr)
 	, m_readyPixmap(":tick.png")
 	, m_busyPixmap(":busy.png")
+	, m_cachedFramesLimit(100)
 {
 	assert(a_pSettingsManager);
 	m_pVapourSynthScriptProcessor =
@@ -43,6 +59,9 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *)),
+		this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *)));
 }
 
 // END OF VSScriptProcessorDialog::VSScriptProcessorDialog(
@@ -175,8 +194,22 @@ void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 
 void VSScriptProcessorDialog::stopAndCleanUp()
 {
-	m_cpVSAPI = nullptr;
+	clearFramesCache();
 	m_cpVideoInfo = nullptr;
+}
+
+// END OF void VSScriptProcessorDialog::stopAndCleanUp()
+//==============================================================================
+
+void VSScriptProcessorDialog::clearFramesCache()
+{
+	if(m_framesCache.empty())
+		return;
+
+	assert(m_cpVSAPI);
+	for(vsedit::Frame & frame : m_framesCache)
+		m_cpVSAPI->freeFrame(frame.cpFrameRef);
+	m_framesCache.clear();
 }
 
 // END OF void VSScriptProcessorDialog::stopAndCleanUp()
