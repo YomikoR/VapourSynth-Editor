@@ -79,9 +79,6 @@ class VapourSynthScriptProcessor : public QObject
 		void signalDistributeFrame(int a_frameNumber, int a_outputIndex,
 			const VSFrameRef * a_cpFrameRef);
 
-		void signalDistributePixmap(int a_frameNumber,
-			const QPixmap & a_pixmap);
-
 		void signalFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
 			size_t a_maxThreads);
 

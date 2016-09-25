@@ -237,7 +237,7 @@ void PreviewDialog::stopAndCleanUp()
 	VSScriptProcessorDialog::stopAndCleanUp();
 }
 
-// END OF void PreviewDialog::clear()
+// END OF void PreviewDialog::stopAndCleanUp()
 //==============================================================================
 
 void PreviewDialog::moveEvent(QMoveEvent * a_pEvent)
@@ -478,7 +478,7 @@ void PreviewDialog::slotZoomRatioChanged(double a_zoomRatio)
 	m_pSettingsManager->setZoomRatio(a_zoomRatio);
 }
 
-// END OF void PreviewDialog::slotZoomRateChanged(double a_zoomRatio)
+// END OF void PreviewDialog::slotZoomRatioChanged(double a_zoomRatio)
 //==============================================================================
 
 void PreviewDialog::slotScaleModeChanged()
@@ -751,7 +751,8 @@ void PreviewDialog::slotToggleTimeLinePanelVisible(bool a_timeLinePanelVisible)
 	m_ui.timeLinePanel->setVisible(a_timeLinePanelVisible);
 }
 
-// END OF void PreviewDialog::slotPasteCropSnippetIntoScript()
+// END OF void PreviewDialog::slotToggleTimeLinePanelVisible(
+//		bool a_timeLinePanelVisible)
 //==============================================================================
 
 void PreviewDialog::slotTimeLineModeChanged()
@@ -1134,7 +1135,7 @@ void PreviewDialog::slotProcessPlayQueue()
 	nextFrame = (m_lastFrameRequestedForPlay + 1) %
 		m_cpVideoInfo->numFrames;
 
-	while(((m_framesInQueue + m_framesInProcess) <= (m_maxThreads - 1)) &&
+	while(((m_framesInQueue + m_framesInProcess) < m_maxThreads) &&
 		(m_framesCache.size() <= m_cachedFramesLimit))
 	{
 		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame);
@@ -1145,7 +1146,7 @@ void PreviewDialog::slotProcessPlayQueue()
 	m_processingPlayQueue = false;
 }
 
-// END OF void PreviewDialog::slotPlay(bool a_play)
+// END OF void PreviewDialog::slotProcessPlayQueue()
 //==============================================================================
 
 void PreviewDialog::createActionsAndMenus()
