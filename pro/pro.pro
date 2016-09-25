@@ -127,7 +127,7 @@ contains(QMAKE_COMPILER, gcc) {
 
 TEMPLATE = app
 
-VER_MAJ = 8
+VER_MAJ = 9
 VERSION = $$VER_MAJ
 
 RC_ICONS = ../resources/vsedit.ico

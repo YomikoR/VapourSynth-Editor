@@ -1,3 +1,9 @@
+r⑨:
+-Asynchronous frames processing. More responsive GUI.
+-Preview video playback.
+-Script processing benchmarking.
+-Encoding video with CLI tools.
+
 r8:
 -BUGFIX: Preview stride.
 

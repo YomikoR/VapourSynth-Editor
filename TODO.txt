@@ -5,7 +5,6 @@
 - highlight matches
 - reference and documentation
 - improved log
-- cli encoding with profiles
 - vfw encoding
 - crashreport
 - timeline bookmarks
