@@ -31,6 +31,7 @@
 #include "scrollnavigator.h"
 #include "timelineslider.h"
 #include "preview_advanced_settings_dialog.h"
+#include "zimg_preview_converter.h"
 
 #include "previewdialog.h"
 
@@ -87,6 +88,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
+	, m_pPreviewConverter(nullptr)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -122,12 +124,14 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	m_ui.colorPickerLabel->setVisible(
 		m_pSettingsManager->getColorPickerVisible());
 
+	m_pPreviewConverter = new ZimgPreviewConverter(a_pSettingsManager, this);
+
 	QByteArray newGeometry = m_pSettingsManager->getPreviewDialogGeometry();
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
 
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
-		m_pVapourSynthScriptProcessor, SLOT(slotSettingsChanged()));
+		m_pPreviewConverter, SLOT(slotResetSettings()));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
@@ -150,6 +154,9 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotSettingsChanged()));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
 		this, SLOT(slotProcessPlayQueue()));
+	connect(m_pPreviewConverter,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SIGNAL(signalWriteLogMessage(int, const QString &)));
 
 	slotSettingsChanged();
 }
@@ -176,6 +183,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 		hide();
 		return;
 	}
+
+	m_pPreviewConverter->setVSAPI(m_cpVSAPI);
 
 	QString title = "Preview - ";
 	title += a_scriptName;
@@ -1014,7 +1023,8 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
-	requestShowFrame(m_frameExpected);
+	m_framePixmap = m_pPreviewConverter->pixmap(m_cpFrameRef);
+	setPreviewPixmap();
 }
 
 // END OF void PreviewDialog::slotAdvancedSettingsChanged()
@@ -1813,24 +1823,12 @@ void PreviewDialog::resetCropSpinBoxes()
 // END OF void PreviewDialog::resetCropSpinBoxes()
 //==============================================================================
 
-QPixmap PreviewDialog::pixmapFromFrame(const VSFrameRef * a_cpFrameRef)
-{
-	assert(m_cpVSAPI);
-	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
-	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	return QPixmap(width, height);
-}
-
-// END OF QPixmap PreviewDialog::pixmapFromFrame(
-//		const VSFrameRef * a_cpFrameRef)
-//==============================================================================
-
 void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpFrameRef)
 {
 	assert(m_cpVSAPI);
 	m_cpVSAPI->freeFrame(m_cpFrameRef);
 	m_cpFrameRef = a_cpFrameRef;
-	m_framePixmap = pixmapFromFrame(m_cpFrameRef);
+	m_framePixmap = m_pPreviewConverter->pixmap(m_cpFrameRef);
 	setPreviewPixmap();
 }
 

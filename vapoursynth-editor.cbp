@@ -255,6 +255,10 @@
 		<Unit filename="src/preview/scrollnavigator.h" />
 		<Unit filename="src/preview/timelineslider.cpp" />
 		<Unit filename="src/preview/timelineslider.h" />
+		<Unit filename="src/preview/zimg_helpers.cpp" />
+		<Unit filename="src/preview/zimg_helpers.h" />
+		<Unit filename="src/preview/zimg_preview_converter.cpp" />
+		<Unit filename="src/preview/zimg_preview_converter.h" />
 		<Unit filename="src/scripteditor/numbermatcher.cpp" />
 		<Unit filename="src/scripteditor/numbermatcher.h" />
 		<Unit filename="src/scripteditor/scriptcompleter.cpp" />

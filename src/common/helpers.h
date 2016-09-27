@@ -30,10 +30,23 @@ namespace vsedit
 	}
 
 	template<typename Container_T, typename Value_T>
-	bool contains(const Container_T & a_container, const Value_T & a_value)
+		bool contains(const Container_T & a_container, const Value_T & a_value)
 	{
 		return (std::find(std::begin(a_container), std::end(a_container),
 			a_value) != std::end(a_container));
+	}
+
+	template<typename T>
+		T roundUp(T a_number, T a_multiple)
+	{
+		if(a_multiple == 0)
+			return a_number;
+
+		T remainder = a_number % a_multiple;
+		if(remainder == 0)
+			return a_number;
+
+		return a_number + a_multiple - remainder;
 	}
 
 	//--------------------------------------------------------------------------

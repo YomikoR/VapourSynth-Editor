@@ -27,6 +27,7 @@ class QAction;
 class QTimer;
 class SettingsDialog;
 class PreviewAdvancedSettingsDialog;
+class ZimgPreviewConverter;
 
 class PreviewDialog : public VSScriptProcessorDialog
 {
@@ -145,8 +146,6 @@ class PreviewDialog : public VSScriptProcessorDialog
 
 		void resetCropSpinBoxes();
 
-		QPixmap pixmapFromFrame(const VSFrameRef * a_cpFrameRef);
-
 		void setCurrentFrame(const VSFrameRef * a_cpFrameRef);
 
 		double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
@@ -212,6 +211,8 @@ class PreviewDialog : public VSScriptProcessorDialog
 		QTimer * m_pPlayTimer;
 		QIcon m_iconPlay;
 		QIcon m_iconPause;
+
+		ZimgPreviewConverter * m_pPreviewConverter;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

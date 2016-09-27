@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-#define VSE_MEMORY_ALIGNMENT 32
+#define VSE_MEMORY_ALIGNMENT 64u
 
 namespace vsedit
 {
