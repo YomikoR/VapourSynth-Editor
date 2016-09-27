@@ -32,6 +32,7 @@ ZimgPreviewConverter::ZimgPreviewConverter(SettingsManager * a_pSettingsManager,
 	m_outFormat.color_family = ZIMG_COLOR_RGB;
 	m_outFormat.matrix_coefficients = ZIMG_MATRIX_RGB;
 	m_outFormat.pixel_type = ZIMG_PIXEL_BYTE;
+	m_outFormat.pixel_range = ZIMG_RANGE_FULL;
 	m_outFormat.depth = 8;
 
 	m_inZimgBuffer.plane[0].mask = ZIMG_BUFFER_MAX;
@@ -115,11 +116,14 @@ QPixmap ZimgPreviewConverter::pixmap(const VSFrameRef * a_cpFrameRef)
 
 	if(!result)
 	{
-		QPainter p(&pixmap);
-		p.setPen(QColor(Qt::white));
-		p.drawText(QRect(0, 0, width, height),
-		Qt::AlignHCenter | Qt::AlignHCenter, m_error);
+		inpaintError(pixmap);
 		return pixmap;
+	}
+
+	if((newInFormat.color_family == ZIMG_COLOR_YUV) &&
+		(newInFormat.matrix_coefficients == ZIMG_MATRIX_UNSPECIFIED))
+	{
+		newInFormat.matrix_coefficients = ZIMG_MATRIX_709;
 	}
 
 	if(cpFormat->id == pfCompatYUY2)
@@ -180,7 +184,7 @@ QPixmap ZimgPreviewConverter::pixmap(const VSFrameRef * a_cpFrameRef)
 	m_bgr32PackData.bgr32BufferStride = packStride;
 
 	if((m_inFormat != newInFormat) || (m_outFormat.width != width) ||
-		(m_outFormat.height != height))
+		(m_outFormat.height != height) || (!m_pFilterGraph))
 	{
 		m_inFormat = newInFormat;
 
@@ -192,18 +196,35 @@ QPixmap ZimgPreviewConverter::pixmap(const VSFrameRef * a_cpFrameRef)
 
 		m_pFilterGraph = zimg_filter_graph_build(&m_inFormat, &m_outFormat,
 			&m_graphBuilderParams);
-		checkZimgError();
+		if(!m_pFilterGraph)
+		{
+			checkZimgError();
+			inpaintError(pixmap);
+			return pixmap;
+		}
 	}
 
 	size_t tempBufferSize;
-	zimg_filter_graph_get_tmp_size(m_pFilterGraph, &tempBufferSize);
+	zimg_error_code_e errorCode = zimg_filter_graph_get_tmp_size(
+		m_pFilterGraph, &tempBufferSize);
+	if(errorCode != ZIMG_ERROR_SUCCESS)
+	{
+		checkZimgError();
+		inpaintError(pixmap);
+		return pixmap;
+	}
 	m_tempBuffer.resize(tempBufferSize);
 
-	zimg_filter_graph_process(m_pFilterGraph,
+	errorCode = zimg_filter_graph_process(m_pFilterGraph,
 		reinterpret_cast<zimg_image_buffer_const *>(&m_inZimgBuffer),
 		&m_outZimgBuffer, m_tempBuffer.data(), m_fpUnpackCallback,
 		m_pUnpackData, packBGR32, &m_bgr32PackData);
-	checkZimgError();
+	if(errorCode != ZIMG_ERROR_SUCCESS)
+	{
+		checkZimgError();
+		inpaintError(pixmap);
+		return pixmap;
+	}
 
 	QImage frameImage(m_bgr32Buffer.data(), width, height,
 		width * 4, QImage::Format_RGB32);
@@ -251,6 +272,13 @@ void ZimgPreviewConverter::slotResetSettings()
 			(double)m_pSettingsManager->getLanczosFilterTaps();
 		m_graphBuilderParams.filter_param_a_uv =
 			m_graphBuilderParams.filter_param_a;
+	}
+
+	if(m_pFilterGraph)
+	{
+		zimg_filter_graph_free(m_pFilterGraph);
+		m_pFilterGraph = zimg_filter_graph_build(&m_inFormat, &m_outFormat,
+			&m_graphBuilderParams);
 	}
 }
 
@@ -467,4 +495,18 @@ void ZimgPreviewConverter::checkZimgError()
 }
 
 // END OF void ZimgPreviewConverter::checkZimgError()
+//==============================================================================
+
+void ZimgPreviewConverter::inpaintError(QPixmap & a_pixmap)
+{
+	if(m_error.isEmpty())
+		return;
+
+	QPainter p(&a_pixmap);
+	p.setPen(QColor(Qt::white));
+	p.drawText(QRect(0, 0, a_pixmap.width(), a_pixmap.height()),
+	Qt::AlignHCenter | Qt::AlignVCenter, m_error);
+}
+
+// END OF void ZimgPreviewConverter::inpaintError(QPixmap & a_pixmap)
 //==============================================================================

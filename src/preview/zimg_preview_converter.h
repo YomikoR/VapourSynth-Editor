@@ -48,6 +48,8 @@ private:
 
 	void checkZimgError();
 
+	void inpaintError(QPixmap & a_pixmap);
+
 	QString m_error;
 
 	SettingsManager * m_pSettingsManager;
