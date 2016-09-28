@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>349</width>
+    <width>364</width>
     <height>181</height>
    </rect>
   </property>
@@ -29,15 +29,21 @@
    <property name="spacing">
     <number>4</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Y'CbCr / Y'UV to R'G'B' conversion matrix:</string>
+      <string>Bicubic filter parameter b:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QComboBox" name="yuvToRgbConversionMatrixComboBox"/>
+    <widget class="QComboBox" name="yuvMatrixCoefficientsComboBox"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="chromaPlacementComboBox"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="chromaResamplingFilterComboBox"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
@@ -46,8 +52,12 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="chromaResamplingFilterComboBox"/>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Y'CbCr / Y'UV matrix coefficients:</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
@@ -56,32 +66,10 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="chromaPlacementComboBox"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_4">
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Bicubic filter parameter b:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QDoubleSpinBox" name="bicubicFilterParameterBSpinBox">
-     <property name="decimals">
-      <number>6</number>
-     </property>
-     <property name="minimum">
-      <double>-100000.000000000000000</double>
-     </property>
-     <property name="maximum">
-      <double>100000.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>0.000001000000000</double>
-     </property>
-     <property name="value">
-      <double>0.333333000000000</double>
+      <string>Lanczos filter taps:</string>
      </property>
     </widget>
    </item>
@@ -111,23 +99,22 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Lanczos filter taps:</string>
+   <item row="3" column="1">
+    <widget class="QDoubleSpinBox" name="bicubicFilterParameterBSpinBox">
+     <property name="decimals">
+      <number>6</number>
      </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="QSpinBox" name="lanczosFilterTapsSpinBox">
      <property name="minimum">
-      <number>2</number>
+      <double>-100000.000000000000000</double>
      </property>
      <property name="maximum">
-      <number>4096</number>
+      <double>100000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.000001000000000</double>
      </property>
      <property name="value">
-      <number>3</number>
+      <double>0.333333000000000</double>
      </property>
     </widget>
    </item>
@@ -165,6 +152,19 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="5" column="1">
+    <widget class="QSpinBox" name="lanczosFilterTapsSpinBox">
+     <property name="minimum">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <number>4096</number>
+     </property>
+     <property name="value">
+      <number>3</number>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

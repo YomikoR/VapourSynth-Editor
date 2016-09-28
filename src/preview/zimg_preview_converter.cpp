@@ -23,6 +23,8 @@ ZimgPreviewConverter::ZimgPreviewConverter(SettingsManager * a_pSettingsManager,
 	, m_fpUnpackCallback(nullptr)
 	, m_pUnpackData(nullptr)
 	, m_pFilterGraph(nullptr)
+	, m_defaultYuvMatrixCoefficients(ZIMG_MATRIX_709)
+	, m_defaultChromaLocation(ZIMG_CHROMA_LEFT)
 {
 	assert(a_pSettingsManager);
 
@@ -120,10 +122,10 @@ QPixmap ZimgPreviewConverter::pixmap(const VSFrameRef * a_cpFrameRef)
 		return pixmap;
 	}
 
-	if((newInFormat.color_family == ZIMG_COLOR_YUV) &&
-		(newInFormat.matrix_coefficients == ZIMG_MATRIX_UNSPECIFIED))
+	if(newInFormat.color_family == ZIMG_COLOR_YUV)
 	{
-		newInFormat.matrix_coefficients = ZIMG_MATRIX_709;
+		if(newInFormat.matrix_coefficients == ZIMG_MATRIX_UNSPECIFIED)
+			newInFormat.matrix_coefficients = m_defaultYuvMatrixCoefficients;
 	}
 
 	if(cpFormat->id == pfCompatYUY2)
@@ -250,6 +252,22 @@ void ZimgPreviewConverter::slotResetSettings()
 		{(int)ResamplingFilter::Lanczos, ZIMG_RESIZE_LANCZOS},
 	};
 
+	std::map<int, zimg_matrix_coefficients_e> matrixMap =
+	{
+		{(int)YuvMatrixCoefficients::m709, ZIMG_MATRIX_709},
+		{(int)YuvMatrixCoefficients::m470BG, ZIMG_MATRIX_470BG},
+		{(int)YuvMatrixCoefficients::m170M, ZIMG_MATRIX_170M},
+		{(int)YuvMatrixCoefficients::m2020_NCL, ZIMG_MATRIX_2020_NCL},
+		{(int)YuvMatrixCoefficients::m2020_CL, ZIMG_MATRIX_2020_CL},
+	};
+
+	std::map<int, zimg_chroma_location_e> chromaMap =
+	{
+		{(int)ChromaPlacement::MPEG1, ZIMG_CHROMA_CENTER},
+		{(int)ChromaPlacement::MPEG2, ZIMG_CHROMA_LEFT},
+		{(int)ChromaPlacement::DV, ZIMG_CHROMA_TOP_LEFT},
+	};
+
 	int filter = (int)m_pSettingsManager->getChromaResamplingFilter();
 	m_graphBuilderParams.resample_filter = filterMap[filter];
 	m_graphBuilderParams.resample_filter_uv =
@@ -273,6 +291,12 @@ void ZimgPreviewConverter::slotResetSettings()
 		m_graphBuilderParams.filter_param_a_uv =
 			m_graphBuilderParams.filter_param_a;
 	}
+
+	int matrix = (int)m_pSettingsManager->getYuvMatrixCoefficients();
+	m_defaultYuvMatrixCoefficients = matrixMap[matrix];
+
+	int chroma = (int)m_pSettingsManager->getChromaPlacement();
+	m_defaultChromaLocation = chromaMap[chroma];
 
 	if(m_pFilterGraph)
 	{
@@ -363,7 +387,7 @@ bool ZimgPreviewConverter::translateFormat(const VSFormat * a_cpVSFormat,
 	else if(a_cpVSFormat->id == pfCompatYUY2)
 	{
 		a_pZimgFormat->color_family = ZIMG_COLOR_YUV;
-		a_pZimgFormat->matrix_coefficients = ZIMG_MATRIX_UNSPECIFIED;
+		a_pZimgFormat->matrix_coefficients = m_defaultYuvMatrixCoefficients;
 		a_pZimgFormat->pixel_type = ZIMG_PIXEL_BYTE;
 		a_pZimgFormat->depth = 8;
 	}
@@ -389,7 +413,7 @@ bool ZimgPreviewConverter::translateFormat(const VSFormat * a_cpVSFormat,
 	a_pZimgFormat->field_parity = ZIMG_FIELD_PROGRESSIVE;
 	a_pZimgFormat->chroma_location =
 		(a_pZimgFormat->subsample_w || a_pZimgFormat->subsample_h) ?
-		ZIMG_CHROMA_LEFT : ZIMG_CHROMA_CENTER;
+		m_defaultChromaLocation : ZIMG_CHROMA_CENTER;
 
 	return true;
 }

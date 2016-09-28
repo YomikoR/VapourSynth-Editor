@@ -16,10 +16,16 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":settings.png"));
 
-	m_ui.yuvToRgbConversionMatrixComboBox->addItem(
-		trUtf8("BT.601 (SD content)"), (int)YuvToRgbConversionMatrix::Bt601);
-	m_ui.yuvToRgbConversionMatrixComboBox->addItem(
-		trUtf8("BT.709 (HD content)"), (int)YuvToRgbConversionMatrix::Bt709);
+	m_ui.yuvMatrixCoefficientsComboBox->addItem(
+		trUtf8("709"), (int)YuvMatrixCoefficients::m709);
+	m_ui.yuvMatrixCoefficientsComboBox->addItem(
+		trUtf8("470BG"), (int)YuvMatrixCoefficients::m470BG);
+	m_ui.yuvMatrixCoefficientsComboBox->addItem(
+		trUtf8("170M"), (int)YuvMatrixCoefficients::m170M);
+	m_ui.yuvMatrixCoefficientsComboBox->addItem(
+		trUtf8("2020 NCL"), (int)YuvMatrixCoefficients::m2020_NCL);
+	m_ui.yuvMatrixCoefficientsComboBox->addItem(
+		trUtf8("2020 CL"), (int)YuvMatrixCoefficients::m2020_CL);
 
 	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Point"),
 		(int)ResamplingFilter::Point);
@@ -38,6 +44,8 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 		(int)ChromaPlacement::MPEG1);
 	m_ui.chromaPlacementComboBox->addItem(trUtf8("MPEG2"),
 		(int)ChromaPlacement::MPEG2);
+	m_ui.chromaPlacementComboBox->addItem(trUtf8("DV"),
+		(int)ChromaPlacement::DV);
 
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
@@ -59,12 +67,12 @@ PreviewAdvancedSettingsDialog::~PreviewAdvancedSettingsDialog()
 
 void PreviewAdvancedSettingsDialog::slotCall()
 {
-	YuvToRgbConversionMatrix matrix =
-		m_pSettingsManager->getYuvToRgbConversionMatrix();
+	YuvMatrixCoefficients matrix =
+		m_pSettingsManager->getYuvMatrixCoefficients();
 	int comboIndex =
-		m_ui.yuvToRgbConversionMatrixComboBox->findData((int)matrix);
+		m_ui.yuvMatrixCoefficientsComboBox->findData((int)matrix);
 	if(comboIndex != -1)
-		m_ui.yuvToRgbConversionMatrixComboBox->setCurrentIndex(comboIndex);
+		m_ui.yuvMatrixCoefficientsComboBox->setCurrentIndex(comboIndex);
 
 	ResamplingFilter filter = m_pSettingsManager->getChromaResamplingFilter();
 	comboIndex = m_ui.chromaResamplingFilterComboBox->findData((int)filter);
@@ -102,8 +110,8 @@ void PreviewAdvancedSettingsDialog::slotApply()
 {
 	m_pSettingsManager->setChromaResamplingFilter((ResamplingFilter)
 		m_ui.chromaResamplingFilterComboBox->currentData().toInt());
-	m_pSettingsManager->setYuvToRgbConversionMatrix((YuvToRgbConversionMatrix)
-		m_ui.yuvToRgbConversionMatrixComboBox->currentData().toInt());
+	m_pSettingsManager->setYuvMatrixCoefficients((YuvMatrixCoefficients)
+		m_ui.yuvMatrixCoefficientsComboBox->currentData().toInt());
 	m_pSettingsManager->setChromaPlacement((ChromaPlacement)
 		m_ui.chromaPlacementComboBox->currentData().toInt());
 	m_pSettingsManager->setBicubicFilterParameterB(
@@ -121,11 +129,10 @@ void PreviewAdvancedSettingsDialog::slotApply()
 
 void PreviewAdvancedSettingsDialog::slotResetToDefault()
 {
-	YuvToRgbConversionMatrix matrix = DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX;
-	int comboIndex =
-		m_ui.yuvToRgbConversionMatrixComboBox->findData((int)matrix);
+	YuvMatrixCoefficients matrix = DEFAULT_YUV_MATRIX_COEFFICIENTS;
+	int comboIndex = m_ui.yuvMatrixCoefficientsComboBox->findData((int)matrix);
 	if(comboIndex != -1)
-		m_ui.yuvToRgbConversionMatrixComboBox->setCurrentIndex(comboIndex);
+		m_ui.yuvMatrixCoefficientsComboBox->setCurrentIndex(comboIndex);
 
 	ResamplingFilter filter = DEFAULT_CHROMA_RESAMPLING_FILTER;
 	comboIndex = m_ui.chromaResamplingFilterComboBox->findData((int)filter);

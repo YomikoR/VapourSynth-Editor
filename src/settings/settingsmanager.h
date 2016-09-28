@@ -19,13 +19,13 @@ enum class ZoomMode
 {
 	NoZoom,
 	FixedRatio,
-	FitToFrame
+	FitToFrame,
 };
 
 enum class CropMode
 {
 	Absolute,
-	Relative
+	Relative,
 };
 
 enum class ResamplingFilter : int
@@ -35,26 +35,30 @@ enum class ResamplingFilter : int
 	Bicubic,
 	Spline16,
 	Spline36,
-	Lanczos
+	Lanczos,
 };
 
-enum class YuvToRgbConversionMatrix
+enum class YuvMatrixCoefficients : int
 {
-	Bt601,
-	Bt709
+	m709,
+	m470BG,
+	m170M,
+	m2020_NCL,
+	m2020_CL,
 };
 
-enum class ChromaPlacement
+enum class ChromaPlacement : int
 {
 	MPEG1,
-	MPEG2
+	MPEG2,
+	DV,
 };
 
 enum class PlayFPSLimitMode
 {
 	FromVideo,
 	NoLimit,
-	Custom
+	Custom,
 };
 
 enum class EncodingType
@@ -87,7 +91,7 @@ struct EncodingPreset
 //==============================================================================
 
 extern const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER;
-extern const YuvToRgbConversionMatrix DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX;
+extern const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS;
 extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_B;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_C;
@@ -281,9 +285,9 @@ class SettingsManager : public QObject
 
 		bool setChromaResamplingFilter(ResamplingFilter a_filter);
 
-		YuvToRgbConversionMatrix getYuvToRgbConversionMatrix() const;
+		YuvMatrixCoefficients getYuvMatrixCoefficients() const;
 
-		bool setYuvToRgbConversionMatrix(YuvToRgbConversionMatrix a_matrix);
+		bool setYuvMatrixCoefficients(YuvMatrixCoefficients a_matrix);
 
 		ChromaPlacement getChromaPlacement() const;
 

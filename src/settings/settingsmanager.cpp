@@ -55,9 +55,9 @@ const double DEFAULT_TIME_STEP = 5.0;
 const char CHROMA_RESAMPLING_FILTER_KEY[] = "chroma_resampling_filter";
 const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER =
 	ResamplingFilter::Spline16;
-const char YUV_TO_RGB_CONVERSION_MATRIX_KEY[] = "yuv_to_rgb_conversion_matrix";
-const YuvToRgbConversionMatrix DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX =
-	YuvToRgbConversionMatrix::Bt709;
+const char YUV_MATRIX_COEFFICIENTS_KEY[] = "yuv_matrix_coefficients";
+const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS =
+	YuvMatrixCoefficients::m709;
 const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
 const ChromaPlacement DEFAULT_CHROMA_PLACEMENT = ChromaPlacement::MPEG2;
 const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
@@ -776,16 +776,16 @@ bool SettingsManager::setChromaResamplingFilter(ResamplingFilter a_filter)
 
 //==============================================================================
 
-YuvToRgbConversionMatrix SettingsManager::getYuvToRgbConversionMatrix() const
+YuvMatrixCoefficients SettingsManager::getYuvMatrixCoefficients() const
 {
-	return (YuvToRgbConversionMatrix)value(YUV_TO_RGB_CONVERSION_MATRIX_KEY,
-		(int)DEFAULT_YUV_TO_RGB_CONVERSION_MATRIX).toInt();
+	return (YuvMatrixCoefficients)value(YUV_MATRIX_COEFFICIENTS_KEY,
+		(int)DEFAULT_YUV_MATRIX_COEFFICIENTS).toInt();
 }
 
-bool SettingsManager::setYuvToRgbConversionMatrix(
-	YuvToRgbConversionMatrix a_matrix)
+bool SettingsManager::setYuvMatrixCoefficients(
+	YuvMatrixCoefficients a_matrix)
 {
-	return setValue(YUV_TO_RGB_CONVERSION_MATRIX_KEY, (int)a_matrix);
+	return setValue(YUV_MATRIX_COEFFICIENTS_KEY, (int)a_matrix);
 }
 
 //==============================================================================

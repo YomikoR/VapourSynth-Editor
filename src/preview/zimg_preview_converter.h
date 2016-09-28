@@ -70,6 +70,9 @@ private:
 	vsedit::aligned_vector<uint8_t> m_bgr32Buffer;
 	zimg_filter_graph * m_pFilterGraph;
 	zimg_graph_builder_params m_graphBuilderParams;
+
+	zimg_matrix_coefficients_e m_defaultYuvMatrixCoefficients;
+	zimg_chroma_location_e m_defaultChromaLocation;
 };
 
 #endif // ZIMG_PREVIEW_CONVERTER_H_INCLUDED
