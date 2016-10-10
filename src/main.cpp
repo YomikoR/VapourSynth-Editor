@@ -21,10 +21,12 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 		messageType = mtDebug;
 		prefix = "Qt debug";
         break;
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
     case QtInfoMsg:
 		messageType = mtDebug;
 		prefix = "Qt info";
         break;
+#endif
     case QtWarningMsg:
 		messageType = mtDebug;
 		prefix = "Qt warning";
