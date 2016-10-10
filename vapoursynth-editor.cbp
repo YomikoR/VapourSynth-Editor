@@ -216,6 +216,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="BUILDING" />
 		<Unit filename="CHANGELOG" />
 		<Unit filename="LICENSE" />
 		<Unit filename="README" />
@@ -303,16 +304,16 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="release-32bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
-				<remote_debugging target="debug-64bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
 				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
+				<remote_debugging target="release-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>
