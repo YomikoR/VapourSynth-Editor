@@ -1,0 +1,33 @@
+THIS MANUAL IS A DRAFT. PLEASE REPORT ANY MISTAKES OR ADDITIONS AT https://bitbucket.org/mystery_keeper/vapoursynth-editor
+
+Building VapourSynth Editor from source:
+
+1) make sure you meet the prerequisites explained below;
+2) open the system terminal and change working directory to the "pro" directory in the source tree;
+3) execute command "qmake" to generate the Makefile and other intermediate files;
+4) "make" the Makefile with the specific make-tool:
+"make" if you are on Linux or using MSys on Windows;
+"mingw32-make" for MinGW;
+"nmake" for MS Visual Studio;
+program files will be built in compiler specific sub-directory in the "build" directory in source tree and ready to use.
+
+Prerequisites
+
+You need C++11 (or higher) compiler and Qt5 development distribution corresponding to the compiler.
+Make sure the executable directories of both tools are included in PATH system environment variable.
+Qt5 distribution version should be no less than 5.6.1 for some features to work.
+Failing to meet this requirement will cause CLI tools video encoding crash on MS Windows due to I/O bug in Qt.
+
+Windows:
+
+- get compiler of your choice (MinGW and MSVC are fully supported);
+- get Qt5 distribution corresponding to your compiler (https://www.qt.io/download/).
+
+Linux:
+
+- install following packages: build-essential, qtbase5-dev;
+- if your Linux distribution has Qt4 development packages installed - you might want to install package qt5-default.
+
+MacOS:
+
+THIS SECTION IS INCOMPLETE. PLEASE SUPPLY PATCH OR PULL-REQUEST.
