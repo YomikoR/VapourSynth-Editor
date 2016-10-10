@@ -4,12 +4,17 @@ Building VapourSynth Editor from source:
 
 1) make sure you meet the prerequisites explained below;
 2) open the system terminal and change working directory to the "pro" directory in the source tree;
-3) execute command "qmake" to generate the Makefile and other intermediate files;
+3) execute following command to generate the Makefile and other intermediate files;
+qmake -norecursive pro.pro CONFIG+=release
 4) "make" the Makefile with the specific make-tool:
 "make" if you are on Linux or using MSys on Windows;
 "mingw32-make" for MinGW;
 "nmake" for MS Visual Studio;
 program files will be built in compiler specific sub-directory in the "build" directory in source tree and ready to use.
+
+Alternatively, you can use Code::Blocks IDE and provided "vapoursynth-editor.cbp" file.
+If you choose this way - make sure to properly configure build targets.
+Each compiler you choose for build targets must specify "QT5BINPATH" custom environment variable with the directory of Qt5 toolchain executables.
 
 Prerequisites
 
