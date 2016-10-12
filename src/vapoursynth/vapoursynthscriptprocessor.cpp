@@ -443,7 +443,8 @@ void VapourSynthScriptProcessor::slotResetSettings()
 	for(std::pair<const int, NodePair> & mapItem : m_nodePairForOutputIndex)
 	{
 		NodePair & nodePair = mapItem.second;
-		recreatePreviewNode(nodePair);
+		if(nodePair.pPreviewNode)
+			recreatePreviewNode(nodePair);
 	}
 }
 

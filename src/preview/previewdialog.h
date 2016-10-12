@@ -84,6 +84,8 @@ protected slots:
 
 	void slotPasteCropSnippetIntoScript();
 
+	void slotCallAdvancedSettingsDialog();
+
 	void slotToggleTimeLinePanelVisible(bool a_timeLinePanelVisible);
 
 	void slotTimeLineModeChanged();

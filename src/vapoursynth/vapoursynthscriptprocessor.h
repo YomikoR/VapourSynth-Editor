@@ -57,6 +57,10 @@ public:
 
 	bool flushFrameTicketsQueue();
 
+public slots:
+
+	void slotResetSettings();
+
 signals:
 
 	void signalWriteLogMessage(int a_messageType,
@@ -74,8 +78,6 @@ private slots:
 	void slotReceiveFrameAndProcessQueue(
 		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 		VSNodeRef * a_pNodeRef, QString a_errorMessage);
-
-	void slotResetSettings();
 
 private:
 

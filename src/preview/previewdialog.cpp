@@ -127,8 +127,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		restoreGeometry(newGeometry);
 
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
-		m_pVapourSynthScriptProcessor, SLOT(slotResetSettings()));
-	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
 		this, SLOT(slotShowFrame(int)));
@@ -752,6 +750,17 @@ void PreviewDialog::slotPasteCropSnippetIntoScript()
 // END OF void PreviewDialog::slotPasteCropSnippetIntoScript()
 //==============================================================================
 
+void PreviewDialog::slotCallAdvancedSettingsDialog()
+{
+	if(m_playing || busy())
+		return;
+
+	m_pAdvancedSettingsDialog->slotCall();
+}
+
+// END OF void PreviewDialog::slotCallAdvancedSettingsDialog()
+//==============================================================================
+
 void PreviewDialog::slotToggleTimeLinePanelVisible(bool a_timeLinePanelVisible)
 {
 	m_ui.timeLinePanel->setVisible(a_timeLinePanelVisible);
@@ -1020,6 +1029,17 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
+	if(m_playing || busy())
+	{
+		QString errorString = trUtf8("Changing advanced settings while "
+			"script processor is busy is unsafe. Stop the playback and "
+			"wait for script processor to finish its work, then apply "
+			"advanced settings again.");
+		emit signalWriteLogMessage(mtCritical, errorString);
+		return;
+	}
+
+	m_pVapourSynthScriptProcessor->slotResetSettings();
 	requestShowFrame(m_frameExpected);
 }
 
@@ -1539,7 +1559,7 @@ void PreviewDialog::createActionsAndMenus()
 	connect(m_pActionPasteCropSnippetIntoScript, SIGNAL(triggered()),
 		this, SLOT(slotPasteCropSnippetIntoScript()));
 	connect(m_pActionAdvancedSettingsDialog, SIGNAL(triggered()),
-		m_pAdvancedSettingsDialog, SLOT(slotCall()));
+		this, SLOT(slotCallAdvancedSettingsDialog()));
 	connect(m_pActionToggleColorPicker, SIGNAL(toggled(bool)),
 		this, SLOT(slotToggleColorPicker(bool)));
 	connect(m_pActionPlay, SIGNAL(toggled(bool)),
