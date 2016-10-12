@@ -26,6 +26,7 @@ Failing to meet this requirement will cause CLI tools video encoding crash on MS
 Windows:
 
 - get compiler of your choice (MinGW and MSVC are fully supported);
+- if you use MSVC - you might also need to install Windows SDK; also you need to open the file "pro/local_quirks.pri" with text editor or your IDE and change the paths to headers and libraries to those that correspond to your MSVC and Windows SDK installation paths; if you experience any problems during the building related to missing headers or "unresolved externals" - fixing these paths is the most likely solution to such problems;
 - get Qt5 distribution corresponding to your compiler (https://www.qt.io/download/).
 
 Linux:
