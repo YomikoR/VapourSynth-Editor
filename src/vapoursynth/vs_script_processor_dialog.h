@@ -1,6 +1,8 @@
 #ifndef VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 #define VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 
+#include "vs_script_processor_structures.h"
+
 #include <QDialog>
 #include <QPixmap>
 #include <list>
@@ -13,20 +15,6 @@ class VapourSynthScriptProcessor;
 struct VSAPI;
 struct VSVideoInfo;
 struct VSFrameRef;
-
-namespace vsedit
-{
-	struct Frame
-	{
-		int number;
-		int outputIndex;
-		const VSFrameRef * cpFrameRef;
-
-		Frame(int a_number, int a_outputIndex,
-			const VSFrameRef * a_cpFrameRef);
-		bool operator==(const Frame & a_other) const;
-	};
-}
 
 class VSScriptProcessorDialog : public QDialog
 {
@@ -59,7 +47,8 @@ class VSScriptProcessorDialog : public QDialog
 			size_t a_inProcess, size_t a_maxThreads);
 
 		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-			const VSFrameRef * a_cpFrameRef) = 0;
+			const VSFrameRef * a_cpOutputFrameRef,
+			const VSFrameRef * a_cpPreviewFrameRef) = 0;
 
 	signals:
 
@@ -105,7 +94,7 @@ class VSScriptProcessorDialog : public QDialog
 		QPixmap m_readyPixmap;
 		QPixmap m_busyPixmap;
 
-		std::list<vsedit::Frame> m_framesCache;
+		std::list<Frame> m_framesCache;
 		size_t m_cachedFramesLimit;
 };
 

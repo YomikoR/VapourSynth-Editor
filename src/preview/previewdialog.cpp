@@ -31,7 +31,6 @@
 #include "scrollnavigator.h"
 #include "timelineslider.h"
 #include "preview_advanced_settings_dialog.h"
-#include "zimg_preview_converter.h"
 
 #include "previewdialog.h"
 
@@ -88,7 +87,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
-	, m_pPreviewConverter(nullptr)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -124,14 +122,12 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	m_ui.colorPickerLabel->setVisible(
 		m_pSettingsManager->getColorPickerVisible());
 
-	m_pPreviewConverter = new ZimgPreviewConverter(a_pSettingsManager, this);
-
 	QByteArray newGeometry = m_pSettingsManager->getPreviewDialogGeometry();
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
 
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
-		m_pPreviewConverter, SLOT(slotResetSettings()));
+		m_pVapourSynthScriptProcessor, SLOT(slotResetSettings()));
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
@@ -154,9 +150,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotSettingsChanged()));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
 		this, SLOT(slotProcessPlayQueue()));
-	connect(m_pPreviewConverter,
-		SIGNAL(signalWriteLogMessage(int, const QString &)),
-		this, SIGNAL(signalWriteLogMessage(int, const QString &)));
 
 	slotSettingsChanged();
 }
@@ -183,8 +176,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 		hide();
 		return;
 	}
-
-	m_pPreviewConverter->setVSAPI(m_cpVSAPI);
 
 	QString title = "Preview - ";
 	title += a_scriptName;
@@ -333,23 +324,28 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 //==============================================================================
 
 void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-	const VSFrameRef * a_cpFrameRef)
+	const VSFrameRef * a_cpOutputFrameRef,
+	const VSFrameRef * a_cpPreviewFrameRef)
 {
-	if(!a_cpFrameRef)
+	if(!a_cpOutputFrameRef)
 		return;
 
 	assert(m_cpVSAPI);
-	const VSFrameRef * cpFrameRef = m_cpVSAPI->cloneFrameRef(a_cpFrameRef);
+	const VSFrameRef * cpOutputFrameRef =
+		m_cpVSAPI->cloneFrameRef(a_cpOutputFrameRef);
+	const VSFrameRef * cpPreviewFrameRef =
+		m_cpVSAPI->cloneFrameRef(a_cpPreviewFrameRef);
 
 	if(m_playing)
 	{
-		vsedit::Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
+		Frame newFrame(a_frameNumber, a_outputIndex,
+			cpOutputFrameRef, cpPreviewFrameRef);
 		m_framesCache.push_back(newFrame);
 		slotProcessPlayQueue();
 	}
 	else
 	{
-		setCurrentFrame(cpFrameRef);
+		setCurrentFrame(cpOutputFrameRef, cpPreviewFrameRef);
 		m_frameShown = a_frameNumber;
 		if(m_frameShown == m_frameExpected)
 			m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
@@ -357,7 +353,8 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 }
 
 // END OF void PreviewDialog::slotReceiveFrame(int a_frameNumber,
-//		int a_outputIndex, const VSFrameRef * a_cpFrameRef)
+//		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
+//		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
 void PreviewDialog::slotShowFrame(int a_frameNumber)
@@ -1023,8 +1020,7 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
-	m_framePixmap = m_pPreviewConverter->pixmap(m_cpFrameRef);
-	setPreviewPixmap();
+	requestShowFrame(m_frameExpected);
 }
 
 // END OF void PreviewDialog::slotAdvancedSettingsChanged()
@@ -1109,11 +1105,11 @@ void PreviewDialog::slotProcessPlayQueue()
 	m_processingPlayQueue = true;
 
 	int nextFrame = (m_frameShown + 1) % m_cpVideoInfo->numFrames;
-	vsedit::Frame referenceFrame(nextFrame, 0, nullptr);
+	Frame referenceFrame(nextFrame, 0, nullptr);
 
 	while(!m_framesCache.empty())
 	{
-		std::list<vsedit::Frame>::const_iterator it =
+		std::list<Frame>::const_iterator it =
 			std::find(m_framesCache.begin(), m_framesCache.end(),
 			referenceFrame);
 
@@ -1130,7 +1126,7 @@ void PreviewDialog::slotProcessPlayQueue()
 			break;
 		}
 
-		setCurrentFrame(it->cpFrameRef);
+		setCurrentFrame(it->cpOutputFrameRef, it->cpPreviewFrameRef);
 		m_lastFrameShowTime = hr_clock::now();
 
 		m_frameShown = nextFrame;
@@ -1148,7 +1144,7 @@ void PreviewDialog::slotProcessPlayQueue()
 	while(((m_framesInQueue + m_framesInProcess) < m_maxThreads) &&
 		(m_framesCache.size() <= m_cachedFramesLimit))
 	{
-		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame);
+		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame, 0, true);
 		m_lastFrameRequestedForPlay = nextFrame;
 		nextFrame = (nextFrame + 1) % m_cpVideoInfo->numFrames;
 	}
@@ -1707,7 +1703,7 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 	if((m_frameShown != -1) && (m_frameShown != m_frameExpected))
 		return false;
 
-	m_pVapourSynthScriptProcessor->requestFrameAsync(a_frameNumber);
+	m_pVapourSynthScriptProcessor->requestFrameAsync(a_frameNumber, 0, true);
 	return true;
 }
 
@@ -1823,16 +1819,20 @@ void PreviewDialog::resetCropSpinBoxes()
 // END OF void PreviewDialog::resetCropSpinBoxes()
 //==============================================================================
 
-void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpFrameRef)
+void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
+	const VSFrameRef * a_cpPreviewFrameRef)
 {
 	assert(m_cpVSAPI);
 	m_cpVSAPI->freeFrame(m_cpFrameRef);
-	m_cpFrameRef = a_cpFrameRef;
-	m_framePixmap = m_pPreviewConverter->pixmap(m_cpFrameRef);
+	m_cpFrameRef = a_cpOutputFrameRef;
+	m_framePixmap = pixmapFromCompatBGR32(a_cpPreviewFrameRef);
+	m_cpVSAPI->freeFrame(a_cpPreviewFrameRef);
 	setPreviewPixmap();
 }
 
-// END OF void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpFrameRef)
+// END OF void PreviewDialog::setCurrentFrame(
+//		const VSFrameRef * a_cpOutputFrameRef,
+//		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
 double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
@@ -1887,4 +1887,37 @@ double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
 
 // END OF double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y,
 //		int a_plane)
+//==============================================================================
+
+QPixmap PreviewDialog::pixmapFromCompatBGR32(
+	const VSFrameRef * a_cpFrameRef)
+{
+	if((!m_cpVSAPI) || (!a_cpFrameRef))
+		return QPixmap();
+
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(a_cpFrameRef);
+	assert(cpFormat);
+
+	if(cpFormat->id != pfCompatBGR32)
+	{
+		QString errorString = trUtf8("Error forming pixmap from frame. "
+			"Expected format CompatBGR32. Instead got \'%1\'.")
+			.arg(cpFormat->name);
+		emit signalWriteLogMessage(mtCritical, errorString);
+		return QPixmap();
+	}
+
+	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
+	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
+	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
+	QImage frameImage((const uchar *)pData, width, height,
+		stride, QImage::Format_RGB32);
+	QImage flippedImage = frameImage.mirrored();
+	QPixmap framePixmap = QPixmap::fromImage(flippedImage);
+	return framePixmap;
+}
+
+// END OF QPixmap PreviewDialog::pixmapFromCompatBGR32(
+//		const VSFrameRef * a_cpFrameRef)
 //==============================================================================

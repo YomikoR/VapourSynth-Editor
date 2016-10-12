@@ -51,7 +51,8 @@ class EncodeDialog : public VSScriptProcessorDialog
 			const QString & a_message) override;
 
 		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-			const VSFrameRef * a_cpFrameRef) override;
+			const VSFrameRef * a_cpOutputFrameRef,
+			const VSFrameRef * a_cpPreviewFrameRef) override;
 
 		void slotWholeVideoButtonPressed();
 

@@ -14,21 +14,6 @@
 
 //==============================================================================
 
-vsedit::Frame::Frame(int a_number, int a_outputIndex,
-	const VSFrameRef * a_cpFrameRef):
-	  number(a_number)
-	, outputIndex(a_outputIndex)
-	, cpFrameRef(a_cpFrameRef)
-{
-}
-
-bool vsedit::Frame::operator==(const vsedit::Frame & a_other) const
-{
-	return ((number == a_other.number) && (outputIndex == a_other.outputIndex));
-}
-
-//==============================================================================
-
 VSScriptProcessorDialog::VSScriptProcessorDialog(
 	SettingsManager * a_pSettingsManager, QWidget * a_pParent,
 	Qt::WindowFlags a_flags):
@@ -60,8 +45,10 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
 	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *)));
+		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
+			const VSFrameRef *)),
+		this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *,
+			const VSFrameRef *)));
 }
 
 // END OF VSScriptProcessorDialog::VSScriptProcessorDialog(
@@ -207,8 +194,11 @@ void VSScriptProcessorDialog::clearFramesCache()
 		return;
 
 	assert(m_cpVSAPI);
-	for(vsedit::Frame & frame : m_framesCache)
-		m_cpVSAPI->freeFrame(frame.cpFrameRef);
+	for(Frame & frame : m_framesCache)
+	{
+		m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
+		m_cpVSAPI->freeFrame(frame.cpPreviewFrameRef);
+	}
 	m_framesCache.clear();
 }
 

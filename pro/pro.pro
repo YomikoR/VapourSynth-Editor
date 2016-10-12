@@ -132,13 +132,8 @@ contains(QMAKE_COMPILER, clang) {
 contains(QMAKE_COMPILER, gcc) {
 	QMAKE_CXXFLAGS += -std=c++11
 	LIBS += -L$$[QT_INSTALL_LIBS]
-	LIBS += -lzimg
 } else {
 	CONFIG += c++11
-}
-
-contains(QMAKE_COMPILER, msvc) {
-	LIBS += zimg.lib
 }
 
 TEMPLATE = app
@@ -183,8 +178,6 @@ HEADERS += ../src/preview/scrollnavigator.h
 HEADERS += ../src/preview/previewarea.h
 HEADERS += ../src/preview/timelineslider.h
 HEADERS += ../src/preview/preview_advanced_settings_dialog.h
-HEADERS += ../src/preview/zimg_helpers.h
-HEADERS += ../src/preview/zimg_preview_converter.h
 HEADERS += ../src/preview/previewdialog.h
 HEADERS += ../src/scripteditor/numbermatcher.h
 HEADERS += ../src/scripteditor/syntaxhighlighter.h
@@ -193,6 +186,7 @@ HEADERS += ../src/scripteditor/scriptcompleter.h
 HEADERS += ../src/scripteditor/scripteditor.h
 HEADERS += ../src/vapoursynth/vsplugindata.h
 HEADERS += ../src/vapoursynth/vapoursynthpluginsmanager.h
+HEADERS += ../src/vapoursynth/vs_script_processor_structures.h
 HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
 HEADERS += ../src/vapoursynth/vs_script_processor_dialog.h
 HEADERS += ../src/frame_consumers/benchmark_dialog.h
@@ -209,8 +203,6 @@ SOURCES += ../src/preview/scrollnavigator.cpp
 SOURCES += ../src/preview/previewarea.cpp
 SOURCES += ../src/preview/timelineslider.cpp
 SOURCES += ../src/preview/preview_advanced_settings_dialog.cpp
-SOURCES += ../src/preview/zimg_helpers.cpp
-SOURCES += ../src/preview/zimg_preview_converter.cpp
 SOURCES += ../src/preview/previewdialog.cpp
 SOURCES += ../src/scripteditor/numbermatcher.cpp
 SOURCES += ../src/scripteditor/syntaxhighlighter.cpp
@@ -219,6 +211,7 @@ SOURCES += ../src/scripteditor/scriptcompleter.cpp
 SOURCES += ../src/scripteditor/scripteditor.cpp
 SOURCES += ../src/vapoursynth/vsplugindata.cpp
 SOURCES += ../src/vapoursynth/vapoursynthpluginsmanager.cpp
+SOURCES += ../src/vapoursynth/vs_script_processor_structures.cpp
 SOURCES += ../src/vapoursynth/vapoursynthscriptprocessor.cpp
 SOURCES += ../src/vapoursynth/vs_script_processor_dialog.cpp
 SOURCES += ../src/frame_consumers/benchmark_dialog.cpp

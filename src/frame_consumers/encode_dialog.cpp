@@ -372,8 +372,11 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 
 
 void EncodeDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-	const VSFrameRef * a_cpFrameRef)
+	const VSFrameRef * a_cpOutputFrameRef,
+	const VSFrameRef * a_cpPreviewFrameRef)
 {
+	(void)a_cpPreviewFrameRef;
+
 	State validStates[] = {State::WaitingForFrames, State::WritingHeader,
 		State::WritingFrame};
 	if(!vsedit::contains(validStates, m_state))
@@ -383,8 +386,9 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		return;
 
 	assert(m_cpVSAPI);
-	const VSFrameRef * cpFrameRef = m_cpVSAPI->cloneFrameRef(a_cpFrameRef);
-	vsedit::Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
+	const VSFrameRef * cpFrameRef =
+		m_cpVSAPI->cloneFrameRef(a_cpOutputFrameRef);
+	Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
 	m_framesCache.push_back(newFrame);
 
 	if(m_state == State::WaitingForFrames)
@@ -392,7 +396,8 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 }
 
 // END OF void EncodeDialog::slotReceiveFrame(int a_frameNumber,
-//		int a_outputIndex, const VSFrameRef * a_cpFrameRef)
+//		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
+//		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
 void EncodeDialog::slotEncoderStarted()
@@ -596,13 +601,13 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 	}
 	else if(m_state == State::WritingFrame)
 	{
-		vsedit::Frame referenceFrame(m_lastFrameProcessed + 1, 0, nullptr);
-		std::list<vsedit::Frame>::iterator it =
+		Frame referenceFrame(m_lastFrameProcessed + 1, 0, nullptr);
+		std::list<Frame>::iterator it =
 			std::find(m_framesCache.begin(), m_framesCache.end(),
 			referenceFrame);
 		assert(it != m_framesCache.end());
 
-		m_cpVSAPI->freeFrame(it->cpFrameRef);
+		m_cpVSAPI->freeFrame(it->cpOutputFrameRef);
 		m_framesCache.erase(it);
 		m_lastFrameProcessed++;
 		m_framesProcessed++;
@@ -687,13 +692,13 @@ void EncodeDialog::processFramesQueue()
 		m_lastFrameRequested++;
 	}
 
-	vsedit::Frame frame(m_lastFrameProcessed + 1, 0, nullptr);
-	std::list<vsedit::Frame>::iterator it = std::find(m_framesCache.begin(),
+	Frame frame(m_lastFrameProcessed + 1, 0, nullptr);
+	std::list<Frame>::iterator it = std::find(m_framesCache.begin(),
 		m_framesCache.end(), frame);
 	if(it == m_framesCache.end())
 		return;
 
-	frame.cpFrameRef = it->cpFrameRef;
+	frame.cpOutputFrameRef = it->cpOutputFrameRef;
 
 	// VapourSynth frames are padded so every line has aligned address.
 	// But encoder expects frames tightly packed. We pack frame lines
@@ -708,10 +713,11 @@ void EncodeDialog::processFramesQueue()
 
 	for(int i = 0; i < cpFormat->numPlanes; ++i)
 	{
-		const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(frame.cpFrameRef, i);
-		int stride = m_cpVSAPI->getStride(frame.cpFrameRef, i);
-		int width = m_cpVSAPI->getFrameWidth(frame.cpFrameRef, i);
-		int height = m_cpVSAPI->getFrameHeight(frame.cpFrameRef, i);
+		const uint8_t * cpPlane =
+			m_cpVSAPI->getReadPtr(frame.cpOutputFrameRef, i);
+		int stride = m_cpVSAPI->getStride(frame.cpOutputFrameRef, i);
+		int width = m_cpVSAPI->getFrameWidth(frame.cpOutputFrameRef, i);
+		int height = m_cpVSAPI->getFrameHeight(frame.cpOutputFrameRef, i);
 		int bytes = cpFormat->bytesPerSample;
 
 		size_t planeSize = width * bytes * height;

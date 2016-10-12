@@ -256,10 +256,6 @@
 		<Unit filename="src/preview/scrollnavigator.h" />
 		<Unit filename="src/preview/timelineslider.cpp" />
 		<Unit filename="src/preview/timelineslider.h" />
-		<Unit filename="src/preview/zimg_helpers.cpp" />
-		<Unit filename="src/preview/zimg_helpers.h" />
-		<Unit filename="src/preview/zimg_preview_converter.cpp" />
-		<Unit filename="src/preview/zimg_preview_converter.h" />
 		<Unit filename="src/scripteditor/numbermatcher.cpp" />
 		<Unit filename="src/scripteditor/numbermatcher.h" />
 		<Unit filename="src/scripteditor/scriptcompleter.cpp" />
@@ -287,6 +283,8 @@
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.h" />
 		<Unit filename="src/vapoursynth/vs_script_processor_dialog.cpp" />
 		<Unit filename="src/vapoursynth/vs_script_processor_dialog.h" />
+		<Unit filename="src/vapoursynth/vs_script_processor_structures.cpp" />
+		<Unit filename="src/vapoursynth/vs_script_processor_structures.h" />
 		<Unit filename="src/vapoursynth/vsplugindata.cpp" />
 		<Unit filename="src/vapoursynth/vsplugindata.h" />
 		<Extensions>
@@ -307,13 +305,13 @@
 				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-64bit-gcc">
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

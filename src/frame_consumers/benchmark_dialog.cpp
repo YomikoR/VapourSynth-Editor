@@ -141,11 +141,13 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 //==============================================================================
 
 void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
-	int a_outputIndex, const VSFrameRef * a_cpFrameRef)
+	int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
+	const VSFrameRef * a_cpPreviewFrameRef)
 {
-	(void)(a_frameNumber);
-	(void)(a_outputIndex);
-	(void)(a_cpFrameRef);
+	(void)a_frameNumber;
+	(void)a_outputIndex;
+	(void)a_cpOutputFrameRef;
+	(void)a_cpPreviewFrameRef;
 
 	if(!m_processing)
 		return;
@@ -165,7 +167,8 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 }
 
 // END OF void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
-//		int a_outputIndex, const VSFrameRef * a_cpFrameRef)
+//		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
+//		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
 void ScriptBenchmarkDialog::stopProcessing()
