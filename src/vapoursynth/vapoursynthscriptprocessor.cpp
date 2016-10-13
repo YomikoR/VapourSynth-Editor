@@ -430,6 +430,21 @@ void VapourSynthScriptProcessor::receiveFrame(
 			it->cpOutputFrameRef = a_cpFrameRef;
 			m_cpVSAPI->freeNode(it->pOutputNode);
 			it->pOutputNode = nullptr;
+
+			if(it->needPreview)
+			{
+				assert(it->pPreviewNode);
+				if(a_cpFrameRef)
+				{
+					m_cpVSAPI->getFrameAsync(it->frameNumber, it->pPreviewNode,
+						frameReady, this);
+				}
+				else
+				{
+					m_cpVSAPI->freeNode(it->pPreviewNode);
+					it->pPreviewNode = nullptr;
+				}
+			}
 		}
 		else if(it->pPreviewNode == a_pNodeRef)
 		{
@@ -457,10 +472,18 @@ void VapourSynthScriptProcessor::receiveFrame(
 		m_cpVSAPI->freeFrame(a_cpFrameRef);
 	}
 
-	if(ticket.isComplete() && (!ticket.discard))
+	if(!ticket.discard)
 	{
-		emit signalDistributeFrame(ticket.frameNumber, ticket.outputIndex,
-			ticket.cpOutputFrameRef, ticket.cpPreviewFrameRef);
+		if(ticket.isComplete())
+		{
+			emit signalDistributeFrame(ticket.frameNumber, ticket.outputIndex,
+				ticket.cpOutputFrameRef, ticket.cpPreviewFrameRef);
+		}
+		else
+		{
+			emit signalFrameRequestDiscarded(ticket.frameNumber,
+				ticket.outputIndex, QString());
+		}
 	}
 
 	freeFrameTicket(ticket);
@@ -505,9 +528,9 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 			ticket.pPreviewNode =
 				m_cpVSAPI->cloneNodeRef(nodePair.pPreviewNode);
 
-		if(ticket.needPreview)
-			m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pPreviewNode,
-				frameReady, this);
+//		if(ticket.needPreview)
+//			m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pPreviewNode,
+//				frameReady, this);
 		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pOutputNode,
 			frameReady, this);
 
