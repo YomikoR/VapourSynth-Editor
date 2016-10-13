@@ -424,6 +424,7 @@ void VapourSynthScriptProcessor::receiveFrame(
 
 	if(it != m_frameTicketsInProcess.end())
 	{
+		// Save frame references and free node references in ticket at once.
 		if(it->pOutputNode == a_pNodeRef)
 		{
 			it->cpOutputFrameRef = a_cpFrameRef;
@@ -437,9 +438,10 @@ void VapourSynthScriptProcessor::receiveFrame(
 			it->pPreviewNode = nullptr;
 		}
 
-		// Ticket is incomplete, and received frame is not null.
-		// Don't remove the ticket from the queue yet.
-		if((!it->isComplete()) && a_cpFrameRef)
+		// Since we nullify the nodes in ticket - we can check if it can be
+		// removed from the queue by checking the nodes.
+		if((it->pOutputNode != nullptr) ||
+			(it->needPreview && (it->pPreviewNode != nullptr)))
 			return;
 
 		ticket = *it;
@@ -452,21 +454,10 @@ void VapourSynthScriptProcessor::receiveFrame(
 			"processing. Frame number: %1; Node: %2\n")
 			.arg(a_frameNumber).arg((intptr_t)a_pNodeRef);
 		emit signalWriteLogMessage(mtCritical, warning);
+		m_cpVSAPI->freeFrame(a_cpFrameRef);
 	}
 
-	// Ticket is either not found or removed from the queue.
-	// It can only be removed from the queue if it was completed or
-	// received a null frame reference.
-
-	if(!a_cpFrameRef)
-	{
-		freeFrameTicket(ticket);
-		return;
-	}
-
-	assert(ticket.isComplete());
-
-	if(!ticket.discard)
+	if(ticket.isComplete())
 	{
 		emit signalDistributeFrame(ticket.frameNumber, ticket.outputIndex,
 			ticket.cpOutputFrameRef, ticket.cpPreviewFrameRef);
