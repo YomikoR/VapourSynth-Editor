@@ -8,8 +8,10 @@
 //==============================================================================
 
 ScriptBenchmarkDialog::ScriptBenchmarkDialog(
-	SettingsManager * a_pSettingsManager, QWidget * a_pParent):
-	VSScriptProcessorDialog(a_pSettingsManager, a_pParent, (Qt::WindowFlags)0
+	SettingsManager * a_pSettingsManager, VSScriptLibrary * a_pVSScriptLibrary,
+	QWidget * a_pParent):
+	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent,
+	(Qt::WindowFlags)0
 		| Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
@@ -32,7 +34,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 
 // END OF ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 //		VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
-//		QWidget * a_pParent
+//		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent
 //==============================================================================
 
 ScriptBenchmarkDialog::~ScriptBenchmarkDialog()

@@ -7,6 +7,14 @@
 		<Option execution_dir="./pro/" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="$make -f $makefile $target" />
+			<CompileFile command="$make -f $makefile $file" />
+			<Clean command="$make -f $makefile clean" />
+			<DistClean command="$make -f $makefile distclean$target" />
+			<AskRebuildNeeded command="$make -q -f $makefile $target" />
+			<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+		</MakeCommands>
 		<Build>
 			<Target title="debug-64bit-gcc">
 				<Option output="build/debug-64bit-gcc/vsedit-debug-64bit-gcc" prefix_auto="1" extension_auto="1" />
@@ -281,6 +289,8 @@
 		<Unit filename="src/vapoursynth/vapoursynthpluginsmanager.h" />
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.cpp" />
 		<Unit filename="src/vapoursynth/vapoursynthscriptprocessor.h" />
+		<Unit filename="src/vapoursynth/vs_script_library.cpp" />
+		<Unit filename="src/vapoursynth/vs_script_library.h" />
 		<Unit filename="src/vapoursynth/vs_script_processor_dialog.cpp" />
 		<Unit filename="src/vapoursynth/vs_script_processor_dialog.h" />
 		<Unit filename="src/vapoursynth/vs_script_processor_structures.cpp" />

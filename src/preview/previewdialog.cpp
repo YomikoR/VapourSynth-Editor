@@ -47,9 +47,9 @@
 //==============================================================================
 
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-	SettingsDialog * a_pSettingsDialog,  QWidget * a_pParent) :
-	VSScriptProcessorDialog(a_pSettingsManager, a_pParent)
-	, m_pSettingsManager(a_pSettingsManager)
+	VSScriptLibrary * a_pVSScriptLibrary,
+	SettingsDialog * a_pSettingsDialog, QWidget * a_pParent) :
+	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent)
 	, m_pSettingsDialog(a_pSettingsDialog)
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_frameExpected(0)
@@ -153,7 +153,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-//		SettingsDialog * a_pSettingsDialog,  QWidget * a_pParent)
+//		VSScriptLibrary * a_pVSScriptLibrary,
+//		SettingsDialog * a_pSettingsDialog, QWidget * a_pParent)
 //==============================================================================
 
 PreviewDialog::~PreviewDialog()

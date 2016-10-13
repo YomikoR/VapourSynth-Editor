@@ -6,9 +6,6 @@
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
 
-struct VSFrameRef;
-class SettingsManager;
-
 class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
@@ -16,6 +13,7 @@ class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 	public:
 
 		ScriptBenchmarkDialog(SettingsManager * a_pSettingsManager,
+			VSScriptLibrary * a_pVSScriptLibrary,
 			QWidget * a_pParent = nullptr);
 		virtual ~ScriptBenchmarkDialog();
 

@@ -15,12 +15,9 @@
 #include <ui_previewdialog.h>
 
 class QEvent;
-class QCloseEvent;
 class QMoveEvent;
 class QResizeEvent;
 class QKeyEvent;
-class QEvent;
-class QStatusBar;
 class QMenu;
 class QActionGroup;
 class QAction;
@@ -35,6 +32,7 @@ class PreviewDialog : public VSScriptProcessorDialog
 public:
 
 	PreviewDialog(SettingsManager * a_pSettingsManager,
+		VSScriptLibrary * a_pVSScriptLibrary,
 		SettingsDialog * a_pSettingsDialog,
 		QWidget * a_pParent = nullptr);
 	virtual ~PreviewDialog();
@@ -156,8 +154,6 @@ protected:
 	QPixmap pixmapFromCompatBGR32(const VSFrameRef * a_cpFrameRef);
 
 	Ui::PreviewDialog m_ui;
-
-	SettingsManager * m_pSettingsManager;
 
 	SettingsDialog * m_pSettingsDialog;
 

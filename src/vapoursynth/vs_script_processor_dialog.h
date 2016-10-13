@@ -11,6 +11,7 @@ class QCloseEvent;
 class QStatusBar;
 class QLabel;
 class SettingsManager;
+class VSScriptLibrary;
 class VapourSynthScriptProcessor;
 struct VSAPI;
 struct VSVideoInfo;
@@ -23,7 +24,8 @@ class VSScriptProcessorDialog : public QDialog
 	public:
 
 		VSScriptProcessorDialog(SettingsManager * a_pSettingsManager,
-			QWidget * a_pParent = nullptr, Qt::WindowFlags a_flags =
+			VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr,
+			Qt::WindowFlags a_flags =
 			(Qt::WindowFlags)0
 			| Qt::Window
 			| Qt::CustomizeWindowHint
@@ -69,6 +71,8 @@ class VSScriptProcessorDialog : public QDialog
 		virtual void createStatusBar();
 
 		SettingsManager * m_pSettingsManager;
+
+		VSScriptLibrary * m_pVSScriptLibrary;
 
 		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 

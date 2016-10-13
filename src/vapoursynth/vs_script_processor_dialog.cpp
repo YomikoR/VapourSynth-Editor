@@ -3,6 +3,7 @@
 #include "../common/helpers.h"
 #include "../settings/settingsmanager.h"
 #include "vapoursynthscriptprocessor.h"
+#include "vs_script_library.h"
 
 #include <vapoursynth/VapourSynth.h>
 
@@ -15,10 +16,11 @@
 //==============================================================================
 
 VSScriptProcessorDialog::VSScriptProcessorDialog(
-	SettingsManager * a_pSettingsManager, QWidget * a_pParent,
-	Qt::WindowFlags a_flags):
+	SettingsManager * a_pSettingsManager, VSScriptLibrary * a_pVSScriptLibrary,
+	QWidget * a_pParent, Qt::WindowFlags a_flags):
 	  QDialog(a_pParent, a_flags)
 	, m_pSettingsManager(a_pSettingsManager)
+	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 	, m_pVapourSynthScriptProcessor(nullptr)
 	, m_cpVSAPI(nullptr)
 	, m_cpVideoInfo(nullptr)
@@ -34,9 +36,18 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_busyPixmap(":busy.png")
 	, m_cachedFramesLimit(100)
 {
-	assert(a_pSettingsManager);
-	m_pVapourSynthScriptProcessor =
-		new VapourSynthScriptProcessor(a_pSettingsManager, this);
+	assert(m_pSettingsManager);
+	assert(m_pVSScriptLibrary);
+
+	connect(m_pVSScriptLibrary,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
+
+	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
+	assert(m_cpVSAPI);
+
+	m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
+		m_pSettingsManager, m_pVSScriptLibrary, this);
 
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
@@ -52,8 +63,9 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 }
 
 // END OF VSScriptProcessorDialog::VSScriptProcessorDialog(
-//		SettingsManager * a_pSettingsManager, QWidget * a_pParent,
-//		Qt::WindowFlags a_flags)
+//		SettingsManager * a_pSettingsManager,
+//		VSScriptLibrary * a_pVSScriptLibrary,
+//		QWidget * a_pParent, Qt::WindowFlags a_flags)
 //==============================================================================
 
 VSScriptProcessorDialog::~VSScriptProcessorDialog()
@@ -88,9 +100,6 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 
 	m_script = a_script;
 	m_scriptName = a_scriptName;
-
-	m_cpVSAPI = m_pVapourSynthScriptProcessor->api();
-	assert(m_cpVSAPI);
 
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
 	assert(m_cpVideoInfo);

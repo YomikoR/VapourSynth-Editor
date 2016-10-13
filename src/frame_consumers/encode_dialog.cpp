@@ -14,8 +14,9 @@
 //==============================================================================
 
 EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
-	QWidget * a_pParent) :
-	VSScriptProcessorDialog(a_pSettingsManager, a_pParent, (Qt::WindowFlags)0
+	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
+	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent,
+	(Qt::WindowFlags)0
 		| Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
@@ -68,7 +69,7 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 }
 
 // END OF EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
-//		QWidget * a_pParent)
+//		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent)
 //==============================================================================
 
 EncodeDialog::~EncodeDialog()

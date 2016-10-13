@@ -25,6 +25,7 @@ class EncodeDialog : public VSScriptProcessorDialog
 	public:
 
 		EncodeDialog(SettingsManager * a_pSettingsManager,
+			VSScriptLibrary * a_pVSScriptLibrary,
 			QWidget * a_pParent = nullptr);
 		virtual ~EncodeDialog();
 

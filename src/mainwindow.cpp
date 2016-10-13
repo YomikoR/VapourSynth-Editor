@@ -19,6 +19,7 @@
 #include <QResource>
 
 #include "settings/settingsmanager.h"
+#include "vapoursynth/vs_script_library.h"
 #include "vapoursynth/vapoursynthscriptprocessor.h"
 #include "vapoursynth/vapoursynthpluginsmanager.h"
 #include "preview/previewdialog.h"
@@ -34,6 +35,7 @@
 MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsManager(nullptr)
 	, m_pVapourSynthPluginsManager(nullptr)
+	, m_pVSScriptLibrary(nullptr)
 	, m_pActionNewScript(nullptr)
 	, m_pActionOpenScript(nullptr)
 	, m_pActionSaveScript(nullptr)
@@ -64,6 +66,15 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pSettingsManager = new SettingsManager(this);
 	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 
+	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
+		this, SLOT(slotSettingsChanged()));
+
+	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
+
+	connect(m_pVSScriptLibrary,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
+
 	m_pVapourSynthPluginsManager =
 		new VapourSynthPluginsManager(m_pSettingsManager, this);
 
@@ -80,10 +91,8 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_ui.scriptEdit, SIGNAL(modificationChanged(bool)),
 		this, SLOT(slotChangeWindowTitle()));
 
-	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
-		this, SLOT(slotSettingsChanged()));
-
-	m_pPreviewDialog = new PreviewDialog(m_pSettingsManager, m_pSettingsDialog);
+	m_pPreviewDialog = new PreviewDialog(m_pSettingsManager,
+		m_pVSScriptLibrary,m_pSettingsDialog);
 
 	connect(m_pPreviewDialog,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
@@ -92,9 +101,10 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalInsertLineIntoScript(const QString &)),
 		this, SLOT(slotInsertLineIntoScript(const QString &)));
 
-	m_pBenchmarkDialog = new ScriptBenchmarkDialog(m_pSettingsManager);
+	m_pBenchmarkDialog =
+		new ScriptBenchmarkDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
-	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager);
+	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
 	createActionsAndMenus();
 	slotChangeWindowTitle();
@@ -304,7 +314,8 @@ void MainWindow::slotPreview()
 
 void MainWindow::slotCheckScript()
 {
-	VapourSynthScriptProcessor tempProcessor(m_pSettingsManager, this);
+	VapourSynthScriptProcessor tempProcessor(m_pSettingsManager,
+		m_pVSScriptLibrary, this);
 
 	connect(&tempProcessor, SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
@@ -318,7 +329,6 @@ void MainWindow::slotCheckScript()
 		message += vsedit::videoInfoString(tempProcessor.videoInfo());
 		slotWriteLogMessage(mtDebug, message);
 	}
-	tempProcessor.finalize();
 }
 
 // END OF void MainWindow::slotCheckScript()

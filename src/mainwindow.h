@@ -7,6 +7,7 @@
 
 class SettingsManager;
 class VapourSynthPluginsManager;
+class VSScriptLibrary;
 class PreviewDialog;
 class SettingsDialog;
 class ScriptBenchmarkDialog;
@@ -90,6 +91,7 @@ class MainWindow : public QMainWindow
 
 		SettingsManager * m_pSettingsManager;
 		VapourSynthPluginsManager * m_pVapourSynthPluginsManager;
+		VSScriptLibrary * m_pVSScriptLibrary;
 
 		QAction * m_pActionNewScript;
 		QAction * m_pActionOpenScript;
