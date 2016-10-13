@@ -1,3 +1,7 @@
+r10:
+-BUGFIX: Colour picking.
+-BUGFIX: VapourSynth messages handling.
+
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
 -Preview video playback.
@@ -12,7 +16,7 @@ r7:
 -BUGFIX: Massive memory leak.
 -Late linking to vsscript library. Can start with no VapourSynth installed.
 -Better detection of VapourSynth installation on Windows.
--Experimental color picker. Shows values under cursor in preview window. Not thoroughly tested.
+-Experimental colour picker. Shows values under cursor in preview window. Not thoroughly tested.
 
 r6:
 -Added some theme settings.
