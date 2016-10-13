@@ -324,21 +324,10 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	FrameTicket newFrameTicket(a_frameNumber, a_outputIndex,
 		nodePair.pOutputNode, a_needPreview, nodePair.pPreviewNode);
 
-	if((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads)
-	{
-		m_frameTicketsInProcess.push_back(newFrameTicket);
-		if(a_needPreview)
-			m_cpVSAPI->getFrameAsync(a_frameNumber, newFrameTicket.pPreviewNode,
-				frameReady, this);
-		m_cpVSAPI->getFrameAsync(a_frameNumber, newFrameTicket.pOutputNode,
-			frameReady, this);
-	}
-	else
-	{
-		m_frameTicketsQueue.push_back(newFrameTicket);
-	}
-
+	m_frameTicketsQueue.push_back(newFrameTicket);
 	sendFrameQueueChangeSignal();
+	processFrameTicketsQueue();
+
 	return true;
 }
 
@@ -432,12 +421,21 @@ void VapourSynthScriptProcessor::receiveFrame(
 				((a_ticket.pOutputNode == a_pNodeRef) ||
 				(a_ticket.pPreviewNode == a_pNodeRef)));
 		});
+
 	if(it != m_frameTicketsInProcess.end())
 	{
 		if(it->pOutputNode == a_pNodeRef)
+		{
 			it->cpOutputFrameRef = a_cpFrameRef;
+			m_cpVSAPI->freeNode(it->pOutputNode);
+			it->pOutputNode = nullptr;
+		}
 		else if(it->pPreviewNode == a_pNodeRef)
+		{
 			it->cpPreviewFrameRef = a_cpFrameRef;
+			m_cpVSAPI->freeNode(it->pPreviewNode);
+			it->pPreviewNode = nullptr;
+		}
 
 		// Ticket is incomplete, and received frame is not null.
 		// Don't remove the ticket from the queue yet.
@@ -497,13 +495,24 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 
 		// In case preview node was hot-swapped.
 		NodePair nodePair = getNodePair(ticket.outputIndex, ticket.needPreview);
-		if(!nodePair.pOutputNode)
-			continue;
-		if(ticket.needPreview && (!nodePair.pPreviewNode))
-			continue;
 
-		ticket.pOutputNode = nodePair.pOutputNode;
-		ticket.pPreviewNode = nodePair.pPreviewNode;
+		bool validPair = (nodePair.pOutputNode != nullptr);
+		if(ticket.needPreview)
+			validPair = validPair && (nodePair.pPreviewNode != nullptr);
+		if(!validPair)
+		{
+			QString reason = trUtf8("No nodes to produce the frame "
+				"%1 at output index %2.").arg(ticket.frameNumber)
+				.arg(ticket.outputIndex);
+			emit signalFrameRequestDiscarded(ticket.frameNumber,
+				ticket.outputIndex, reason);
+			continue;
+		}
+
+		ticket.pOutputNode = m_cpVSAPI->cloneNodeRef(nodePair.pOutputNode);
+		if(ticket.needPreview)
+			ticket.pPreviewNode =
+				m_cpVSAPI->cloneNodeRef(nodePair.pPreviewNode);
 
 		if(ticket.needPreview)
 			m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pPreviewNode,
@@ -691,11 +700,33 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 {
 	assert(m_cpVSAPI);
+
 	a_ticket.discard = true;
+
 	if(a_ticket.cpOutputFrameRef)
+	{
 		m_cpVSAPI->freeFrame(a_ticket.cpOutputFrameRef);
+		a_ticket.cpOutputFrameRef = nullptr;
+	}
+
 	if(a_ticket.cpPreviewFrameRef)
+	{
 		m_cpVSAPI->freeFrame(a_ticket.cpPreviewFrameRef);
+		a_ticket.cpPreviewFrameRef = nullptr;
+	}
+
+	if(a_ticket.pOutputNode)
+	{
+		m_cpVSAPI->freeNode(a_ticket.pOutputNode);
+		a_ticket.pOutputNode = nullptr;
+	}
+
+	if(a_ticket.pPreviewNode)
+	{
+
+		m_cpVSAPI->freeNode(a_ticket.pPreviewNode);
+		a_ticket.pPreviewNode = nullptr;
+	}
 }
 
 // END OF void VapourSynthScriptProcessor::freeFrameTicket(

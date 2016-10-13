@@ -54,6 +54,9 @@ signals:
 		const VSFrameRef * a_cpOutputFrameRef,
 		const VSFrameRef * a_cpPreviewFrameRef);
 
+	void signalFrameRequestDiscarded(int a_frameNumber, int a_outputIndex,
+		const QString & a_reason);
+
 	void signalFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
 		size_t a_maxThreads);
 

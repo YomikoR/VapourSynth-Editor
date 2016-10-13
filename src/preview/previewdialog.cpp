@@ -753,9 +753,6 @@ void PreviewDialog::slotPasteCropSnippetIntoScript()
 
 void PreviewDialog::slotCallAdvancedSettingsDialog()
 {
-	if(m_playing || busy())
-		return;
-
 	m_pAdvancedSettingsDialog->slotCall();
 }
 
@@ -1030,18 +1027,9 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
-	if(m_playing || busy())
-	{
-		QString errorString = trUtf8("Changing advanced settings while "
-			"script processor is busy is unsafe. Stop the playback and "
-			"wait for script processor to finish its work, then apply "
-			"advanced settings again.");
-		emit signalWriteLogMessage(mtCritical, errorString);
-		return;
-	}
-
 	m_pVapourSynthScriptProcessor->slotResetSettings();
-	requestShowFrame(m_frameExpected);
+	if(!m_playing)
+		requestShowFrame(m_frameExpected);
 }
 
 // END OF void PreviewDialog::slotAdvancedSettingsChanged()
