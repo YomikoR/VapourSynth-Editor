@@ -457,7 +457,7 @@ void VapourSynthScriptProcessor::receiveFrame(
 		m_cpVSAPI->freeFrame(a_cpFrameRef);
 	}
 
-	if(ticket.isComplete())
+	if(ticket.isComplete() && (!ticket.discard))
 	{
 		emit signalDistributeFrame(ticket.frameNumber, ticket.outputIndex,
 			ticket.cpOutputFrameRef, ticket.cpPreviewFrameRef);
