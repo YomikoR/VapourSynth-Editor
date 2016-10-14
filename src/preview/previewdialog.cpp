@@ -216,8 +216,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 void PreviewDialog::stopAndCleanUp()
 {
-	if(m_ui.playButton->isChecked())
-		m_ui.playButton->click();
+	slotPlay(false);
 
 	if(m_ui.cropCheckButton->isChecked())
 		m_ui.cropCheckButton->click();
@@ -364,7 +363,7 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 
 	if(m_playing)
 	{
-		m_ui.playButton->click();
+		slotPlay(false);
 	}
 	else
 	{
@@ -1104,7 +1103,12 @@ void PreviewDialog::slotSetPlayFPSLimit()
 
 void PreviewDialog::slotPlay(bool a_play)
 {
+	if(m_playing == a_play)
+		return;
+
 	m_playing = a_play;
+	m_pActionPlay->setChecked(m_playing);
+
 	if(m_playing)
 	{
 		m_pActionPlay->setIcon(m_iconPause);
