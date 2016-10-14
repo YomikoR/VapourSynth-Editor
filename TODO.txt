@@ -6,6 +6,5 @@
 - reference and documentation
 - improved log
 - vfw encoding
-- crashreport
 - timeline bookmarks
 - multiple output nodes comparison

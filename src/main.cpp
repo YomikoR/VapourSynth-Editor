@@ -66,6 +66,10 @@ int main(int argc, char *argv[])
 {
 	QApplication application(argc, argv);
 
+	// Make text in message box selectable
+	application.setStyleSheet(
+		"QMessageBox { messagebox-text-interaction-flags: 5; }");
+
 	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
 	qRegisterMetaType<VSNodeRef *>("VSNodeRef *");
 
