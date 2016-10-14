@@ -401,6 +401,25 @@ void EncodeDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 //		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
+void EncodeDialog::slotFrameRequestDiscarded(int a_frameNumber,
+	int a_outputIndex, const QString & a_reason)
+{
+	(void)a_frameNumber;
+	(void)a_outputIndex;
+	(void)a_reason;
+
+	State validStates[] = {State::WaitingForFrames, State::WritingHeader,
+		State::WritingFrame};
+	if(!vsedit::contains(validStates, m_state))
+		return;
+
+	stopProcessing();
+}
+
+// END OF void EncodeDialog::slotFrameRequestDiscarded(int a_frameNumber,
+//		int a_outputIndex, const QString & a_reason)
+//==============================================================================
+
 void EncodeDialog::slotEncoderStarted()
 {
 	if(m_state == State::CheckingEncoderSanity)
@@ -664,6 +683,7 @@ void EncodeDialog::stopProcessing()
 	}
 	else
 	{
+		m_state = State::Finishing;
 		m_encoder.closeWriteChannel();
 	}
 }

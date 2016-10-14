@@ -60,6 +60,9 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 			const VSFrameRef *)),
 		this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *,
 			const VSFrameRef *)));
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
+		this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
 }
 
 // END OF VSScriptProcessorDialog::VSScriptProcessorDialog(

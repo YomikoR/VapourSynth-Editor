@@ -10,44 +10,50 @@ class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		ScriptBenchmarkDialog(SettingsManager * a_pSettingsManager,
-			VSScriptLibrary * a_pVSScriptLibrary,
-			QWidget * a_pParent = nullptr);
-		virtual ~ScriptBenchmarkDialog();
+	ScriptBenchmarkDialog(SettingsManager * a_pSettingsManager,
+		VSScriptLibrary * a_pVSScriptLibrary,
+		QWidget * a_pParent = nullptr);
+	virtual ~ScriptBenchmarkDialog();
 
-	public slots:
+public slots:
 
-		void call();
+	void call();
 
-	protected slots:
+protected slots:
 
-		virtual void slotWriteLogMessage(int a_messageType,
-			const QString & a_message) override;
+	virtual void slotWriteLogMessage(int a_messageType,
+		const QString & a_message) override;
 
-		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-			const VSFrameRef * a_cpOutputFrameRef,
-			const VSFrameRef * a_cpPreviewFrameRef) override;
+	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+		const VSFrameRef * a_cpOutputFrameRef,
+		const VSFrameRef * a_cpPreviewFrameRef) override;
 
-		void slotWholeVideoButtonPressed();
+	virtual void slotFrameRequestDiscarded(int a_frameNumber,
+	int a_outputIndex, const QString & a_reason) override;
 
-		void slotStartStopBenchmarkButtonPressed();
+	void slotWholeVideoButtonPressed();
 
-	protected:
+	void slotStartStopBenchmarkButtonPressed();
 
-		virtual void stopAndCleanUp() override;
+protected:
 
-		void stopProcessing();
+	virtual void stopAndCleanUp() override;
 
-		Ui::ScriptBenchmarkDialog m_ui;
+	void stopProcessing();
 
-		bool m_processing;
+	void updateMetrics();
 
-		int m_framesTotal;
-		int m_framesProcessed;
+	Ui::ScriptBenchmarkDialog m_ui;
 
-		hr_time_point m_benchmarkStartTime;
+	bool m_processing;
+
+	int m_framesTotal;
+	int m_framesProcessed;
+	int m_framesFailed;
+
+	hr_time_point m_benchmarkStartTime;
 };
 
 #endif // BENCHMARK_DIALOG_H_INCLUDED

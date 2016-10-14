@@ -22,99 +22,102 @@ class EncodeDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		EncodeDialog(SettingsManager * a_pSettingsManager,
-			VSScriptLibrary * a_pVSScriptLibrary,
-			QWidget * a_pParent = nullptr);
-		virtual ~EncodeDialog();
+	EncodeDialog(SettingsManager * a_pSettingsManager,
+		VSScriptLibrary * a_pVSScriptLibrary,
+		QWidget * a_pParent = nullptr);
+	virtual ~EncodeDialog();
 
-		enum class State
-		{
-			Idle,
-			CheckingEncoderSanity,
-			StartingEncoder,
-			WritingHeader,
-			WaitingForFrames,
-			WritingFrame,
-			EncoderCrashed,
-			Finishing,
-			Aborting,
-		};
+	enum class State
+	{
+		Idle,
+		CheckingEncoderSanity,
+		StartingEncoder,
+		WritingHeader,
+		WaitingForFrames,
+		WritingFrame,
+		EncoderCrashed,
+		Finishing,
+		Aborting,
+	};
 
-	public slots:
+public slots:
 
-		void call();
+	void call();
 
-	protected slots:
+protected slots:
 
-		virtual void slotWriteLogMessage(int a_messageType,
-			const QString & a_message) override;
+	virtual void slotWriteLogMessage(int a_messageType,
+		const QString & a_message) override;
 
-		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-			const VSFrameRef * a_cpOutputFrameRef,
-			const VSFrameRef * a_cpPreviewFrameRef) override;
+	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+		const VSFrameRef * a_cpOutputFrameRef,
+		const VSFrameRef * a_cpPreviewFrameRef) override;
 
-		void slotWholeVideoButtonPressed();
+	virtual void slotFrameRequestDiscarded(int a_frameNumber,
+		int a_outputIndex, const QString & a_reason) override;
 
-		void slotStartStopEncodeButtonPressed();
+	void slotWholeVideoButtonPressed();
 
-		void slotExecutableBrowseButtonPressed();
+	void slotStartStopEncodeButtonPressed();
 
-		void slotArgumentsHelpButtonPressed();
+	void slotExecutableBrowseButtonPressed();
 
-		void slotEncodingPresetSaveButtonPressed();
-		void slotEncodingPresetDeleteButtonPressed();
-		void slotEncodingPresetComboBoxActivated(const QString & a_text);
+	void slotArgumentsHelpButtonPressed();
 
-		void slotEncoderStarted();
-		void slotEncoderFinished(int a_exitCode,
-			QProcess::ExitStatus a_exitStatus);
-		void slotEncoderError(QProcess::ProcessError a_error);
-		void slotEncoderReadChannelFinished();
-		void slotEncoderBytesWritten(qint64 a_bytes);
-		void slotEncoderReadyReadStandardError();
+	void slotEncodingPresetSaveButtonPressed();
+	void slotEncodingPresetDeleteButtonPressed();
+	void slotEncodingPresetComboBoxActivated(const QString & a_text);
 
-	protected:
+	void slotEncoderStarted();
+	void slotEncoderFinished(int a_exitCode,
+		QProcess::ExitStatus a_exitStatus);
+	void slotEncoderError(QProcess::ProcessError a_error);
+	void slotEncoderReadChannelFinished();
+	void slotEncoderBytesWritten(qint64 a_bytes);
+	void slotEncoderReadyReadStandardError();
 
-		virtual void stopAndCleanUp() override;
+protected:
 
-		void stopProcessing();
+	virtual void stopAndCleanUp() override;
 
-		void processFramesQueue();
+	void stopProcessing();
 
-		QString decodeArguments(const QString & a_arguments);
+	void processFramesQueue();
 
-		void outputStandardError();
+	QString decodeArguments(const QString & a_arguments);
 
-		void fillVariables();
+	void outputStandardError();
 
-		void setUpEncodingPresets();
+	void fillVariables();
 
-		Ui::EncodeDialog m_ui;
+	void setUpEncodingPresets();
 
-		int m_firstFrame;
-		int m_lastFrame;
-		int m_framesTotal;
-		int m_framesProcessed;
+	Ui::EncodeDialog m_ui;
 
-		hr_time_point m_encodeStartTime;
+	int m_firstFrame;
+	int m_lastFrame;
+	int m_framesTotal;
+	int m_framesProcessed;
 
-		QProcess m_encoder;
+	hr_time_point m_encodeStartTime;
 
-		std::vector<char> m_framebuffer;
+	QProcess m_encoder;
 
-		int m_lastFrameProcessed;
-		int m_lastFrameRequested;
+	std::vector<char> m_framebuffer;
 
-		std::vector<VariableToken> m_variables;
+	int m_lastFrameProcessed;
+	int m_lastFrameRequested;
 
-		State m_state;
+	std::vector<VariableToken> m_variables;
 
-		size_t m_bytesToWrite;
-		size_t m_bytesWritten;
+	State m_state;
 
-		std::vector<EncodingPreset> m_encodingPresets;
+	size_t m_bytesToWrite;
+	size_t m_bytesWritten;
+
+	std::vector<EncodingPreset> m_encodingPresets;
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

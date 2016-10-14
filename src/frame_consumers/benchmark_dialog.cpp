@@ -20,6 +20,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	, m_processing(false)
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
+	, m_framesFailed(0)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":benchmark.png"));
@@ -118,6 +119,7 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	}
 
 	m_framesProcessed = 0;
+	m_framesFailed = 0;
 	int firstFrame = m_ui.fromFrameSpinBox->value();
 	int lastFrame = m_ui.toFrameSpinBox->value();
 
@@ -154,23 +156,32 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 	if(!m_processing)
 		return;
 
-	hr_time_point now = hr_clock::now();
 	m_framesProcessed++;
-	m_ui.processingProgressBar->setValue(m_framesProcessed);
-	double passed = duration_to_double(now - m_benchmarkStartTime);
-	QString passedString = vsedit::timeToString(passed);
-	double fps = (double)m_framesProcessed / passed;
-	QString text = trUtf8("Time elapsed: %1 - %2 FPS")
-		.arg(passedString).arg(QString::number(fps, 'f', 20));
-	m_ui.metricsEdit->setText(text);
-
-	if(m_framesProcessed == m_framesTotal)
-		stopProcessing();
+	updateMetrics();
 }
 
 // END OF void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 //		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
 //		const VSFrameRef * a_cpPreviewFrameRef)
+//==============================================================================
+
+void ScriptBenchmarkDialog::slotFrameRequestDiscarded(int a_frameNumber,
+	int a_outputIndex, const QString & a_reason)
+{
+	(void)a_frameNumber;
+	(void)a_outputIndex;
+	(void)a_reason;
+
+	if(!m_processing)
+		return;
+
+	m_framesProcessed++;
+	m_framesFailed++;
+	updateMetrics();
+}
+
+// END OF void ScriptBenchmarkDialog::slotFrameRequestDiscarded(
+//		int a_frameNumber, int a_outputIndex, const QString & a_reason)
 //==============================================================================
 
 void ScriptBenchmarkDialog::stopProcessing()
@@ -184,4 +195,26 @@ void ScriptBenchmarkDialog::stopProcessing()
 }
 
 // END OF void ScriptBenchmarkDialog::stopProcessing()
+//==============================================================================
+
+void ScriptBenchmarkDialog::updateMetrics()
+{
+	hr_time_point now = hr_clock::now();
+	m_ui.processingProgressBar->setValue(m_framesProcessed);
+	double passed = duration_to_double(now - m_benchmarkStartTime);
+	QString passedString = vsedit::timeToString(passed);
+	double fps = (double)m_framesProcessed / passed;
+	QString text = trUtf8("Time elapsed: %1 - %2 FPS")
+		.arg(passedString).arg(QString::number(fps, 'f', 20));
+
+	if(m_framesFailed > 0)
+		text += trUtf8("; %1 frames failed.").arg(m_framesFailed);
+
+	m_ui.metricsEdit->setText(text);
+
+	if(m_framesProcessed == m_framesTotal)
+		stopProcessing();
+}
+
+// END OF void ScriptBenchmarkDialog::updateMetrics()
 //==============================================================================

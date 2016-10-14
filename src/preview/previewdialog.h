@@ -50,6 +50,9 @@ protected slots:
 		const VSFrameRef * a_cpOutputFrameRef,
 		const VSFrameRef * a_cpPreviewFrameRef) override;
 
+	virtual void slotFrameRequestDiscarded(int a_frameNumber,
+		int a_outputIndex, const QString & a_reason) override;
+
 	void slotShowFrame(int a_frameNumber);
 
 	void slotSaveSnapshot();

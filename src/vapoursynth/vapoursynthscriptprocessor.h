@@ -81,7 +81,7 @@ private:
 
 	void freeFrameTicket(FrameTicket & a_ticket);
 
-	NodePair getNodePair(int a_outputIndex, bool a_needPreview);
+	NodePair & getNodePair(int a_outputIndex, bool a_needPreview);
 
 	SettingsManager * m_pSettingsManager;
 

@@ -508,7 +508,8 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 		m_frameTicketsQueue.pop_front();
 
 		// In case preview node was hot-swapped.
-		NodePair nodePair = getNodePair(ticket.outputIndex, ticket.needPreview);
+		NodePair & nodePair =
+			getNodePair(ticket.outputIndex, ticket.needPreview);
 
 		bool validPair = (nodePair.pOutputNode != nullptr);
 		if(ticket.needPreview)
@@ -528,9 +529,6 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 			ticket.pPreviewNode =
 				m_cpVSAPI->cloneNodeRef(nodePair.pPreviewNode);
 
-//		if(ticket.needPreview)
-//			m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pPreviewNode,
-//				frameReady, this);
 		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pOutputNode,
 			frameReady, this);
 
@@ -747,7 +745,7 @@ void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 //		FrameTicket & a_ticket)
 //==============================================================================
 
-NodePair VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
+NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 	bool a_needPreview)
 {
 	NodePair & nodePair = m_nodePairForOutputIndex[a_outputIndex];

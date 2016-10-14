@@ -356,6 +356,32 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 //		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
+void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
+	int a_outputIndex, const QString & a_reason)
+{
+	(void)a_outputIndex;
+	(void)a_reason;
+
+	if(m_playing)
+	{
+		m_ui.playButton->click();
+	}
+	else
+	{
+		if(a_frameNumber != m_frameExpected)
+			return;
+
+		m_frameExpected = m_frameShown;
+		m_ui.frameNumberSlider->setFrame(m_frameShown);
+		m_ui.frameNumberSpinBox->setValue(m_frameShown);
+		m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
+	}
+}
+
+// END OF void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
+//		int a_outputIndex, const QString & a_reason)
+//==============================================================================
+
 void PreviewDialog::slotShowFrame(int a_frameNumber)
 {
 	if((m_frameExpected == a_frameNumber) && (!m_framePixmap.isNull()))
@@ -1081,10 +1107,6 @@ void PreviewDialog::slotPlay(bool a_play)
 	m_playing = a_play;
 	if(m_playing)
 	{
-		disconnect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
-		this, SLOT(slotShowFrame(int)));
-		disconnect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
-			this, SLOT(slotShowFrame(int)));
 		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
 		slotProcessPlayQueue();
@@ -1094,10 +1116,6 @@ void PreviewDialog::slotPlay(bool a_play)
 		clearFramesCache();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 		m_pActionPlay->setIcon(m_iconPlay);
-		connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
-		this, SLOT(slotShowFrame(int)));
-		connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
-			this, SLOT(slotShowFrame(int)));
 	}
 }
 

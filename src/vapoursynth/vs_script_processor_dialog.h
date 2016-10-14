@@ -21,85 +21,88 @@ class VSScriptProcessorDialog : public QDialog
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		VSScriptProcessorDialog(SettingsManager * a_pSettingsManager,
-			VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr,
-			Qt::WindowFlags a_flags =
-			(Qt::WindowFlags)0
-			| Qt::Window
-			| Qt::CustomizeWindowHint
-			| Qt::WindowMinimizeButtonHint
-			| Qt::WindowMaximizeButtonHint
-			| Qt::WindowCloseButtonHint);
+	VSScriptProcessorDialog(SettingsManager * a_pSettingsManager,
+		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr,
+		Qt::WindowFlags a_flags =
+		(Qt::WindowFlags)0
+		| Qt::Window
+		| Qt::CustomizeWindowHint
+		| Qt::WindowMinimizeButtonHint
+		| Qt::WindowMaximizeButtonHint
+		| Qt::WindowCloseButtonHint);
 
-		virtual ~VSScriptProcessorDialog();
+	virtual ~VSScriptProcessorDialog();
 
-		virtual bool initialize(const QString & a_script,
-			const QString & a_scriptName);
+	virtual bool initialize(const QString & a_script,
+		const QString & a_scriptName);
 
-		virtual bool busy() const;
+	virtual bool busy() const;
 
-	protected slots:
+protected slots:
 
-		virtual void slotWriteLogMessage(int a_messageType,
-			const QString & a_message);
+	virtual void slotWriteLogMessage(int a_messageType,
+		const QString & a_message);
 
-		virtual void slotFrameQueueStateChanged(size_t a_inQueue,
-			size_t a_inProcess, size_t a_maxThreads);
+	virtual void slotFrameQueueStateChanged(size_t a_inQueue,
+		size_t a_inProcess, size_t a_maxThreads);
 
-		virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-			const VSFrameRef * a_cpOutputFrameRef,
-			const VSFrameRef * a_cpPreviewFrameRef) = 0;
+	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
+		const VSFrameRef * a_cpOutputFrameRef,
+		const VSFrameRef * a_cpPreviewFrameRef) = 0;
 
-	signals:
+	virtual void slotFrameRequestDiscarded(int a_frameNumber,
+		int a_outputIndex, const QString & a_reason) = 0;
 
-		void signalWriteLogMessage(int a_messageType,
-			const QString & a_message);
+signals:
 
-	protected:
+	void signalWriteLogMessage(int a_messageType,
+		const QString & a_message);
 
-		virtual void closeEvent(QCloseEvent * a_pEvent) override;
+protected:
 
-		virtual void stopAndCleanUp();
+	virtual void closeEvent(QCloseEvent * a_pEvent) override;
 
-		virtual void clearFramesCache();
+	virtual void stopAndCleanUp();
 
-		/// Adds status bar to the dialog.
-		/// Relies on dialog having a layout.
-		/// Call in derived class after GUI is created.
-		virtual void createStatusBar();
+	virtual void clearFramesCache();
 
-		SettingsManager * m_pSettingsManager;
+	/// Adds status bar to the dialog.
+	/// Relies on dialog having a layout.
+	/// Call in derived class after GUI is created.
+	virtual void createStatusBar();
 
-		VSScriptLibrary * m_pVSScriptLibrary;
+	SettingsManager * m_pSettingsManager;
 
-		VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
+	VSScriptLibrary * m_pVSScriptLibrary;
 
-		QString m_script;
+	VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
 
-		QString m_scriptName;
+	QString m_script;
 
-		const VSAPI * m_cpVSAPI;
+	QString m_scriptName;
 
-		const VSVideoInfo * m_cpVideoInfo;
+	const VSAPI * m_cpVSAPI;
 
-		size_t m_framesInQueue;
-		size_t m_framesInProcess;
-		size_t m_maxThreads;
+	const VSVideoInfo * m_cpVideoInfo;
 
-		bool m_wantToFinalize;
+	size_t m_framesInQueue;
+	size_t m_framesInProcess;
+	size_t m_maxThreads;
 
-		QStatusBar * m_pStatusBar;
-		QLabel * m_pScriptProcessorStatusPixmapLabel;
-		QLabel * m_pScriptProcessorStatusLabel;
-		QLabel * m_pVideoInfoLabel;
+	bool m_wantToFinalize;
 
-		QPixmap m_readyPixmap;
-		QPixmap m_busyPixmap;
+	QStatusBar * m_pStatusBar;
+	QLabel * m_pScriptProcessorStatusPixmapLabel;
+	QLabel * m_pScriptProcessorStatusLabel;
+	QLabel * m_pVideoInfoLabel;
 
-		std::list<Frame> m_framesCache;
-		size_t m_cachedFramesLimit;
+	QPixmap m_readyPixmap;
+	QPixmap m_busyPixmap;
+
+	std::list<Frame> m_framesCache;
+	size_t m_cachedFramesLimit;
 };
 
 #endif // VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
