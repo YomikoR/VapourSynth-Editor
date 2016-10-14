@@ -40,6 +40,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionOpenScript(nullptr)
 	, m_pActionSaveScript(nullptr)
 	, m_pActionSaveScriptAs(nullptr)
+	, m_pActionDuplicateSelection(nullptr)
 	, m_pActionSettings(nullptr)
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
@@ -91,6 +92,8 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_ui.scriptEdit, SIGNAL(modificationChanged(bool)),
 		this, SLOT(slotChangeWindowTitle()));
 
+	createActionsAndMenus();
+
 	m_pPreviewDialog = new PreviewDialog(m_pSettingsManager,
 		m_pVSScriptLibrary,m_pSettingsDialog);
 
@@ -106,7 +109,6 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
-	createActionsAndMenus();
 	slotChangeWindowTitle();
 
 	m_orphanQObjects =
@@ -521,6 +523,19 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
+	m_pActionDuplicateSelection = new QAction(this);
+	m_pActionDuplicateSelection->setIconText(
+		trUtf8("Duplicate selection or line"));
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_DUPLICATE_SELECTION);
+	m_pActionDuplicateSelection->setShortcut(hotkey);
+	pEditMenu->addAction(m_pActionDuplicateSelection);
+	m_pActionDuplicateSelection->setData(ACTION_ID_DUPLICATE_SELECTION);
+	m_settableActionsList.push_back(m_pActionDuplicateSelection);
+
+//------------------------------------------------------------------------------
+
+	pEditMenu->addSeparator();
+
 	m_pActionSettings = new QAction(this);
 	m_pActionSettings->setIconText(trUtf8("Settings"));
 	m_pActionSettings->setIcon(QIcon(QString(":settings.png")));
@@ -613,6 +628,8 @@ void MainWindow::createActionsAndMenus()
 	connect(m_pActionSaveScriptAs, SIGNAL(triggered()),
 		this, SLOT(slotSaveScriptAs()));
 	connect(m_pActionExit, SIGNAL(triggered()), this, SLOT(close()));
+	connect(m_pActionDuplicateSelection, SIGNAL(triggered()),
+		m_ui.scriptEdit, SLOT(slotDuplicateSelection()));
 	connect(m_pActionSettings, SIGNAL(triggered()),
 		m_pSettingsDialog, SLOT(slotCall()));
 	connect(m_pActionPreview, SIGNAL(triggered()), this, SLOT(slotPreview()));

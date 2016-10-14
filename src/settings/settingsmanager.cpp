@@ -112,6 +112,7 @@ const char ACTION_ID_TIME_STEP_BACK[] = "time_step_back";
 const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[] = "advanced_preview_settings";
 const char ACTION_ID_TOGGLE_COLOR_PICKER[] = "toggle_color_picker";
 const char ACTION_ID_PLAY[] = "play";
+const char ACTION_ID_DUPLICATE_SELECTION[] = "duplicate_selection";
 
 //==============================================================================
 
@@ -314,6 +315,7 @@ void SettingsManager::initializeDefaultHotkeysMap()
 		{ACTION_ID_TIME_STEP_FORWARD, QKeySequence(Qt::CTRL + Qt::Key_Right)},
 		{ACTION_ID_TIME_STEP_BACK, QKeySequence(Qt::CTRL + Qt::Key_Left)},
 		{ACTION_ID_FRAME_TO_CLIPBOARD, QKeySequence(Qt::Key_X)},
+		{ACTION_ID_DUPLICATE_SELECTION, QKeySequence(Qt::CTRL + Qt::Key_D)},
 	};
 }
 

@@ -249,6 +249,32 @@ void ScriptEditor::slotInsertCompletion(const QString & a_completionString)
 //		const QString & a_completionString)
 //==============================================================================
 
+void ScriptEditor::slotDuplicateSelection()
+{
+	QTextCursor cursor = textCursor();
+	int l_selectionStart = cursor.selectionStart();
+	int l_selectionEnd = cursor.selectionEnd();
+
+	QString newText = cursor.selectedText();
+	if(cursor.hasSelection())
+	{
+		cursor.clearSelection();
+	}
+	else
+	{
+		newText = cursor.block().text() + QString("\n");
+		cursor.movePosition(QTextCursor::StartOfBlock);
+	}
+	cursor.insertText(newText);
+
+	cursor.setPosition(l_selectionStart, QTextCursor::MoveAnchor);
+	cursor.setPosition(l_selectionEnd, QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
+}
+
+// END OF void ScriptEditor::slotDuplicateSelection()
+//==============================================================================
+
 bool ScriptEditor::eventFilter(QObject * a_pObject, QEvent * a_pEvent)
 {
 	if((a_pObject == m_pSideBox) && (a_pEvent->type() == QEvent::Paint))

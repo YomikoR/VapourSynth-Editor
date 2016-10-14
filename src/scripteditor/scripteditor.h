@@ -20,95 +20,97 @@ class ScriptEditor : public QPlainTextEdit
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		ScriptEditor(QWidget * a_pParent = nullptr);
+	ScriptEditor(QWidget * a_pParent = nullptr);
 
-		virtual ~ScriptEditor();
+	virtual ~ScriptEditor();
 
-		QString text();
+	QString text();
 
-		QPoint cursorPosition();
+	QPoint cursorPosition();
 
-		void setCursorPosition(const QPoint & a_point);
+	void setCursorPosition(const QPoint & a_point);
 
-		void setCursorPosition(int a_line, int a_index);
+	void setCursorPosition(int a_line, int a_index);
 
-		bool isModified();
+	bool isModified();
 
-		void setModified(bool a_modified);
+	void setModified(bool a_modified);
 
-		void setPluginsList(const VSPluginsList & a_pluginsList);
+	void setPluginsList(const VSPluginsList & a_pluginsList);
 
-		void setCharactersTypedToStartCompletion(int a_charactersNumber);
+	void setCharactersTypedToStartCompletion(int a_charactersNumber);
 
-		void setSettingsManager(SettingsManager * a_pSettingsManager);
+	void setSettingsManager(SettingsManager * a_pSettingsManager);
 
-		void setSettingsDialog(SettingsDialog * a_pSettingsDialog);
+	void setSettingsDialog(SettingsDialog * a_pSettingsDialog);
 
-	public slots:
+public slots:
 
-		void slotLoadSettings();
+	void slotLoadSettings();
 
-		void slotComplete();
+	void slotComplete();
 
-		void slotInsertCompletion(const QString & a_completionString);
+	void slotInsertCompletion(const QString & a_completionString);
 
-	protected:
+	void slotDuplicateSelection();
 
-		bool eventFilter(QObject * a_pObject, QEvent * a_pEvent);
+protected:
 
-		void resizeEvent(QResizeEvent * a_pEvent);
+	bool eventFilter(QObject * a_pObject, QEvent * a_pEvent);
 
-		void keyPressEvent(QKeyEvent * a_pEvent);
+	void resizeEvent(QResizeEvent * a_pEvent);
 
-	private slots:
+	void keyPressEvent(QKeyEvent * a_pEvent);
 
-		void slotTextChanged();
+private slots:
 
-		void slotUpdateSideBoxWidth();
+	void slotTextChanged();
 
-		void slotUpdateSideBox(const QRect & a_rect, int a_dy);
+	void slotUpdateSideBoxWidth();
 
-		void slotHighlightCurrentBlock();
+	void slotUpdateSideBox(const QRect & a_rect, int a_dy);
 
-	private:
+	void slotHighlightCurrentBlock();
 
-		QString getVapourSynthCoreName();
+private:
 
-		void setChildrenCoreName(const QString & a_coreName);
+	QString getVapourSynthCoreName();
 
-		int sideBoxWidth() const;
+	void setChildrenCoreName(const QString & a_coreName);
 
-		void paintSideBox(QPaintEvent * a_pEvent);
+	int sideBoxWidth() const;
 
-		void indentNewLine();
+	void paintSideBox(QPaintEvent * a_pEvent);
 
-		SettingsManager * m_pSettingsManager;
+	void indentNewLine();
 
-		QWidget * m_pSideBox;
+	SettingsManager * m_pSettingsManager;
 
-		int m_sideBoxLineWidth;
+	QWidget * m_pSideBox;
 
-		int m_sideBoxTextMargin;
+	int m_sideBoxLineWidth;
 
-		ScriptCompleterModel * m_pCompleterModel;
+	int m_sideBoxTextMargin;
 
-		ScriptCompleter * m_pCompleter;
+	ScriptCompleterModel * m_pCompleterModel;
 
-		SyntaxHighlighter * m_pSyntaxHighlighter;
+	ScriptCompleter * m_pCompleter;
 
-		int m_typedCharacters;
+	SyntaxHighlighter * m_pSyntaxHighlighter;
 
-		int m_charactersTypedToStartCompletion;
+	int m_typedCharacters;
 
-		QString m_plainText;
+	int m_charactersTypedToStartCompletion;
 
-		QColor m_backgroundColor;
+	QString m_plainText;
 
-		QColor m_activeLineColor;
+	QColor m_backgroundColor;
 
-		QTextCharFormat m_commonScriptTextFormat;
+	QColor m_activeLineColor;
+
+	QTextCharFormat m_commonScriptTextFormat;
 };
 
 #endif // SCRIPTEDITOR_H

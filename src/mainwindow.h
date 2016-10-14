@@ -17,108 +17,109 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		MainWindow();
+	MainWindow();
 
-		virtual ~MainWindow();
+	virtual ~MainWindow();
 
-	public slots:
+public slots:
 
-		void slotWriteLogMessage(int a_messageType, const QString & a_message);
+	void slotWriteLogMessage(int a_messageType, const QString & a_message);
 
-		void slotInsertLineIntoScript(const QString & a_line);
+	void slotInsertLineIntoScript(const QString & a_line);
 
-	protected:
+protected:
 
-		void closeEvent(QCloseEvent * a_pEvent) override;
+	void closeEvent(QCloseEvent * a_pEvent) override;
 
-		void moveEvent(QMoveEvent * a_pEvent) override;
+	void moveEvent(QMoveEvent * a_pEvent) override;
 
-		void resizeEvent(QResizeEvent * a_pEvent) override;
+	void resizeEvent(QResizeEvent * a_pEvent) override;
 
-		void changeEvent(QEvent * a_pEvent) override;
+	void changeEvent(QEvent * a_pEvent) override;
 
-	private slots:
+private slots:
 
-		void slotNewScript();
+	void slotNewScript();
 
-		bool slotSaveScript();
+	bool slotSaveScript();
 
-		bool slotSaveScriptAs();
+	bool slotSaveScriptAs();
 
-		bool slotOpenScript();
+	bool slotOpenScript();
 
-		void slotPreview();
+	void slotPreview();
 
-		void slotCheckScript();
+	void slotCheckScript();
 
-		void slotBenchmark();
+	void slotBenchmark();
 
-		void slotEncode();
+	void slotEncode();
 
-		void slotAbout();
+	void slotAbout();
 
-		void slotChangeWindowTitle();
+	void slotChangeWindowTitle();
 
-		void slotEditorTextChanged();
+	void slotEditorTextChanged();
 
-		void slotOpenRecentScriptActionTriggered();
+	void slotOpenRecentScriptActionTriggered();
 
-		void slotSettingsChanged();
+	void slotSettingsChanged();
 
-	private:
+private:
 
-		void createActionsAndMenus();
+	void createActionsAndMenus();
 
-		void fillRecentScriptsMenu();
+	void fillRecentScriptsMenu();
 
-		bool saveScriptToFile(const QString& a_filePath);
+	bool saveScriptToFile(const QString& a_filePath);
 
-		bool loadScriptFromFile(const QString& a_filePath);
+	bool loadScriptFromFile(const QString& a_filePath);
 
-		bool safeToCloseFile();
+	bool safeToCloseFile();
 
-		void setCurrentScriptFilePath(const QString & a_filePath);
+	void setCurrentScriptFilePath(const QString & a_filePath);
 
-		void loadStartUpScript();
+	void loadStartUpScript();
 
-		void loadFonts();
+	void loadFonts();
 
-		void destroyOrphanQObjects();
+	void destroyOrphanQObjects();
 
-		Ui::MainWindow m_ui;
+	Ui::MainWindow m_ui;
 
-		SettingsManager * m_pSettingsManager;
-		VapourSynthPluginsManager * m_pVapourSynthPluginsManager;
-		VSScriptLibrary * m_pVSScriptLibrary;
+	SettingsManager * m_pSettingsManager;
+	VapourSynthPluginsManager * m_pVapourSynthPluginsManager;
+	VSScriptLibrary * m_pVSScriptLibrary;
 
-		QAction * m_pActionNewScript;
-		QAction * m_pActionOpenScript;
-		QAction * m_pActionSaveScript;
-		QAction * m_pActionSaveScriptAs;
-		QAction * m_pActionSettings;
-		QAction * m_pActionPreview;
-		QAction * m_pActionCheckScript;
-		QAction * m_pActionBenchmark;
-		QAction * m_pActionEncode;
-		QAction * m_pActionExit;
-		QAction * m_pActionAbout;
-		QAction * m_pActionAutocomplete;
+	QAction * m_pActionNewScript;
+	QAction * m_pActionOpenScript;
+	QAction * m_pActionSaveScript;
+	QAction * m_pActionSaveScriptAs;
+	QAction * m_pActionDuplicateSelection;
+	QAction * m_pActionSettings;
+	QAction * m_pActionPreview;
+	QAction * m_pActionCheckScript;
+	QAction * m_pActionBenchmark;
+	QAction * m_pActionEncode;
+	QAction * m_pActionExit;
+	QAction * m_pActionAbout;
+	QAction * m_pActionAutocomplete;
 
-		std::vector<QAction *> m_settableActionsList;
+	std::vector<QAction *> m_settableActionsList;
 
-		QMenu * m_pMenuRecentScripts;
+	QMenu * m_pMenuRecentScripts;
 
-		PreviewDialog * m_pPreviewDialog;
-		SettingsDialog * m_pSettingsDialog;
-		ScriptBenchmarkDialog * m_pBenchmarkDialog;
-		EncodeDialog * m_pEncodeDialog;
+	PreviewDialog * m_pPreviewDialog;
+	SettingsDialog * m_pSettingsDialog;
+	ScriptBenchmarkDialog * m_pBenchmarkDialog;
+	EncodeDialog * m_pEncodeDialog;
 
-		QString m_scriptFilePath;
-		QString m_lastSavedText;
+	QString m_scriptFilePath;
+	QString m_lastSavedText;
 
-		std::vector<QObject **> m_orphanQObjects;
+	std::vector<QObject **> m_orphanQObjects;
 };
 
 #endif // MAINWINDOW_H
