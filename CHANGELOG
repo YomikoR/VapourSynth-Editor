@@ -2,6 +2,7 @@ r10:
 -BUGFIX: Colour picking.
 -BUGFIX: VapourSynth messages handling.
 -BUGFIX: Frame processing errors handling in different modes.
+-Crashlog on VapourSynth fatal errors.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
