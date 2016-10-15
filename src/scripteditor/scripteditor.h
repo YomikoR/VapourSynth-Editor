@@ -60,6 +60,10 @@ public slots:
 
 	void slotUncommentSelection();
 
+	void slotTab();
+
+	void slotBackTab();
+
 protected:
 
 	bool eventFilter(QObject * a_pObject, QEvent * a_pEvent);
@@ -90,6 +94,9 @@ private:
 
 	void indentNewLine();
 
+	void insertSelectedLinesBegin(const QString & a_text);
+	void removeSelectedLinesBegin(const QString & a_text);
+
 	SettingsManager * m_pSettingsManager;
 
 	QWidget * m_pSideBox;
@@ -115,6 +122,10 @@ private:
 	QColor m_activeLineColor;
 
 	QTextCharFormat m_commonScriptTextFormat;
+
+	QString m_tabText;
+
+	int m_spacesInTab;
 };
 
 #endif // SCRIPTEDITOR_H
