@@ -130,6 +130,8 @@ extern const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[];
 extern const char ACTION_ID_TOGGLE_COLOR_PICKER[];
 extern const char ACTION_ID_PLAY[];
 extern const char ACTION_ID_DUPLICATE_SELECTION[];
+extern const char ACTION_ID_COMMENT_SELECTION[];
+extern const char ACTION_ID_UNCOMMENT_SELECTION[];
 
 //==============================================================================
 

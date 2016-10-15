@@ -41,6 +41,8 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionSaveScript(nullptr)
 	, m_pActionSaveScriptAs(nullptr)
 	, m_pActionDuplicateSelection(nullptr)
+	, m_pActionCommentSelection(nullptr)
+	, m_pActionUncommentSelection(nullptr)
 	, m_pActionSettings(nullptr)
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
@@ -534,6 +536,25 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
+	m_pActionCommentSelection = new QAction(this);
+	m_pActionCommentSelection->setIconText(trUtf8("Comment lines"));
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_COMMENT_SELECTION);
+	m_pActionCommentSelection->setShortcut(hotkey);
+	pEditMenu->addAction(m_pActionCommentSelection);
+	m_pActionCommentSelection->setData(ACTION_ID_COMMENT_SELECTION);
+	m_settableActionsList.push_back(m_pActionCommentSelection);
+
+//------------------------------------------------------------------------------
+
+	m_pActionUncommentSelection = new QAction(this);
+	m_pActionUncommentSelection->setIconText(trUtf8("Uncomment lines"));
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_UNCOMMENT_SELECTION);
+	m_pActionUncommentSelection->setShortcut(hotkey);
+	pEditMenu->addAction(m_pActionUncommentSelection);
+	m_pActionUncommentSelection->setData(ACTION_ID_UNCOMMENT_SELECTION);
+	m_settableActionsList.push_back(m_pActionUncommentSelection);
+
+//------------------------------------------------------------------------------
 	pEditMenu->addSeparator();
 
 	m_pActionSettings = new QAction(this);
@@ -630,6 +651,10 @@ void MainWindow::createActionsAndMenus()
 	connect(m_pActionExit, SIGNAL(triggered()), this, SLOT(close()));
 	connect(m_pActionDuplicateSelection, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotDuplicateSelection()));
+	connect(m_pActionCommentSelection, SIGNAL(triggered()),
+		m_ui.scriptEdit, SLOT(slotCommentSelection()));
+	connect(m_pActionUncommentSelection, SIGNAL(triggered()),
+		m_ui.scriptEdit, SLOT(slotUncommentSelection()));
 	connect(m_pActionSettings, SIGNAL(triggered()),
 		m_pSettingsDialog, SLOT(slotCall()));
 	connect(m_pActionPreview, SIGNAL(triggered()), this, SLOT(slotPreview()));

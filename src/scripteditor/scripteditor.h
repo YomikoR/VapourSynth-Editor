@@ -56,6 +56,10 @@ public slots:
 
 	void slotDuplicateSelection();
 
+	void slotCommentSelection();
+
+	void slotUncommentSelection();
+
 protected:
 
 	bool eventFilter(QObject * a_pObject, QEvent * a_pEvent);

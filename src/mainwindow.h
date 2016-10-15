@@ -98,6 +98,8 @@ private:
 	QAction * m_pActionSaveScript;
 	QAction * m_pActionSaveScriptAs;
 	QAction * m_pActionDuplicateSelection;
+	QAction * m_pActionCommentSelection;
+	QAction * m_pActionUncommentSelection;
 	QAction * m_pActionSettings;
 	QAction * m_pActionPreview;
 	QAction * m_pActionCheckScript;

@@ -275,6 +275,51 @@ void ScriptEditor::slotDuplicateSelection()
 // END OF void ScriptEditor::slotDuplicateSelection()
 //==============================================================================
 
+void ScriptEditor::slotCommentSelection()
+{
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock firstBlock = pDocument->findBlock(cursor.selectionStart());
+	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
+	int firstBlockNumber = firstBlock.blockNumber();
+	int lastBlockNumber = lastBlock.blockNumber();
+	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
+	{
+		QTextBlock block = pDocument->findBlockByNumber(i);
+		int position = block.position();
+		cursor.setPosition(position);
+		cursor.insertText("#");
+	}
+}
+
+// END OF void ScriptEditor::slotCommentSelection()
+//==============================================================================
+
+void ScriptEditor::slotUncommentSelection()
+{
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock firstBlock = pDocument->findBlock(cursor.selectionStart());
+	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
+	int firstBlockNumber = firstBlock.blockNumber();
+	int lastBlockNumber = lastBlock.blockNumber();
+	QTextCursor commentCursor(pDocument);
+	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
+	{
+		QTextBlock block = pDocument->findBlockByNumber(i);
+		int position = block.position();
+		if(pDocument->characterAt(position) != '#')
+			continue;
+		commentCursor.setPosition(position);
+		commentCursor.setPosition(position + 1, QTextCursor::KeepAnchor);
+		commentCursor.removeSelectedText();
+	}
+}
+
+// END OF void ScriptEditor::slotUncommentSelection()
+//==============================================================================
+
+
 bool ScriptEditor::eventFilter(QObject * a_pObject, QEvent * a_pEvent)
 {
 	if((a_pObject == m_pSideBox) && (a_pEvent->type() == QEvent::Paint))
