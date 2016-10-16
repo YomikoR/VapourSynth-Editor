@@ -343,8 +343,8 @@ void ScriptEditor::slotBackTab()
 		cursor.setPosition(position);
 
 		// If line begins with set tabulation text - remove it.
-		cursor.setPosition(position + m_tabText.length(),
-			QTextCursor::KeepAnchor);
+		cursor.setPosition(std::min(position + m_tabText.length(),
+			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
 		if(cursor.selectedText() == m_tabText)
 		{
 			cursor.removeSelectedText();
@@ -352,7 +352,8 @@ void ScriptEditor::slotBackTab()
 		}
 
 		// Else remove standard tabulation character.
-		cursor.setPosition(position + 1, QTextCursor::KeepAnchor);
+		cursor.setPosition(std::min(position + 1,
+			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
 		if(cursor.selectedText() == "\t")
 		{
 			cursor.removeSelectedText();
@@ -762,7 +763,8 @@ void ScriptEditor::removeSelectedLinesBegin(const QString & a_text)
 		QTextBlock block = pDocument->findBlockByNumber(i);
 		int position = block.position();
 		cursor.setPosition(position);
-		cursor.setPosition(position + tokenLength, QTextCursor::KeepAnchor);
+		cursor.setPosition(std::min(position + tokenLength,
+			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
 		if(cursor.selectedText() == a_text)
 			cursor.removeSelectedText();
 	}
