@@ -23,6 +23,8 @@ class PreviewArea : public QScrollArea
 
 		void setWidget(QWidget * a_pWidget) = delete;
 
+		const QPixmap * pixmap() const;
+
 		void setPixmap(const QPixmap & a_pixmap);
 
 	public slots:

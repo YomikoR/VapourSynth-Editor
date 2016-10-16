@@ -44,6 +44,14 @@ PreviewArea::~PreviewArea()
 // END OF PreviewArea::~PreviewArea()
 //==============================================================================
 
+const QPixmap * PreviewArea::pixmap() const
+{
+	return m_pPreviewLabel->pixmap();
+}
+
+// END OF const QPixmap * PreviewArea::pixmap() const
+//==============================================================================
+
 void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 {
 	m_pPreviewLabel->setPixmap(a_pixmap);

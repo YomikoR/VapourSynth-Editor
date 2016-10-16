@@ -34,6 +34,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_pVideoInfoLabel(nullptr)
 	, m_readyPixmap(":tick.png")
 	, m_busyPixmap(":busy.png")
+	, m_errorPixmap(":cross.png")
 	, m_cachedFramesLimit(100)
 {
 	assert(m_pSettingsManager);

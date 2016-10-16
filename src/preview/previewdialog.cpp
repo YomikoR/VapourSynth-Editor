@@ -176,8 +176,9 @@ void PreviewDialog::previewScript(const QString& a_script,
 		return;
 	}
 
-	QString title = "Preview - ";
-	title += a_scriptName;
+	QString scriptName =
+		a_scriptName.isEmpty() ? trUtf8("(Untitled)") : a_scriptName;
+	QString title = trUtf8("Preview - ") + scriptName;
 	setWindowTitle(title);
 
 	int lastFrameNumber = m_cpVideoInfo->numFrames - 1;
@@ -191,6 +192,12 @@ void PreviewDialog::previewScript(const QString& a_script,
 			(double)m_cpVideoInfo->fpsDen);
 	}
 
+	if(m_scriptName != a_scriptName)
+	{
+		m_frameExpected = 0;
+		m_ui.previewArea->setPixmap(QPixmap());
+	}
+
 	if(m_frameExpected > lastFrameNumber)
 		m_frameExpected = lastFrameNumber;
 
@@ -201,6 +208,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 	resetCropSpinBoxes();
 
 	slotSetPlayFPSLimit();
+
+	m_scriptName = a_scriptName;
 
 	if(m_pSettingsManager->getPreviewDialogMaximized())
 		showMaximized();
@@ -223,7 +232,14 @@ void PreviewDialog::stopAndCleanUp()
 
 	m_frameShown = -1;
 	m_framePixmap = QPixmap();
-	m_ui.previewArea->setPixmap(QPixmap());
+	// Replace shown image with a blank one of the same dimension:
+	// -helps to keep the scrolling position when refreshing the script;
+	// -leaves the image blank on sudden error;
+	// -creates a blinking effect indicating the script is being refreshed.
+	const QPixmap * pPreviewPixmap = m_ui.previewArea->pixmap();
+	int pixmapWidth = pPreviewPixmap->width();
+	int pixmapHeight = pPreviewPixmap->height();
+	m_ui.previewArea->setPixmap(QPixmap(pixmapWidth, pixmapHeight));
 
 	if(m_cpFrameRef)
 	{
@@ -370,6 +386,20 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 		if(a_frameNumber != m_frameExpected)
 			return;
 
+		if(m_frameShown == -1)
+		{
+			if(m_frameExpected == 0)
+			{
+				// Nowhere to roll back
+				m_ui.frameNumberSlider->setFrame(0);
+				m_ui.frameNumberSpinBox->setValue(0);
+				m_ui.frameStatusLabel->setPixmap(m_errorPixmap);
+			}
+			else
+				slotShowFrame(0);
+			return;
+		}
+
 		m_frameExpected = m_frameShown;
 		m_ui.frameNumberSlider->setFrame(m_frameShown);
 		m_ui.frameNumberSpinBox->setValue(m_frameShown);
@@ -383,7 +413,7 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 
 void PreviewDialog::slotShowFrame(int a_frameNumber)
 {
-	if((m_frameExpected == a_frameNumber) && (!m_framePixmap.isNull()))
+	if((m_frameShown == a_frameNumber) && (!m_framePixmap.isNull()))
 		return;
 
 	if(m_playing)

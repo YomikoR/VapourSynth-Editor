@@ -100,6 +100,7 @@ protected:
 
 	QPixmap m_readyPixmap;
 	QPixmap m_busyPixmap;
+	QPixmap m_errorPixmap;
 
 	std::list<Frame> m_framesCache;
 	size_t m_cachedFramesLimit;
