@@ -316,27 +316,27 @@ void ScriptEditor::slotBackTab()
 	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
 	int firstBlockNumber = firstBlock.blockNumber();
 	int lastBlockNumber = lastBlock.blockNumber();
-	QTextCursor lineBeginningCursor(pDocument);
+	cursor.beginEditBlock();
 	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
 	{
 		QTextBlock block = pDocument->findBlockByNumber(i);
 		int position = block.position();
-		lineBeginningCursor.setPosition(position);
+		cursor.setPosition(position);
 
 		// If line begins with set tabulation text - remove it.
-		lineBeginningCursor.setPosition(position + m_tabText.length(),
+		cursor.setPosition(position + m_tabText.length(),
 			QTextCursor::KeepAnchor);
-		if(lineBeginningCursor.selectedText() == m_tabText)
+		if(cursor.selectedText() == m_tabText)
 		{
-			lineBeginningCursor.removeSelectedText();
+			cursor.removeSelectedText();
 			continue;
 		}
 
 		// Else remove standard tabulation character.
-		lineBeginningCursor.setPosition(position + 1, QTextCursor::KeepAnchor);
-		if(lineBeginningCursor.selectedText() == "\t")
+		cursor.setPosition(position + 1, QTextCursor::KeepAnchor);
+		if(cursor.selectedText() == "\t")
 		{
-			lineBeginningCursor.removeSelectedText();
+			cursor.removeSelectedText();
 			continue;
 		}
 
@@ -346,10 +346,11 @@ void ScriptEditor::slotBackTab()
 		while((tokenLength < spacesInTab) &&
 			(pDocument->characterAt(position + tokenLength) == ' '))
 			tokenLength++;
-		lineBeginningCursor.setPosition(position + tokenLength,
+		cursor.setPosition(position + tokenLength,
 			QTextCursor::KeepAnchor);
-		lineBeginningCursor.removeSelectedText();
+		cursor.removeSelectedText();
 	}
+	cursor.endEditBlock();
 }
 
 // END OF void ScriptEditor::slotBackTab()
@@ -680,6 +681,7 @@ void ScriptEditor::insertSelectedLinesBegin(const QString & a_text)
 	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
 	int firstBlockNumber = firstBlock.blockNumber();
 	int lastBlockNumber = lastBlock.blockNumber();
+	cursor.beginEditBlock();
 	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
 	{
 		QTextBlock block = pDocument->findBlockByNumber(i);
@@ -687,6 +689,7 @@ void ScriptEditor::insertSelectedLinesBegin(const QString & a_text)
 		cursor.setPosition(position);
 		cursor.insertText(a_text);
 	}
+	cursor.endEditBlock();
 }
 
 // END OF void ScriptEditor::insertSelectedLinesBegin(const QString & a_text)
@@ -700,18 +703,18 @@ void ScriptEditor::removeSelectedLinesBegin(const QString & a_text)
 	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
 	int firstBlockNumber = firstBlock.blockNumber();
 	int lastBlockNumber = lastBlock.blockNumber();
-	QTextCursor lineBeginningCursor(pDocument);
 	int tokenLength = a_text.length();
+	cursor.beginEditBlock();
 	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
 	{
 		QTextBlock block = pDocument->findBlockByNumber(i);
 		int position = block.position();
-		lineBeginningCursor.setPosition(position);
-		lineBeginningCursor.setPosition(position + tokenLength,
-			QTextCursor::KeepAnchor);
-		if(lineBeginningCursor.selectedText() == a_text)
-			lineBeginningCursor.removeSelectedText();
+		cursor.setPosition(position);
+		cursor.setPosition(position + tokenLength, QTextCursor::KeepAnchor);
+		if(cursor.selectedText() == a_text)
+			cursor.removeSelectedText();
 	}
+	cursor.endEditBlock();
 }
 
 // END OF void ScriptEditor::removeSelectedLinesBegin(const QString & a_text)
