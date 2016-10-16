@@ -296,6 +296,25 @@ void ScriptEditor::slotUncommentSelection()
 // END OF void ScriptEditor::slotUncommentSelection()
 //==============================================================================
 
+void ScriptEditor::slotReplaceTabWithSpaces()
+{
+	const QString spaces(m_spacesInTab, ' ');
+	QTextDocument * pDocument = document();
+	QTextCursor cursor(pDocument);
+	cursor.beginEditBlock();
+	QTextCursor newCursor = cursor;
+	while(!newCursor.isNull())
+	{
+		newCursor = pDocument->find("\t", newCursor);
+		if(newCursor.hasSelection())
+			newCursor.insertText(spaces);
+	}
+	cursor.endEditBlock();
+}
+
+// END OF void ScriptEditor::slotReplaceTabWithSpaces()
+//==============================================================================
+
 void ScriptEditor::slotTab()
 {
 	QTextCursor cursor = textCursor();

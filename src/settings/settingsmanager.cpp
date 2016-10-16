@@ -119,6 +119,7 @@ const char ACTION_ID_PLAY[] = "play";
 const char ACTION_ID_DUPLICATE_SELECTION[] = "duplicate_selection";
 const char ACTION_ID_COMMENT_SELECTION[] = "comment_selection";
 const char ACTION_ID_UNCOMMENT_SELECTION[] = "uncomment_selection";
+const char ACTION_ID_REPLACE_TAB_WITH_SPACES[] = "replace_tab_with_spaces";
 
 //==============================================================================
 

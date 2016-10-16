@@ -100,6 +100,7 @@ private:
 	QAction * m_pActionDuplicateSelection;
 	QAction * m_pActionCommentSelection;
 	QAction * m_pActionUncommentSelection;
+	QAction * m_pActionReplaceTabWithSpaces;
 	QAction * m_pActionSettings;
 	QAction * m_pActionPreview;
 	QAction * m_pActionCheckScript;

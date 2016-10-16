@@ -134,6 +134,7 @@ extern const char ACTION_ID_PLAY[];
 extern const char ACTION_ID_DUPLICATE_SELECTION[];
 extern const char ACTION_ID_COMMENT_SELECTION[];
 extern const char ACTION_ID_UNCOMMENT_SELECTION[];
+extern const char ACTION_ID_REPLACE_TAB_WITH_SPACES[];
 
 //==============================================================================
 

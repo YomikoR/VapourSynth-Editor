@@ -43,6 +43,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionDuplicateSelection(nullptr)
 	, m_pActionCommentSelection(nullptr)
 	, m_pActionUncommentSelection(nullptr)
+	, m_pActionReplaceTabWithSpaces(nullptr)
 	, m_pActionSettings(nullptr)
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
@@ -555,6 +556,18 @@ void MainWindow::createActionsAndMenus()
 	m_settableActionsList.push_back(m_pActionUncommentSelection);
 
 //------------------------------------------------------------------------------
+
+	m_pActionReplaceTabWithSpaces = new QAction(this);
+	m_pActionReplaceTabWithSpaces->setIconText(
+		trUtf8("Replace Tab characters with spaces"));
+	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_REPLACE_TAB_WITH_SPACES);
+	m_pActionReplaceTabWithSpaces->setShortcut(hotkey);
+	pEditMenu->addAction(m_pActionReplaceTabWithSpaces);
+	m_pActionReplaceTabWithSpaces->setData(ACTION_ID_REPLACE_TAB_WITH_SPACES);
+	m_settableActionsList.push_back(m_pActionReplaceTabWithSpaces);
+
+//------------------------------------------------------------------------------
+
 	pEditMenu->addSeparator();
 
 	m_pActionSettings = new QAction(this);
@@ -655,6 +668,8 @@ void MainWindow::createActionsAndMenus()
 		m_ui.scriptEdit, SLOT(slotCommentSelection()));
 	connect(m_pActionUncommentSelection, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotUncommentSelection()));
+	connect(m_pActionReplaceTabWithSpaces, SIGNAL(triggered()),
+		m_ui.scriptEdit, SLOT(slotReplaceTabWithSpaces()));
 	connect(m_pActionSettings, SIGNAL(triggered()),
 		m_pSettingsDialog, SLOT(slotCall()));
 	connect(m_pActionPreview, SIGNAL(triggered()), this, SLOT(slotPreview()));

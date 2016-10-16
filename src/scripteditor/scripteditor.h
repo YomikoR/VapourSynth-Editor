@@ -60,6 +60,8 @@ public slots:
 
 	void slotUncommentSelection();
 
+	void slotReplaceTabWithSpaces();
+
 	void slotTab();
 
 	void slotBackTab();
