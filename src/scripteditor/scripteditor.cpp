@@ -356,6 +356,31 @@ void ScriptEditor::slotBackTab()
 // END OF void ScriptEditor::slotBackTab()
 //==============================================================================
 
+void ScriptEditor::slotHome(bool a_select)
+{
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock firstBlock = pDocument->findBlock(cursor.selectionStart());
+	int blockLength = firstBlock.text().length();
+	if(blockLength == 0)
+		return;
+	int position = firstBlock.position();
+	int endPosition = cursor.selectionEnd();
+	for(int i = 0; i < blockLength; ++i)
+	{
+		QChar character = pDocument->characterAt(position);
+		if(!character.isSpace())
+			break;
+		position++;
+	}
+	cursor.setPosition(position);
+	if(a_select)
+		cursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
+}
+
+// END OF void ScriptEditor::slotHome(bool a_select)
+//==============================================================================
 
 bool ScriptEditor::eventFilter(QObject * a_pObject, QEvent * a_pEvent)
 {
@@ -421,6 +446,14 @@ void ScriptEditor::keyPressEvent(QKeyEvent * a_pEvent)
 		((key == Qt::Key_Tab) && (modifiers == Qt::ShiftModifier)))
 	{
 		slotBackTab();
+		return;
+	}
+
+	if((key == Qt::Key_Home) &&
+		((modifiers == Qt::NoModifier) || (modifiers == Qt::ShiftModifier)))
+	{
+		bool select = (modifiers == Qt::ShiftModifier);
+		slotHome(select);
 		return;
 	}
 

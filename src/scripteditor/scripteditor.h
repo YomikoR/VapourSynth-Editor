@@ -64,6 +64,8 @@ public slots:
 
 	void slotBackTab();
 
+	void slotHome(bool a_select = false);
+
 protected:
 
 	bool eventFilter(QObject * a_pObject, QEvent * a_pEvent);
