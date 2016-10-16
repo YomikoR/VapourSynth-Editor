@@ -30,13 +30,14 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_pCompleter(nullptr)
 	, m_pSyntaxHighlighter(nullptr)
 	, m_typedCharacters(0)
-	, m_charactersTypedToStartCompletion(2)
+	, m_charactersTypedToStartCompletion(
+		DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION)
 	, m_plainText()
 	, m_backgroundColor(Qt::white)
 	, m_activeLineColor(Qt::lightGray)
 	, m_commonScriptTextFormat()
 	, m_tabText("\t")
-	, m_spacesInTab(4)
+	, m_spacesInTab(DEFAULT_SPACES_IN_TAB)
 {
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);
@@ -182,6 +183,8 @@ void ScriptEditor::slotLoadSettings()
 	QFont commonScriptTextFont = m_commonScriptTextFormat.font();
 	document()->setDefaultFont(commonScriptTextFont);
 
+	m_tabText = m_pSettingsManager->getTabText();
+	m_spacesInTab = m_pSettingsManager->getSpacesInTab();
 	QFontMetrics metrics(commonScriptTextFont);
 	setTabStopWidth(metrics.width(' ') * m_spacesInTab);
 

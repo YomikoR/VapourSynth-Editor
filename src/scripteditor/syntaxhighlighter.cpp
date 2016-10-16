@@ -8,8 +8,6 @@
 
 //==============================================================================
 
-const int SPACES_IN_TAB = 4;
-
 // Text block states: 0 - 80 are used for indentation value.
 // Larger values are special cases.
 

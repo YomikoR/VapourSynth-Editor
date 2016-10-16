@@ -114,6 +114,10 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getMaxRecentFilesNumber());
 	m_ui.charactersTypedToStartCompletionSpinBox->setValue(
 		m_pSettingsManager->getCharactersTypedToStartCompletion());
+	m_ui.useSpacesAsTabCheckBox->setChecked(
+		m_pSettingsManager->getUseSpacesAsTab());
+	m_ui.spacesInTabSpinBox->setValue(
+		m_pSettingsManager->getSpacesInTab());
 
 	m_ui.vsLibraryPathsListWidget->clear();
 	m_ui.vsLibraryPathsListWidget->addItems(
@@ -199,6 +203,10 @@ void SettingsDialog::slotApply()
 		m_ui.maxRecentFilesSpinBox->value());
 	m_pSettingsManager->setCharactersTypedToStartCompletion(
 		m_ui.charactersTypedToStartCompletionSpinBox->value());
+	m_pSettingsManager->setUseSpacesAsTab(
+		m_ui.useSpacesAsTabCheckBox->isChecked());
+	m_pSettingsManager->setSpacesInTab(
+		m_ui.spacesInTabSpinBox->value());
 
 	QStringList vapourSynthLibraryPaths;
 	int vsLibraryPathsNumber = m_ui.vsLibraryPathsListWidget->count();

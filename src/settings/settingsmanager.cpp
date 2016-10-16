@@ -73,6 +73,10 @@ const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE =
 	PlayFPSLimitMode::FromVideo;
 const char PLAY_FPS_LIMIT_KEY[] = "play_fps_limit";
 const double DEFAULT_PLAY_FPS_LIMIT = 23.976;
+const char USE_SPACES_AS_TAB_KEY[] = "use_spaces_as_tab";
+bool DEFAULT_USE_SPACES_AS_TAB = false;
+const char SPACES_IN_TAB_KEY[] = "spaces_in_tab";
+const int DEFAULT_SPACES_IN_TAB = 4;
 
 //==============================================================================
 
@@ -887,7 +891,7 @@ bool SettingsManager::setPlayFPSLimit(double a_limit)
 
 //==============================================================================
 
-std::vector<EncodingPreset> SettingsManager::getAllEncodingPresets()
+std::vector<EncodingPreset> SettingsManager::getAllEncodingPresets() const
 {
 	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
 	settings.beginGroup(ENCODING_PRESETS_GROUP);
@@ -919,7 +923,7 @@ std::vector<EncodingPreset> SettingsManager::getAllEncodingPresets()
 	return presets;
 }
 
-EncodingPreset SettingsManager::getEncodingPreset(const QString & a_name)
+EncodingPreset SettingsManager::getEncodingPreset(const QString & a_name) const
 {
 	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
 	settings.beginGroup(ENCODING_PRESETS_GROUP);
@@ -978,6 +982,44 @@ bool SettingsManager::deleteEncodingPreset(const EncodingPreset & a_preset)
 	settings.sync();
 	bool success = (QSettings::NoError == settings.status());
 	return success;
+}
+
+//==============================================================================
+
+bool SettingsManager::getUseSpacesAsTab() const
+{
+	return value(USE_SPACES_AS_TAB_KEY, DEFAULT_USE_SPACES_AS_TAB).toBool();
+}
+
+bool SettingsManager::setUseSpacesAsTab(bool a_value)
+{
+	return setValue(USE_SPACES_AS_TAB_KEY, a_value);
+}
+
+//==============================================================================
+
+int SettingsManager::getSpacesInTab() const
+{
+	return value(SPACES_IN_TAB_KEY, DEFAULT_SPACES_IN_TAB).toInt();
+}
+
+bool SettingsManager::setSpacesInTab(int a_spacesNumber)
+{
+	return setValue(SPACES_IN_TAB_KEY, a_spacesNumber);
+}
+
+//==============================================================================
+
+QString SettingsManager::getTabText() const
+{
+	QString text = "\t";
+	bool useSpacesAsTab = getUseSpacesAsTab();
+	if(useSpacesAsTab)
+	{
+		int spacesInTab = getSpacesInTab();
+		text.fill(' ', spacesInTab);
+	}
+	return text;
 }
 
 //==============================================================================

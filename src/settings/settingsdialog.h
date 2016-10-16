@@ -13,68 +13,68 @@ class SettingsDialog : public QDialog
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		SettingsDialog(SettingsManager * a_pSettingsManager,
-			QWidget * a_pParent = nullptr);
+	SettingsDialog(SettingsManager * a_pSettingsManager,
+		QWidget * a_pParent = nullptr);
 
-		virtual ~SettingsDialog();
+	virtual ~SettingsDialog();
 
-		void addSettableActions(const ActionDataList & a_actionsList);
+	void addSettableActions(const ActionDataList & a_actionsList);
 
-	public slots:
+public slots:
 
-		void slotCall();
+	void slotCall();
 
-	protected:
+protected:
 
-	signals:
+signals:
 
-		void signalSettingsChanged();
+	void signalSettingsChanged();
 
-	private:
+private:
 
-		void addThemeElements();
+	void addThemeElements();
 
-		Ui::SettingsDialog m_ui;
+	Ui::SettingsDialog m_ui;
 
-		SettingsManager * m_pSettingsManager;
+	SettingsManager * m_pSettingsManager;
 
-		ActionsHotkeyEditModel * m_pActionsHotkeyEditModel;
+	ActionsHotkeyEditModel * m_pActionsHotkeyEditModel;
 
-		ItemDelegateForHotkey * m_pItemDelegateForHotkey;
+	ItemDelegateForHotkey * m_pItemDelegateForHotkey;
 
-		ThemeElementsModel * m_pThemeElementsModel;
+	ThemeElementsModel * m_pThemeElementsModel;
 
-	private slots:
+private slots:
 
-		void slotOk();
+	void slotOk();
 
-		void slotApply();
+	void slotApply();
 
-		void slotAddVSLibraryPath();
+	void slotAddVSLibraryPath();
 
-		void slotRemoveVSLibraryPath();
+	void slotRemoveVSLibraryPath();
 
-		void slotSelectVSLibraryPath();
+	void slotSelectVSLibraryPath();
 
-		void slotAddVSPluginsPath();
+	void slotAddVSPluginsPath();
 
-		void slotRemoveVSPluginsPath();
+	void slotRemoveVSPluginsPath();
 
-		void slotSelectVSPluginsPath();
+	void slotSelectVSPluginsPath();
 
-		void slotAddVSDocumentationPath();
+	void slotAddVSDocumentationPath();
 
-		void slotRemoveVSDocumentationPath();
+	void slotRemoveVSDocumentationPath();
 
-		void slotSelectVSDocumentationPath();
+	void slotSelectVSDocumentationPath();
 
-		void slotThemeElementSelected(const QModelIndex & a_index);
+	void slotThemeElementSelected(const QModelIndex & a_index);
 
-		void slotFontButtonClicked();
+	void slotFontButtonClicked();
 
-		void slotColourButtonClicked();
+	void slotColourButtonClicked();
 };
 
 #endif // SETTINGSDIALOG_H

@@ -90,12 +90,14 @@ struct EncodingPreset
 
 //==============================================================================
 
+extern const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION;
 extern const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER;
 extern const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS;
 extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_B;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_C;
 extern const int DEFAULT_LANCZOS_FILTER_TAPS;
+extern const int DEFAULT_SPACES_IN_TAB;
 
 //==============================================================================
 
@@ -320,13 +322,23 @@ class SettingsManager : public QObject
 
 		bool setPlayFPSLimit(double a_limit);
 
-		std::vector<EncodingPreset> getAllEncodingPresets();
+		std::vector<EncodingPreset> getAllEncodingPresets() const;
 
-		EncodingPreset getEncodingPreset(const QString & a_name);
+		EncodingPreset getEncodingPreset(const QString & a_name) const;
 
 		bool saveEncodingPreset(const EncodingPreset & a_preset);
 
 		bool deleteEncodingPreset(const EncodingPreset & a_preset);
+
+		bool getUseSpacesAsTab() const;
+
+		bool setUseSpacesAsTab(bool a_value);
+
+		int getSpacesInTab() const;
+
+		bool setSpacesInTab(int a_spacesNumber);
+
+		QString getTabText() const;
 
 	private:
 
