@@ -3,6 +3,14 @@ r10:
 -BUGFIX: VapourSynth messages handling.
 -BUGFIX: Frame processing errors handling in different modes.
 -Crashlog on VapourSynth fatal errors.
+-Keep preview scrolling and frame number on refreshing the same script.
+Reset on previewing new script. Unsaved script preview is always reset.
+-Editor: selected text/current line duplication action.
+-Editor: comment/uncomment selected lines actions.
+-Editor: multiline tab and backtab.
+-Options to use spaces as Tab and set Tab size.
+-Editor: Replace Tab characters with spaces action.
+-Editor: smart Home key behaviour.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
