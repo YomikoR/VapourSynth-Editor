@@ -462,6 +462,9 @@ void PreviewDialog::slotShowFrame(int a_frameNumber)
 
 void PreviewDialog::slotSaveSnapshot()
 {
+	if((m_frameShown < 0) || m_framePixmap.isNull())
+		return;
+
 	QString snapshotFilePath = m_scriptName;
 	if(snapshotFilePath.isEmpty())
 	{
