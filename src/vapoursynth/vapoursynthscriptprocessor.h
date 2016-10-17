@@ -42,6 +42,12 @@ public:
 
 	bool flushFrameTicketsQueue();
 
+	const QString & script() const;
+
+	const QString & scriptName() const;
+
+	void setScriptName(const QString & a_scriptName);
+
 public slots:
 
 	void slotResetSettings();

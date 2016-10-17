@@ -40,6 +40,12 @@ public:
 
 	virtual bool busy() const;
 
+	virtual const QString & script() const;
+
+	virtual const QString & scriptName() const;
+
+	virtual void setScriptName(const QString & a_scriptName);
+
 protected slots:
 
 	virtual void slotWriteLogMessage(int a_messageType,
@@ -78,10 +84,6 @@ protected:
 	VSScriptLibrary * m_pVSScriptLibrary;
 
 	VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
-
-	QString m_script;
-
-	QString m_scriptName;
 
 	const VSAPI * m_cpVSAPI;
 

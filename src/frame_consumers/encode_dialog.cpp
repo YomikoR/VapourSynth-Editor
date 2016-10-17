@@ -92,7 +92,7 @@ void EncodeDialog::call()
 
 	assert(m_cpVideoInfo);
 
-	QString text = trUtf8("Ready to encode script %1").arg(m_scriptName);
+	QString text = trUtf8("Ready to encode script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->setPlainText(text);
 	m_ui.metricsEdit->clear();
 	m_firstFrame = 0;
@@ -854,7 +854,7 @@ void EncodeDialog::fillVariables()
 		{"%sd", trUtf8("script directory"),
 			[&]()
 			{
-				QFileInfo scriptFile(m_scriptName);
+				QFileInfo scriptFile(scriptName());
 				return scriptFile.canonicalPath();
 			}
 		},
@@ -862,7 +862,7 @@ void EncodeDialog::fillVariables()
 		{"%sn", trUtf8("script name without extension"),
 			[&]()
 			{
-				QFileInfo scriptFile(m_scriptName);
+				QFileInfo scriptFile(scriptName());
 				return scriptFile.completeBaseName();
 			}
 		},

@@ -37,6 +37,8 @@ public:
 		QWidget * a_pParent = nullptr);
 	virtual ~PreviewDialog();
 
+	virtual void setScriptName(const QString & a_scriptName) override;
+
 	void previewScript(const QString& a_script,
 		const QString& a_scriptName);
 
@@ -155,6 +157,8 @@ protected:
 	double valueAtPoint(size_t a_x, size_t a_y, int a_plane) ;
 
 	QPixmap pixmapFromCompatBGR32(const VSFrameRef * a_cpFrameRef);
+
+	void setTitle();
 
 	Ui::PreviewDialog m_ui;
 

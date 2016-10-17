@@ -156,7 +156,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	if(rememberLastPreviewFrame)
 	{
 		m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
-		m_scriptName = m_pSettingsManager->getLastUsedPath();
+		setScriptName(m_pSettingsManager->getLastUsedPath());
 	}
 }
 
@@ -172,10 +172,20 @@ PreviewDialog::~PreviewDialog()
 // END OF PreviewDialog::~PreviewDialog()
 //==============================================================================
 
+void PreviewDialog::setScriptName(const QString & a_scriptName)
+{
+	VSScriptProcessorDialog::setScriptName(a_scriptName);
+	setTitle();
+}
+
+// END OF void PreviewDialog::setScriptName(const QString & a_scriptName)
+//==============================================================================
+
 void PreviewDialog::previewScript(const QString& a_script,
 	const QString& a_scriptName)
 {
-	QString previousScriptName = m_scriptName;
+	QString previousScript = script();
+	QString previousScriptName = scriptName();
 
 	stopAndCleanUp();
 
@@ -186,10 +196,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 		return;
 	}
 
-	QString scriptName =
-		a_scriptName.isEmpty() ? trUtf8("(Untitled)") : a_scriptName;
-	QString title = trUtf8("Preview - ") + scriptName;
-	setWindowTitle(title);
+	setTitle();
 
 	int lastFrameNumber = m_cpVideoInfo->numFrames - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
@@ -202,7 +209,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 			(double)m_cpVideoInfo->fpsDen);
 	}
 
-	if(previousScriptName != a_scriptName)
+	if((previousScript != a_script) && (previousScriptName != a_scriptName))
 	{
 		m_frameExpected = 0;
 		m_ui.previewArea->setPixmap(QPixmap());
@@ -219,7 +226,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	slotSetPlayFPSLimit();
 
-	m_scriptName = a_scriptName;
+	setScriptName(a_scriptName);
 
 	if(m_pSettingsManager->getPreviewDialogMaximized())
 		showMaximized();
@@ -242,7 +249,7 @@ void PreviewDialog::stopAndCleanUp()
 
 	bool rememberLastPreviewFrame =
 		m_pSettingsManager->getRememberLastPreviewFrame();
-	if(rememberLastPreviewFrame && (!m_scriptName.isEmpty()) &&
+	if(rememberLastPreviewFrame && (!scriptName().isEmpty()) &&
 		(m_frameShown > -1))
 		m_pSettingsManager->setLastPreviewFrame(m_frameShown);
 
@@ -465,7 +472,7 @@ void PreviewDialog::slotSaveSnapshot()
 	if((m_frameShown < 0) || m_framePixmap.isNull())
 		return;
 
-	QString snapshotFilePath = m_scriptName;
+	QString snapshotFilePath = scriptName();
 	if(snapshotFilePath.isEmpty())
 	{
 		snapshotFilePath =
@@ -2000,4 +2007,16 @@ QPixmap PreviewDialog::pixmapFromCompatBGR32(
 
 // END OF QPixmap PreviewDialog::pixmapFromCompatBGR32(
 //		const VSFrameRef * a_cpFrameRef)
+//==============================================================================
+
+void PreviewDialog::setTitle()
+{
+	QString l_scriptName = scriptName();
+	QString scriptNameTitle =
+		l_scriptName.isEmpty() ? trUtf8("(Untitled)") : l_scriptName;
+	QString title = trUtf8("Preview - ") + scriptNameTitle;
+	setWindowTitle(title);
+}
+
+// END OF void PreviewDialog::setTitle()
 //==============================================================================

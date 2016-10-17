@@ -58,7 +58,7 @@ void ScriptBenchmarkDialog::call()
 
 	assert(m_cpVideoInfo);
 
-	QString text = trUtf8("Ready to benchmark script %1").arg(m_scriptName);
+	QString text = trUtf8("Ready to benchmark script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->setPlainText(text);
 	m_ui.metricsEdit->clear();
 	int lastFrame = m_cpVideoInfo->numFrames - 1;

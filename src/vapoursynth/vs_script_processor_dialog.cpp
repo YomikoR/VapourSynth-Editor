@@ -102,9 +102,6 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	if(!initialized)
 		return false;
 
-	m_script = a_script;
-	m_scriptName = a_scriptName;
-
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
 	assert(m_cpVideoInfo);
 
@@ -127,6 +124,31 @@ bool VSScriptProcessorDialog::busy() const
 }
 
 // END OF bool VSScriptProcessorDialog::busy()
+//==============================================================================
+
+const QString & VSScriptProcessorDialog::script() const
+{
+	return m_pVapourSynthScriptProcessor->script();
+}
+
+// END OF const QString & VSScriptProcessorDialog::script() const
+//==============================================================================
+
+const QString & VSScriptProcessorDialog::scriptName() const
+{
+	return m_pVapourSynthScriptProcessor->scriptName();
+}
+
+// END OF const QString & VSScriptProcessorDialog::scriptName() const
+//==============================================================================
+
+void VSScriptProcessorDialog::setScriptName(const QString & a_scriptName)
+{
+	m_pVapourSynthScriptProcessor->setScriptName(a_scriptName);
+}
+
+// END OF void VSScriptProcessorDialog::setScriptName(
+//		const QString & a_scriptName)
 //==============================================================================
 
 void VSScriptProcessorDialog::slotWriteLogMessage(int a_messageType,

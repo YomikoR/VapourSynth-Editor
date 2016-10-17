@@ -126,6 +126,9 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	m_cpVSAPI->freeNode(pOutputNode);
 
+	m_script = a_script;
+	m_scriptName = a_scriptName;
+
 	m_error.clear();
 	m_initialized = true;
 
@@ -170,6 +173,9 @@ bool VapourSynthScriptProcessor::finalize()
 	}
 
 	m_cpVSAPI = nullptr;
+
+	m_script.clear();
+	m_scriptName.clear();
 
 	m_error.clear();
 	m_initialized = false;
@@ -352,6 +358,31 @@ bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 // END OF bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
 //==============================================================================
 
+const QString & VapourSynthScriptProcessor::script() const
+{
+	return m_script;
+}
+
+// END OF const QString & VapourSynthScriptProcessor::script() const
+//==============================================================================
+
+const QString & VapourSynthScriptProcessor::scriptName() const
+{
+	return m_scriptName;
+}
+
+// END OF const QString & VapourSynthScriptProcessor::scriptName() const
+//==============================================================================
+
+void VapourSynthScriptProcessor::setScriptName(const QString & a_scriptName)
+{
+	m_scriptName = a_scriptName;
+}
+
+// END OF void VapourSynthScriptProcessor::setScriptName(
+//		const QString & a_scriptName)
+//==============================================================================
+
 void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber, VSNodeRef * a_pNodeRef,
 	QString a_errorMessage)
@@ -360,7 +391,7 @@ void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 	processFrameTicketsQueue();
 }
 
-// END OF void void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
+// END OF void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 //		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //		VSNodeRef * a_pNodeRef, QString a_errorMessage)
 //==============================================================================
