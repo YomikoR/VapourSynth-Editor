@@ -190,6 +190,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="rememberLastPreviewFrameCheckBox">
+         <property name="text">
+          <string>Remember last previewed frame on exit</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="delimiter">
          <property name="frameShape">
           <enum>QFrame::HLine</enum>

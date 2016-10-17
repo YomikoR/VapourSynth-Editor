@@ -118,6 +118,8 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getUseSpacesAsTab());
 	m_ui.spacesInTabSpinBox->setValue(
 		m_pSettingsManager->getSpacesInTab());
+	m_ui.rememberLastPreviewFrameCheckBox->setChecked(
+		m_pSettingsManager->getRememberLastPreviewFrame());
 
 	m_ui.vsLibraryPathsListWidget->clear();
 	m_ui.vsLibraryPathsListWidget->addItems(
@@ -207,6 +209,8 @@ void SettingsDialog::slotApply()
 		m_ui.useSpacesAsTabCheckBox->isChecked());
 	m_pSettingsManager->setSpacesInTab(
 		m_ui.spacesInTabSpinBox->value());
+	m_pSettingsManager->setRememberLastPreviewFrame(
+		m_ui.rememberLastPreviewFrameCheckBox->isChecked());
 
 	QStringList vapourSynthLibraryPaths;
 	int vsLibraryPathsNumber = m_ui.vsLibraryPathsListWidget->count();

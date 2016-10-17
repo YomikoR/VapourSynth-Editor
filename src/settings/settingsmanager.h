@@ -341,6 +341,14 @@ class SettingsManager : public QObject
 
 		QString getTabText() const;
 
+		bool getRememberLastPreviewFrame() const;
+
+		bool setRememberLastPreviewFrame(bool a_remember);
+
+		int getLastPreviewFrame() const;
+
+		bool setLastPreviewFrame(int a_frameNumber);
+
 	private:
 
 		QVariant valueInGroup(const QString & a_group, const QString & a_key,

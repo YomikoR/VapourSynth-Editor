@@ -215,8 +215,6 @@ protected:
 	QTimer * m_pPlayTimer;
 	QIcon m_iconPlay;
 	QIcon m_iconPause;
-
-	QString m_scriptName;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

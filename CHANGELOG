@@ -11,6 +11,7 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -Options to use spaces as Tab and set Tab size.
 -Editor: Replace Tab characters with spaces action.
 -Editor: smart Home key behaviour.
+-An option to remember and restore the last previewed frame between sessions.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.

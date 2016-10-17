@@ -77,6 +77,10 @@ const char USE_SPACES_AS_TAB_KEY[] = "use_spaces_as_tab";
 bool DEFAULT_USE_SPACES_AS_TAB = false;
 const char SPACES_IN_TAB_KEY[] = "spaces_in_tab";
 const int DEFAULT_SPACES_IN_TAB = 4;
+const char REMEMBER_LAST_PREVIEW_FRAME_KEY[] = "remember_last_preview_frame";
+const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME = false;
+const char LAST_PREVIEW_FRAME_KEY[] = "last_preview_frame";
+const int DEFAULT_LAST_PREVIEW_FRAME = 0;
 
 //==============================================================================
 
@@ -1021,6 +1025,31 @@ QString SettingsManager::getTabText() const
 		text.fill(' ', spacesInTab);
 	}
 	return text;
+}
+
+//==============================================================================
+
+bool SettingsManager::getRememberLastPreviewFrame() const
+{
+	return value(REMEMBER_LAST_PREVIEW_FRAME_KEY,
+		DEFAULT_REMEMBER_LAST_PREVIEW_FRAME).toBool();
+}
+
+bool SettingsManager::setRememberLastPreviewFrame(bool a_remember)
+{
+	return setValue(REMEMBER_LAST_PREVIEW_FRAME_KEY, a_remember);
+}
+
+//==============================================================================
+
+int SettingsManager::getLastPreviewFrame() const
+{
+	return value(LAST_PREVIEW_FRAME_KEY, DEFAULT_LAST_PREVIEW_FRAME).toInt();
+}
+
+bool SettingsManager::setLastPreviewFrame(int a_frameNumber)
+{
+	return setValue(LAST_PREVIEW_FRAME_KEY, a_frameNumber);
 }
 
 //==============================================================================

@@ -150,6 +150,14 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotProcessPlayQueue()));
 
 	slotSettingsChanged();
+
+	bool rememberLastPreviewFrame =
+		m_pSettingsManager->getRememberLastPreviewFrame();
+	if(rememberLastPreviewFrame)
+	{
+		m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
+		m_scriptName = m_pSettingsManager->getLastUsedPath();
+	}
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
@@ -167,6 +175,8 @@ PreviewDialog::~PreviewDialog()
 void PreviewDialog::previewScript(const QString& a_script,
 	const QString& a_scriptName)
 {
+	QString previousScriptName = m_scriptName;
+
 	stopAndCleanUp();
 
 	bool initialized = initialize(a_script, a_scriptName);
@@ -192,7 +202,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 			(double)m_cpVideoInfo->fpsDen);
 	}
 
-	if(m_scriptName != a_scriptName)
+	if(previousScriptName != a_scriptName)
 	{
 		m_frameExpected = 0;
 		m_ui.previewArea->setPixmap(QPixmap());
@@ -229,6 +239,12 @@ void PreviewDialog::stopAndCleanUp()
 
 	if(m_ui.cropCheckButton->isChecked())
 		m_ui.cropCheckButton->click();
+
+	bool rememberLastPreviewFrame =
+		m_pSettingsManager->getRememberLastPreviewFrame();
+	if(rememberLastPreviewFrame && (!m_scriptName.isEmpty()) &&
+		(m_frameShown > -1))
+		m_pSettingsManager->setLastPreviewFrame(m_frameShown);
 
 	m_frameShown = -1;
 	m_framePixmap = QPixmap();
