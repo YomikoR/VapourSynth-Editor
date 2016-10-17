@@ -143,18 +143,11 @@ void ScriptEditor::setPluginsList(const VSPluginsList & a_pluginsList)
 // END OF void ScriptEditor::setModified(bool a_modified)
 //==============================================================================
 
-void ScriptEditor::setCharactersTypedToStartCompletion(int a_charactersNumber)
-{
-	m_charactersTypedToStartCompletion = a_charactersNumber;
-}
-
-// END OF void ScriptEditor::setModified(bool a_modified)
-//==============================================================================
-
 void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
 {
 	m_pSettingsManager = a_pSettingsManager;
 	m_pSyntaxHighlighter->setSettingsManager(a_pSettingsManager);
+	slotLoadSettings();
 }
 
 // END OF void ScriptEditor::setSettingsManager(
@@ -177,6 +170,9 @@ void ScriptEditor::slotLoadSettings()
 {
 	if(!m_pSettingsManager)
 		return;
+
+	m_charactersTypedToStartCompletion =
+		m_pSettingsManager->getCharactersTypedToStartCompletion();
 
 	m_commonScriptTextFormat = m_pSettingsManager->getTextFormat(
 		TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT);

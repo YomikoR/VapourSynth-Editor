@@ -40,8 +40,6 @@ public:
 
 	void setPluginsList(const VSPluginsList & a_pluginsList);
 
-	void setCharactersTypedToStartCompletion(int a_charactersNumber);
-
 	void setSettingsManager(SettingsManager * a_pSettingsManager);
 
 	void setSettingsDialog(SettingsDialog * a_pSettingsDialog);

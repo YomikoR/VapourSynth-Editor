@@ -84,11 +84,8 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_ui.scriptEdit->setPluginsList(
 		m_pVapourSynthPluginsManager->pluginsList());
-	m_ui.scriptEdit->setCharactersTypedToStartCompletion(
-		m_pSettingsManager->getCharactersTypedToStartCompletion());
 	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
 	m_ui.scriptEdit->setSettingsDialog(m_pSettingsDialog);
-	m_ui.scriptEdit->slotLoadSettings();
 
 	connect(m_ui.scriptEdit, SIGNAL(textChanged()),
 		this, SLOT(slotEditorTextChanged()));
@@ -440,8 +437,6 @@ void MainWindow::slotSettingsChanged()
 	m_pVapourSynthPluginsManager->slotRefill();
 	m_ui.scriptEdit->setPluginsList(
 		m_pVapourSynthPluginsManager->pluginsList());
-	m_ui.scriptEdit->setCharactersTypedToStartCompletion(
-		m_pSettingsManager->getCharactersTypedToStartCompletion());
 }
 
 // END OF void MainWindow::slotSettingsChanged()
