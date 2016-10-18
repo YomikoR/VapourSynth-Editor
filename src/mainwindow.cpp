@@ -506,7 +506,9 @@ void MainWindow::createActionsAndMenus()
 
 	QMenu * pEditMenu = m_ui.menuBar->addMenu(trUtf8("Edit"));
 
-	// TODO: Add actions from script editor here.
+	std::vector<QAction *> editorActions = m_ui.scriptEdit->actionsForMenu();
+	for(QAction * pAction : editorActions)
+		pEditMenu->addAction(pAction);
 
 	pEditMenu->addSeparator();
 	pEditMenu->addAction(m_pActionTemplates);

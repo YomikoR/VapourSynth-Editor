@@ -20,6 +20,10 @@
 
 //==============================================================================
 
+const char COMMENT_TOKEN[] = "#";
+
+//==============================================================================
+
 ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	QPlainTextEdit(a_pParent)
 	, m_pSettingsManager(nullptr)
@@ -66,8 +70,6 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 		this, SLOT(slotUpdateSideBox(const QRect &, int)));
 	connect(this, SIGNAL(cursorPositionChanged()),
 		this, SLOT(slotHighlightCurrentBlock()));
-
-	slotLoadSettings();
 }
 
 // END OF ScriptEditor::ScriptEditor(QWidget * a_pParent)
@@ -81,15 +83,15 @@ ScriptEditor::~ScriptEditor()
 // END OF ScriptEditor::~ScriptEditor()
 //==============================================================================
 
-QString ScriptEditor::text()
+QString ScriptEditor::text() const
 {
 	return document()->toPlainText();
 }
 
-// END OF QString ScriptEditor::text()
+// END OF QString ScriptEditor::text() const
 //==============================================================================
 
-QPoint ScriptEditor::cursorPosition()
+QPoint ScriptEditor::cursorPosition() const
 {
 	QTextCursor currentCursor = textCursor();
 	int line = currentCursor.blockNumber();
@@ -98,7 +100,7 @@ QPoint ScriptEditor::cursorPosition()
 	return QPoint(line, index);
 }
 
-// END OF QPoint ScriptEditor::cursorPosition()
+// END OF QPoint ScriptEditor::cursorPosition() const
 //==============================================================================
 
 void ScriptEditor::setCursorPosition(const QPoint & a_point)
@@ -123,12 +125,12 @@ void ScriptEditor::setCursorPosition(int a_line, int a_index)
 // END OF void ScriptEditor::setCursorPosition(int a_line, int a_index)
 //==============================================================================
 
-bool ScriptEditor::isModified()
+bool ScriptEditor::isModified() const
 {
 	return document()->isModified();
 }
 
-// END OF bool ScriptEditor::isModified()
+// END OF bool ScriptEditor::isModified() const
 //==============================================================================
 
 void ScriptEditor::setModified(bool a_modified)
@@ -159,6 +161,15 @@ void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
 
 // END OF void ScriptEditor::setSettingsManager(
 //		SettingsManager * a_pSettingsManager)
+//==============================================================================
+
+std::vector<QAction *> ScriptEditor::actionsForMenu() const
+{
+	return {m_pActionDuplicateSelection, m_pActionCommentSelection,
+		m_pActionUncommentSelection, m_pActionReplaceTabWithSpaces};
+}
+
+// END OF std::vector<QAction *> ScriptEditor::actionsForMenu() const
 //==============================================================================
 
 void ScriptEditor::slotLoadSettings()
@@ -282,7 +293,7 @@ void ScriptEditor::slotDuplicateSelection()
 
 void ScriptEditor::slotCommentSelection()
 {
-	insertSelectedLinesBegin("#");
+	insertSelectedLinesBegin(COMMENT_TOKEN);
 }
 
 // END OF void ScriptEditor::slotCommentSelection()
@@ -290,7 +301,7 @@ void ScriptEditor::slotCommentSelection()
 
 void ScriptEditor::slotUncommentSelection()
 {
-	removeSelectedLinesBegin("#");
+	removeSelectedLinesBegin(COMMENT_TOKEN);
 }
 
 // END OF void ScriptEditor::slotUncommentSelection()
@@ -596,7 +607,7 @@ void ScriptEditor::createActionsAndMenus()
 // END OF void ScriptEditor::createActionsAndMenus()
 //==============================================================================
 
-QString ScriptEditor::getVapourSynthCoreName()
+QString ScriptEditor::getVapourSynthCoreName() const
 {
 	QString vapourSynthName;
 	QString vsCoreName = "core";
@@ -676,7 +687,7 @@ QString ScriptEditor::getVapourSynthCoreName()
 	return vsCoreName;
 }
 
-// END OF QString ScriptEditor::getVapourSynthCoreName()
+// END OF QString ScriptEditor::getVapourSynthCoreName() const
 //==============================================================================
 
 void ScriptEditor::setChildrenCoreName(const QString & a_coreName)
@@ -686,6 +697,7 @@ void ScriptEditor::setChildrenCoreName(const QString & a_coreName)
 }
 
 // END OF void ScriptEditor::setChildrenCoreName(const QString & a_coreName)
+//		const
 //==============================================================================
 
 int ScriptEditor::sideBoxWidth() const
@@ -707,7 +719,7 @@ int ScriptEditor::sideBoxWidth() const
 	return space;
 }
 
-// END OF int ScriptEditor::sideBoxWidth()
+// END OF int ScriptEditor::sideBoxWidth() const
 //==============================================================================
 
 void ScriptEditor::paintSideBox(QPaintEvent * a_pEvent)

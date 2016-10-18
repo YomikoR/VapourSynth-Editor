@@ -28,21 +28,23 @@ public:
 
 	virtual ~ScriptEditor();
 
-	QString text();
+	QString text() const;
 
-	QPoint cursorPosition();
+	QPoint cursorPosition() const;
 
 	void setCursorPosition(const QPoint & a_point);
 
 	void setCursorPosition(int a_line, int a_index);
 
-	bool isModified();
+	bool isModified() const;
 
 	void setModified(bool a_modified);
 
 	void setPluginsList(const VSPluginsList & a_pluginsList);
 
 	void setSettingsManager(SettingsManager * a_pSettingsManager);
+
+	std::vector<QAction *> actionsForMenu() const;
 
 public slots:
 
@@ -88,7 +90,7 @@ private:
 
 	void createActionsAndMenus();
 
-	QString getVapourSynthCoreName();
+	QString getVapourSynthCoreName() const;
 
 	void setChildrenCoreName(const QString & a_coreName);
 
