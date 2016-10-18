@@ -41,10 +41,6 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionOpenScript(nullptr)
 	, m_pActionSaveScript(nullptr)
 	, m_pActionSaveScriptAs(nullptr)
-	, m_pActionDuplicateSelection(nullptr)
-	, m_pActionCommentSelection(nullptr)
-	, m_pActionUncommentSelection(nullptr)
-	, m_pActionReplaceTabWithSpaces(nullptr)
 	, m_pActionTemplates(nullptr)
 	, m_pActionSettings(nullptr)
 	, m_pActionPreview(nullptr)
@@ -53,7 +49,6 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionEncode(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
-	, m_pActionAutocomplete(nullptr)
 	, m_settableActionsList()
 	, m_pMenuRecentScripts(nullptr)
 	, m_pPreviewDialog(nullptr)
@@ -84,9 +79,9 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pVapourSynthPluginsManager =
 		new VapourSynthPluginsManager(m_pSettingsManager, this);
+	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
 
-	m_ui.scriptEdit->setPluginsList(
-		m_pVapourSynthPluginsManager->pluginsList());
+	m_ui.scriptEdit->setPluginsList(vsPluginsList);
 	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
 
 	connect(m_ui.scriptEdit, SIGNAL(textChanged()),
@@ -114,6 +109,7 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
+	m_pTemplatesDialog->setPluginsList(vsPluginsList);
 
 	slotChangeWindowTitle();
 
@@ -473,10 +469,6 @@ void MainWindow::createActionsAndMenus()
 		{&m_pActionSaveScript, ACTION_ID_SAVE_SCRIPT},
 		{&m_pActionSaveScriptAs, ACTION_ID_SAVE_SCRIPT_AS},
 		{&m_pActionExit, ACTION_ID_EXIT},
-		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION},
-		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION},
-		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION},
-		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES},
 		{&m_pActionTemplates, ACTION_ID_TEMPLATES},
 		{&m_pActionSettings, ACTION_ID_SETTINGS},
 		{&m_pActionPreview, ACTION_ID_PREVIEW},
@@ -484,7 +476,6 @@ void MainWindow::createActionsAndMenus()
 		{&m_pActionBenchmark, ACTION_ID_BENCHMARK},
 		{&m_pActionEncode, ACTION_ID_CLI_ENCODE},
 		{&m_pActionAbout, ACTION_ID_ABOUT},
-		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -514,10 +505,9 @@ void MainWindow::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	QMenu * pEditMenu = m_ui.menuBar->addMenu(trUtf8("Edit"));
-	pEditMenu->addAction(m_pActionDuplicateSelection);
-	pEditMenu->addAction(m_pActionCommentSelection);
-	pEditMenu->addAction(m_pActionUncommentSelection);
-	pEditMenu->addAction(m_pActionReplaceTabWithSpaces);
+
+	// TODO: Add actions from script editor here.
+
 	pEditMenu->addSeparator();
 	pEditMenu->addAction(m_pActionTemplates);
 	pEditMenu->addAction(m_pActionSettings);
@@ -537,10 +527,6 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	m_ui.scriptEdit->addAction(m_pActionAutocomplete);
-
-//------------------------------------------------------------------------------
-
 	connect(m_pActionNewScript, SIGNAL(triggered()),
 		this, SLOT(slotNewScript()));
 	connect(m_pActionOpenScript, SIGNAL(triggered()),
@@ -550,14 +536,6 @@ void MainWindow::createActionsAndMenus()
 	connect(m_pActionSaveScriptAs, SIGNAL(triggered()),
 		this, SLOT(slotSaveScriptAs()));
 	connect(m_pActionExit, SIGNAL(triggered()), this, SLOT(close()));
-	connect(m_pActionDuplicateSelection, SIGNAL(triggered()),
-		m_ui.scriptEdit, SLOT(slotDuplicateSelection()));
-	connect(m_pActionCommentSelection, SIGNAL(triggered()),
-		m_ui.scriptEdit, SLOT(slotCommentSelection()));
-	connect(m_pActionUncommentSelection, SIGNAL(triggered()),
-		m_ui.scriptEdit, SLOT(slotUncommentSelection()));
-	connect(m_pActionReplaceTabWithSpaces, SIGNAL(triggered()),
-		m_ui.scriptEdit, SLOT(slotReplaceTabWithSpaces()));
 	connect(m_pActionTemplates, SIGNAL(triggered()),
 		this, SLOT(slotTemplates()));
 	connect(m_pActionSettings, SIGNAL(triggered()),
@@ -569,8 +547,6 @@ void MainWindow::createActionsAndMenus()
 		this, SLOT(slotBenchmark()));
 	connect(m_pActionEncode, SIGNAL(triggered()), this, SLOT(slotEncode()));
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
-	connect(m_pActionAutocomplete, SIGNAL(triggered()),
-		m_ui.scriptEdit, SLOT(slotComplete()));
 }
 
 // END OF void MainWindow::createActionsAndMenus()

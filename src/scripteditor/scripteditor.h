@@ -3,6 +3,7 @@
 
 #include <QPlainTextEdit>
 #include <QPoint>
+#include <vector>
 
 #include "../vapoursynth/vsplugindata.h"
 
@@ -10,6 +11,7 @@ class QEvent;
 class QKeyEvent;
 class QResizeEvent;
 class QPaintEvent;
+class QAction;
 class ScriptCompleterModel;
 class ScriptCompleter;
 class SyntaxHighlighter;
@@ -84,6 +86,8 @@ private slots:
 
 private:
 
+	void createActionsAndMenus();
+
 	QString getVapourSynthCoreName();
 
 	void setChildrenCoreName(const QString & a_coreName);
@@ -126,6 +130,14 @@ private:
 	QString m_tabText;
 
 	int m_spacesInTab;
+
+	QAction * m_pActionDuplicateSelection;
+	QAction * m_pActionCommentSelection;
+	QAction * m_pActionUncommentSelection;
+	QAction * m_pActionReplaceTabWithSpaces;
+	QAction * m_pActionAutocomplete;
+
+	std::vector<QAction *> m_settableActionsList;
 };
 
 #endif // SCRIPTEDITOR_H

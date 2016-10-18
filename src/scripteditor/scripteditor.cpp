@@ -38,6 +38,11 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_commonScriptTextFormat()
 	, m_tabText("\t")
 	, m_spacesInTab(DEFAULT_SPACES_IN_TAB)
+	, m_pActionDuplicateSelection(nullptr)
+	, m_pActionCommentSelection(nullptr)
+	, m_pActionUncommentSelection(nullptr)
+	, m_pActionReplaceTabWithSpaces(nullptr)
+	, m_pActionAutocomplete(nullptr)
 {
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);
@@ -138,6 +143,7 @@ void ScriptEditor::setPluginsList(const VSPluginsList & a_pluginsList)
 {
 	m_pCompleterModel->setPluginsList(a_pluginsList);
 	m_pSyntaxHighlighter->setPluginsList(a_pluginsList);
+	update();
 }
 
 // END OF void ScriptEditor::setModified(bool a_modified)
@@ -147,6 +153,7 @@ void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
 {
 	m_pSettingsManager = a_pSettingsManager;
 	m_pSyntaxHighlighter->setSettingsManager(a_pSettingsManager);
+	createActionsAndMenus();
 	slotLoadSettings();
 }
 
@@ -182,6 +189,13 @@ void ScriptEditor::slotLoadSettings()
 	setPalette(newPalette);
 
 	m_activeLineColor = m_pSettingsManager->getColor(COLOR_ID_ACTIVE_LINE);
+
+	QKeySequence hotkey;
+	for(QAction * pAction : m_settableActionsList)
+	{
+		hotkey = m_pSettingsManager->getHotkey(pAction->data().toString());
+		pAction->setShortcut(hotkey);
+	}
 
 	slotUpdateSideBoxWidth();
 
@@ -533,6 +547,53 @@ void ScriptEditor::slotHighlightCurrentBlock()
 }
 
 // END OF void ScriptEditor::slotHighlightCurrentBlock()
+//==============================================================================
+
+void ScriptEditor::createActionsAndMenus()
+{
+	if(!m_pSettingsManager)
+		return;
+
+	struct ActionToCreate
+	{
+		QAction ** ppAction;
+		const char * id;
+	};
+
+	ActionToCreate actionsToCreate[] =
+	{
+		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION},
+		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION},
+		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION},
+		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES},
+		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE},
+	};
+
+	for(ActionToCreate & item : actionsToCreate)
+	{
+		if(*item.ppAction)
+			continue;
+
+		QAction * pAction = m_pSettingsManager->createStandardAction(
+			item.id, this);
+		*item.ppAction = pAction;
+		addAction(pAction);
+		m_settableActionsList.push_back(pAction);
+	}
+
+	connect(m_pActionDuplicateSelection, SIGNAL(triggered()),
+		this, SLOT(slotDuplicateSelection()));
+	connect(m_pActionCommentSelection, SIGNAL(triggered()),
+		this, SLOT(slotCommentSelection()));
+	connect(m_pActionUncommentSelection, SIGNAL(triggered()),
+		this, SLOT(slotUncommentSelection()));
+	connect(m_pActionReplaceTabWithSpaces, SIGNAL(triggered()),
+		this, SLOT(slotReplaceTabWithSpaces()));
+	connect(m_pActionAutocomplete, SIGNAL(triggered()),
+		this, SLOT(slotComplete()));
+}
+
+// END OF void ScriptEditor::createActionsAndMenus()
 //==============================================================================
 
 QString ScriptEditor::getVapourSynthCoreName()

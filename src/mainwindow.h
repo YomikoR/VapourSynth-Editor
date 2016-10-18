@@ -100,10 +100,6 @@ private:
 	QAction * m_pActionOpenScript;
 	QAction * m_pActionSaveScript;
 	QAction * m_pActionSaveScriptAs;
-	QAction * m_pActionDuplicateSelection;
-	QAction * m_pActionCommentSelection;
-	QAction * m_pActionUncommentSelection;
-	QAction * m_pActionReplaceTabWithSpaces;
 	QAction * m_pActionTemplates;
 	QAction * m_pActionSettings;
 	QAction * m_pActionPreview;
@@ -112,7 +108,6 @@ private:
 	QAction * m_pActionEncode;
 	QAction * m_pActionExit;
 	QAction * m_pActionAbout;
-	QAction * m_pActionAutocomplete;
 
 	std::vector<QAction *> m_settableActionsList;
 
