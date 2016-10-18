@@ -47,10 +47,8 @@
 //==============================================================================
 
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-	VSScriptLibrary * a_pVSScriptLibrary,
-	SettingsDialog * a_pSettingsDialog, QWidget * a_pParent) :
+	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent)
-	, m_pSettingsDialog(a_pSettingsDialog)
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_frameExpected(0)
 	, m_frameShown(-1)
@@ -144,8 +142,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
 	connect(m_ui.previewArea, SIGNAL(signalMouseOverPoint(float, float)),
 		this, SLOT(slotPreviewAreaMouseOverPoint(float, float)));
-	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
-		this, SLOT(slotSettingsChanged()));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
 		this, SLOT(slotProcessPlayQueue()));
 
@@ -1248,63 +1244,38 @@ void PreviewDialog::createActionsAndMenus()
 	{
 		QAction ** ppAction;
 		const char * id;
-		QString title;
-		QIcon icon;
 	};
 
 	ActionToCreate actionsToCreate[] =
 	{
-		{&m_pActionFrameToClipboard, ACTION_ID_NEW_SCRIPT,
-			trUtf8("Copy frame to clipboard"),
-			QIcon(":image_to_clipboard.png")},
-		{&m_pActionSaveSnapshot, ACTION_ID_SAVE_SNAPSHOT,
-			trUtf8("Save snapshot"), QIcon(":snapshot.png")},
-		{&m_pActionToggleZoomPanel, ACTION_ID_TOGGLE_ZOOM_PANEL,
-			trUtf8("Show zoom panel"), QIcon(":zoom.png")},
-		{&m_pActionSetZoomModeNoZoom, ACTION_ID_SET_ZOOM_MODE_NO_ZOOM,
-			trUtf8("Zoom: No zoom"), QIcon(":zoom_no_zoom.png")},
-		{&m_pActionSetZoomModeFixedRatio, ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO,
-			trUtf8("Zoom: Fixed ratio"), QIcon(":zoom_fixed_ratio.png")},
-		{&m_pActionSetZoomModeFitToFrame, ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME,
-			trUtf8("Zoom: Fit to frame"), QIcon(":zoom_fit_to_frame.png")},
+		{&m_pActionFrameToClipboard, ACTION_ID_FRAME_TO_CLIPBOARD},
+		{&m_pActionSaveSnapshot, ACTION_ID_SAVE_SNAPSHOT},
+		{&m_pActionToggleZoomPanel, ACTION_ID_TOGGLE_ZOOM_PANEL},
+		{&m_pActionSetZoomModeNoZoom, ACTION_ID_SET_ZOOM_MODE_NO_ZOOM},
+		{&m_pActionSetZoomModeFixedRatio, ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO},
+		{&m_pActionSetZoomModeFitToFrame, ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME},
 		{&m_pActionSetZoomScaleModeNearest,
-			ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST,
-			trUtf8("Scale: Nearest"), QIcon()},
+			ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST},
 		{&m_pActionSetZoomScaleModeBilinear,
-			ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR,
-			trUtf8("Scale: Bilinear"), QIcon()},
-		{&m_pActionToggleCropPanel, ACTION_ID_TOGGLE_CROP_PANEL,
-			trUtf8("Crop assistant"), QIcon(":crop.png")},
-		{&m_pActionToggleTimeLinePanel, ACTION_ID_TOGGLE_TIMELINE_PANEL,
-			trUtf8("Show timeline panel"), QIcon(":timeline.png")},
-		{&m_pActionSetTimeLineModeTime, ACTION_ID_SET_TIMELINE_MODE_TIME,
-			trUtf8("Timeline mode: Time"), QIcon(":timeline.png")},
-		{&m_pActionSetTimeLineModeFrames, ACTION_ID_SET_TIMELINE_MODE_FRAMES,
-			trUtf8("Timeline mode: Frames"), QIcon(":timeline_frames.png")},
-		{&m_pActionTimeStepForward, ACTION_ID_TIME_STEP_FORWARD,
-			trUtf8("Time: step forward"), QIcon(":time_forward.png")},
-		{&m_pActionTimeStepBack, ACTION_ID_TIME_STEP_BACK,
-			trUtf8("Time: step back"), QIcon(":time_back.png")},
+			ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR},
+		{&m_pActionToggleCropPanel, ACTION_ID_TOGGLE_CROP_PANEL},
+		{&m_pActionToggleTimeLinePanel, ACTION_ID_TOGGLE_TIMELINE_PANEL},
+		{&m_pActionSetTimeLineModeTime, ACTION_ID_SET_TIMELINE_MODE_TIME},
+		{&m_pActionSetTimeLineModeFrames, ACTION_ID_SET_TIMELINE_MODE_FRAMES},
+		{&m_pActionTimeStepForward, ACTION_ID_TIME_STEP_FORWARD},
+		{&m_pActionTimeStepBack, ACTION_ID_TIME_STEP_BACK},
 		{&m_pActionPasteCropSnippetIntoScript,
-			ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT,
-			trUtf8("Paste crop snippet into script"), QIcon(":paste.png")},
-		{&m_pActionAdvancedSettingsDialog, ACTION_ID_ADVANCED_PREVIEW_SETTINGS,
-			trUtf8("Preview advanced settings"), QIcon(":settings.png")},
-		{&m_pActionToggleColorPicker, ACTION_ID_TOGGLE_COLOR_PICKER,
-			trUtf8("Color panel"), QIcon(":color_picker.png")},
-		{&m_pActionPlay, ACTION_ID_PLAY,
-			trUtf8("Play"), QIcon(":play.png")},
+			ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT},
+		{&m_pActionAdvancedSettingsDialog, ACTION_ID_ADVANCED_PREVIEW_SETTINGS},
+		{&m_pActionToggleColorPicker, ACTION_ID_TOGGLE_COLOR_PICKER},
+		{&m_pActionPlay, ACTION_ID_PLAY},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
 	{
-		QAction * pAction = new QAction(this);
+		QAction * pAction =
+			m_pSettingsManager->createStandardAction(item.id, this);
 		*item.ppAction = pAction;
-		pAction->setData(item.id);
-		pAction->setIconText(item.title);
-		QKeySequence hotkey = m_pSettingsManager->getHotkey(item.id);
-		pAction->setShortcut(hotkey);
-		pAction->setIcon(item.icon);
 		m_settableActionsList.push_back(pAction);
 	}
 
@@ -1326,36 +1297,31 @@ void PreviewDialog::createActionsAndMenus()
 
 	m_pActionGroupZoomModes = new QActionGroup(this);
 
-	m_pActionSetZoomModeNoZoom->setCheckable(true);
-	m_pActionSetZoomModeNoZoom->setActionGroup(m_pActionGroupZoomModes);
-	m_pMenuZoomModes->addAction(m_pActionSetZoomModeNoZoom);
-	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_NO_ZOOM] = ZoomMode::NoZoom;
-	addAction(m_pActionSetZoomModeNoZoom);
-
-	m_pActionSetZoomModeFixedRatio->setCheckable(true);
-	m_pActionSetZoomModeFixedRatio->setActionGroup(m_pActionGroupZoomModes);
-	m_pMenuZoomModes->addAction(m_pActionSetZoomModeFixedRatio);
-	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO] =
-		ZoomMode::FixedRatio;
-	addAction(m_pActionSetZoomModeFixedRatio);
-
-	m_pActionSetZoomModeFitToFrame->setCheckable(true);
-	m_pActionSetZoomModeFitToFrame->setActionGroup(m_pActionGroupZoomModes);
-	m_pMenuZoomModes->addAction(m_pActionSetZoomModeFitToFrame);
-	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME] =
-		ZoomMode::FitToFrame;
-	addAction(m_pActionSetZoomModeFitToFrame);
-
 	ZoomMode zoomMode = m_pSettingsManager->getZoomMode();
-	for(QAction * pAction : m_pActionGroupZoomModes->actions())
+
+	struct ZoomModeAction
 	{
-		ZoomMode actionZoomMode =
-			m_actionIDToZoomModeMap[pAction->data().toString()];
-		if(actionZoomMode == zoomMode)
-		{
-			pAction->setChecked(true);
-			break;
-		}
+		QAction * pAction;
+		ZoomMode zoomMode;
+	};
+
+	ZoomModeAction zoomModeActions[] =
+	{
+		{m_pActionSetZoomModeNoZoom, ZoomMode::NoZoom},
+		{m_pActionSetZoomModeFixedRatio, ZoomMode::FixedRatio},
+		{m_pActionSetZoomModeFitToFrame, ZoomMode::FitToFrame},
+	};
+
+	for(ZoomModeAction & action : zoomModeActions)
+	{
+		QString id = action.pAction->data().toString();
+		action.pAction->setCheckable(true);
+		action.pAction->setActionGroup(m_pActionGroupZoomModes);
+		m_pMenuZoomModes->addAction(action.pAction);
+		m_actionIDToZoomModeMap[id] = action.zoomMode;
+		addAction(action.pAction);
+		if(zoomMode == action.zoomMode)
+			action.pAction->setChecked(true);
 	}
 
 //------------------------------------------------------------------------------
@@ -1366,33 +1332,30 @@ void PreviewDialog::createActionsAndMenus()
 
 	m_pActionGroupZoomScaleModes = new QActionGroup(this);
 
-	m_pActionSetZoomScaleModeNearest->setCheckable(true);
-	m_pActionSetZoomScaleModeNearest->setActionGroup(
-		m_pActionGroupZoomScaleModes);
-	m_pMenuZoomScaleModes->addAction(m_pActionSetZoomScaleModeNearest);
-	m_actionIDToZoomScaleModeMap[ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST] =
-		Qt::FastTransformation;
-	addAction(m_pActionSetZoomScaleModeNearest);
-
-	m_pActionSetZoomScaleModeBilinear->setCheckable(true);
-	m_pActionSetZoomScaleModeBilinear->setActionGroup(
-		m_pActionGroupZoomScaleModes);
-	m_pMenuZoomScaleModes->addAction(m_pActionSetZoomScaleModeBilinear);
-	m_actionIDToZoomScaleModeMap[ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR] =
-		Qt::SmoothTransformation;
-	addAction(m_pActionSetZoomScaleModeBilinear);
-
 	Qt::TransformationMode scaleMode = m_pSettingsManager->getScaleMode();
-	for(QAction * pAction : m_pActionGroupZoomScaleModes->actions())
-	{
-		Qt::TransformationMode actionScaleMode =
-			m_actionIDToZoomScaleModeMap[pAction->data().toString()];
 
-		if(actionScaleMode == scaleMode)
-		{
-			pAction->setChecked(true);
-			break;
-		}
+	struct ScaleModeAction
+	{
+		QAction * pAction;
+		Qt::TransformationMode scaleMode;
+	};
+
+	ScaleModeAction scaleModeActions[] =
+	{
+		{m_pActionSetZoomScaleModeNearest, Qt::FastTransformation},
+		{m_pActionSetZoomScaleModeBilinear, Qt::SmoothTransformation},
+	};
+
+	for(ScaleModeAction & action : scaleModeActions)
+	{
+		QString id = action.pAction->data().toString();
+		action.pAction->setCheckable(true);
+		action.pAction->setActionGroup(m_pActionGroupZoomScaleModes);
+		m_pMenuZoomScaleModes->addAction(action.pAction);
+		m_actionIDToZoomScaleModeMap[id] = action.scaleMode;
+		addAction(action.pAction);
+		if(scaleMode == action.scaleMode)
+			action.pAction->setChecked(true);
 	}
 
 	bool noZoom = (zoomMode == ZoomMode::NoZoom);
@@ -1413,34 +1376,31 @@ void PreviewDialog::createActionsAndMenus()
 
 	m_pActionGroupTimeLineModes = new QActionGroup(this);
 
-	m_pActionSetTimeLineModeTime->setCheckable(true);
-	m_pActionSetTimeLineModeTime->setActionGroup(
-		m_pActionGroupTimeLineModes);
-	m_pMenuTimeLineModes->addAction(m_pActionSetTimeLineModeTime);
-	m_actionIDToTimeLineModeMap[ACTION_ID_SET_TIMELINE_MODE_TIME] =
-		TimeLineSlider::DisplayMode::Time;
-	addAction(m_pActionSetTimeLineModeTime);
-
-	m_pActionSetTimeLineModeFrames->setCheckable(true);
-	m_pActionSetTimeLineModeFrames->setActionGroup(
-		m_pActionGroupTimeLineModes);
-	m_pMenuTimeLineModes->addAction(m_pActionSetTimeLineModeFrames);
-	m_actionIDToTimeLineModeMap[ACTION_ID_SET_TIMELINE_MODE_FRAMES] =
-		TimeLineSlider::DisplayMode::Frames;
-	addAction(m_pActionSetTimeLineModeFrames);
-
 	TimeLineSlider::DisplayMode timeLineMode =
 		m_pSettingsManager->getTimeLineMode();
-	for(QAction * pAction : m_pActionGroupTimeLineModes->actions())
-	{
-		TimeLineSlider::DisplayMode actionTimeLineMode =
-			m_actionIDToTimeLineModeMap[pAction->data().toString()];
 
-		if(actionTimeLineMode == timeLineMode)
-		{
-			pAction->setChecked(true);
-			break;
-		}
+	struct TimeLineModeAction
+	{
+		QAction * pAction;
+		TimeLineSlider::DisplayMode timeLineMode;
+	};
+
+	TimeLineModeAction timeLineModeAction[] =
+	{
+		{m_pActionSetTimeLineModeTime, TimeLineSlider::DisplayMode::Time},
+		{m_pActionSetTimeLineModeFrames, TimeLineSlider::DisplayMode::Frames},
+	};
+
+	for(TimeLineModeAction & action : timeLineModeAction)
+	{
+		QString id = action.pAction->data().toString();
+		action.pAction->setCheckable(true);
+		action.pAction->setActionGroup(m_pActionGroupTimeLineModes);
+		m_pMenuTimeLineModes->addAction(action.pAction);
+		m_actionIDToTimeLineModeMap[id] = action.timeLineMode;
+		addAction(action.pAction);
+		if(timeLineMode == action.timeLineMode)
+			action.pAction->setChecked(true);
 	}
 
 //------------------------------------------------------------------------------
@@ -1495,13 +1455,6 @@ void PreviewDialog::createActionsAndMenus()
 		this, SLOT(slotToggleColorPicker(bool)));
 	connect(m_pActionPlay, SIGNAL(toggled(bool)),
 		this, SLOT(slotPlay(bool)));
-
-//------------------------------------------------------------------------------
-
-	ActionDataList settableActionsDataList;
-	for(QAction * pAction : m_settableActionsList)
-		settableActionsDataList.push_back(ActionData(pAction));
-	m_pSettingsDialog->addSettableActions(settableActionsDataList);
 }
 
 // END OF void PreviewDialog::createActionsAndMenus()

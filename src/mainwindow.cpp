@@ -96,8 +96,8 @@ MainWindow::MainWindow() : QMainWindow()
 
 	createActionsAndMenus();
 
-	m_pPreviewDialog = new PreviewDialog(m_pSettingsManager,
-		m_pVSScriptLibrary,m_pSettingsDialog);
+	m_pPreviewDialog =
+		new PreviewDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
 	connect(m_pPreviewDialog,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
@@ -105,6 +105,8 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_pPreviewDialog,
 		SIGNAL(signalInsertLineIntoScript(const QString &)),
 		this, SLOT(slotInsertLineIntoScript(const QString &)));
+	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
+		m_pPreviewDialog, SLOT(slotSettingsChanged()));
 
 	m_pBenchmarkDialog =
 		new ScriptBenchmarkDialog(m_pSettingsManager, m_pVSScriptLibrary);
@@ -462,57 +464,34 @@ void MainWindow::createActionsAndMenus()
 	{
 		QAction ** ppAction;
 		const char * id;
-		QString title;
-		QIcon icon;
 	};
 
 	ActionToCreate actionsToCreate[] =
 	{
-		{&m_pActionNewScript, ACTION_ID_NEW_SCRIPT,
-			trUtf8("New script"), QIcon(":new.png")},
-		{&m_pActionOpenScript, ACTION_ID_OPEN_SCRIPT,
-			trUtf8("Open script"), QIcon(":load.png")},
-		{&m_pActionSaveScript, ACTION_ID_SAVE_SCRIPT,
-			trUtf8("Save script"), QIcon(":save.png")},
-		{&m_pActionSaveScriptAs, ACTION_ID_SAVE_SCRIPT_AS,
-			trUtf8("Save script as..."), QIcon(":save_as.png")},
-		{&m_pActionExit, ACTION_ID_EXIT,
-			trUtf8("Exit"), QIcon(":exit.png")},
-		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION,
-			trUtf8("Duplicate selection or line"), QIcon()},
-		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION,
-			trUtf8("Comment lines"), QIcon()},
-		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION,
-			trUtf8("Uncomment lines"), QIcon()},
-		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES,
-			trUtf8("Replace Tab characters with spaces"), QIcon()},
-		{&m_pActionTemplates, ACTION_ID_TEMPLATES,
-			trUtf8("Snippets and templates"), QIcon()},
-		{&m_pActionSettings, ACTION_ID_SETTINGS,
-			trUtf8("Settings"), QIcon(":settings.png")},
-		{&m_pActionPreview, ACTION_ID_PREVIEW,
-			trUtf8("Preview"), QIcon(":preview.png")},
-		{&m_pActionCheckScript, ACTION_ID_CHECK_SCRIPT,
-			trUtf8("Check script"), QIcon(":check.png")},
-		{&m_pActionBenchmark, ACTION_ID_BENCHMARK,
-			trUtf8("Benchmark"), QIcon(":benchmark.png")},
-		{&m_pActionEncode, ACTION_ID_CLI_ENCODE,
-			trUtf8("Encode video"), QIcon(":film_save.png")},
-		{&m_pActionAbout, ACTION_ID_ABOUT,
-			trUtf8("About..."), QIcon()},
-		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE,
-			trUtf8("Autocomplete"), QIcon()},
+		{&m_pActionNewScript, ACTION_ID_NEW_SCRIPT},
+		{&m_pActionOpenScript, ACTION_ID_OPEN_SCRIPT},
+		{&m_pActionSaveScript, ACTION_ID_SAVE_SCRIPT},
+		{&m_pActionSaveScriptAs, ACTION_ID_SAVE_SCRIPT_AS},
+		{&m_pActionExit, ACTION_ID_EXIT},
+		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION},
+		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION},
+		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION},
+		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES},
+		{&m_pActionTemplates, ACTION_ID_TEMPLATES},
+		{&m_pActionSettings, ACTION_ID_SETTINGS},
+		{&m_pActionPreview, ACTION_ID_PREVIEW},
+		{&m_pActionCheckScript, ACTION_ID_CHECK_SCRIPT},
+		{&m_pActionBenchmark, ACTION_ID_BENCHMARK},
+		{&m_pActionEncode, ACTION_ID_CLI_ENCODE},
+		{&m_pActionAbout, ACTION_ID_ABOUT},
+		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
 	{
-		QAction * pAction = new QAction(this);
+		QAction * pAction = m_pSettingsManager->createStandardAction(
+			item.id, this);
 		*item.ppAction = pAction;
-		pAction->setData(item.id);
-		pAction->setIconText(item.title);
-		QKeySequence hotkey = m_pSettingsManager->getHotkey(item.id);
-		pAction->setShortcut(hotkey);
-		pAction->setIcon(item.icon);
 		m_settableActionsList.push_back(pAction);
 	}
 
@@ -592,13 +571,6 @@ void MainWindow::createActionsAndMenus()
 	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
 	connect(m_pActionAutocomplete, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotComplete()));
-
-//------------------------------------------------------------------------------
-
-	ActionDataList settableActionsDataList;
-	for(QAction * pAction : m_settableActionsList)
-		settableActionsDataList.push_back(ActionData(pAction));
-	m_pSettingsDialog->addSettableActions(settableActionsDataList);
 }
 
 // END OF void MainWindow::createActionsAndMenus()

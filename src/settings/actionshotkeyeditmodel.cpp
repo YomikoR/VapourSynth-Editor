@@ -1,23 +1,13 @@
-#include <QAction>
-
 #include "actionshotkeyeditmodel.h"
+
+#include <cassert>
 
 //==============================================================================
 
-ActionData::ActionData(const QAction * a_pAction):
-	id()
-	, text()
-	, icon()
-	, hotkey()
-{
-	if(a_pAction == nullptr)
-		return;
-
-	id = a_pAction->data().toString();
-	text = a_pAction->text();
-	icon = a_pAction->icon();
-	hotkey = a_pAction->shortcut();
-}
+const int COLUMNS_NUMBER = 3;
+const int ICON_COLUMN = 0;
+const int TITLE_COLUMN = 1;
+const int HOTKEY_COLUMN = 2;
 
 //==============================================================================
 
@@ -26,7 +16,9 @@ ActionsHotkeyEditModel::ActionsHotkeyEditModel(
 	QAbstractItemModel(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 {
-
+	assert(m_pSettingsManager);
+	m_actions = m_pSettingsManager->getStandardActions();
+	reloadHotkeysSettings();
 }
 
 //==============================================================================
@@ -67,7 +59,7 @@ Qt::ItemFlags ActionsHotkeyEditModel::flags(const QModelIndex & a_index) const
 		| Qt::ItemIsSelectable
 	;
 
-	if(a_index.column() == 1)
+	if(a_index.column() == HOTKEY_COLUMN)
 		cellFlags |= Qt::ItemIsEditable;
 
 	return cellFlags;
@@ -81,17 +73,19 @@ QVariant ActionsHotkeyEditModel::data(const QModelIndex & a_index, int a_role)
 	if(!a_index.isValid())
 		return QVariant();
 
-	if((a_index.row() >= (int)m_actionsList.size()) || (a_index.column() >= 2))
+	if((a_index.row() >= (int)m_actions.size()) ||
+		(a_index.column() >= COLUMNS_NUMBER))
 		return QVariant();
 
-	if((a_index.column() == 0) && (a_role == Qt::DecorationRole))
-		return m_actionsList[a_index.row()].icon;
-	else if((a_index.column() == 0) && ((a_role == Qt::DisplayRole) ||
-		(a_role == Qt::ToolTipRole)))
-		return m_actionsList[a_index.row()].text;
-	else if((a_index.column() == 1) && ((a_role == Qt::DisplayRole) ||
-		(a_role == Qt::ToolTipRole) || (a_role == Qt::EditRole)))
-		return m_actionsList[a_index.row()].hotkey;
+	if((a_index.column() == ICON_COLUMN) && (a_role == Qt::DecorationRole))
+		return m_actions[a_index.row()].icon;
+	else if((a_index.column() == TITLE_COLUMN) &&
+		((a_role == Qt::DisplayRole) || (a_role == Qt::ToolTipRole)))
+		return m_actions[a_index.row()].title;
+	else if((a_index.column() == HOTKEY_COLUMN) &&
+		((a_role == Qt::DisplayRole) || (a_role == Qt::ToolTipRole) ||
+		(a_role == Qt::EditRole)))
+		return m_actions[a_index.row()].hotkey;
 
 	return QVariant();
 }
@@ -101,7 +95,7 @@ QVariant ActionsHotkeyEditModel::data(const QModelIndex & a_index, int a_role)
 int ActionsHotkeyEditModel::rowCount(const QModelIndex & a_parent) const
 {
 	(void)a_parent;
-	return (int)m_actionsList.size();
+	return (int)m_actions.size();
 }
 
 //==============================================================================
@@ -109,7 +103,7 @@ int ActionsHotkeyEditModel::rowCount(const QModelIndex & a_parent) const
 int ActionsHotkeyEditModel::columnCount(const QModelIndex & a_parent) const
 {
 	(void)a_parent;
-	return 2;
+	return COLUMNS_NUMBER;
 }
 
 //==============================================================================
@@ -117,53 +111,30 @@ int ActionsHotkeyEditModel::columnCount(const QModelIndex & a_parent) const
 bool ActionsHotkeyEditModel::setData(const QModelIndex & a_index,
 	const QVariant & a_value, int a_role)
 {
-	if((a_index.column() != 1) || (a_role != Qt::EditRole))
+	if((a_index.column() != HOTKEY_COLUMN) || (a_role != Qt::EditRole))
 		return false;
 
-	m_actionsList[a_index.row()].hotkey = a_value.value<QKeySequence>();
+	m_actions[a_index.row()].hotkey = a_value.value<QKeySequence>();
 	return true;
 }
 
 //==============================================================================
 
-void ActionsHotkeyEditModel::addActions(const ActionDataList & a_actionsList)
-{
-	emit layoutAboutToBeChanged();
-	for(const ActionData & newActionData : a_actionsList)
-	{
-		bool actionExists = false;
-		for(const ActionData & existingActionData : m_actionsList)
-		{
-			if(newActionData.id == existingActionData.id)
-			{
-				actionExists = true;
-				break;
-			}
-		}
-		if(actionExists)
-			continue;
-
-		m_actionsList.push_back(newActionData);
-	}
-	emit layoutChanged();
-}
-
-//==============================================================================
 
 void ActionsHotkeyEditModel::reloadHotkeysSettings()
 {
-	for(ActionData & actionData : m_actionsList)
-		actionData.hotkey = m_pSettingsManager->getHotkey(actionData.id);
-	emit dataChanged(createIndex(2, 0),
-		createIndex(2, (int)m_actionsList.size() - 1));
+	for(StandardAction & action : m_actions)
+		action.hotkey = m_pSettingsManager->getHotkey(action.id);
+	emit dataChanged(createIndex(HOTKEY_COLUMN, 0),
+		createIndex(HOTKEY_COLUMN, (int)m_actions.size() - 1));
 }
 
 //==============================================================================
 
 void ActionsHotkeyEditModel::slotSaveActionsHotkeys()
 {
-	for(const ActionData & actionData : m_actionsList)
-		m_pSettingsManager->setHotkey(actionData.id, actionData.hotkey);
+	for(const StandardAction & action : m_actions)
+		m_pSettingsManager->setHotkey(action.id, action.hotkey);
 }
 
 //==============================================================================

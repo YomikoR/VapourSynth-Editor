@@ -41,7 +41,9 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 	m_ui.hotkeysTable->setModel(m_pActionsHotkeyEditModel);
 
 	m_pItemDelegateForHotkey = new ItemDelegateForHotkey(this);
-	m_ui.hotkeysTable->setItemDelegateForColumn(1, m_pItemDelegateForHotkey);
+	m_ui.hotkeysTable->setItemDelegateForColumn(2, m_pItemDelegateForHotkey);
+
+	m_ui.hotkeysTable->resizeColumnsToContents();
 
 	m_pThemeElementsModel = new ThemeElementsModel(m_pSettingsManager, this);
 	m_ui.themeElementsList->setModel(m_pThemeElementsModel);
@@ -90,16 +92,6 @@ SettingsDialog::~SettingsDialog()
 }
 
 // END OF SettingsDialog::~SettingsDialog()
-//==============================================================================
-
-void SettingsDialog::addSettableActions(const ActionDataList & a_actionsList)
-{
-	m_pActionsHotkeyEditModel->addActions(a_actionsList);
-	m_ui.hotkeysTable->resizeColumnsToContents();
-	m_ui.hotkeysTable->resizeRowsToContents();
-}
-// END OF void SettingsDialog::addSettableActions(
-//		const ActionDataList & a_actionsList)
 //==============================================================================
 
 void SettingsDialog::slotCall()

@@ -193,6 +193,18 @@ bool EncodingPreset::isEmpty() const
 
 //==============================================================================
 
+bool StandardAction::operator==(const StandardAction & a_other) const
+{
+	return id == a_other.id;
+}
+
+bool StandardAction::operator<(const StandardAction & a_other) const
+{
+	return id < a_other.id;
+}
+
+//==============================================================================
+
 SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 {
 	QString applicationDir = QCoreApplication::applicationDirPath();
@@ -206,7 +218,7 @@ SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 			QStandardPaths::GenericConfigLocation) + SETTINGS_FILE_NAME;
 	}
 
-	initializeDefaultHotkeysMap();
+	initializeStandardActions();
 }
 
 SettingsManager::~SettingsManager()
@@ -306,42 +318,118 @@ bool SettingsManager::setValue(const QString & a_key,
 
 //==============================================================================
 
-void SettingsManager::initializeDefaultHotkeysMap()
+void SettingsManager::initializeStandardActions()
 {
-	m_defaultHotkeysMap =
+	m_standardActions =
 	{
-		{ACTION_ID_NEW_SCRIPT, QKeySequence(Qt::CTRL + Qt::Key_N)},
-		{ACTION_ID_OPEN_SCRIPT, QKeySequence(Qt::CTRL + Qt::Key_O)},
-		{ACTION_ID_SAVE_SCRIPT, QKeySequence(Qt::CTRL + Qt::Key_S)},
-		{ACTION_ID_PREVIEW, QKeySequence(Qt::Key_F5)},
-		{ACTION_ID_CHECK_SCRIPT, QKeySequence(Qt::Key_F6)},
-		{ACTION_ID_BENCHMARK, QKeySequence(Qt::Key_F7)},
-		{ACTION_ID_CLI_ENCODE, QKeySequence(Qt::Key_F8)},
-		{ACTION_ID_EXIT, QKeySequence(Qt::ALT + Qt::Key_F4)},
-		{ACTION_ID_AUTOCOMPLETE, QKeySequence(Qt::CTRL + Qt::Key_Space)},
-		{ACTION_ID_SAVE_SNAPSHOT, QKeySequence(Qt::Key_S)},
-		{ACTION_ID_TOGGLE_ZOOM_PANEL, QKeySequence(Qt::Key_Z)},
-		{ACTION_ID_TOGGLE_CROP_PANEL, QKeySequence(Qt::Key_C)},
-		{ACTION_ID_SET_ZOOM_MODE_NO_ZOOM, QKeySequence(Qt::Key_1)},
-		{ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO, QKeySequence(Qt::Key_2)},
-		{ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME, QKeySequence(Qt::Key_3)},
-		{ACTION_ID_TIME_STEP_FORWARD, QKeySequence(Qt::CTRL + Qt::Key_Right)},
-		{ACTION_ID_TIME_STEP_BACK, QKeySequence(Qt::CTRL + Qt::Key_Left)},
-		{ACTION_ID_FRAME_TO_CLIPBOARD, QKeySequence(Qt::Key_X)},
-		{ACTION_ID_DUPLICATE_SELECTION, QKeySequence(Qt::CTRL + Qt::Key_D)},
-		{ACTION_ID_COMMENT_SELECTION,
+		{ACTION_ID_NEW_SCRIPT, trUtf8("New script"), QIcon(":new.png"),
+			QKeySequence(Qt::CTRL + Qt::Key_N)},
+		{ACTION_ID_OPEN_SCRIPT, trUtf8("Open script"), QIcon(":load.png"),
+			QKeySequence(Qt::CTRL + Qt::Key_O)},
+		{ACTION_ID_SAVE_SCRIPT, trUtf8("Save script"), QIcon(":save.png"),
+			QKeySequence(Qt::CTRL + Qt::Key_S)},
+		{ACTION_ID_SAVE_SCRIPT_AS, trUtf8("Save script as..."),
+			QIcon(":save_as.png"), QKeySequence()},
+		{ACTION_ID_EXIT, trUtf8("Exit"), QIcon(":exit.png"),
+			QKeySequence(Qt::ALT + Qt::Key_F4)},
+		{ACTION_ID_DUPLICATE_SELECTION, trUtf8("Duplicate selection or line"),
+			QIcon(), QKeySequence(Qt::CTRL + Qt::Key_D)},
+		{ACTION_ID_COMMENT_SELECTION, trUtf8("Comment lines"), QIcon(),
 			QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C)},
-		{ACTION_ID_UNCOMMENT_SELECTION,
+		{ACTION_ID_UNCOMMENT_SELECTION, trUtf8("Uncomment lines"), QIcon(),
 			QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X)},
+		{ACTION_ID_REPLACE_TAB_WITH_SPACES,
+			trUtf8("Replace Tab characters with spaces"), QIcon(),
+			QKeySequence()},
+		{ACTION_ID_TEMPLATES, trUtf8("Snippets and templates"), QIcon(),
+			QKeySequence()},
+		{ACTION_ID_SETTINGS, trUtf8("Settings"), QIcon(":settings.png"),
+			QKeySequence()},
+		{ACTION_ID_PREVIEW, trUtf8("Preview"), QIcon(":preview.png"),
+			QKeySequence(Qt::Key_F5)},
+		{ACTION_ID_CHECK_SCRIPT, trUtf8("Check script"), QIcon(":check.png"),
+			QKeySequence(Qt::Key_F6)},
+		{ACTION_ID_BENCHMARK, trUtf8("Benchmark"), QIcon(":benchmark.png"),
+			QKeySequence(Qt::Key_F7)},
+		{ACTION_ID_CLI_ENCODE, trUtf8("Encode video"),
+			QIcon(":film_save.png"), QKeySequence(Qt::Key_F8)},
+		{ACTION_ID_ABOUT, trUtf8("About..."), QIcon(), QKeySequence()},
+		{ACTION_ID_AUTOCOMPLETE, trUtf8("Autocomplete"), QIcon(),
+			QKeySequence(Qt::CTRL + Qt::Key_Space)},
+		{ACTION_ID_FRAME_TO_CLIPBOARD, trUtf8("Copy frame to clipboard"),
+			QIcon(":image_to_clipboard.png"), QKeySequence(Qt::Key_X)},
+		{ACTION_ID_SAVE_SNAPSHOT, trUtf8("Save snapshot"),
+			QIcon(":snapshot.png"), QKeySequence(Qt::Key_S)},
+		{ACTION_ID_TOGGLE_ZOOM_PANEL, trUtf8("Show zoom panel"),
+			QIcon(":zoom.png"), QKeySequence(Qt::Key_Z)},
+		{ACTION_ID_SET_ZOOM_MODE_NO_ZOOM, trUtf8("Zoom: No zoom"),
+			QIcon(":zoom_no_zoom.png"), QKeySequence(Qt::Key_1)},
+		{ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO, trUtf8("Zoom: Fixed ratio"),
+			QIcon(":zoom_fixed_ratio.png"), QKeySequence(Qt::Key_2)},
+		{ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME, trUtf8("Zoom: Fit to frame"),
+			QIcon(":zoom_fit_to_frame.png"), QKeySequence(Qt::Key_3)},
+		{ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST, trUtf8("Scale: Nearest"),
+			QIcon(), QKeySequence()},
+		{ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR, trUtf8("Scale: Bilinear"),
+			QIcon(), QKeySequence()},
+		{ACTION_ID_TOGGLE_CROP_PANEL, trUtf8("Crop assistant"),
+			QIcon(":crop.png"), QKeySequence(Qt::Key_C)},
+		{ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT,
+			trUtf8("Paste crop snippet into script"), QIcon(":paste.png"),
+			QKeySequence()},
+		{ACTION_ID_TOGGLE_TIMELINE_PANEL, trUtf8("Show timeline panel"),
+			QIcon(":timeline.png"), QKeySequence()},
+		{ACTION_ID_SET_TIMELINE_MODE_TIME, trUtf8("Timeline mode: Time"),
+			QIcon(":timeline.png"), QKeySequence()},
+		{ACTION_ID_SET_TIMELINE_MODE_FRAMES, trUtf8("Timeline mode: Frames"),
+			QIcon(":timeline_frames.png"), QKeySequence()},
+		{ACTION_ID_TIME_STEP_FORWARD, trUtf8("Time: step forward"),
+			QIcon(":time_forward.png"), QKeySequence(Qt::CTRL + Qt::Key_Right)},
+		{ACTION_ID_TIME_STEP_BACK, trUtf8("Time: step back"),
+			QIcon(":time_back.png"), QKeySequence(Qt::CTRL + Qt::Key_Left)},
+		{ACTION_ID_ADVANCED_PREVIEW_SETTINGS,
+			trUtf8("Preview advanced settings"), QIcon(":settings.png"),
+			QKeySequence()},
+		{ACTION_ID_TOGGLE_COLOR_PICKER, trUtf8("Color panel"),
+			QIcon(":color_picker.png"), QKeySequence()},
+		{ACTION_ID_PLAY, trUtf8("Play"), QIcon(":play.png"), QKeySequence()},
 	};
+}
+
+std::vector<StandardAction> SettingsManager::getStandardActions() const
+{
+	return m_standardActions;
+}
+
+QAction * SettingsManager::createStandardAction(const QString & a_actionID,
+	QObject * a_pParent)
+{
+	StandardAction actionToFind;
+	actionToFind.id = a_actionID;
+
+	std::vector<StandardAction>::const_iterator it = std::find(
+		m_standardActions.begin(), m_standardActions.end(), actionToFind);
+	if(it == m_standardActions.end())
+		return nullptr;
+
+	QKeySequence hotkey = getHotkey(it->id);
+
+	QAction * pAction = new QAction(it->icon, it->title, a_pParent);
+	pAction->setData(it->id);
+	pAction->setShortcut(hotkey);
+
+	return pAction;
 }
 
 QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID) const
 {
-	std::map<QString, QKeySequence>::const_iterator it =
-		m_defaultHotkeysMap.find(a_actionID);
-	if(it != m_defaultHotkeysMap.end())
-		return it->second;
+	StandardAction actionToFind;
+	actionToFind.id = a_actionID;
+
+	std::vector<StandardAction>::const_iterator it = std::find(
+		m_standardActions.begin(), m_standardActions.end(), actionToFind);
+	if(it != m_standardActions.end())
+		return it->hotkey;
 
 	return QKeySequence();
 }

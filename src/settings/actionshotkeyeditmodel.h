@@ -2,26 +2,8 @@
 #define ACTIONSHOTKEYEDITMODEL_H
 
 #include <QAbstractItemModel>
-#include <QKeySequence>
-#include <QString>
-#include <QIcon>
-#include <vector>
 
 #include "settingsmanager.h"
-
-class SettingsManager;
-class QAction;
-
-struct ActionData
-{
-	ActionData(const QAction * a_pAction);
-	QString id;
-	QString text;
-	QIcon icon;
-	QKeySequence hotkey;
-};
-
-typedef std::vector<ActionData> ActionDataList;
 
 class ActionsHotkeyEditModel : public QAbstractItemModel
 {
@@ -53,8 +35,6 @@ class ActionsHotkeyEditModel : public QAbstractItemModel
 		bool setData(const QModelIndex & a_index, const QVariant & a_value,
 			int a_role = Qt::EditRole) override;
 
-		void addActions(const ActionDataList & a_actionsList);
-
 		void reloadHotkeysSettings();
 
 	public slots:
@@ -63,7 +43,7 @@ class ActionsHotkeyEditModel : public QAbstractItemModel
 
 	private:
 
-		ActionDataList m_actionsList;
+		std::vector<StandardAction> m_actions;
 
 		SettingsManager * m_pSettingsManager;
 

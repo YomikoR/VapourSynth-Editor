@@ -32,9 +32,7 @@ class PreviewDialog : public VSScriptProcessorDialog
 public:
 
 	PreviewDialog(SettingsManager * a_pSettingsManager,
-		VSScriptLibrary * a_pVSScriptLibrary,
-		SettingsDialog * a_pSettingsDialog,
-		QWidget * a_pParent = nullptr);
+		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr);
 	virtual ~PreviewDialog();
 
 	virtual void setScriptName(const QString & a_scriptName) override;
@@ -161,8 +159,6 @@ protected:
 	void setTitle();
 
 	Ui::PreviewDialog m_ui;
-
-	SettingsDialog * m_pSettingsDialog;
 
 	PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
 

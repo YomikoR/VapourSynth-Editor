@@ -20,8 +20,6 @@ public:
 
 	virtual ~SettingsDialog();
 
-	void addSettableActions(const ActionDataList & a_actionsList);
-
 public slots:
 
 	void slotCall();

@@ -8,7 +8,7 @@
 #include <QKeySequence>
 #include <QTextCharFormat>
 #include <QColor>
-#include <map>
+#include <QIcon>
 #include <vector>
 
 #include "../preview/timelineslider.h"
@@ -86,6 +86,17 @@ struct EncodingPreset
 	bool operator==(const EncodingPreset & a_other) const;
 	bool operator<(const EncodingPreset & a_other) const;
 	bool isEmpty() const;
+};
+
+struct StandardAction
+{
+	QString id;
+	QString title;
+	QIcon icon;
+	QKeySequence hotkey;
+
+	bool operator==(const StandardAction & a_other) const;
+	bool operator<(const StandardAction & a_other) const;
 };
 
 //==============================================================================
@@ -175,6 +186,11 @@ class SettingsManager : public QObject
 		bool setPortableMode(bool a_portableMod);
 
 		//----------------------------------------------------------------------
+
+		QAction * createStandardAction(const QString & a_actionID,
+			QObject * a_pParent);
+
+		std::vector<StandardAction> getStandardActions() const;
 
 		QKeySequence getDefaultHotkey(const QString & a_actionID) const;
 
@@ -369,11 +385,11 @@ class SettingsManager : public QObject
 
 		bool setValue(const QString & a_key, const QVariant & a_value);
 
-		void initializeDefaultHotkeysMap();
+		void initializeStandardActions();
 
 		QString m_settingsFilePath;
 
-		std::map<QString, QKeySequence> m_defaultHotkeysMap;
+		std::vector<StandardAction> m_standardActions;
 };
 
 //==============================================================================
