@@ -1064,15 +1064,15 @@ bool SettingsManager::saveEncodingPreset(const EncodingPreset & a_preset)
 	return success;
 }
 
-bool SettingsManager::deleteEncodingPreset(const EncodingPreset & a_preset)
+bool SettingsManager::deleteEncodingPreset(const QString & a_name)
 {
 	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
 	settings.beginGroup(ENCODING_PRESETS_GROUP);
 
 	QStringList subGroups = settings.childGroups();
-	if(!subGroups.contains(a_preset.name))
+	if(!subGroups.contains(a_name))
 		return false;
-	settings.remove(a_preset.name);
+	settings.remove(a_name);
 
 	settings.sync();
 	bool success = (QSettings::NoError == settings.status());

@@ -326,7 +326,7 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 	slotEncodingPresetComboBoxActivated(
 		m_ui.encodingPresetComboBox->currentText());
 
-	bool success = m_pSettingsManager->deleteEncodingPreset(preset);
+	bool success = m_pSettingsManager->deleteEncodingPreset(preset.name);
 	if(!success)
 	{
 		slotWriteLogMessage(mtCritical, trUtf8("Error deleting "

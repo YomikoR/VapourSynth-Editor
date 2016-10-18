@@ -346,7 +346,7 @@ class SettingsManager : public QObject
 
 		bool saveEncodingPreset(const EncodingPreset & a_preset);
 
-		bool deleteEncodingPreset(const EncodingPreset & a_preset);
+		bool deleteEncodingPreset(const QString & a_name);
 
 		bool getUseSpacesAsTab() const;
 
