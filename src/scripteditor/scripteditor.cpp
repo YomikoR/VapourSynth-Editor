@@ -154,22 +154,12 @@ void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
 //		SettingsManager * a_pSettingsManager)
 //==============================================================================
 
-void ScriptEditor::setSettingsDialog(SettingsDialog * a_pSettingsDialog)
-{
-	connect(a_pSettingsDialog, SIGNAL(signalSettingsChanged()),
-		this, SLOT(slotLoadSettings()));
-	connect(a_pSettingsDialog, SIGNAL(signalSettingsChanged()),
-		m_pSyntaxHighlighter, SLOT(slotLoadSettings()));
-}
-
-// END OF void ScriptEditor::setSettingsDialog(
-//		SettingsManager * a_pSettingsDialog)
-//==============================================================================
-
 void ScriptEditor::slotLoadSettings()
 {
 	if(!m_pSettingsManager)
 		return;
+
+	m_pSyntaxHighlighter->slotLoadSettings();
 
 	m_charactersTypedToStartCompletion =
 		m_pSettingsManager->getCharactersTypedToStartCompletion();
@@ -548,7 +538,7 @@ void ScriptEditor::slotHighlightCurrentBlock()
 QString ScriptEditor::getVapourSynthCoreName()
 {
 	QString vapourSynthName;
-	QString vsCoreName;
+	QString vsCoreName = "core";
 	int blocksCount = document()->blockCount();
 
 	// Search for VapourSynth object.
@@ -622,7 +612,7 @@ QString ScriptEditor::getVapourSynthCoreName()
 		return vsCoreName;
 	}
 
-	return QString();
+	return vsCoreName;
 }
 
 // END OF QString ScriptEditor::getVapourSynthCoreName()

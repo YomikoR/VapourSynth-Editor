@@ -26,6 +26,7 @@
 #include "settings/settingsdialog.h"
 #include "frame_consumers/benchmark_dialog.h"
 #include "frame_consumers/encode_dialog.h"
+#include "script_templates/templates_dialog.h"
 #include "common/helpers.h"
 
 #include "mainwindow.h"
@@ -44,6 +45,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionCommentSelection(nullptr)
 	, m_pActionUncommentSelection(nullptr)
 	, m_pActionReplaceTabWithSpaces(nullptr)
+	, m_pActionTemplates(nullptr)
 	, m_pActionSettings(nullptr)
 	, m_pActionPreview(nullptr)
 	, m_pActionCheckScript(nullptr)
@@ -58,6 +60,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsDialog(nullptr)
 	, m_pBenchmarkDialog(nullptr)
 	, m_pEncodeDialog(nullptr)
+	, m_pTemplatesDialog(nullptr)
 	, m_scriptFilePath()
 	, m_lastSavedText()
 {
@@ -85,7 +88,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.scriptEdit->setPluginsList(
 		m_pVapourSynthPluginsManager->pluginsList());
 	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
-	m_ui.scriptEdit->setSettingsDialog(m_pSettingsDialog);
 
 	connect(m_ui.scriptEdit, SIGNAL(textChanged()),
 		this, SLOT(slotEditorTextChanged()));
@@ -109,6 +111,8 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
+	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
+
 	slotChangeWindowTitle();
 
 	m_orphanQObjects =
@@ -116,7 +120,8 @@ MainWindow::MainWindow() : QMainWindow()
 		(QObject **)&m_pPreviewDialog,
 		(QObject **)&m_pSettingsDialog,
 		(QObject **)&m_pBenchmarkDialog,
-		(QObject **)&m_pEncodeDialog
+		(QObject **)&m_pEncodeDialog,
+		(QObject **)&m_pTemplatesDialog
 	};
 
 	QByteArray newGeometry = m_pSettingsManager->getMainWindowGeometry();
@@ -225,14 +230,12 @@ void MainWindow::slotNewScript()
 	if(!safeToCloseFile())
 		return;
 
-	QString newScriptTemplate(
-		"import vapoursynth as vs\n"
-		"core = vs.get_core()\n");
+	QString newScriptTemplate = m_pSettingsManager->getNewScriptTemplate();
 
 	m_scriptFilePath.clear();
 	m_lastSavedText = newScriptTemplate;
 	m_ui.scriptEdit->setPlainText(newScriptTemplate);
-	m_ui.scriptEdit->setCursorPosition(2, 0);
+	m_ui.scriptEdit->moveCursor(QTextCursor::End);
 	slotChangeWindowTitle();
 }
 
@@ -295,6 +298,14 @@ bool MainWindow::slotOpenScript()
 }
 
 // END OF bool MainWindow::slotOpenScript()
+//==============================================================================
+
+void MainWindow::slotTemplates()
+{
+	m_pTemplatesDialog->call();
+}
+
+// END OF void MainWindow::slotTemplates()
 //==============================================================================
 
 void MainWindow::slotPreview()
@@ -435,8 +446,11 @@ void MainWindow::slotSettingsChanged()
 	}
 
 	m_pVapourSynthPluginsManager->slotRefill();
-	m_ui.scriptEdit->setPluginsList(
-		m_pVapourSynthPluginsManager->pluginsList());
+	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
+	m_ui.scriptEdit->setPluginsList(vsPluginsList);
+	m_ui.scriptEdit->slotLoadSettings();
+	m_pTemplatesDialog->setPluginsList(vsPluginsList);
+	m_pTemplatesDialog->slotLoadSettings();
 }
 
 // END OF void MainWindow::slotSettingsChanged()
@@ -444,58 +458,71 @@ void MainWindow::slotSettingsChanged()
 
 void MainWindow::createActionsAndMenus()
 {
-	QKeySequence hotkey;
+	struct ActionToCreate
+	{
+		QAction ** ppAction;
+		const char * id;
+		QString title;
+		QIcon icon;
+	};
+
+	ActionToCreate actionsToCreate[] =
+	{
+		{&m_pActionNewScript, ACTION_ID_NEW_SCRIPT,
+			trUtf8("New script"), QIcon(":new.png")},
+		{&m_pActionOpenScript, ACTION_ID_OPEN_SCRIPT,
+			trUtf8("Open script"), QIcon(":load.png")},
+		{&m_pActionSaveScript, ACTION_ID_SAVE_SCRIPT,
+			trUtf8("Save script"), QIcon(":save.png")},
+		{&m_pActionSaveScriptAs, ACTION_ID_SAVE_SCRIPT_AS,
+			trUtf8("Save script as..."), QIcon(":save_as.png")},
+		{&m_pActionExit, ACTION_ID_EXIT,
+			trUtf8("Exit"), QIcon(":exit.png")},
+		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION,
+			trUtf8("Duplicate selection or line"), QIcon()},
+		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION,
+			trUtf8("Comment lines"), QIcon()},
+		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION,
+			trUtf8("Uncomment lines"), QIcon()},
+		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES,
+			trUtf8("Replace Tab characters with spaces"), QIcon()},
+		{&m_pActionTemplates, ACTION_ID_TEMPLATES,
+			trUtf8("Snippets and templates"), QIcon()},
+		{&m_pActionSettings, ACTION_ID_SETTINGS,
+			trUtf8("Settings"), QIcon(":settings.png")},
+		{&m_pActionPreview, ACTION_ID_PREVIEW,
+			trUtf8("Preview"), QIcon(":preview.png")},
+		{&m_pActionCheckScript, ACTION_ID_CHECK_SCRIPT,
+			trUtf8("Check script"), QIcon(":check.png")},
+		{&m_pActionBenchmark, ACTION_ID_BENCHMARK,
+			trUtf8("Benchmark"), QIcon(":benchmark.png")},
+		{&m_pActionEncode, ACTION_ID_CLI_ENCODE,
+			trUtf8("Encode video"), QIcon(":film_save.png")},
+		{&m_pActionAbout, ACTION_ID_ABOUT,
+			trUtf8("About..."), QIcon()},
+		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE,
+			trUtf8("Autocomplete"), QIcon()},
+	};
+
+	for(ActionToCreate & item : actionsToCreate)
+	{
+		QAction * pAction = new QAction(this);
+		*item.ppAction = pAction;
+		pAction->setData(item.id);
+		pAction->setIconText(item.title);
+		QKeySequence hotkey = m_pSettingsManager->getHotkey(item.id);
+		pAction->setShortcut(hotkey);
+		pAction->setIcon(item.icon);
+		m_settableActionsList.push_back(pAction);
+	}
 
 //------------------------------------------------------------------------------
 
 	QMenu * pFileMenu = m_ui.menuBar->addMenu(trUtf8("File"));
-
-//------------------------------------------------------------------------------
-
-	m_pActionNewScript = new QAction(this);
-	m_pActionNewScript->setIconText(trUtf8("New script"));
-	m_pActionNewScript->setIcon(QIcon(QString(":new.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_NEW_SCRIPT);
-	m_pActionNewScript->setShortcut(hotkey);
 	pFileMenu->addAction(m_pActionNewScript);
-	m_pActionNewScript->setData(ACTION_ID_NEW_SCRIPT);
-	m_settableActionsList.push_back(m_pActionNewScript);
-
-//------------------------------------------------------------------------------
-
-	m_pActionOpenScript = new QAction(this);
-	m_pActionOpenScript->setIconText(trUtf8("Open script"));
-	m_pActionOpenScript->setIcon(QIcon(QString(":load.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_OPEN_SCRIPT);
-	m_pActionOpenScript->setShortcut(hotkey);
 	pFileMenu->addAction(m_pActionOpenScript);
-	m_pActionOpenScript->setData(ACTION_ID_OPEN_SCRIPT);
-	m_settableActionsList.push_back(m_pActionOpenScript);
-
-//------------------------------------------------------------------------------
-
-	m_pActionSaveScript = new QAction(this);
-	m_pActionSaveScript->setIconText(trUtf8("Save script"));
-	m_pActionSaveScript->setIcon(QIcon(QString(":save.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_SAVE_SCRIPT);
-	m_pActionSaveScript->setShortcut(hotkey);
 	pFileMenu->addAction(m_pActionSaveScript);
-	m_pActionSaveScript->setData(ACTION_ID_SAVE_SCRIPT);
-	m_settableActionsList.push_back(m_pActionSaveScript);
-
-//------------------------------------------------------------------------------
-
-	m_pActionSaveScriptAs = new QAction(this);
-	m_pActionSaveScriptAs->setIconText(trUtf8("Save script as..."));
-	m_pActionSaveScriptAs->setIcon(QIcon(QString(":saveas.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_SAVE_SCRIPT_AS);
-	m_pActionSaveScriptAs->setShortcut(hotkey);
 	pFileMenu->addAction(m_pActionSaveScriptAs);
-	m_pActionSaveScriptAs->setData(ACTION_ID_SAVE_SCRIPT_AS);
-	m_settableActionsList.push_back(m_pActionSaveScriptAs);
-
-//------------------------------------------------------------------------------
-
 	pFileMenu->addSeparator();
 
 	m_pMenuRecentScripts = new QMenu(trUtf8("Recent scripts"), this);
@@ -503,148 +530,35 @@ void MainWindow::createActionsAndMenus()
 	fillRecentScriptsMenu();
 
 	pFileMenu->addSeparator();
-
-//------------------------------------------------------------------------------
-
-	m_pActionExit = new QAction(this);
-	m_pActionExit->setIconText(trUtf8("Exit"));
-	m_pActionExit->setIcon(QIcon(QString(":exit.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_EXIT);
-	m_pActionExit->setShortcut(hotkey);
 	pFileMenu->addAction(m_pActionExit);
-	m_pActionExit->setData(ACTION_ID_EXIT);
-	m_settableActionsList.push_back(m_pActionExit);
 
 //------------------------------------------------------------------------------
 
 	QMenu * pEditMenu = m_ui.menuBar->addMenu(trUtf8("Edit"));
-
-//------------------------------------------------------------------------------
-
-	m_pActionDuplicateSelection = new QAction(this);
-	m_pActionDuplicateSelection->setIconText(
-		trUtf8("Duplicate selection or line"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_DUPLICATE_SELECTION);
-	m_pActionDuplicateSelection->setShortcut(hotkey);
 	pEditMenu->addAction(m_pActionDuplicateSelection);
-	m_pActionDuplicateSelection->setData(ACTION_ID_DUPLICATE_SELECTION);
-	m_settableActionsList.push_back(m_pActionDuplicateSelection);
-
-//------------------------------------------------------------------------------
-
-	m_pActionCommentSelection = new QAction(this);
-	m_pActionCommentSelection->setIconText(trUtf8("Comment lines"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_COMMENT_SELECTION);
-	m_pActionCommentSelection->setShortcut(hotkey);
 	pEditMenu->addAction(m_pActionCommentSelection);
-	m_pActionCommentSelection->setData(ACTION_ID_COMMENT_SELECTION);
-	m_settableActionsList.push_back(m_pActionCommentSelection);
-
-//------------------------------------------------------------------------------
-
-	m_pActionUncommentSelection = new QAction(this);
-	m_pActionUncommentSelection->setIconText(trUtf8("Uncomment lines"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_UNCOMMENT_SELECTION);
-	m_pActionUncommentSelection->setShortcut(hotkey);
 	pEditMenu->addAction(m_pActionUncommentSelection);
-	m_pActionUncommentSelection->setData(ACTION_ID_UNCOMMENT_SELECTION);
-	m_settableActionsList.push_back(m_pActionUncommentSelection);
-
-//------------------------------------------------------------------------------
-
-	m_pActionReplaceTabWithSpaces = new QAction(this);
-	m_pActionReplaceTabWithSpaces->setIconText(
-		trUtf8("Replace Tab characters with spaces"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_REPLACE_TAB_WITH_SPACES);
-	m_pActionReplaceTabWithSpaces->setShortcut(hotkey);
 	pEditMenu->addAction(m_pActionReplaceTabWithSpaces);
-	m_pActionReplaceTabWithSpaces->setData(ACTION_ID_REPLACE_TAB_WITH_SPACES);
-	m_settableActionsList.push_back(m_pActionReplaceTabWithSpaces);
-
-//------------------------------------------------------------------------------
-
 	pEditMenu->addSeparator();
-
-	m_pActionSettings = new QAction(this);
-	m_pActionSettings->setIconText(trUtf8("Settings"));
-	m_pActionSettings->setIcon(QIcon(QString(":settings.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_SETTINGS);
-	m_pActionSettings->setShortcut(hotkey);
+	pEditMenu->addAction(m_pActionTemplates);
 	pEditMenu->addAction(m_pActionSettings);
-	m_pActionSettings->setData(ACTION_ID_SETTINGS);
-	m_settableActionsList.push_back(m_pActionSettings);
 
 //------------------------------------------------------------------------------
 
 	QMenu * pScriptMenu = m_ui.menuBar->addMenu(trUtf8("Script"));
-
-//------------------------------------------------------------------------------
-
-	m_pActionPreview = new QAction(this);
-	m_pActionPreview->setIconText(trUtf8("Preview"));
-	m_pActionPreview->setIcon(QIcon(QString(":preview.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_PREVIEW);
-	m_pActionPreview->setShortcut(hotkey);
 	pScriptMenu->addAction(m_pActionPreview);
-	m_pActionPreview->setData(ACTION_ID_PREVIEW);
-	m_settableActionsList.push_back(m_pActionPreview);
-
-//------------------------------------------------------------------------------
-
-	m_pActionCheckScript = new QAction(this);
-	m_pActionCheckScript->setIconText(trUtf8("Check script"));
-	m_pActionCheckScript->setIcon(QIcon(QString(":check.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_CHECK_SCRIPT);
-	m_pActionCheckScript->setShortcut(hotkey);
 	pScriptMenu->addAction(m_pActionCheckScript);
-	m_pActionCheckScript->setData(ACTION_ID_CHECK_SCRIPT);
-	m_settableActionsList.push_back(m_pActionCheckScript);
-
-//------------------------------------------------------------------------------
-
-	m_pActionBenchmark = new QAction(this);
-	m_pActionBenchmark->setIconText(trUtf8("Benchmark"));
-	m_pActionBenchmark->setIcon(QIcon(QString(":benchmark.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_BENCHMARK);
-	m_pActionBenchmark->setShortcut(hotkey);
 	pScriptMenu->addAction(m_pActionBenchmark);
-	m_pActionBenchmark->setData(ACTION_ID_BENCHMARK);
-	m_settableActionsList.push_back(m_pActionBenchmark);
-
-//------------------------------------------------------------------------------
-
-	m_pActionEncode = new QAction(this);
-	m_pActionEncode->setIconText(trUtf8("Encode video"));
-	m_pActionEncode->setIcon(QIcon(QString(":film_save.png")));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_CLI_ENCODE);
-	m_pActionEncode->setShortcut(hotkey);
 	pScriptMenu->addAction(m_pActionEncode);
-	m_pActionEncode->setData(ACTION_ID_CLI_ENCODE);
-	m_settableActionsList.push_back(m_pActionEncode);
 
 //------------------------------------------------------------------------------
 
 	QMenu * pHelpMenu = m_ui.menuBar->addMenu(trUtf8("Help"));
-
-//------------------------------------------------------------------------------
-
-	m_pActionAbout = new QAction(this);
-	m_pActionAbout->setIconText(trUtf8("About..."));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_ABOUT);
-	m_pActionAbout->setShortcut(hotkey);
 	pHelpMenu->addAction(m_pActionAbout);
-	m_pActionAbout->setData(ACTION_ID_ABOUT);
-	m_settableActionsList.push_back(m_pActionAbout);
 
 //------------------------------------------------------------------------------
 
-	m_pActionAutocomplete = new QAction(this);
-	m_pActionAutocomplete->setIconText(trUtf8("Autocomplete"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_AUTOCOMPLETE);
-	m_pActionAutocomplete->setShortcut(hotkey);
 	m_ui.scriptEdit->addAction(m_pActionAutocomplete);
-	m_pActionAutocomplete->setData(ACTION_ID_AUTOCOMPLETE);
-	m_settableActionsList.push_back(m_pActionAutocomplete);
 
 //------------------------------------------------------------------------------
 
@@ -665,6 +579,8 @@ void MainWindow::createActionsAndMenus()
 		m_ui.scriptEdit, SLOT(slotUncommentSelection()));
 	connect(m_pActionReplaceTabWithSpaces, SIGNAL(triggered()),
 		m_ui.scriptEdit, SLOT(slotReplaceTabWithSpaces()));
+	connect(m_pActionTemplates, SIGNAL(triggered()),
+		this, SLOT(slotTemplates()));
 	connect(m_pActionSettings, SIGNAL(triggered()),
 		m_pSettingsDialog, SLOT(slotCall()));
 	connect(m_pActionPreview, SIGNAL(triggered()), this, SLOT(slotPreview()));

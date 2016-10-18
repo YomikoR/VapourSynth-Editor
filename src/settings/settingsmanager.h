@@ -105,6 +105,7 @@ extern const char ACTION_ID_NEW_SCRIPT[];
 extern const char ACTION_ID_OPEN_SCRIPT[];
 extern const char ACTION_ID_SAVE_SCRIPT[];
 extern const char ACTION_ID_SAVE_SCRIPT_AS[];
+extern const char ACTION_ID_TEMPLATES[];
 extern const char ACTION_ID_SETTINGS[];
 extern const char ACTION_ID_PREVIEW[];
 extern const char ACTION_ID_CHECK_SCRIPT[];
@@ -348,6 +349,12 @@ class SettingsManager : public QObject
 		int getLastPreviewFrame() const;
 
 		bool setLastPreviewFrame(int a_frameNumber);
+
+		QString getDefaultNewScriptTemplate();
+
+		QString getNewScriptTemplate();
+
+		bool setNewScriptTemplate(const QString & a_text);
 
 	private:
 

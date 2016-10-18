@@ -81,6 +81,7 @@ const char REMEMBER_LAST_PREVIEW_FRAME_KEY[] = "remember_last_preview_frame";
 const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME = false;
 const char LAST_PREVIEW_FRAME_KEY[] = "last_preview_frame";
 const int DEFAULT_LAST_PREVIEW_FRAME = 0;
+const char NEW_SCRIPT_TEMPLATE_KEY[] = "new_script_template";
 
 //==============================================================================
 
@@ -90,6 +91,7 @@ const char ACTION_ID_NEW_SCRIPT[] = "new_script";
 const char ACTION_ID_OPEN_SCRIPT[] = "open_script";
 const char ACTION_ID_SAVE_SCRIPT[] = "save_script";
 const char ACTION_ID_SAVE_SCRIPT_AS[] = "save_script_as";
+const char ACTION_ID_TEMPLATES[] = "templates";
 const char ACTION_ID_SETTINGS[] = "settings";
 const char ACTION_ID_PREVIEW[] = "preview";
 const char ACTION_ID_CHECK_SCRIPT[] = "check_script";
@@ -1050,6 +1052,27 @@ int SettingsManager::getLastPreviewFrame() const
 bool SettingsManager::setLastPreviewFrame(int a_frameNumber)
 {
 	return setValue(LAST_PREVIEW_FRAME_KEY, a_frameNumber);
+}
+
+//==============================================================================
+
+QString SettingsManager::getDefaultNewScriptTemplate()
+{
+	return QString(
+		"import vapoursynth as vs\n"
+		"core = vs.get_core()\n"
+	);
+}
+
+QString SettingsManager::getNewScriptTemplate()
+{
+	return value(NEW_SCRIPT_TEMPLATE_KEY,
+		getDefaultNewScriptTemplate()).toString();
+}
+
+bool SettingsManager::setNewScriptTemplate(const QString & a_text)
+{
+	return setValue(NEW_SCRIPT_TEMPLATE_KEY, a_text);
 }
 
 //==============================================================================

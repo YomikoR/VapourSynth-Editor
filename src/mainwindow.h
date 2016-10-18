@@ -12,6 +12,7 @@ class PreviewDialog;
 class SettingsDialog;
 class ScriptBenchmarkDialog;
 class EncodeDialog;
+class TemplatesDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +49,8 @@ private slots:
 	bool slotSaveScriptAs();
 
 	bool slotOpenScript();
+
+	void slotTemplates();
 
 	void slotPreview();
 
@@ -101,6 +104,7 @@ private:
 	QAction * m_pActionCommentSelection;
 	QAction * m_pActionUncommentSelection;
 	QAction * m_pActionReplaceTabWithSpaces;
+	QAction * m_pActionTemplates;
 	QAction * m_pActionSettings;
 	QAction * m_pActionPreview;
 	QAction * m_pActionCheckScript;
@@ -118,6 +122,7 @@ private:
 	SettingsDialog * m_pSettingsDialog;
 	ScriptBenchmarkDialog * m_pBenchmarkDialog;
 	EncodeDialog * m_pEncodeDialog;
+	TemplatesDialog * m_pTemplatesDialog;
 
 	QString m_scriptFilePath;
 	QString m_lastSavedText;

@@ -42,8 +42,6 @@ public:
 
 	void setSettingsManager(SettingsManager * a_pSettingsManager);
 
-	void setSettingsDialog(SettingsDialog * a_pSettingsDialog);
-
 public slots:
 
 	void slotLoadSettings();

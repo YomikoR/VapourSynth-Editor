@@ -164,6 +164,7 @@ FORMS += ../src/preview/preview_advanced_settings_dialog.ui
 FORMS += ../src/preview/previewdialog.ui
 FORMS += ../src/frame_consumers/benchmark_dialog.ui
 FORMS += ../src/frame_consumers/encode_dialog.ui
+FORMS += ../src/script_templates/templates_dialog.ui
 FORMS += ../src/mainwindow.ui
 
 HEADERS += ../src/common/helpers.h
@@ -192,6 +193,7 @@ HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
 HEADERS += ../src/vapoursynth/vs_script_processor_dialog.h
 HEADERS += ../src/frame_consumers/benchmark_dialog.h
 HEADERS += ../src/frame_consumers/encode_dialog.h
+HEADERS += ../src/script_templates/templates_dialog.h
 HEADERS += ../src/mainwindow.h
 
 SOURCES += ../src/common/helpers.cpp
@@ -218,6 +220,7 @@ SOURCES += ../src/vapoursynth/vapoursynthscriptprocessor.cpp
 SOURCES += ../src/vapoursynth/vs_script_processor_dialog.cpp
 SOURCES += ../src/frame_consumers/benchmark_dialog.cpp
 SOURCES += ../src/frame_consumers/encode_dialog.cpp
+SOURCES += ../src/script_templates/templates_dialog.cpp
 SOURCES += ../src/mainwindow.cpp
 SOURCES += ../src/main.cpp
 

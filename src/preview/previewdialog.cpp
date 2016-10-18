@@ -1244,48 +1244,79 @@ void PreviewDialog::slotProcessPlayQueue()
 
 void PreviewDialog::createActionsAndMenus()
 {
-	QKeySequence hotkey;
+	struct ActionToCreate
+	{
+		QAction ** ppAction;
+		const char * id;
+		QString title;
+		QIcon icon;
+	};
+
+	ActionToCreate actionsToCreate[] =
+	{
+		{&m_pActionFrameToClipboard, ACTION_ID_NEW_SCRIPT,
+			trUtf8("Copy frame to clipboard"),
+			QIcon(":image_to_clipboard.png")},
+		{&m_pActionSaveSnapshot, ACTION_ID_SAVE_SNAPSHOT,
+			trUtf8("Save snapshot"), QIcon(":snapshot.png")},
+		{&m_pActionToggleZoomPanel, ACTION_ID_TOGGLE_ZOOM_PANEL,
+			trUtf8("Show zoom panel"), QIcon(":zoom.png")},
+		{&m_pActionSetZoomModeNoZoom, ACTION_ID_SET_ZOOM_MODE_NO_ZOOM,
+			trUtf8("Zoom: No zoom"), QIcon(":zoom_no_zoom.png")},
+		{&m_pActionSetZoomModeFixedRatio, ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO,
+			trUtf8("Zoom: Fixed ratio"), QIcon(":zoom_fixed_ratio.png")},
+		{&m_pActionSetZoomModeFitToFrame, ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME,
+			trUtf8("Zoom: Fit to frame"), QIcon(":zoom_fit_to_frame.png")},
+		{&m_pActionSetZoomScaleModeNearest,
+			ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST,
+			trUtf8("Scale: Nearest"), QIcon()},
+		{&m_pActionSetZoomScaleModeBilinear,
+			ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR,
+			trUtf8("Scale: Bilinear"), QIcon()},
+		{&m_pActionToggleCropPanel, ACTION_ID_TOGGLE_CROP_PANEL,
+			trUtf8("Crop assistant"), QIcon(":crop.png")},
+		{&m_pActionToggleTimeLinePanel, ACTION_ID_TOGGLE_TIMELINE_PANEL,
+			trUtf8("Show timeline panel"), QIcon(":timeline.png")},
+		{&m_pActionSetTimeLineModeTime, ACTION_ID_SET_TIMELINE_MODE_TIME,
+			trUtf8("Timeline mode: Time"), QIcon(":timeline.png")},
+		{&m_pActionSetTimeLineModeFrames, ACTION_ID_SET_TIMELINE_MODE_FRAMES,
+			trUtf8("Timeline mode: Frames"), QIcon(":timeline_frames.png")},
+		{&m_pActionTimeStepForward, ACTION_ID_TIME_STEP_FORWARD,
+			trUtf8("Time: step forward"), QIcon(":time_forward.png")},
+		{&m_pActionTimeStepBack, ACTION_ID_TIME_STEP_BACK,
+			trUtf8("Time: step back"), QIcon(":time_back.png")},
+		{&m_pActionPasteCropSnippetIntoScript,
+			ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT,
+			trUtf8("Paste crop snippet into script"), QIcon(":paste.png")},
+		{&m_pActionAdvancedSettingsDialog, ACTION_ID_ADVANCED_PREVIEW_SETTINGS,
+			trUtf8("Preview advanced settings"), QIcon(":settings.png")},
+		{&m_pActionToggleColorPicker, ACTION_ID_TOGGLE_COLOR_PICKER,
+			trUtf8("Color panel"), QIcon(":color_picker.png")},
+		{&m_pActionPlay, ACTION_ID_PLAY,
+			trUtf8("Play"), QIcon(":play.png")},
+	};
+
+	for(ActionToCreate & item : actionsToCreate)
+	{
+		QAction * pAction = new QAction(this);
+		*item.ppAction = pAction;
+		pAction->setData(item.id);
+		pAction->setIconText(item.title);
+		QKeySequence hotkey = m_pSettingsManager->getHotkey(item.id);
+		pAction->setShortcut(hotkey);
+		pAction->setIcon(item.icon);
+		m_settableActionsList.push_back(pAction);
+	}
 
 //------------------------------------------------------------------------------
 
 	m_pPreviewContextMenu = new QMenu(this);
-
-//------------------------------------------------------------------------------
-
-	m_pActionFrameToClipboard = new QAction(this);
-	m_pActionFrameToClipboard->setIconText(
-		trUtf8("Copy frame to clipboard"));
-	m_pActionFrameToClipboard->setIcon(QIcon(":image_to_clipboard.png"));
 	m_pPreviewContextMenu->addAction(m_pActionFrameToClipboard);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_FRAME_TO_CLIPBOARD);
-	m_pActionFrameToClipboard->setShortcut(hotkey);
-	m_pActionFrameToClipboard->setData(ACTION_ID_FRAME_TO_CLIPBOARD);
-	m_settableActionsList.push_back(m_pActionFrameToClipboard);
-
-//------------------------------------------------------------------------------
-
-	m_pActionSaveSnapshot = new QAction(this);
-	m_pActionSaveSnapshot->setIconText(trUtf8("Save snapshot"));
-	m_pActionSaveSnapshot->setIcon(QIcon(":snapshot.png"));
 	m_pPreviewContextMenu->addAction(m_pActionSaveSnapshot);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_SAVE_SNAPSHOT);
-	m_pActionSaveSnapshot->setShortcut(hotkey);
-	m_pActionSaveSnapshot->setData(ACTION_ID_SAVE_SNAPSHOT);
-	m_settableActionsList.push_back(m_pActionSaveSnapshot);
-
-//------------------------------------------------------------------------------
-
-	m_pActionToggleZoomPanel = new QAction(this);
-	m_pActionToggleZoomPanel->setIconText(trUtf8("Show zoom panel"));
-	m_pActionToggleZoomPanel->setIcon(QIcon(":zoom.png"));
 	m_pActionToggleZoomPanel->setCheckable(true);
 	m_pActionToggleZoomPanel->setChecked(
 		m_pSettingsManager->getZoomPanelVisible());
 	m_pPreviewContextMenu->addAction(m_pActionToggleZoomPanel);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TOGGLE_ZOOM_PANEL);
-	m_pActionToggleZoomPanel->setShortcut(hotkey);
-	m_pActionToggleZoomPanel->setData(ACTION_ID_TOGGLE_ZOOM_PANEL);
-	m_settableActionsList.push_back(m_pActionToggleZoomPanel);
 
 //------------------------------------------------------------------------------
 
@@ -1293,62 +1324,27 @@ void PreviewDialog::createActionsAndMenus()
 	m_pMenuZoomModes->setTitle(trUtf8("Zoom mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuZoomModes);
 
-//------------------------------------------------------------------------------
-
 	m_pActionGroupZoomModes = new QActionGroup(this);
 
-//------------------------------------------------------------------------------
-
-	m_pActionSetZoomModeNoZoom = new QAction(this);
-	m_pActionSetZoomModeNoZoom->setIconText(trUtf8("Zoom: No zoom"));
-	m_pActionSetZoomModeNoZoom->setIcon(QIcon(":zoom_no_zoom.png"));
 	m_pActionSetZoomModeNoZoom->setCheckable(true);
 	m_pActionSetZoomModeNoZoom->setActionGroup(m_pActionGroupZoomModes);
 	m_pMenuZoomModes->addAction(m_pActionSetZoomModeNoZoom);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_SET_ZOOM_MODE_NO_ZOOM);
-	m_pActionSetZoomModeNoZoom->setShortcut(hotkey);
-	m_pActionSetZoomModeNoZoom->setData(ACTION_ID_SET_ZOOM_MODE_NO_ZOOM);
-	m_settableActionsList.push_back(m_pActionSetZoomModeNoZoom);
 	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_NO_ZOOM] = ZoomMode::NoZoom;
 	addAction(m_pActionSetZoomModeNoZoom);
 
-//------------------------------------------------------------------------------
-
-	m_pActionSetZoomModeFixedRatio = new QAction(this);
-	m_pActionSetZoomModeFixedRatio->setIconText(trUtf8("Zoom: Fixed ratio"));
-	m_pActionSetZoomModeFixedRatio->setIcon(QIcon(":zoom_fixed_ratio.png"));
 	m_pActionSetZoomModeFixedRatio->setCheckable(true);
 	m_pActionSetZoomModeFixedRatio->setActionGroup(m_pActionGroupZoomModes);
 	m_pMenuZoomModes->addAction(m_pActionSetZoomModeFixedRatio);
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO);
-	m_pActionSetZoomModeFixedRatio->setShortcut(hotkey);
-	m_pActionSetZoomModeFixedRatio->setData(
-		ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO);
-	m_settableActionsList.push_back(m_pActionSetZoomModeFixedRatio);
 	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO] =
 		ZoomMode::FixedRatio;
 	addAction(m_pActionSetZoomModeFixedRatio);
 
-//------------------------------------------------------------------------------
-
-	m_pActionSetZoomModeFitToFrame = new QAction(this);
-	m_pActionSetZoomModeFitToFrame->setIconText(trUtf8("Zoom: Fit to frame"));
-	m_pActionSetZoomModeFitToFrame->setIcon(QIcon(":zoom_fit_to_frame.png"));
 	m_pActionSetZoomModeFitToFrame->setCheckable(true);
 	m_pActionSetZoomModeFitToFrame->setActionGroup(m_pActionGroupZoomModes);
 	m_pMenuZoomModes->addAction(m_pActionSetZoomModeFitToFrame);
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME);
-	m_pActionSetZoomModeFitToFrame->setShortcut(hotkey);
-	m_pActionSetZoomModeFitToFrame->setData(
-		ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME);
-	m_settableActionsList.push_back(m_pActionSetZoomModeFitToFrame);
 	m_actionIDToZoomModeMap[ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME] =
 		ZoomMode::FitToFrame;
 	addAction(m_pActionSetZoomModeFitToFrame);
-
-//------------------------------------------------------------------------------
 
 	ZoomMode zoomMode = m_pSettingsManager->getZoomMode();
 	for(QAction * pAction : m_pActionGroupZoomModes->actions())
@@ -1368,47 +1364,23 @@ void PreviewDialog::createActionsAndMenus()
 	m_pMenuZoomScaleModes->setTitle(trUtf8("Zoom scale mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuZoomScaleModes);
 
-//------------------------------------------------------------------------------
-
 	m_pActionGroupZoomScaleModes = new QActionGroup(this);
 
-//------------------------------------------------------------------------------
-
-	m_pActionSetZoomScaleModeNearest = new QAction(this);
-	m_pActionSetZoomScaleModeNearest->setIconText(trUtf8("Scale: Nearest"));
 	m_pActionSetZoomScaleModeNearest->setCheckable(true);
 	m_pActionSetZoomScaleModeNearest->setActionGroup(
 		m_pActionGroupZoomScaleModes);
 	m_pMenuZoomScaleModes->addAction(m_pActionSetZoomScaleModeNearest);
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST);
-	m_pActionSetZoomScaleModeNearest->setShortcut(hotkey);
-	m_pActionSetZoomScaleModeNearest->setData(
-		ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST);
-	m_settableActionsList.push_back(m_pActionSetZoomScaleModeNearest);
 	m_actionIDToZoomScaleModeMap[ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST] =
 		Qt::FastTransformation;
 	addAction(m_pActionSetZoomScaleModeNearest);
 
-//------------------------------------------------------------------------------
-
-	m_pActionSetZoomScaleModeBilinear = new QAction(this);
-	m_pActionSetZoomScaleModeBilinear->setIconText(trUtf8("Scale: Bilinear"));
 	m_pActionSetZoomScaleModeBilinear->setCheckable(true);
 	m_pActionSetZoomScaleModeBilinear->setActionGroup(
 		m_pActionGroupZoomScaleModes);
 	m_pMenuZoomScaleModes->addAction(m_pActionSetZoomScaleModeBilinear);
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR);
-	m_pActionSetZoomScaleModeBilinear->setShortcut(hotkey);
-	m_pActionSetZoomScaleModeBilinear->setData(
-		ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR);
-	m_settableActionsList.push_back(m_pActionSetZoomScaleModeBilinear);
 	m_actionIDToZoomScaleModeMap[ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR] =
 		Qt::SmoothTransformation;
 	addAction(m_pActionSetZoomScaleModeBilinear);
-
-//------------------------------------------------------------------------------
 
 	Qt::TransformationMode scaleMode = m_pSettingsManager->getScaleMode();
 	for(QAction * pAction : m_pActionGroupZoomScaleModes->actions())
@@ -1423,34 +1395,15 @@ void PreviewDialog::createActionsAndMenus()
 		}
 	}
 
-//------------------------------------------------------------------------------
-
 	bool noZoom = (zoomMode == ZoomMode::NoZoom);
 	m_pMenuZoomScaleModes->setEnabled(!noZoom);
 
 //------------------------------------------------------------------------------
 
-	m_pActionToggleCropPanel = new QAction(this);
-	m_pActionToggleCropPanel->setIconText(trUtf8("Crop assistant"));
-	m_pActionToggleCropPanel->setIcon(QIcon(":crop.png"));
 	m_pActionToggleCropPanel->setCheckable(true);
 	m_pPreviewContextMenu->addAction(m_pActionToggleCropPanel);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TOGGLE_CROP_PANEL);
-	m_pActionToggleCropPanel->setShortcut(hotkey);
-	m_pActionToggleCropPanel->setData(ACTION_ID_TOGGLE_CROP_PANEL);
-	m_settableActionsList.push_back(m_pActionToggleCropPanel);
-
-//------------------------------------------------------------------------------
-
-	m_pActionToggleTimeLinePanel = new QAction(this);
-	m_pActionToggleTimeLinePanel->setIconText(trUtf8("Show timeline panel"));
-	m_pActionToggleTimeLinePanel->setIcon(QIcon(":timeline.png"));
 	m_pActionToggleTimeLinePanel->setCheckable(true);
 	m_pPreviewContextMenu->addAction(m_pActionToggleTimeLinePanel);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TOGGLE_TIMELINE_PANEL);
-	m_pActionToggleTimeLinePanel->setShortcut(hotkey);
-	m_pActionToggleTimeLinePanel->setData(ACTION_ID_TOGGLE_TIMELINE_PANEL);
-	m_settableActionsList.push_back(m_pActionToggleTimeLinePanel);
 
 //------------------------------------------------------------------------------
 
@@ -1458,51 +1411,23 @@ void PreviewDialog::createActionsAndMenus()
 	m_pMenuTimeLineModes->setTitle(trUtf8("Timeline display mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuTimeLineModes);
 
-//------------------------------------------------------------------------------
-
 	m_pActionGroupTimeLineModes = new QActionGroup(this);
 
-//------------------------------------------------------------------------------
-
-
-	m_pActionSetTimeLineModeTime = new QAction(this);
-	m_pActionSetTimeLineModeTime->setIconText(trUtf8("Timeline mode: Time"));
-	m_pActionSetTimeLineModeTime->setIcon(QIcon(":timeline.png"));
 	m_pActionSetTimeLineModeTime->setCheckable(true);
 	m_pActionSetTimeLineModeTime->setActionGroup(
 		m_pActionGroupTimeLineModes);
 	m_pMenuTimeLineModes->addAction(m_pActionSetTimeLineModeTime);
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_SET_TIMELINE_MODE_TIME);
-	m_pActionSetTimeLineModeTime->setShortcut(hotkey);
-	m_pActionSetTimeLineModeTime->setData(
-		ACTION_ID_SET_TIMELINE_MODE_TIME);
-	m_settableActionsList.push_back(m_pActionSetTimeLineModeTime);
 	m_actionIDToTimeLineModeMap[ACTION_ID_SET_TIMELINE_MODE_TIME] =
 		TimeLineSlider::DisplayMode::Time;
 	addAction(m_pActionSetTimeLineModeTime);
 
-//------------------------------------------------------------------------------
-
-	m_pActionSetTimeLineModeFrames = new QAction(this);
-	m_pActionSetTimeLineModeFrames->setIconText(
-		trUtf8("Timeline mode: Frames"));
-	m_pActionSetTimeLineModeFrames->setIcon(QIcon(":timeline_frames.png"));
 	m_pActionSetTimeLineModeFrames->setCheckable(true);
 	m_pActionSetTimeLineModeFrames->setActionGroup(
 		m_pActionGroupTimeLineModes);
 	m_pMenuTimeLineModes->addAction(m_pActionSetTimeLineModeFrames);
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_SET_TIMELINE_MODE_FRAMES);
-	m_pActionSetTimeLineModeFrames->setShortcut(hotkey);
-	m_pActionSetTimeLineModeFrames->setData(
-		ACTION_ID_SET_TIMELINE_MODE_FRAMES);
-	m_settableActionsList.push_back(m_pActionSetTimeLineModeFrames);
 	m_actionIDToTimeLineModeMap[ACTION_ID_SET_TIMELINE_MODE_FRAMES] =
 		TimeLineSlider::DisplayMode::Frames;
 	addAction(m_pActionSetTimeLineModeFrames);
-
-//------------------------------------------------------------------------------
 
 	TimeLineSlider::DisplayMode timeLineMode =
 		m_pSettingsManager->getTimeLineMode();
@@ -1520,77 +1445,16 @@ void PreviewDialog::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	m_pActionTimeStepForward = new QAction(this);
-	m_pActionTimeStepForward->setIconText(trUtf8("Time: step forward"));
-	m_pActionTimeStepForward->setIcon(QIcon(":time_forward.png"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TIME_STEP_FORWARD);
-	m_pActionTimeStepForward->setShortcut(hotkey);
-	m_pActionTimeStepForward->setData(ACTION_ID_TIME_STEP_FORWARD);
-	m_settableActionsList.push_back(m_pActionTimeStepForward);
 	addAction(m_pActionTimeStepForward);
-
-//------------------------------------------------------------------------------
-
-	m_pActionTimeStepBack = new QAction(this);
-	m_pActionTimeStepBack->setIconText(trUtf8("Time: step back"));
-	m_pActionTimeStepBack->setIcon(QIcon(":time_back.png"));
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TIME_STEP_BACK);
-	m_pActionTimeStepBack->setShortcut(hotkey);
-	m_pActionTimeStepBack->setData(ACTION_ID_TIME_STEP_BACK);
-	m_settableActionsList.push_back(m_pActionTimeStepBack);
 	addAction(m_pActionTimeStepBack);
 
-//------------------------------------------------------------------------------
-
-	m_pActionPasteCropSnippetIntoScript = new QAction(this);
-	m_pActionPasteCropSnippetIntoScript->setIconText(
-		trUtf8("Paste crop snippet into script"));
-	m_pActionPasteCropSnippetIntoScript->setIcon(QIcon(":paste.png"));
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT);
-	m_pActionPasteCropSnippetIntoScript->setShortcut(hotkey);
-	m_pActionPasteCropSnippetIntoScript->setData(
-		ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT);
-	m_settableActionsList.push_back(m_pActionPasteCropSnippetIntoScript);
-
-//------------------------------------------------------------------------------
-
-	m_pActionAdvancedSettingsDialog = new QAction(this);
-	m_pActionAdvancedSettingsDialog->setIconText(
-		trUtf8("Preview advanced settings"));
-	m_pActionAdvancedSettingsDialog->setIcon(QIcon(":settings.png"));
-	hotkey = m_pSettingsManager->getHotkey(
-		ACTION_ID_ADVANCED_PREVIEW_SETTINGS);
-	m_pActionAdvancedSettingsDialog->setShortcut(hotkey);
-	m_pActionAdvancedSettingsDialog->setData(
-		ACTION_ID_ADVANCED_PREVIEW_SETTINGS);
-	m_settableActionsList.push_back(m_pActionAdvancedSettingsDialog);
-
-//------------------------------------------------------------------------------
-
-	m_pActionToggleColorPicker = new QAction(this);
-	m_pActionToggleColorPicker->setIconText(trUtf8("Color panel"));
-	m_pActionToggleColorPicker->setIcon(QIcon(":color_picker.png"));
 	m_pActionToggleColorPicker->setCheckable(true);
 	m_pActionToggleColorPicker->setChecked(
 		m_pSettingsManager->getColorPickerVisible());
 	m_pPreviewContextMenu->addAction(m_pActionToggleColorPicker);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_TOGGLE_COLOR_PICKER);
-	m_pActionToggleColorPicker->setShortcut(hotkey);
-	m_pActionToggleColorPicker->setData(ACTION_ID_TOGGLE_COLOR_PICKER);
-	m_settableActionsList.push_back(m_pActionToggleColorPicker);
 
-//------------------------------------------------------------------------------
-
-	m_pActionPlay = new QAction(this);
-	m_pActionPlay->setIconText(trUtf8("Play"));
-	m_pActionPlay->setIcon(m_iconPlay);
 	m_pActionPlay->setCheckable(true);
 	m_pActionPlay->setChecked(false);
-	hotkey = m_pSettingsManager->getHotkey(ACTION_ID_PLAY);
-	m_pActionPlay->setShortcut(hotkey);
-	m_pActionPlay->setData(ACTION_ID_PLAY);
-	m_settableActionsList.push_back(m_pActionPlay);
 	addAction(m_pActionPlay);
 
 //------------------------------------------------------------------------------

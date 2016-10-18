@@ -235,6 +235,7 @@
 		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_previewdialog.h" />
 		<Unit filename="generated/ui/ui_settingsdialog.h" />
+		<Unit filename="generated/ui/ui_templates_dialog.h" />
 		<Unit filename="pro/local_quirks.pri" />
 		<Unit filename="pro/pro.pro" />
 		<Unit filename="resources/resources.qrc" />
@@ -264,6 +265,9 @@
 		<Unit filename="src/preview/scrollnavigator.h" />
 		<Unit filename="src/preview/timelineslider.cpp" />
 		<Unit filename="src/preview/timelineslider.h" />
+		<Unit filename="src/script_templates/templates_dialog.cpp" />
+		<Unit filename="src/script_templates/templates_dialog.h" />
+		<Unit filename="src/script_templates/templates_dialog.ui" />
 		<Unit filename="src/scripteditor/numbermatcher.cpp" />
 		<Unit filename="src/scripteditor/numbermatcher.h" />
 		<Unit filename="src/scripteditor/scriptcompleter.cpp" />
@@ -315,13 +319,13 @@
 				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
+				<remote_debugging target="release-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>
