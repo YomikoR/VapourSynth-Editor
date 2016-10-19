@@ -1,4 +1,6 @@
 - drag and drop sources
+- hotkeys in templates dialog
+- full context menu for script editor
 - highlight matches
 - timeline bookmarks
 - improved log
