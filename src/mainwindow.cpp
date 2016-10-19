@@ -99,7 +99,7 @@ MainWindow::MainWindow() : QMainWindow()
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 	connect(m_pPreviewDialog,
 		SIGNAL(signalInsertLineIntoScript(const QString &)),
-		this, SLOT(slotInsertLineIntoScript(const QString &)));
+		this, SLOT(slotInsertTextIntoScriptAtNewLine(const QString &)));
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pPreviewDialog, SLOT(slotSettingsChanged()));
 
@@ -110,6 +110,9 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);
+
+	connect(m_pTemplatesDialog, SIGNAL(signalPasteCodeSnippet(const QString &)),
+		this, SLOT(slotInsertTextIntoScriptAtNewLine(const QString &)));
 
 	slotChangeWindowTitle();
 
@@ -160,14 +163,15 @@ void MainWindow::slotWriteLogMessage(int a_messageType,
 //		const QString & a_message)
 //==============================================================================
 
-void MainWindow::slotInsertLineIntoScript(const QString & a_line)
+void MainWindow::slotInsertTextIntoScriptAtNewLine(const QString & a_text)
 {
 	QPoint cursorPosition = m_ui.scriptEdit->cursorPosition();
 	m_ui.scriptEdit->setCursorPosition(cursorPosition.x() + 1, 0);
-	m_ui.scriptEdit->insertPlainText(a_line + "\n");
+	m_ui.scriptEdit->insertPlainText(a_text + "\n");
 }
 
-// END OF void MainWindow::slotInsertLineIntoScript(const QString & a_line)
+// END OF void MainWindow::slotInsertTextIntoScriptAtNewLine(
+//		const QString & a_text)
 //==============================================================================
 
 void MainWindow::closeEvent(QCloseEvent * a_pEvent)

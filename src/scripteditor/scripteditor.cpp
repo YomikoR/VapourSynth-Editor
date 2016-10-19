@@ -648,7 +648,7 @@ QString ScriptEditor::getVapourSynthCoreName() const
 	}
 
 	if((vsImportBlock < 0) || (vsImportBlock == (blocksCount - 1)))
-		return QString();
+		return vsCoreName;
 
 	// Search for VapourSynth core creation
 	// Usually looks like: core = vs.get_core()

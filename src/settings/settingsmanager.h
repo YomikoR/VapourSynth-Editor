@@ -99,6 +99,18 @@ struct StandardAction
 	bool operator<(const StandardAction & a_other) const;
 };
 
+struct CodeSnippet
+{
+	QString name;
+	QString text;
+
+	CodeSnippet();
+	CodeSnippet(const QString & a_name, const QString & a_text = QString());
+	bool operator==(const CodeSnippet & a_other) const;
+	bool operator<(const CodeSnippet & a_other) const;
+	bool isEmpty() const;
+};
+
 //==============================================================================
 
 extern const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION;
@@ -372,6 +384,14 @@ class SettingsManager : public QObject
 
 		bool setNewScriptTemplate(const QString & a_text);
 
+		std::vector<CodeSnippet> getAllCodeSnippets() const;
+
+		CodeSnippet getCodeSnippet(const QString & a_name) const;
+
+		bool saveCodeSnippet(const CodeSnippet & a_snippet);
+
+		bool deleteCodeSnippet(const QString & a_name);
+
 	private:
 
 		QVariant valueInGroup(const QString & a_group, const QString & a_key,
@@ -379,6 +399,8 @@ class SettingsManager : public QObject
 
 		bool setValueInGroup(const QString & a_group, const QString & a_key,
 			const QVariant & a_value);
+
+		bool deleteValueInGroup(const QString & a_group, const QString & a_key);
 
 		QVariant value(const QString & a_key, const QVariant & a_defaultValue =
 			QVariant()) const;

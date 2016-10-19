@@ -163,6 +163,10 @@ const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =
 
 //==============================================================================
 
+const char CODE_SNIPPETS_GROUP[] = "code_snippets";
+
+//==============================================================================
+
 EncodingPreset::EncodingPreset():
 	  type(DEFAULT_ENCODING_TYPE)
 	, headerType(DEFAULT_ENCODING_HEADER_TYPE)
@@ -201,6 +205,35 @@ bool StandardAction::operator==(const StandardAction & a_other) const
 bool StandardAction::operator<(const StandardAction & a_other) const
 {
 	return id < a_other.id;
+}
+
+//==============================================================================
+
+CodeSnippet::CodeSnippet() :
+	  name()
+	, text()
+{
+}
+
+CodeSnippet::CodeSnippet(const QString & a_name, const QString & a_text) :
+	  name(a_name)
+	, text(a_text)
+{
+}
+
+bool CodeSnippet::operator==(const CodeSnippet & a_other) const
+{
+	return (name == a_other.name);
+}
+
+bool CodeSnippet::operator<(const CodeSnippet & a_other) const
+{
+	return (name < a_other.name);
+}
+
+bool CodeSnippet::isEmpty() const
+{
+	return (name.isEmpty() && text.isEmpty());
 }
 
 //==============================================================================
@@ -297,6 +330,17 @@ bool SettingsManager::setValueInGroup(const QString & a_group,
 	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
 	settings.beginGroup(a_group);
 	settings.setValue(a_key, a_value);
+	settings.sync();
+	bool success = (QSettings::NoError == settings.status());
+	return success;
+}
+
+bool SettingsManager::deleteValueInGroup(const QString & a_group,
+	const QString & a_key)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(a_group);
+	settings.remove(a_key);
 	settings.sync();
 	bool success = (QSettings::NoError == settings.status());
 	return success;
@@ -1161,6 +1205,52 @@ QString SettingsManager::getNewScriptTemplate()
 bool SettingsManager::setNewScriptTemplate(const QString & a_text)
 {
 	return setValue(NEW_SCRIPT_TEMPLATE_KEY, a_text);
+}
+
+//==============================================================================
+
+std::vector<CodeSnippet> SettingsManager::getAllCodeSnippets() const
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(CODE_SNIPPETS_GROUP);
+
+	std::vector<CodeSnippet> snippets;
+
+	QStringList snippetNames = settings.childKeys();
+	for(const QString & snippetName : snippetNames)
+	{
+		CodeSnippet snippet(snippetName);
+		snippet.text = settings.value(snippetName).toString();
+		snippets.push_back(snippet);
+	}
+
+	return snippets;
+}
+
+CodeSnippet SettingsManager::getCodeSnippet(const QString & a_name) const
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(CODE_SNIPPETS_GROUP);
+
+	CodeSnippet snippet;
+
+	if(!settings.contains(a_name))
+		return snippet;
+
+	snippet.name = a_name;
+	snippet.text = valueInGroup(CODE_SNIPPETS_GROUP, a_name).toString();
+
+	return snippet;
+}
+
+bool SettingsManager::saveCodeSnippet(const CodeSnippet & a_snippet)
+{
+	return setValueInGroup(CODE_SNIPPETS_GROUP, a_snippet.name, a_snippet.text);
+}
+
+bool SettingsManager::deleteCodeSnippet(const QString & a_name)
+{
+	return deleteValueInGroup(CODE_SNIPPETS_GROUP, a_name);
 }
 
 //==============================================================================

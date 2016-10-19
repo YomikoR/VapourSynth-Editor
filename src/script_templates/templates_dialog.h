@@ -3,9 +3,9 @@
 
 #include <ui_templates_dialog.h>
 
-#include <QDialog>
+#include "../settings/settingsmanager.h"
 
-class SettingsManager;
+#include <QDialog>
 
 class TemplatesDialog : public QDialog
 {
@@ -33,11 +33,17 @@ public slots:
 
 	void slotLoadSettings();
 
+signals:
+
+	void signalPasteCodeSnippet(const QString & a_text);
+
 private slots:
 
 	void slotSnippetPasteIntoScriptButtonClicked();
 	void slotSnippetSaveButtonClicked();
 	void slotSnippetDeleteButtonClicked();
+	void slotSnippetNameComboBoxActivated(const QString & a_text);
+
 	void slotNewScriptTemplateRevertButtonClicked();
 	void slotNewScriptTemplateLoadDefaultButtonClicked();
 	void slotNewScriptTemplateSaveButtonClicked();
@@ -47,6 +53,8 @@ private:
 	Ui::TemplatesDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;
+
+	std::vector<CodeSnippet> m_codeSnippets;
 };
 
 #endif // TEMPLATES_DIALOG_H_INCLUDED
