@@ -1,10 +1,9 @@
-- python error parsing and script line highlighting
-- functions autocompletion refinement
-- snippets
 - drag and drop sources
 - highlight matches
-- reference and documentation
-- improved log
-- vfw encoding
 - timeline bookmarks
+- improved log
+- functions autocompletion refinement
+- python error parsing and script line highlighting
 - multiple output nodes comparison
+- vfw encoding
+- reference and documentation
