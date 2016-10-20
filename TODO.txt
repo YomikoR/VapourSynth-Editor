@@ -1,9 +1,8 @@
-- drag and drop sources
-- hotkeys in templates dialog
 - full context menu for script editor
 - highlight matches
 - timeline bookmarks
 - improved log
+- raw avi writing
 - functions autocompletion refinement
 - python error parsing and script line highlighting
 - multiple output nodes comparison

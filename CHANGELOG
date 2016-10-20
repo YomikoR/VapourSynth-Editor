@@ -2,6 +2,7 @@ r10:
 -BUGFIX: Colour picking.
 -BUGFIX: VapourSynth messages handling.
 -BUGFIX: Frame processing errors handling in different modes.
+-BUGFIX: Pasting crop snippet into the last script line.
 -Crashlog on VapourSynth fatal errors.
 -Keep preview scrolling and frame number on refreshing the same script.
 Reset on previewing new script. Unsaved script preview is always reset.
@@ -14,6 +15,8 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -An option to remember and restore the last previewed frame between sessions.
 -New script template setting.
 -Code snippets.
+-File drop templates.
+-System-dependent default standard hotkeys.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
