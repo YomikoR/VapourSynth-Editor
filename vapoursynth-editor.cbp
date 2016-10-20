@@ -265,6 +265,8 @@
 		<Unit filename="src/preview/scrollnavigator.h" />
 		<Unit filename="src/preview/timelineslider.cpp" />
 		<Unit filename="src/preview/timelineslider.h" />
+		<Unit filename="src/script_templates/drop_file_category_model.cpp" />
+		<Unit filename="src/script_templates/drop_file_category_model.h" />
 		<Unit filename="src/script_templates/templates_dialog.cpp" />
 		<Unit filename="src/script_templates/templates_dialog.h" />
 		<Unit filename="src/script_templates/templates_dialog.ui" />

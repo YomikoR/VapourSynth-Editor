@@ -88,6 +88,9 @@ MainWindow::MainWindow() : QMainWindow()
 		this, SLOT(slotEditorTextChanged()));
 	connect(m_ui.scriptEdit, SIGNAL(modificationChanged(bool)),
 		this, SLOT(slotChangeWindowTitle()));
+	connect(m_ui.scriptEdit,
+		SIGNAL(signalScriptFileDropped(const QString &, bool *)),
+		this, SLOT(slotScriptFileDropped(const QString &, bool *)));
 
 	createActionsAndMenus();
 
@@ -165,9 +168,7 @@ void MainWindow::slotWriteLogMessage(int a_messageType,
 
 void MainWindow::slotInsertTextIntoScriptAtNewLine(const QString & a_text)
 {
-	QPoint cursorPosition = m_ui.scriptEdit->cursorPosition();
-	m_ui.scriptEdit->setCursorPosition(cursorPosition.x() + 1, 0);
-	m_ui.scriptEdit->insertPlainText(a_text + "\n");
+	m_ui.scriptEdit->slotInsertTextAtNewLine(a_text);
 }
 
 // END OF void MainWindow::slotInsertTextIntoScriptAtNewLine(
@@ -457,6 +458,22 @@ void MainWindow::slotSettingsChanged()
 
 // END OF void MainWindow::slotSettingsChanged()
 //==============================================================================
+
+void MainWindow::slotScriptFileDropped(const QString & a_filePath,
+	bool * a_pHandled)
+{
+	*a_pHandled = true;
+
+	if(!safeToCloseFile())
+		return;
+
+	loadScriptFromFile(a_filePath);
+}
+
+// END OF void MainWindow::slotScriptFileDropped(const QString & a_filePath,
+//		bool * a_pHandled)
+//==============================================================================
+
 
 void MainWindow::createActionsAndMenus()
 {

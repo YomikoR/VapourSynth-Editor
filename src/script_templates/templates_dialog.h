@@ -7,6 +7,9 @@
 
 #include <QDialog>
 
+class DropFileCategoryModel;
+class QAction;
+
 class TemplatesDialog : public QDialog
 {
 	Q_OBJECT
@@ -48,6 +51,15 @@ private slots:
 	void slotNewScriptTemplateLoadDefaultButtonClicked();
 	void slotNewScriptTemplateSaveButtonClicked();
 
+	void slotSaveDropFileCategoriesButtonClicked();
+	void slotRevertDropFileCategoriesButtonClicked();
+	void slotAddDropFileCategoryButtonClicked();
+	void slotDeleteSelectedDropFileCategoryButtonClicked();
+	void slotDropFileCategoryViewPressed(const QModelIndex & a_index);
+	void slotDisplayCurrentDropFileCategoryTemplate();
+
+	void slotSaveActionTriggered();
+
 private:
 
 	Ui::TemplatesDialog m_ui;
@@ -55,6 +67,10 @@ private:
 	SettingsManager * m_pSettingsManager;
 
 	std::vector<CodeSnippet> m_codeSnippets;
+
+	DropFileCategoryModel * m_pDropFileCategoryModel;
+
+	QAction * m_pSaveAction;
 };
 
 #endif // TEMPLATES_DIALOG_H_INCLUDED

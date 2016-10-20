@@ -2,11 +2,17 @@
 #include <QCursor>
 #include <QCompleter>
 #include <QKeyEvent>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include <QPaintEvent>
 #include <QAbstractItemView>
 #include <QScrollBar>
 #include <QPainter>
 #include <QAction>
+#include <QFileInfo>
+#include <QDir>
 #include <algorithm>
 #include <cassert>
 
@@ -413,6 +419,19 @@ void ScriptEditor::slotHome(bool a_select)
 // END OF void ScriptEditor::slotHome(bool a_select)
 //==============================================================================
 
+void ScriptEditor::slotInsertTextAtNewLine(const QString & a_text)
+{
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
+	cursor.setPosition(lastBlock.position() + lastBlock.text().length());
+	setTextCursor(cursor);
+	insertPlainText(QString("\n") + a_text);
+}
+
+// END OF void ScriptEditor::slotInsertTextAtNewLine(const QString & a_text)
+//==============================================================================
+
 bool ScriptEditor::eventFilter(QObject * a_pObject, QEvent * a_pEvent)
 {
 	if((a_pObject == m_pSideBox) && (a_pEvent->type() == QEvent::Paint))
@@ -501,6 +520,104 @@ void ScriptEditor::keyPressEvent(QKeyEvent * a_pEvent)
 }
 
 // END OF void ScriptEditor::keyPressEvent(QKeyEvent * a_pEvent)
+//==============================================================================
+
+void ScriptEditor::dragEnterEvent(QDragEnterEvent * a_pEvent)
+{
+	if(!a_pEvent->mimeData()->hasUrls())
+	{
+		QPlainTextEdit::dragEnterEvent(a_pEvent);
+		return;
+	}
+
+	QList<QUrl> urls = a_pEvent->mimeData()->urls();
+	for(const QUrl & url : urls)
+	{
+		if(!url.isLocalFile())
+		{
+			a_pEvent->ignore();
+			return;
+		}
+	}
+
+	a_pEvent->acceptProposedAction();
+}
+
+// END OF void ScriptEditor::dragEnterEvent(QDragEnterEvent * a_pEvent)
+//==============================================================================
+
+void ScriptEditor::dragMoveEvent(QDragMoveEvent * a_pEvent)
+{
+	if(!a_pEvent->mimeData()->hasUrls())
+	{
+		QPlainTextEdit::dragMoveEvent(a_pEvent);
+		return;
+	}
+
+	QTextCursor cursor = cursorForPosition(a_pEvent->pos());
+	setTextCursor(cursor);
+	a_pEvent->acceptProposedAction();
+}
+
+// END OF void ScriptEditor::dragMoveEvent(QDragMoveEvent * a_pEvent)
+//==============================================================================
+
+void ScriptEditor::dropEvent(QDropEvent * a_pEvent)
+{
+	if(!a_pEvent->mimeData()->hasUrls())
+	{
+		QPlainTextEdit::dropEvent(a_pEvent);
+		return;
+	}
+
+	QList<QUrl> urls = a_pEvent->mimeData()->urls();
+	assert(urls.size() > 0);
+
+	if(urls.size() == 1)
+	{
+		QString filePath = urls[0].toLocalFile();
+		QRegExp matcher;
+		matcher.setPatternSyntax(QRegExp::Wildcard);
+		matcher.setCaseSensitivity(Qt::CaseInsensitive);
+		matcher.setPattern("*.vpy");
+		if(matcher.exactMatch(filePath))
+		{
+			bool handled = false;
+			emit signalScriptFileDropped(filePath, &handled);
+			if(handled)
+			{
+				a_pEvent->acceptProposedAction();
+				return;
+			}
+		}
+	}
+
+	QStringList textList;
+	for(int i = 0; i < urls.size(); ++i)
+	{
+		QString filePath = QDir::cleanPath(urls[i].toLocalFile());
+		filePath = QDir::toNativeSeparators(filePath);
+		QFileInfo file(filePath);
+		QString directory = file.path();
+		directory = QDir::toNativeSeparators(directory);
+		QString fileName = file.completeBaseName();
+		QString extension = file.suffix();
+		QString number = i > 0 ? QString::number(i + 1) : QString();
+		QString sourceTemplate =
+			m_pSettingsManager->getDropFileTemplate(filePath);
+		sourceTemplate = sourceTemplate.replace("%f", filePath);
+		sourceTemplate = sourceTemplate.replace("%d", directory);
+		sourceTemplate = sourceTemplate.replace("%n", fileName);
+		sourceTemplate = sourceTemplate.replace("%x", extension);
+		sourceTemplate = sourceTemplate.replace("%i", number);
+		textList += sourceTemplate;
+	}
+	slotInsertTextAtNewLine(textList.join("\n"));
+
+	a_pEvent->acceptProposedAction();
+}
+
+// END OF void ScriptEditor::dropEvent(QDropEvent * a_pEvent)
 //==============================================================================
 
 void ScriptEditor::slotTextChanged()

@@ -193,6 +193,7 @@ HEADERS += ../src/vapoursynth/vapoursynthscriptprocessor.h
 HEADERS += ../src/vapoursynth/vs_script_processor_dialog.h
 HEADERS += ../src/frame_consumers/benchmark_dialog.h
 HEADERS += ../src/frame_consumers/encode_dialog.h
+HEADERS += ../src/script_templates/drop_file_category_model.h
 HEADERS += ../src/script_templates/templates_dialog.h
 HEADERS += ../src/mainwindow.h
 
@@ -220,6 +221,7 @@ SOURCES += ../src/vapoursynth/vapoursynthscriptprocessor.cpp
 SOURCES += ../src/vapoursynth/vs_script_processor_dialog.cpp
 SOURCES += ../src/frame_consumers/benchmark_dialog.cpp
 SOURCES += ../src/frame_consumers/encode_dialog.cpp
+SOURCES += ../src/script_templates/drop_file_category_model.cpp
 SOURCES += ../src/script_templates/templates_dialog.cpp
 SOURCES += ../src/mainwindow.cpp
 SOURCES += ../src/main.cpp

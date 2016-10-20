@@ -111,6 +111,13 @@ struct CodeSnippet
 	bool isEmpty() const;
 };
 
+struct DropFileCategory
+{
+	QString name;
+	QStringList maskList;
+	QString sourceTemplate;
+};
+
 //==============================================================================
 
 extern const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION;
@@ -391,6 +398,13 @@ class SettingsManager : public QObject
 		bool saveCodeSnippet(const CodeSnippet & a_snippet);
 
 		bool deleteCodeSnippet(const QString & a_name);
+
+		std::vector<DropFileCategory> getAllDropFileTemplates() const;
+
+		bool setDropFileTemplates(
+			const std::vector<DropFileCategory> & a_categories);
+
+		QString getDropFileTemplate(const QString & a_filePath);
 
 	private:
 

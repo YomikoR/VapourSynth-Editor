@@ -11,6 +11,9 @@ class QEvent;
 class QKeyEvent;
 class QResizeEvent;
 class QPaintEvent;
+class QDragEnterEvent;
+class QDragMoveEvent;
+class QDropEvent;
 class QAction;
 class ScriptCompleterModel;
 class ScriptCompleter;
@@ -68,13 +71,25 @@ public slots:
 
 	void slotHome(bool a_select = false);
 
+	void slotInsertTextAtNewLine(const QString & a_text);
+
+signals:
+
+	void signalScriptFileDropped(const QString & a_filePath, bool * a_pHandled);
+
 protected:
 
-	bool eventFilter(QObject * a_pObject, QEvent * a_pEvent);
+	virtual bool eventFilter(QObject * a_pObject, QEvent * a_pEvent) override;
 
-	void resizeEvent(QResizeEvent * a_pEvent);
+	virtual void resizeEvent(QResizeEvent * a_pEvent) override;
 
-	void keyPressEvent(QKeyEvent * a_pEvent);
+	virtual void keyPressEvent(QKeyEvent * a_pEvent) override;
+
+	virtual void dragEnterEvent(QDragEnterEvent * a_pEvent) override;
+
+	virtual void dragMoveEvent(QDragMoveEvent * a_pEvent) override;
+
+	virtual void dropEvent(QDropEvent * a_pEvent) override;
 
 private slots:
 

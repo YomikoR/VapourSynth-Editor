@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QPalette>
 #include <QFontMetricsF>
+#include <QRegExp>
 
 #include "settingsmanager.h"
 
@@ -164,6 +165,15 @@ const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =
 //==============================================================================
 
 const char CODE_SNIPPETS_GROUP[] = "code_snippets";
+
+//==============================================================================
+
+const char DROP_FILE_TEMPLATES_GROUP[] = "drop_file_templates";
+
+const char DROP_FILE_CATEGORY_MASK_LIST_KEY[] = "mask_list";
+const char DROP_FILE_CATEGORY_SOURCE_TEMPLATE_KEY[] = "template";
+
+const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'%f\'";
 
 //==============================================================================
 
@@ -1251,6 +1261,80 @@ bool SettingsManager::saveCodeSnippet(const CodeSnippet & a_snippet)
 bool SettingsManager::deleteCodeSnippet(const QString & a_name)
 {
 	return deleteValueInGroup(CODE_SNIPPETS_GROUP, a_name);
+}
+
+//==============================================================================
+
+std::vector<DropFileCategory> SettingsManager::getAllDropFileTemplates() const
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(DROP_FILE_TEMPLATES_GROUP);
+
+	std::vector<DropFileCategory> categories;
+
+	QStringList categoryNames = settings.childGroups();
+	for(const QString & categoryName : categoryNames)
+	{
+		settings.beginGroup(categoryName);
+
+		DropFileCategory category;
+		category.name = categoryName;
+		category.maskList =
+			settings.value(DROP_FILE_CATEGORY_MASK_LIST_KEY).toStringList();
+		category.sourceTemplate =
+			settings.value(DROP_FILE_CATEGORY_SOURCE_TEMPLATE_KEY).toString();
+		categories.push_back(category);
+
+		settings.endGroup();
+	}
+
+	return categories;
+}
+
+bool SettingsManager::setDropFileTemplates(
+	const std::vector<DropFileCategory> & a_categories)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+
+	settings.remove(DROP_FILE_TEMPLATES_GROUP);
+	settings.beginGroup(DROP_FILE_TEMPLATES_GROUP);
+
+	for(const DropFileCategory & category : a_categories)
+	{
+		settings.beginGroup(category.name);
+		settings.setValue(DROP_FILE_CATEGORY_MASK_LIST_KEY, category.maskList);
+		settings.setValue(DROP_FILE_CATEGORY_SOURCE_TEMPLATE_KEY,
+			category.sourceTemplate);
+		settings.endGroup();
+	}
+
+	settings.sync();
+	bool success = (QSettings::NoError == settings.status());
+	return success;
+}
+
+QString SettingsManager::getDropFileTemplate(const QString & a_filePath)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(DROP_FILE_TEMPLATES_GROUP);
+
+	QRegExp matcher;
+	matcher.setPatternSyntax(QRegExp::Wildcard);
+	matcher.setCaseSensitivity(Qt::CaseInsensitive);
+
+	std::vector<DropFileCategory> categories = getAllDropFileTemplates();
+
+	for(const DropFileCategory & category : categories)
+	{
+		for(const QString & mask : category.maskList)
+		{
+			matcher.setPattern(mask);
+			if(matcher.exactMatch(a_filePath))
+				return category.sourceTemplate;
+		}
+	}
+
+	return QString(DEFAULT_DROP_FILE_TEMPLATE);
 }
 
 //==============================================================================

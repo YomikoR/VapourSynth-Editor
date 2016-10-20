@@ -1,5 +1,8 @@
 #include "templates_dialog.h"
 
+#include "drop_file_category_model.h"
+
+#include <QAction>
 #include <QMessageBox>
 #include <cassert>
 
@@ -9,13 +12,25 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 	QWidget * a_pParent, Qt::WindowFlags a_flags) :
 	  QDialog(a_pParent, a_flags)
 	, m_pSettingsManager(a_pSettingsManager)
+	, m_pDropFileCategoryModel(nullptr)
+	, m_pSaveAction(nullptr)
 {
 	assert(m_pSettingsManager);
 	m_ui.setupUi(this);
 
 	m_ui.snippetEdit->setSettingsManager(m_pSettingsManager);
 	m_ui.newScriptTemplateEdit->setSettingsManager(m_pSettingsManager);
+	m_ui.dropFileCategoryTemplateEdit->setSettingsManager(m_pSettingsManager);
 
+	m_pDropFileCategoryModel = new DropFileCategoryModel(this);
+	m_ui.dropFileCategoryView->setModel(m_pDropFileCategoryModel);
+
+	m_pSaveAction = m_pSettingsManager->createStandardAction(
+		ACTION_ID_SAVE_SCRIPT, this);
+	addAction(m_pSaveAction);
+
+	connect(m_pSaveAction, SIGNAL(triggered()),
+		this, SLOT(slotSaveActionTriggered()));
 	connect(m_ui.snippetPasteIntoScriptButton, SIGNAL(clicked()),
 		this, SLOT(slotSnippetPasteIntoScriptButtonClicked()));
 	connect(m_ui.snippetSaveButton, SIGNAL(clicked()),
@@ -30,6 +45,16 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotNewScriptTemplateLoadDefaultButtonClicked()));
 	connect(m_ui.newScriptTemplateSaveButton, SIGNAL(clicked()),
 		this, SLOT(slotNewScriptTemplateSaveButtonClicked()));
+	connect(m_ui.saveDropFileCategoriesButton, SIGNAL(clicked()),
+		this, SLOT(slotSaveDropFileCategoriesButtonClicked()));
+	connect(m_ui.revertDropFileCategoriesButton, SIGNAL(clicked()),
+		this, SLOT(slotRevertDropFileCategoriesButtonClicked()));
+	connect(m_ui.addDropFileCategoryButton, SIGNAL(clicked()),
+		this, SLOT(slotAddDropFileCategoryButtonClicked()));
+	connect(m_ui.deleteSelectedDropFileCategoryButton, SIGNAL(clicked()),
+		this, SLOT(slotDeleteSelectedDropFileCategoryButtonClicked()));
+	connect(m_ui.dropFileCategoryView, SIGNAL(pressed(const QModelIndex &)),
+		this, SLOT(slotDropFileCategoryViewPressed(const QModelIndex &)));
 
 	slotLoadSettings();
 }
@@ -49,6 +74,7 @@ void TemplatesDialog::setPluginsList(const VSPluginsList & a_pluginsList)
 {
 	m_ui.snippetEdit->setPluginsList(a_pluginsList);
 	m_ui.newScriptTemplateEdit->setPluginsList(a_pluginsList);
+	m_ui.dropFileCategoryTemplateEdit->setPluginsList(a_pluginsList);
 }
 
 // END OF void TemplatesDialog::setPluginsList(
@@ -68,6 +94,10 @@ void TemplatesDialog::slotLoadSettings()
 {
 	m_ui.snippetEdit->slotLoadSettings();
 	m_ui.newScriptTemplateEdit->slotLoadSettings();
+	m_ui.dropFileCategoryTemplateEdit->slotLoadSettings();
+
+	m_pSaveAction->setShortcut(m_pSettingsManager->getHotkey(
+		m_pSaveAction->data().toString()));
 
 	m_ui.snippetNameComboBox->clear();
 	m_codeSnippets = m_pSettingsManager->getAllCodeSnippets();
@@ -78,6 +108,8 @@ void TemplatesDialog::slotLoadSettings()
 
 	QString newScriptTemplate = m_pSettingsManager->getNewScriptTemplate();
 	m_ui.newScriptTemplateEdit->setPlainText(newScriptTemplate);
+
+	slotRevertDropFileCategoriesButtonClicked();
 }
 
 // END OF void TemplatesDialog::slotLoadSettings()
@@ -207,3 +239,107 @@ void TemplatesDialog::slotNewScriptTemplateSaveButtonClicked()
 
 // END OF void TemplatesDialog::slotNewScriptTemplateSaveButtonClicked()
 //==============================================================================
+
+void TemplatesDialog::slotSaveDropFileCategoriesButtonClicked()
+{
+	int index = m_ui.dropFileCategoryView->currentIndex().row();
+	m_pDropFileCategoryModel->setSourceTemplate(index,
+		m_ui.dropFileCategoryTemplateEdit->text());
+	std::vector<DropFileCategory> categories =
+		m_pDropFileCategoryModel->getCategories();
+	m_pSettingsManager->setDropFileTemplates(categories);
+}
+
+// END OF void TemplatesDialog::slotSaveDropFileCategoriesButtonClicked()
+//==============================================================================
+
+void TemplatesDialog::slotRevertDropFileCategoriesButtonClicked()
+{
+	std::vector<DropFileCategory> categories =
+		m_pSettingsManager->getAllDropFileTemplates();
+	m_pDropFileCategoryModel->setCategories(categories);
+	m_ui.dropFileCategoryView->resizeColumnToContents(0);
+	m_ui.dropFileCategoryView->setCurrentIndex(
+		m_pDropFileCategoryModel->index(0, 0));
+	slotDisplayCurrentDropFileCategoryTemplate();
+}
+
+// END OF void TemplatesDialog::slotRevertDropFileCategoriesButtonClicked()
+//==============================================================================
+
+void TemplatesDialog::slotAddDropFileCategoryButtonClicked()
+{
+	m_pDropFileCategoryModel->addCategory();
+	QModelIndex index = m_pDropFileCategoryModel->index(
+		m_pDropFileCategoryModel->rowCount() - 1, 0);
+	m_ui.dropFileCategoryView->setCurrentIndex(index);
+	slotDisplayCurrentDropFileCategoryTemplate();
+	m_ui.dropFileCategoryView->edit(index);
+}
+
+// END OF void TemplatesDialog::slotAddDropFileCategoryButtonClicked()
+//==============================================================================
+
+void TemplatesDialog::slotDeleteSelectedDropFileCategoryButtonClicked()
+{
+	QModelIndex index = m_ui.dropFileCategoryView->currentIndex();
+	if(!index.isValid())
+		return;
+
+	int row = index.row();
+	DropFileCategory category = m_pDropFileCategoryModel->getCategories()[row];
+
+	QMessageBox::StandardButton result = QMessageBox::question(this,
+		trUtf8("Delete category"), trUtf8("Do you really want to delete "
+		"category \'%1\'?").arg(category.name),
+		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
+		QMessageBox::No);
+	if(result == QMessageBox::No)
+		return;
+
+	m_pDropFileCategoryModel->deleteCategory(row);
+	slotDisplayCurrentDropFileCategoryTemplate();
+}
+
+// END OF void TemplatesDialog::
+//		slotDeleteSelectedDropFileCategoryButtonClicked()
+//==============================================================================
+
+void TemplatesDialog::slotDropFileCategoryViewPressed(
+	const QModelIndex & a_index)
+{
+	(void)a_index;
+	slotDisplayCurrentDropFileCategoryTemplate();
+}
+
+// END OF void TemplatesDialog::slotDropFileCategoryViewPressed(
+//		const QModelIndex & a_index)
+//==============================================================================
+
+void TemplatesDialog::slotDisplayCurrentDropFileCategoryTemplate()
+{
+	QModelIndex index = m_ui.dropFileCategoryView->currentIndex();
+	if(!index.isValid())
+		return;
+	QString sourceTemplate =
+		m_pDropFileCategoryModel->sourceTemplate(index.row());
+	m_ui.dropFileCategoryTemplateEdit->setPlainText(sourceTemplate);
+}
+
+// END OF void TemplatesDialog::slotDisplayCurrentDropFileCategoryTemplate()
+//==============================================================================
+
+void TemplatesDialog::slotSaveActionTriggered()
+{
+	QWidget * pCurrentWidget = m_ui.templatesTabWidget->currentWidget();
+	if(pCurrentWidget == m_ui.codeSnippetsTab)
+		slotSnippetSaveButtonClicked();
+	else if(pCurrentWidget == m_ui.newScriptTemplateTab)
+		slotNewScriptTemplateSaveButtonClicked();
+	else if(pCurrentWidget == m_ui.fileDropTemplatesTab)
+		slotSaveDropFileCategoriesButtonClicked();
+}
+
+// END OF void TemplatesDialog::slotSaveActionTriggered()
+//==============================================================================
+

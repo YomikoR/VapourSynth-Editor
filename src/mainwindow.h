@@ -70,6 +70,8 @@ private slots:
 
 	void slotSettingsChanged();
 
+	void slotScriptFileDropped(const QString & a_filePath, bool * a_pHandled);
+
 private:
 
 	void createActionsAndMenus();

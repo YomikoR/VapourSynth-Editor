@@ -120,7 +120,6 @@ bool ActionsHotkeyEditModel::setData(const QModelIndex & a_index,
 
 //==============================================================================
 
-
 void ActionsHotkeyEditModel::reloadHotkeysSettings()
 {
 	for(StandardAction & action : m_actions)
