@@ -193,6 +193,8 @@ void ScriptEditor::slotLoadSettings()
 	if(!m_pSettingsManager)
 		return;
 
+	setUpdatesEnabled(false);
+
 	m_pSyntaxHighlighter->slotLoadSettings();
 
 	m_charactersTypedToStartCompletion =
@@ -210,10 +212,10 @@ void ScriptEditor::slotLoadSettings()
 
 	m_backgroundColor = m_pSettingsManager->getColor(COLOR_ID_TEXT_BACKGROUND);
 	QColor textColor = m_commonScriptTextFormat.foreground().color();
-	QPalette newPalette = palette();
-	newPalette.setColor(QPalette::Base, m_backgroundColor);
-	newPalette.setColor(QPalette::Text, textColor);
-	setPalette(newPalette);
+
+	QString sheet = QString("color: %1; background-color: %2;")
+		.arg(textColor.name()).arg(m_backgroundColor.name());
+	setStyleSheet(sheet);
 
 	m_activeLineColor = m_pSettingsManager->getColor(COLOR_ID_ACTIVE_LINE);
 
@@ -225,8 +227,9 @@ void ScriptEditor::slotLoadSettings()
 	}
 
 	slotUpdateSideBoxWidth();
+	slotHighlightCurrentBlockAndMatches();
 
-	update();
+	setUpdatesEnabled(true);
 }
 
 // END OF void ScriptEditor::slotLoadSettings()

@@ -71,6 +71,8 @@ private:
 	DropFileCategoryModel * m_pDropFileCategoryModel;
 
 	QAction * m_pSaveAction;
+
+	std::vector<ScriptEditor *> m_scriptEditors;
 };
 
 #endif // TEMPLATES_DIALOG_H_INCLUDED

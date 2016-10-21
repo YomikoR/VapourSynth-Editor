@@ -18,9 +18,11 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 	assert(m_pSettingsManager);
 	m_ui.setupUi(this);
 
-	m_ui.snippetEdit->setSettingsManager(m_pSettingsManager);
-	m_ui.newScriptTemplateEdit->setSettingsManager(m_pSettingsManager);
-	m_ui.dropFileCategoryTemplateEdit->setSettingsManager(m_pSettingsManager);
+	m_scriptEditors = {m_ui.snippetEdit, m_ui.newScriptTemplateEdit,
+		m_ui.dropFileCategoryTemplateEdit};
+
+	for(ScriptEditor * pEdit : m_scriptEditors)
+		pEdit->setSettingsManager(m_pSettingsManager);
 
 	m_pDropFileCategoryModel = new DropFileCategoryModel(this);
 	m_ui.dropFileCategoryView->setModel(m_pDropFileCategoryModel);
@@ -72,9 +74,8 @@ TemplatesDialog::~TemplatesDialog()
 
 void TemplatesDialog::setPluginsList(const VSPluginsList & a_pluginsList)
 {
-	m_ui.snippetEdit->setPluginsList(a_pluginsList);
-	m_ui.newScriptTemplateEdit->setPluginsList(a_pluginsList);
-	m_ui.dropFileCategoryTemplateEdit->setPluginsList(a_pluginsList);
+	for(ScriptEditor * pEdit : m_scriptEditors)
+		pEdit->setPluginsList(a_pluginsList);
 }
 
 // END OF void TemplatesDialog::setPluginsList(
@@ -92,9 +93,8 @@ void TemplatesDialog::call()
 
 void TemplatesDialog::slotLoadSettings()
 {
-	m_ui.snippetEdit->slotLoadSettings();
-	m_ui.newScriptTemplateEdit->slotLoadSettings();
-	m_ui.dropFileCategoryTemplateEdit->slotLoadSettings();
+	for(ScriptEditor * pEdit : m_scriptEditors)
+		pEdit->slotLoadSettings();
 
 	m_pSaveAction->setShortcut(m_pSettingsManager->getHotkey(
 		m_pSaveAction->data().toString()));
