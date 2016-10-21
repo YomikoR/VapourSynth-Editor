@@ -1,4 +1,3 @@
-- highlight matches
 - timeline bookmarks
 - improved log
 - raw avi writing

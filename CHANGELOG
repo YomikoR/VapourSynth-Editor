@@ -17,6 +17,7 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -Code snippets.
 -File drop templates.
 -System-dependent default standard hotkeys.
+-Option to highlight selection matches in script editor.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
