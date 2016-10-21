@@ -75,7 +75,7 @@ const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE =
 const char PLAY_FPS_LIMIT_KEY[] = "play_fps_limit";
 const double DEFAULT_PLAY_FPS_LIMIT = 23.976;
 const char USE_SPACES_AS_TAB_KEY[] = "use_spaces_as_tab";
-bool DEFAULT_USE_SPACES_AS_TAB = false;
+const bool DEFAULT_USE_SPACES_AS_TAB = false;
 const char SPACES_IN_TAB_KEY[] = "spaces_in_tab";
 const int DEFAULT_SPACES_IN_TAB = 4;
 const char REMEMBER_LAST_PREVIEW_FRAME_KEY[] = "remember_last_preview_frame";
@@ -83,6 +83,11 @@ const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME = false;
 const char LAST_PREVIEW_FRAME_KEY[] = "last_preview_frame";
 const int DEFAULT_LAST_PREVIEW_FRAME = 0;
 const char NEW_SCRIPT_TEMPLATE_KEY[] = "new_script_template";
+const char HIGHLIGHT_SELECTION_MATCHES_KEY[] = "highlight_selection_matches";
+const bool DEFAULT_HIGHLIGHT_SELECTION_MATCHES = true;
+const char HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY[] =
+	"highlight_selection_matches_min_length";
+const int DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH = 3;
 
 //==============================================================================
 
@@ -146,6 +151,7 @@ const char TEXT_FORMAT_ID_TIMELINE[] = "timeline_text";
 
 const char COLOR_ID_TEXT_BACKGROUND[] = "text_background_color";
 const char COLOR_ID_ACTIVE_LINE[] = "active_line_color";
+const char COLOR_ID_SELECTION_MATCHES[] = "selection_matches";
 
 const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 
@@ -604,19 +610,21 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 	QPalette defaultPalette;
 
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
-	{
-		defaultColor = defaultPalette.color(QPalette::Active, QPalette::Base);
-	}
-	else if(a_colorID == COLOR_ID_ACTIVE_LINE)
+		return defaultPalette.color(QPalette::Active, QPalette::Base);
+
+	if(a_colorID == COLOR_ID_ACTIVE_LINE)
 	{
 		// TODO: find a better way to achieve default active line color?
 		defaultColor = getColor(COLOR_ID_TEXT_BACKGROUND);
 		qreal lightness = defaultColor.lightnessF();
 		if(lightness >= 0.5)
-			defaultColor = defaultColor.darker(110);
+			return defaultColor.darker(110);
 		else
-			defaultColor = defaultColor.lighter(150);
+			return defaultColor.lighter(150);
 	}
+
+	if(a_colorID == COLOR_ID_SELECTION_MATCHES)
+		return QColor("#FFCCFF");
 
 	return defaultColor;
 }
@@ -1313,7 +1321,7 @@ bool SettingsManager::setDropFileTemplates(
 	return success;
 }
 
-QString SettingsManager::getDropFileTemplate(const QString & a_filePath)
+QString SettingsManager::getDropFileTemplate(const QString & a_filePath) const
 {
 	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
 	settings.beginGroup(DROP_FILE_TEMPLATES_GROUP);
@@ -1335,6 +1343,32 @@ QString SettingsManager::getDropFileTemplate(const QString & a_filePath)
 	}
 
 	return QString(DEFAULT_DROP_FILE_TEMPLATE);
+}
+
+//==============================================================================
+
+bool SettingsManager::getHighlightSelectionMatches() const
+{
+	return value(HIGHLIGHT_SELECTION_MATCHES_KEY,
+		DEFAULT_HIGHLIGHT_SELECTION_MATCHES).toBool();
+}
+
+bool SettingsManager::setHighlightSelectionMatches(bool a_highlight)
+{
+	return setValue(HIGHLIGHT_SELECTION_MATCHES_KEY, a_highlight);
+}
+
+//==============================================================================
+
+int SettingsManager::getHighlightSelectionMatchesMinLength() const
+{
+	return value(HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY,
+		DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH).toInt();
+}
+
+bool SettingsManager::setHighlightSelectionMatchesMinLength(int a_length)
+{
+	return setValue(HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY, a_length);
 }
 
 //==============================================================================

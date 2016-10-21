@@ -144,6 +144,12 @@ private:
 
 	QColor m_activeLineColor;
 
+	QColor m_selectionMatchesColor;
+
+	bool m_highlightSelectionMatches;
+
+	int m_highlightSelectionMatchesMinLength;
+
 	QTextCharFormat m_commonScriptTextFormat;
 
 	QString m_tabText;

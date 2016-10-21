@@ -190,6 +190,47 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="highlightSelectionMatchesCheckBox">
+         <property name="text">
+          <string>Highlight selection matches</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="highlightSelectionMatchesMinLengthLabel">
+           <property name="text">
+            <string>Minimum legth to highlight</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="highlightSelectionMatchesMinLengthSpinBox">
+           <property name="maximum">
+            <number>80</number>
+           </property>
+           <property name="value">
+            <number>3</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QCheckBox" name="rememberLastPreviewFrameCheckBox">
          <property name="text">
           <string>Remember last previewed frame on exit</string>

@@ -55,6 +55,9 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_pActionReplaceTabWithSpaces(nullptr)
 	, m_pActionAutocomplete(nullptr)
 	, m_pContextMenu(nullptr)
+	, m_highlightSelectionMatches(DEFAULT_HIGHLIGHT_SELECTION_MATCHES)
+	, m_highlightSelectionMatchesMinLength(
+		DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH)
 {
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);
@@ -218,6 +221,12 @@ void ScriptEditor::slotLoadSettings()
 	setStyleSheet(sheet);
 
 	m_activeLineColor = m_pSettingsManager->getColor(COLOR_ID_ACTIVE_LINE);
+	m_selectionMatchesColor =
+		m_pSettingsManager->getColor(COLOR_ID_SELECTION_MATCHES);
+	m_highlightSelectionMatches =
+		m_pSettingsManager->getHighlightSelectionMatches();
+	m_highlightSelectionMatchesMinLength =
+		m_pSettingsManager->getHighlightSelectionMatchesMinLength();
 
 	QKeySequence hotkey;
 	for(QAction * pAction : m_settableActionsList)
@@ -688,9 +697,9 @@ void ScriptEditor::slotHighlightCurrentBlockAndMatches()
 		cursor.movePosition(QTextCursor::NextCharacter);
 	}
 
-	if(selectedText.length() >= 3)
+	if(m_highlightSelectionMatches &&
+		(selectedText.length() >= m_highlightSelectionMatchesMinLength))
 	{
-		QColor selectedColor("#FFCCFF");
 		cursor = QTextCursor(pDocument);
 		while(true)
 		{
@@ -698,7 +707,7 @@ void ScriptEditor::slotHighlightCurrentBlockAndMatches()
 			if(cursor.isNull())
 				break;
 			QTextEdit::ExtraSelection selection;
-			selection.format.setBackground(selectedColor);
+			selection.format.setBackground(m_selectionMatchesColor);
 			selection.cursor = cursor;
 			extraTextSelections.append(selection);
 		}
