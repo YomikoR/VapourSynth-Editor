@@ -99,7 +99,7 @@ private slots:
 
 	void slotUpdateSideBox(const QRect & a_rect, int a_dy);
 
-	void slotHighlightCurrentBlock();
+	void slotHighlightCurrentBlockAndMatches();
 
 	void slotShowCustomMenu(const QPoint & a_position);
 

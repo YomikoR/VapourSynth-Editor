@@ -79,7 +79,9 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	connect(this, SIGNAL(updateRequest(const QRect &, int)),
 		this, SLOT(slotUpdateSideBox(const QRect &, int)));
 	connect(this, SIGNAL(cursorPositionChanged()),
-		this, SLOT(slotHighlightCurrentBlock()));
+		this, SLOT(slotHighlightCurrentBlockAndMatches()));
+	connect(this, SIGNAL(selectionChanged()),
+		this, SLOT(slotHighlightCurrentBlockAndMatches()));
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
 		this, SLOT(slotShowCustomMenu(const QPoint &)));
 
@@ -462,7 +464,7 @@ void ScriptEditor::resizeEvent(QResizeEvent * a_pEvent)
 	QRect cr = contentsRect();
 	m_pSideBox->setGeometry(QRect(cr.left(), cr.top(), sideBoxWidth(),
 		cr.height()));
-	slotHighlightCurrentBlock();
+	slotHighlightCurrentBlockAndMatches();
 }
 
 // END OF void ScriptEditor::resizeEvent(QResizeEvent * a_pEvent)
@@ -661,28 +663,48 @@ void ScriptEditor::slotUpdateSideBox(const QRect & a_rect, int a_dy)
 // END OF void ScriptEditor::slotUpdateSideBox(const QRect & a_rect, int a_dy)
 //==============================================================================
 
-void ScriptEditor::slotHighlightCurrentBlock()
+void ScriptEditor::slotHighlightCurrentBlockAndMatches()
 {
+	QTextDocument * pDocument = document();
 	QList<QTextEdit::ExtraSelection> extraTextSelections;
-	QTextCursor newCursor = textCursor();
-	newCursor.movePosition(QTextCursor::StartOfBlock);
-	int linesInBlock = newCursor.block().lineCount();
+	QTextCursor cursor = textCursor();
+
+	QString selectedText = cursor.selectedText();
+
+	cursor.movePosition(QTextCursor::StartOfBlock);
+	int linesInBlock = cursor.block().lineCount();
 	for(int i = 0; i < linesInBlock; ++i)
 	{
 		QTextEdit::ExtraSelection selection;
 		selection.format.setBackground(m_activeLineColor);
 		selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-		selection.cursor = newCursor;
+		selection.cursor = cursor;
 		selection.cursor.clearSelection();
 		extraTextSelections.append(selection);
-		newCursor.movePosition(QTextCursor::EndOfLine);
-		newCursor.movePosition(QTextCursor::NextCharacter);
+		cursor.movePosition(QTextCursor::EndOfLine);
+		cursor.movePosition(QTextCursor::NextCharacter);
+	}
+
+	if(selectedText.length() >= 3)
+	{
+		QColor selectedColor("#FFCCFF");
+		cursor = QTextCursor(pDocument);
+		while(true)
+		{
+			cursor = pDocument->find(selectedText, cursor);
+			if(cursor.isNull())
+				break;
+			QTextEdit::ExtraSelection selection;
+			selection.format.setBackground(selectedColor);
+			selection.cursor = cursor;
+			extraTextSelections.append(selection);
+		}
 	}
 
 	setExtraSelections(extraTextSelections);
 }
 
-// END OF void ScriptEditor::slotHighlightCurrentBlock()
+// END OF void ScriptEditor::slotHighlightCurrentBlockAndMatches()
 //==============================================================================
 
 void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)
