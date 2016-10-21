@@ -1,4 +1,3 @@
-- full context menu for script editor
 - highlight matches
 - timeline bookmarks
 - improved log

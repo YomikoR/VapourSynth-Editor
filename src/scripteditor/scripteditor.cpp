@@ -13,6 +13,7 @@
 #include <QAction>
 #include <QFileInfo>
 #include <QDir>
+#include <QMenu>
 #include <algorithm>
 #include <cassert>
 
@@ -53,6 +54,7 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_pActionUncommentSelection(nullptr)
 	, m_pActionReplaceTabWithSpaces(nullptr)
 	, m_pActionAutocomplete(nullptr)
+	, m_pContextMenu(nullptr)
 {
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);
@@ -67,6 +69,8 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 
 	m_pSyntaxHighlighter = new SyntaxHighlighter(document());
 
+	m_pContextMenu = createStandardContextMenu();
+
 	connect(m_pCompleter, SIGNAL(activated(const QString &)),
 		this, SLOT(slotInsertCompletion(const QString &)));
 	connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
@@ -76,6 +80,10 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 		this, SLOT(slotUpdateSideBox(const QRect &, int)));
 	connect(this, SIGNAL(cursorPositionChanged()),
 		this, SLOT(slotHighlightCurrentBlock()));
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+		this, SLOT(slotShowCustomMenu(const QPoint &)));
+
+	setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 // END OF ScriptEditor::ScriptEditor(QWidget * a_pParent)
@@ -677,6 +685,15 @@ void ScriptEditor::slotHighlightCurrentBlock()
 // END OF void ScriptEditor::slotHighlightCurrentBlock()
 //==============================================================================
 
+void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)
+{
+	QPoint globalPosition = mapToGlobal(a_position);
+    m_pContextMenu->exec(globalPosition);
+}
+
+// END OF void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)
+//==============================================================================
+
 void ScriptEditor::createActionsAndMenus()
 {
 	if(!m_pSettingsManager)
@@ -719,6 +736,16 @@ void ScriptEditor::createActionsAndMenus()
 		this, SLOT(slotReplaceTabWithSpaces()));
 	connect(m_pActionAutocomplete, SIGNAL(triggered()),
 		this, SLOT(slotComplete()));
+
+	if(m_pContextMenu)
+		delete m_pContextMenu;
+
+	m_pContextMenu = createStandardContextMenu();
+	m_pContextMenu->addSeparator();
+
+	std::vector<QAction *> actionsList = actionsForMenu();
+	for(QAction * pAction : actionsList)
+		m_pContextMenu->addAction(pAction);
 }
 
 // END OF void ScriptEditor::createActionsAndMenus()

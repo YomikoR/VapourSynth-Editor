@@ -101,6 +101,8 @@ private slots:
 
 	void slotHighlightCurrentBlock();
 
+	void slotShowCustomMenu(const QPoint & a_position);
+
 private:
 
 	void createActionsAndMenus();
@@ -155,6 +157,8 @@ private:
 	QAction * m_pActionAutocomplete;
 
 	std::vector<QAction *> m_settableActionsList;
+
+	QMenu * m_pContextMenu;
 };
 
 #endif // SCRIPTEDITOR_H
