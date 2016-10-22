@@ -18,6 +18,8 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -File drop templates.
 -System-dependent default standard hotkeys.
 -Option to highlight selection matches in script editor.
+-Timeline bookmarks with auto-saving/loading bookmarks file along the script file.
+-Remember timeline panel visibility.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
