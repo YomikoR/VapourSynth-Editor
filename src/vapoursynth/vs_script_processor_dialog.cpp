@@ -100,7 +100,11 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	bool initialized = m_pVapourSynthScriptProcessor->initialize(a_script,
 		a_scriptName);
 	if(!initialized)
+	{
+		if(isVisible())
+			hide();
 		return false;
+	}
 
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
 	assert(m_cpVideoInfo);

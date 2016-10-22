@@ -177,7 +177,6 @@ bool VapourSynthScriptProcessor::finalize()
 	m_script.clear();
 	m_scriptName.clear();
 
-	m_error.clear();
 	m_initialized = false;
 
 	return true;

@@ -196,10 +196,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	bool initialized = initialize(a_script, a_scriptName);
 	if(!initialized)
-	{
-		hide();
 		return;
-	}
 
 	setTitle();
 

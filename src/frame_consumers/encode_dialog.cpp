@@ -79,6 +79,21 @@ EncodeDialog::~EncodeDialog()
 // END OF EncodeDialog::~EncodeDialog()
 //==============================================================================
 
+bool EncodeDialog::initialize(const QString & a_script,
+	const QString & a_scriptName)
+{
+	bool initialized =
+		VSScriptProcessorDialog::initialize(a_script, a_scriptName);
+	if(!initialized)
+		emit signalWriteLogMessage(mtCritical,
+			m_pVapourSynthScriptProcessor->error());
+	return initialized;
+}
+
+// END OF bool EncodeDialog::initialize(const QString & a_script,
+//		const QString & a_scriptName)
+//==============================================================================
+
 void EncodeDialog::call()
 {
 	if(m_state != State::Idle)

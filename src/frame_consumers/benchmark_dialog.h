@@ -17,6 +17,9 @@ public:
 		QWidget * a_pParent = nullptr);
 	virtual ~ScriptBenchmarkDialog();
 
+	virtual bool initialize(const QString & a_script,
+		const QString & a_scriptName) override;
+
 public slots:
 
 	void call();

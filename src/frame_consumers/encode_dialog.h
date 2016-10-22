@@ -29,6 +29,9 @@ public:
 		QWidget * a_pParent = nullptr);
 	virtual ~EncodeDialog();
 
+	virtual bool initialize(const QString & a_script,
+		const QString & a_scriptName) override;
+
 	enum class State
 	{
 		Idle,

@@ -108,8 +108,14 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pBenchmarkDialog =
 		new ScriptBenchmarkDialog(m_pSettingsManager, m_pVSScriptLibrary);
+	connect(m_pBenchmarkDialog,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
+	connect(m_pEncodeDialog,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);
