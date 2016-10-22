@@ -160,7 +160,7 @@
        <widget class="QWidget" name="zoomPanel" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="spacing">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -243,7 +243,7 @@
    </item>
    <item>
     <widget class="QWidget" name="timeLinePanel" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0">
       <property name="spacing">
        <number>2</number>
       </property>
@@ -297,6 +297,38 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>571</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="goToPreviousBookmarkButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="bookmarkCurrentFrameButton"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="unbookmarkCurrentFrameButton"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="clearBookmarksButton"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="goToNextBookmarkButton"/>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
           <height>20</height>
          </size>
         </property>
@@ -360,7 +392,7 @@
     <widget class="QWidget" name="cropPanel" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="leftMargin">
        <number>0</number>

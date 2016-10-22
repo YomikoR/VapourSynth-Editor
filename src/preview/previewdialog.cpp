@@ -81,6 +81,11 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionAdvancedSettingsDialog(nullptr)
 	, m_pActionToggleColorPicker(nullptr)
 	, m_pActionPlay(nullptr)
+	, m_pActionClearBookmarks(nullptr)
+	, m_pActionBookmarkCurrentFrame(nullptr)
+	, m_pActionUnbookmarkCurrentFrame(nullptr)
+	, m_pActionGoToPreviousBookmark(nullptr)
+	, m_pActionGoToNextBookmark(nullptr)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
@@ -1238,6 +1243,69 @@ void PreviewDialog::slotProcessPlayQueue()
 // END OF void PreviewDialog::slotProcessPlayQueue()
 //==============================================================================
 
+void PreviewDialog::slotClearBookmarks()
+{
+	if(m_playing)
+		return;
+
+	QMessageBox::StandardButton result = QMessageBox::question(this,
+		trUtf8("Clear bookmards"), trUtf8("Do you really want to clear "
+		"timeline bookmarks?"),
+		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
+		QMessageBox::No);
+	if(result == QMessageBox::No)
+		return;
+
+	m_ui.frameNumberSlider->clearBookmarks();
+}
+
+// END OF void PreviewDialog::slotClearBookmarks()
+//==============================================================================
+
+void PreviewDialog::slotBookmarkCurrentFrame()
+{
+	if(m_playing)
+		return;
+
+	m_ui.frameNumberSlider->slotBookmarkCurrentFrame();
+}
+
+// END OF void PreviewDialog::slotBookmarkCurrentFrame()
+//==============================================================================
+
+void PreviewDialog::slotUnbookmarkCurrentFrame()
+{
+	if(m_playing)
+		return;
+
+	m_ui.frameNumberSlider->slotUnbookmarkCurrentFrame();
+}
+
+// END OF void PreviewDialog::slotUnbookmarkCurrentFrame()
+//==============================================================================
+
+void PreviewDialog::slotGoToPreviousBookmark()
+{
+	if(m_playing)
+		return;
+
+	m_ui.frameNumberSlider->slotGoToPreviousBookmark();
+}
+
+// END OF void PreviewDialog::slotGoToPreviousBookmark()
+//==============================================================================
+
+void PreviewDialog::slotGoToNextBookmark()
+{
+	if(m_playing)
+		return;
+
+	m_ui.frameNumberSlider->slotGoToNextBookmark();
+}
+
+// END OF void PreviewDialog::slotGoToNextBookmark()
+//==============================================================================
+
 void PreviewDialog::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -1289,6 +1357,19 @@ void PreviewDialog::createActionsAndMenus()
 			true, SLOT(slotToggleColorPicker(bool))},
 		{&m_pActionPlay, ACTION_ID_PLAY,
 			true, SLOT(slotPlay(bool))},
+		{&m_pActionClearBookmarks, ACTION_ID_TIMELINE_CLEAR_BOOKMARKS,
+			false, SLOT(slotClearBookmarks())},
+		{&m_pActionBookmarkCurrentFrame,
+			ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME,
+			false, SLOT(slotBookmarkCurrentFrame())},
+		{&m_pActionUnbookmarkCurrentFrame,
+			ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME,
+			false, SLOT(slotUnbookmarkCurrentFrame())},
+		{&m_pActionGoToPreviousBookmark,
+			ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK,
+			false, SLOT(slotGoToPreviousBookmark())},
+		{&m_pActionGoToNextBookmark, ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK,
+			false, SLOT(slotGoToNextBookmark())},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -1430,6 +1511,12 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionPlay->setChecked(false);
 	addAction(m_pActionPlay);
 
+	addAction(m_pActionClearBookmarks);
+	addAction(m_pActionBookmarkCurrentFrame);
+	addAction(m_pActionUnbookmarkCurrentFrame);
+	addAction(m_pActionGoToPreviousBookmark);
+	addAction(m_pActionGoToNextBookmark);
+
 //------------------------------------------------------------------------------
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -1517,6 +1604,16 @@ void PreviewDialog::setUpTimeLinePanel()
 	m_ui.playFpsLimitSpinBox->setValue(customFPS);
 
 	slotSetPlayFPSLimit();
+
+	m_ui.clearBookmarksButton->setDefaultAction(m_pActionClearBookmarks);
+	m_ui.bookmarkCurrentFrameButton->setDefaultAction(
+		m_pActionBookmarkCurrentFrame);
+	m_ui.unbookmarkCurrentFrameButton->setDefaultAction(
+		m_pActionUnbookmarkCurrentFrame);
+	m_ui.goToPreviousBookmarkButton->setDefaultAction(
+		m_pActionGoToPreviousBookmark);
+	m_ui.goToNextBookmarkButton->setDefaultAction(
+		m_pActionGoToNextBookmark);
 
     double timeStep = m_pSettingsManager->getTimeStep();
     m_ui.timeStepEdit->setTime(vsedit::secondsToQTime(timeStep));

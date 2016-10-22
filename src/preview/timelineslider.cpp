@@ -151,6 +151,54 @@ void TimeLineSlider::setLabelsFont(const QFont & a_font)
 // END OF void TimeLineSlider::setLabelsFont(const QFont & a_font)
 //==============================================================================
 
+void TimeLineSlider::addBookmark(int a_bookmark)
+{
+	if((a_bookmark < 0) || (a_bookmark > m_maxFrame))
+		return;
+
+	m_bookmarks.insert(a_bookmark);
+	update();
+}
+
+// END OF void TimeLineSlider::addBookmark(int a_bookmark)
+//==============================================================================
+
+void TimeLineSlider::removeBookmark(int a_bookmark)
+{
+	m_bookmarks.erase(a_bookmark);
+	update();
+}
+
+// END OF void TimeLineSlider::removeBookmark(int a_bookmark)
+//==============================================================================
+
+std::set<int> TimeLineSlider::bookmarks() const
+{
+	return m_bookmarks;
+}
+
+// END OF std::set<int> TimeLineSlider::bookmarks() const
+//==============================================================================
+
+void TimeLineSlider::setBookmarks(const std::set<int> & a_bookmarks)
+{
+	std::set<int>::iterator it = a_bookmarks.lower_bound(0);
+	m_bookmarks = std::set<int>(it, a_bookmarks.end());
+	update();
+}
+
+// END OF void TimeLineSlider::setBookmarks(const std::set<int> & a_bookmarks)
+//==============================================================================
+
+void TimeLineSlider::clearBookmarks()
+{
+	m_bookmarks.clear();
+	update();
+}
+
+// END OF void TimeLineSlider::clearBookmarks()
+//==============================================================================
+
 void TimeLineSlider::slotStepUp()
 {
 	if(m_currentFrame < m_maxFrame)
@@ -222,6 +270,71 @@ void TimeLineSlider::slotStepBySeconds(double a_seconds)
 }
 
 // END OF void TimeLineSlider::slotStepBySeconds(double a_seconds)
+//==============================================================================
+
+void TimeLineSlider::slotBookmarkCurrentFrame()
+{
+	addBookmark(m_currentFrame);
+}
+
+// END OF void TimeLineSlider::slotBookmarkCurrentFrame()
+//==============================================================================
+
+void TimeLineSlider::slotUnbookmarkCurrentFrame()
+{
+	removeBookmark(m_currentFrame);
+}
+
+// END OF void TimeLineSlider::slotUnbookmarkCurrentFrame()
+//==============================================================================
+
+void TimeLineSlider::slotGoToPreviousBookmark()
+{
+	if(m_bookmarks.size() == 0)
+		return;
+
+	if(m_currentFrame == 0)
+		return;
+
+	std::set<int>::iterator it = m_bookmarks.upper_bound(m_currentFrame - 1);
+
+	if(it == m_bookmarks.end())
+	{
+		setFrame(*m_bookmarks.rbegin());
+		return;
+	}
+
+	if(it == m_bookmarks.begin())
+		return;
+
+	it--;
+
+	if(*it < 0)
+		return;
+
+	setFrame(*it);
+}
+
+// END OF void TimeLineSlider::slotGoToPreviousBookmark()
+//==============================================================================
+
+void TimeLineSlider::slotGoToNextBookmark()
+{
+	if(m_bookmarks.size() == 0)
+		return;
+
+	std::set<int>::iterator it = m_bookmarks.upper_bound(m_currentFrame);
+
+	if(it == m_bookmarks.end())
+		return;
+
+	if(*it > m_maxFrame)
+		return;
+
+	setFrame(*it);
+}
+
+// END OF void TimeLineSlider::slotGoToNextBookmark()
 //==============================================================================
 
 void TimeLineSlider::keyPressEvent(QKeyEvent * a_pEvent)
@@ -359,13 +472,23 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 		m_slideLineFrameWidth);
 	painter.drawRect(l_slideLineRect.marginsRemoved(slideLineMargins));
 
-	// Current frame pointer
-	pen.setColor(Qt::lightGray);
+	// Bookmarks
+	pen.setColor(Qt::magenta);
 	pen.setWidth(1);
 	painter.setPen(pen);
-	int pointerPos = frameToPos(m_currentFrame);
 	int pointerTop = l_slideLineRect.top() + m_slideLineFrameWidth;
 	int pointerBottom = l_slideLineRect.bottom() - m_slideLineFrameWidth;
+	for(int i : m_bookmarks)
+	{
+		if(i > m_maxFrame)
+			break;
+		int pointerPos = frameToPos(i);
+		painter.drawLine(pointerPos, pointerTop, pointerPos, pointerBottom);
+	}
+
+	// Current frame pointer
+	painter.setPen(Qt::lightGray);
+	int pointerPos = frameToPos(m_currentFrame);
 	painter.drawLine(pointerPos, pointerTop, pointerPos, pointerBottom);
 
 	// Sliding frame pointer

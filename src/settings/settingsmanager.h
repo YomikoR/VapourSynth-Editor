@@ -168,6 +168,11 @@ extern const char ACTION_ID_DUPLICATE_SELECTION[];
 extern const char ACTION_ID_COMMENT_SELECTION[];
 extern const char ACTION_ID_UNCOMMENT_SELECTION[];
 extern const char ACTION_ID_REPLACE_TAB_WITH_SPACES[];
+extern const char ACTION_ID_TIMELINE_CLEAR_BOOKMARKS[];
+extern const char ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME[];
+extern const char ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME[];
+extern const char ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK[];
+extern const char ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK[];
 
 //==============================================================================
 

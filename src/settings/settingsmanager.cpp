@@ -132,6 +132,15 @@ const char ACTION_ID_DUPLICATE_SELECTION[] = "duplicate_selection";
 const char ACTION_ID_COMMENT_SELECTION[] = "comment_selection";
 const char ACTION_ID_UNCOMMENT_SELECTION[] = "uncomment_selection";
 const char ACTION_ID_REPLACE_TAB_WITH_SPACES[] = "replace_tab_with_spaces";
+const char ACTION_ID_TIMELINE_CLEAR_BOOKMARKS[] = "timeline_clear_bookmarks";
+const char ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME[] =
+	"timeline_bookmark_current_frame";
+const char ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME[] =
+	"timeline_unbookmark_current_frame";
+const char ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK[] =
+	"timeline_go_to_previous_bookmark";
+const char ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK[] =
+	"timeline_go_to_next_bookmark";
 
 //==============================================================================
 
@@ -453,6 +462,20 @@ void SettingsManager::initializeStandardActions()
 		{ACTION_ID_TOGGLE_COLOR_PICKER, trUtf8("Color panel"),
 			QIcon(":color_picker.png"), QKeySequence()},
 		{ACTION_ID_PLAY, trUtf8("Play"), QIcon(":play.png"), QKeySequence()},
+		{ACTION_ID_TIMELINE_CLEAR_BOOKMARKS, trUtf8("Clear bookmarks"),
+			QIcon(":timeline_bookmark.png"), QKeySequence()},
+		{ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME,
+			trUtf8("Bookmark current frame"),
+			QIcon(":timeline_bookmark_add.png"), QKeySequence()},
+		{ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME,
+			trUtf8("Unbookmark current frame"),
+			QIcon(":timeline_bookmark_remove.png"), QKeySequence()},
+		{ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK,
+			trUtf8("Go to previous bookmark"),
+			QIcon(":timeline_bookmark_previous.png"), QKeySequence()},
+		{ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK,
+			trUtf8("Go to next bookmark"),
+			QIcon(":timeline_bookmark_next.png"), QKeySequence()},
 	};
 }
 

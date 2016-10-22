@@ -121,6 +121,12 @@ protected slots:
 
 	void slotProcessPlayQueue();
 
+	void slotClearBookmarks();
+	void slotBookmarkCurrentFrame();
+	void slotUnbookmarkCurrentFrame();
+	void slotGoToPreviousBookmark();
+	void slotGoToNextBookmark();
+
 protected:
 
 	virtual void stopAndCleanUp() override;
@@ -198,6 +204,11 @@ protected:
 	QAction * m_pActionAdvancedSettingsDialog;
 	QAction * m_pActionToggleColorPicker;
 	QAction * m_pActionPlay;
+	QAction * m_pActionClearBookmarks;
+	QAction * m_pActionBookmarkCurrentFrame;
+	QAction * m_pActionUnbookmarkCurrentFrame;
+	QAction * m_pActionGoToPreviousBookmark;
+	QAction * m_pActionGoToNextBookmark;
 
 	std::map<QString, ZoomMode> m_actionIDToZoomModeMap;
 
