@@ -25,6 +25,8 @@ class QTimer;
 class SettingsDialog;
 class PreviewAdvancedSettingsDialog;
 
+extern const char TIMELINE_BOOKMARKS_FILE_SUFFIX[];
+
 class PreviewDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
@@ -163,6 +165,9 @@ protected:
 	QPixmap pixmapFromCompatBGR32(const VSFrameRef * a_cpFrameRef);
 
 	void setTitle();
+
+	void saveTimelineBookmarks();
+	void loadTimelineBookmarks();
 
 	Ui::PreviewDialog m_ui;
 

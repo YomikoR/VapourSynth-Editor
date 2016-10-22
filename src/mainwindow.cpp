@@ -277,7 +277,15 @@ bool MainWindow::slotSaveScriptAs()
 		trUtf8("VapourSynth script (*.vpy);;All files (*)"));
 
 	if(!filePath.isEmpty())
-		return saveScriptToFile(filePath);
+	{
+		bool success = saveScriptToFile(filePath);
+
+		// Copy bookmarks
+		if((!success) || offeredFilePath.isEmpty())
+			return success;
+		QFile::copy(offeredFilePath + TIMELINE_BOOKMARKS_FILE_SUFFIX,
+			filePath + TIMELINE_BOOKMARKS_FILE_SUFFIX);
+	}
 
 	return false;
 }

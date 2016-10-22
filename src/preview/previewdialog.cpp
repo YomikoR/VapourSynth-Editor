@@ -46,6 +46,10 @@
 
 //==============================================================================
 
+const char TIMELINE_BOOKMARKS_FILE_SUFFIX[] = ".bookmarks";
+
+//==============================================================================
+
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent)
@@ -228,6 +232,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 	slotSetPlayFPSLimit();
 
 	setScriptName(a_scriptName);
+
+	loadTimelineBookmarks();
 
 	if(m_pSettingsManager->getPreviewDialogMaximized())
 		showMaximized();
@@ -1257,6 +1263,7 @@ void PreviewDialog::slotClearBookmarks()
 		return;
 
 	m_ui.frameNumberSlider->clearBookmarks();
+	saveTimelineBookmarks();
 }
 
 // END OF void PreviewDialog::slotClearBookmarks()
@@ -1268,6 +1275,7 @@ void PreviewDialog::slotBookmarkCurrentFrame()
 		return;
 
 	m_ui.frameNumberSlider->slotBookmarkCurrentFrame();
+	saveTimelineBookmarks();
 }
 
 // END OF void PreviewDialog::slotBookmarkCurrentFrame()
@@ -1279,6 +1287,7 @@ void PreviewDialog::slotUnbookmarkCurrentFrame()
 		return;
 
 	m_ui.frameNumberSlider->slotUnbookmarkCurrentFrame();
+	saveTimelineBookmarks();
 }
 
 // END OF void PreviewDialog::slotUnbookmarkCurrentFrame()
@@ -1916,4 +1925,67 @@ void PreviewDialog::setTitle()
 }
 
 // END OF void PreviewDialog::setTitle()
+//==============================================================================
+
+void PreviewDialog::saveTimelineBookmarks()
+{
+	QString l_scriptName = scriptName();
+	if(l_scriptName.isEmpty())
+		return;
+
+	QString bookmarksFilePath = l_scriptName +
+		QString(TIMELINE_BOOKMARKS_FILE_SUFFIX);
+	QFile bookmarksFile(bookmarksFilePath);
+	if(!bookmarksFile.open(QIODevice::WriteOnly))
+		return;
+
+	std::set<int> bookmarks = m_ui.frameNumberSlider->bookmarks();
+	QStringList bookmarksStringList;
+	for(int i : bookmarks)
+		bookmarksStringList += QString::number(i);
+
+	QString bookmarksString = bookmarksStringList.join(", ");
+	bookmarksFile.write(bookmarksString.toUtf8());
+	bookmarksFile.close();
+}
+
+// END OF void PreviewDialog::saveTimelineBookmarks()
+//==============================================================================
+
+void PreviewDialog::loadTimelineBookmarks()
+{
+	std::set<int> bookmarks;
+
+	QString l_scriptName = scriptName();
+	if(l_scriptName.isEmpty())
+	{
+		m_ui.frameNumberSlider->setBookmarks(bookmarks);
+		return;
+	}
+
+	QString bookmarksFilePath = l_scriptName +
+		QString(TIMELINE_BOOKMARKS_FILE_SUFFIX);
+	QFile bookmarksFile(bookmarksFilePath);
+	if(!bookmarksFile.open(QIODevice::ReadOnly))
+	{
+		m_ui.frameNumberSlider->setBookmarks(bookmarks);
+		return;
+	}
+
+	QString bookmarksString = trUtf8(bookmarksFile.readAll().data());
+	bookmarksFile.close();
+
+	QStringList bookmarksStringList = bookmarksString.split(",");
+	for(const QString & string : bookmarksStringList)
+	{
+		bool converted = false;
+		int i = string.simplified().toInt(&converted);
+		if(converted)
+			bookmarks.insert(i);
+	}
+
+	m_ui.frameNumberSlider->setBookmarks(bookmarks);
+}
+
+// END OF void PreviewDialog::loadTimelineBookmarks()
 //==============================================================================
