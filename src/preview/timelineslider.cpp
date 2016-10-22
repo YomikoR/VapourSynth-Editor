@@ -153,7 +153,7 @@ void TimeLineSlider::setLabelsFont(const QFont & a_font)
 
 void TimeLineSlider::addBookmark(int a_bookmark)
 {
-	if((a_bookmark < 0) || (a_bookmark > m_maxFrame))
+	if(a_bookmark < 0)
 		return;
 
 	m_bookmarks.insert(a_bookmark);
@@ -197,6 +197,44 @@ void TimeLineSlider::clearBookmarks()
 }
 
 // END OF void TimeLineSlider::clearBookmarks()
+//==============================================================================
+
+int TimeLineSlider::getClosestBookmark(int a_frame) const
+{
+	if(m_bookmarks.size() == 0)
+		return a_frame;
+
+	if(m_bookmarks.size() == 1)
+		return *m_bookmarks.begin();
+
+	std::set<int>::iterator next = m_bookmarks.upper_bound(a_frame);
+
+	if(next == m_bookmarks.begin())
+		return *next;
+
+	if(next == m_bookmarks.end())
+		return *m_bookmarks.rbegin();
+
+	if(*next > m_maxFrame)
+	{
+		next = m_bookmarks.upper_bound(m_maxFrame);
+		next--;
+		return *next;
+	}
+
+	std::set<int>::iterator prev = next;
+	prev--;
+
+	int backDiff = a_frame - *prev;
+	int forwardDiff = *next - a_frame;
+
+	if(forwardDiff < backDiff)
+		return *next;
+
+	return *prev;
+}
+
+// END OF int TimeLineSlider::getClosestBookmark(int a_frame) const
 //==============================================================================
 
 void TimeLineSlider::slotStepUp()
@@ -393,11 +431,12 @@ void TimeLineSlider::mouseMoveEvent(QMouseEvent * a_pEvent)
 {
 	if(m_sliderPressed)
 	{
-		m_pointerAtFrame = posToFrame(a_pEvent->pos().x());
+		setPointerAtFrame(a_pEvent);
 		repaint();
 		emit signalSliderMoved(m_pointerAtFrame);
 	}
 
+	// Display tooltip
 	if(m_sliderPressed || slideLineActiveRect().contains(a_pEvent->pos()))
 	{
 		int l_frame = m_sliderPressed ?
@@ -422,7 +461,7 @@ void TimeLineSlider::mousePressEvent(QMouseEvent * a_pEvent)
 	if(slideLineActiveRect().contains(a_pEvent->pos()))
 	{
 		m_sliderPressed = true;
-		m_pointerAtFrame = posToFrame(a_pEvent->pos().x());
+		setPointerAtFrame(a_pEvent);
 		repaint();
 		emit signalSliderPressed();
 	}
@@ -734,5 +773,17 @@ void TimeLineSlider::recalculateMinimumSize()
 		widgetHeight);
 }
 
-// END OF QRect TimeLineSlider::recalculateMinimumSize()
+// END OF void TimeLineSlider::recalculateMinimumSize()
+//===================================================================================
+
+void TimeLineSlider::setPointerAtFrame(const QMouseEvent * a_pEvent)
+{
+	int frame = posToFrame(a_pEvent->pos().x());
+	if(a_pEvent->modifiers() == Qt::ControlModifier)
+		m_pointerAtFrame = getClosestBookmark(frame);
+	else
+		m_pointerAtFrame = frame;
+}
+
+// END OF void TimeLineSlider::setPointerAtFrame(const QMouseEvent * a_pEvent)
 //==============================================================================

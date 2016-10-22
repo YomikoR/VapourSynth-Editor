@@ -46,6 +46,7 @@ public:
 	std::set<int> bookmarks() const;
 	void setBookmarks(const std::set<int> & a_bookmarks);
 	void clearBookmarks();
+	int getClosestBookmark(int a_frame) const;
 
 public slots:
 
@@ -97,6 +98,8 @@ private:
 	QRect slideLineActiveRect() const;
 
 	void recalculateMinimumSize();
+
+	void setPointerAtFrame(const QMouseEvent * a_pEvent);
 
 	int m_maxFrame;
 	double m_fps;
