@@ -88,6 +88,8 @@ const bool DEFAULT_HIGHLIGHT_SELECTION_MATCHES = true;
 const char HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY[] =
 	"highlight_selection_matches_min_length";
 const int DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH = 3;
+const char TIMELINE_PANEL_VISIBLE_KEY[] = "timeline_panel_visible";
+const bool DEFAULT_TIMELINE_PANEL_VISIBLE = true;
 
 //==============================================================================
 
@@ -1392,6 +1394,19 @@ int SettingsManager::getHighlightSelectionMatchesMinLength() const
 bool SettingsManager::setHighlightSelectionMatchesMinLength(int a_length)
 {
 	return setValue(HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY, a_length);
+}
+
+//==============================================================================
+
+bool SettingsManager::getTimeLinePanelVisible() const
+{
+	return value(TIMELINE_PANEL_VISIBLE_KEY,
+		DEFAULT_TIMELINE_PANEL_VISIBLE).toBool();
+}
+
+bool SettingsManager::setTimeLinePanelVisible(bool a_visible)
+{
+	return setValue(TIMELINE_PANEL_VISIBLE_KEY, a_visible);
 }
 
 //==============================================================================

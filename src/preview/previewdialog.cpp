@@ -850,6 +850,7 @@ void PreviewDialog::slotCallAdvancedSettingsDialog()
 void PreviewDialog::slotToggleTimeLinePanelVisible(bool a_timeLinePanelVisible)
 {
 	m_ui.timeLinePanel->setVisible(a_timeLinePanelVisible);
+	m_pSettingsManager->setTimeLinePanelVisible(a_timeLinePanelVisible);
 }
 
 // END OF void PreviewDialog::slotToggleTimeLinePanelVisible(
@@ -1473,6 +1474,8 @@ void PreviewDialog::createActionsAndMenus()
 
 	m_pPreviewContextMenu->addAction(m_pActionToggleCropPanel);
 	m_pPreviewContextMenu->addAction(m_pActionToggleTimeLinePanel);
+	m_pActionToggleTimeLinePanel->setChecked(
+		m_pSettingsManager->getTimeLinePanelVisible());
 
 //------------------------------------------------------------------------------
 
@@ -1541,6 +1544,8 @@ void PreviewDialog::createActionsAndMenus()
 
 void PreviewDialog::setUpZoomPanel()
 {
+	m_ui.zoomPanel->setVisible(m_pSettingsManager->getZoomPanelVisible());
+
 	m_ui.zoomRatioSpinBox->setLocale(QLocale("C"));
 
 	m_ui.zoomCheckButton->setDefaultAction(m_pActionToggleZoomPanel);
@@ -1574,8 +1579,6 @@ void PreviewDialog::setUpZoomPanel()
 	if(comboIndex != -1)
 		m_ui.scaleModeComboBox->setCurrentIndex(comboIndex);
 
-	m_ui.zoomPanel->setVisible(m_pSettingsManager->getZoomPanelVisible());
-
 	connect(m_ui.zoomModeComboBox, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(slotZoomModeChanged()));
 	connect(m_ui.zoomRatioSpinBox, SIGNAL(valueChanged(double)),
@@ -1589,7 +1592,9 @@ void PreviewDialog::setUpZoomPanel()
 
 void PreviewDialog::setUpTimeLinePanel()
 {
-    m_ui.timeLinePanel->setVisible(false);
+    m_ui.timeLinePanel->setVisible(
+		m_pSettingsManager->getTimeLinePanelVisible());
+
     m_ui.playButton->setDefaultAction(m_pActionPlay);
     m_ui.timeLineCheckButton->setDefaultAction(m_pActionToggleTimeLinePanel);
     m_ui.timeStepForwardButton->setDefaultAction(m_pActionTimeStepForward);
@@ -1609,6 +1614,7 @@ void PreviewDialog::setUpTimeLinePanel()
 	if(comboIndex != -1)
 		m_ui.playFpsLimitModeComboBox->setCurrentIndex(comboIndex);
 
+	m_ui.playFpsLimitSpinBox->setLocale(QLocale("C"));
 	double customFPS = m_pSettingsManager->getPlayFPSLimit();
 	m_ui.playFpsLimitSpinBox->setValue(customFPS);
 

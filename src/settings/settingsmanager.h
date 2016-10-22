@@ -421,6 +421,10 @@ public:
 
 	bool setHighlightSelectionMatchesMinLength(int a_length);
 
+	bool getTimeLinePanelVisible() const;
+
+	bool setTimeLinePanelVisible(bool a_visible);
+
 private:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,
