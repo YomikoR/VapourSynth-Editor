@@ -3,6 +3,7 @@ r10:
 -BUGFIX: VapourSynth messages handling.
 -BUGFIX: Frame processing errors handling in different modes.
 -BUGFIX: Pasting crop snippet into the last script line.
+-BUGFIX: Benchmark and encode dialogs forward initialization error to main window log and hide on error if open.
 -Crashlog on VapourSynth fatal errors.
 -Keep preview scrolling and frame number on refreshing the same script.
 Reset on previewing new script. Unsaved script preview is always reset.
