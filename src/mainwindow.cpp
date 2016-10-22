@@ -481,22 +481,36 @@ void MainWindow::createActionsAndMenus()
 	{
 		QAction ** ppAction;
 		const char * id;
+		QObject * pObjectToConnect;
+		const char * slotToConnect;
 	};
 
 	ActionToCreate actionsToCreate[] =
 	{
-		{&m_pActionNewScript, ACTION_ID_NEW_SCRIPT},
-		{&m_pActionOpenScript, ACTION_ID_OPEN_SCRIPT},
-		{&m_pActionSaveScript, ACTION_ID_SAVE_SCRIPT},
-		{&m_pActionSaveScriptAs, ACTION_ID_SAVE_SCRIPT_AS},
-		{&m_pActionExit, ACTION_ID_EXIT},
-		{&m_pActionTemplates, ACTION_ID_TEMPLATES},
-		{&m_pActionSettings, ACTION_ID_SETTINGS},
-		{&m_pActionPreview, ACTION_ID_PREVIEW},
-		{&m_pActionCheckScript, ACTION_ID_CHECK_SCRIPT},
-		{&m_pActionBenchmark, ACTION_ID_BENCHMARK},
-		{&m_pActionEncode, ACTION_ID_CLI_ENCODE},
-		{&m_pActionAbout, ACTION_ID_ABOUT},
+		{&m_pActionNewScript, ACTION_ID_NEW_SCRIPT,
+			this, SLOT(slotNewScript())},
+		{&m_pActionOpenScript, ACTION_ID_OPEN_SCRIPT,
+			this, SLOT(slotOpenScript())},
+		{&m_pActionSaveScript, ACTION_ID_SAVE_SCRIPT,
+			this, SLOT(slotSaveScript())},
+		{&m_pActionSaveScriptAs, ACTION_ID_SAVE_SCRIPT_AS,
+			this, SLOT(slotSaveScriptAs())},
+		{&m_pActionExit, ACTION_ID_EXIT,
+			this, SLOT(close())},
+		{&m_pActionTemplates, ACTION_ID_TEMPLATES,
+			this, SLOT(slotTemplates())},
+		{&m_pActionSettings, ACTION_ID_SETTINGS,
+			m_pSettingsDialog, SLOT(slotCall())},
+		{&m_pActionPreview, ACTION_ID_PREVIEW,
+			this, SLOT(slotPreview())},
+		{&m_pActionCheckScript, ACTION_ID_CHECK_SCRIPT,
+			this, SLOT(slotCheckScript())},
+		{&m_pActionBenchmark, ACTION_ID_BENCHMARK,
+			this, SLOT(slotBenchmark())},
+		{&m_pActionEncode, ACTION_ID_CLI_ENCODE,
+			this, SLOT(slotEncode())},
+		{&m_pActionAbout, ACTION_ID_ABOUT,
+			this, SLOT(slotAbout())},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -505,6 +519,8 @@ void MainWindow::createActionsAndMenus()
 			item.id, this);
 		*item.ppAction = pAction;
 		m_settableActionsList.push_back(pAction);
+		connect(pAction, SIGNAL(triggered()),
+			item.pObjectToConnect, item.slotToConnect);
 	}
 
 //------------------------------------------------------------------------------
@@ -547,29 +563,6 @@ void MainWindow::createActionsAndMenus()
 
 	QMenu * pHelpMenu = m_ui.menuBar->addMenu(trUtf8("Help"));
 	pHelpMenu->addAction(m_pActionAbout);
-
-//------------------------------------------------------------------------------
-
-	connect(m_pActionNewScript, SIGNAL(triggered()),
-		this, SLOT(slotNewScript()));
-	connect(m_pActionOpenScript, SIGNAL(triggered()),
-		this, SLOT(slotOpenScript()));
-	connect(m_pActionSaveScript, SIGNAL(triggered()),
-		this, SLOT(slotSaveScript()));
-	connect(m_pActionSaveScriptAs, SIGNAL(triggered()),
-		this, SLOT(slotSaveScriptAs()));
-	connect(m_pActionExit, SIGNAL(triggered()), this, SLOT(close()));
-	connect(m_pActionTemplates, SIGNAL(triggered()),
-		this, SLOT(slotTemplates()));
-	connect(m_pActionSettings, SIGNAL(triggered()),
-		m_pSettingsDialog, SLOT(slotCall()));
-	connect(m_pActionPreview, SIGNAL(triggered()), this, SLOT(slotPreview()));
-	connect(m_pActionCheckScript, SIGNAL(triggered()),
-		this, SLOT(slotCheckScript()));
-	connect(m_pActionBenchmark, SIGNAL(triggered()),
-		this, SLOT(slotBenchmark()));
-	connect(m_pActionEncode, SIGNAL(triggered()), this, SLOT(slotEncode()));
-	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()));
 }
 
 // END OF void MainWindow::createActionsAndMenus()
