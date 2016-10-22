@@ -1244,31 +1244,51 @@ void PreviewDialog::createActionsAndMenus()
 	{
 		QAction ** ppAction;
 		const char * id;
+		bool checkable;
+		const char * slotToConnect;
 	};
 
 	ActionToCreate actionsToCreate[] =
 	{
-		{&m_pActionFrameToClipboard, ACTION_ID_FRAME_TO_CLIPBOARD},
-		{&m_pActionSaveSnapshot, ACTION_ID_SAVE_SNAPSHOT},
-		{&m_pActionToggleZoomPanel, ACTION_ID_TOGGLE_ZOOM_PANEL},
-		{&m_pActionSetZoomModeNoZoom, ACTION_ID_SET_ZOOM_MODE_NO_ZOOM},
-		{&m_pActionSetZoomModeFixedRatio, ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO},
-		{&m_pActionSetZoomModeFitToFrame, ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME},
+		{&m_pActionFrameToClipboard, ACTION_ID_FRAME_TO_CLIPBOARD,
+			false, SLOT(slotFrameToClipboard())},
+		{&m_pActionSaveSnapshot, ACTION_ID_SAVE_SNAPSHOT,
+			false, SLOT(slotSaveSnapshot())},
+		{&m_pActionToggleZoomPanel, ACTION_ID_TOGGLE_ZOOM_PANEL,
+			true, SLOT(slotToggleZoomPanelVisible(bool))},
+		{&m_pActionSetZoomModeNoZoom, ACTION_ID_SET_ZOOM_MODE_NO_ZOOM,
+			true, SLOT(slotZoomModeChanged())},
+		{&m_pActionSetZoomModeFixedRatio, ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO,
+			true, SLOT(slotZoomModeChanged())},
+		{&m_pActionSetZoomModeFitToFrame, ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME,
+			true, SLOT(slotZoomModeChanged())},
 		{&m_pActionSetZoomScaleModeNearest,
-			ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST},
+			ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST,
+			true, SLOT(slotScaleModeChanged())},
 		{&m_pActionSetZoomScaleModeBilinear,
-			ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR},
-		{&m_pActionToggleCropPanel, ACTION_ID_TOGGLE_CROP_PANEL},
-		{&m_pActionToggleTimeLinePanel, ACTION_ID_TOGGLE_TIMELINE_PANEL},
-		{&m_pActionSetTimeLineModeTime, ACTION_ID_SET_TIMELINE_MODE_TIME},
-		{&m_pActionSetTimeLineModeFrames, ACTION_ID_SET_TIMELINE_MODE_FRAMES},
-		{&m_pActionTimeStepForward, ACTION_ID_TIME_STEP_FORWARD},
-		{&m_pActionTimeStepBack, ACTION_ID_TIME_STEP_BACK},
+			ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR,
+			true, SLOT(slotScaleModeChanged())},
+		{&m_pActionToggleCropPanel, ACTION_ID_TOGGLE_CROP_PANEL,
+			true, SLOT(slotToggleCropPanelVisible(bool))},
+		{&m_pActionToggleTimeLinePanel, ACTION_ID_TOGGLE_TIMELINE_PANEL,
+			true, SLOT(slotToggleTimeLinePanelVisible(bool))},
+		{&m_pActionSetTimeLineModeTime, ACTION_ID_SET_TIMELINE_MODE_TIME,
+			true, SLOT(slotTimeLineModeChanged())},
+		{&m_pActionSetTimeLineModeFrames, ACTION_ID_SET_TIMELINE_MODE_FRAMES,
+			true, SLOT(slotTimeLineModeChanged())},
+		{&m_pActionTimeStepForward, ACTION_ID_TIME_STEP_FORWARD,
+			false, SLOT(slotTimeStepForward())},
+		{&m_pActionTimeStepBack, ACTION_ID_TIME_STEP_BACK,
+			false, SLOT(slotTimeStepBack())},
 		{&m_pActionPasteCropSnippetIntoScript,
-			ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT},
-		{&m_pActionAdvancedSettingsDialog, ACTION_ID_ADVANCED_PREVIEW_SETTINGS},
-		{&m_pActionToggleColorPicker, ACTION_ID_TOGGLE_COLOR_PICKER},
-		{&m_pActionPlay, ACTION_ID_PLAY},
+			ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT,
+			false, SLOT(slotPasteCropSnippetIntoScript())},
+		{&m_pActionAdvancedSettingsDialog, ACTION_ID_ADVANCED_PREVIEW_SETTINGS,
+			false, SLOT(slotCallAdvancedSettingsDialog())},
+		{&m_pActionToggleColorPicker, ACTION_ID_TOGGLE_COLOR_PICKER,
+			true, SLOT(slotToggleColorPicker(bool))},
+		{&m_pActionPlay, ACTION_ID_PLAY,
+			true, SLOT(slotPlay(bool))},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -1276,6 +1296,7 @@ void PreviewDialog::createActionsAndMenus()
 		QAction * pAction =
 			m_pSettingsManager->createStandardAction(item.id, this);
 		*item.ppAction = pAction;
+		pAction->setCheckable(item.checkable);
 		m_settableActionsList.push_back(pAction);
 	}
 
@@ -1284,7 +1305,6 @@ void PreviewDialog::createActionsAndMenus()
 	m_pPreviewContextMenu = new QMenu(this);
 	m_pPreviewContextMenu->addAction(m_pActionFrameToClipboard);
 	m_pPreviewContextMenu->addAction(m_pActionSaveSnapshot);
-	m_pActionToggleZoomPanel->setCheckable(true);
 	m_pActionToggleZoomPanel->setChecked(
 		m_pSettingsManager->getZoomPanelVisible());
 	m_pPreviewContextMenu->addAction(m_pActionToggleZoomPanel);
@@ -1315,7 +1335,6 @@ void PreviewDialog::createActionsAndMenus()
 	for(ZoomModeAction & action : zoomModeActions)
 	{
 		QString id = action.pAction->data().toString();
-		action.pAction->setCheckable(true);
 		action.pAction->setActionGroup(m_pActionGroupZoomModes);
 		m_pMenuZoomModes->addAction(action.pAction);
 		m_actionIDToZoomModeMap[id] = action.zoomMode;
@@ -1349,7 +1368,6 @@ void PreviewDialog::createActionsAndMenus()
 	for(ScaleModeAction & action : scaleModeActions)
 	{
 		QString id = action.pAction->data().toString();
-		action.pAction->setCheckable(true);
 		action.pAction->setActionGroup(m_pActionGroupZoomScaleModes);
 		m_pMenuZoomScaleModes->addAction(action.pAction);
 		m_actionIDToZoomScaleModeMap[id] = action.scaleMode;
@@ -1363,9 +1381,7 @@ void PreviewDialog::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	m_pActionToggleCropPanel->setCheckable(true);
 	m_pPreviewContextMenu->addAction(m_pActionToggleCropPanel);
-	m_pActionToggleTimeLinePanel->setCheckable(true);
 	m_pPreviewContextMenu->addAction(m_pActionToggleTimeLinePanel);
 
 //------------------------------------------------------------------------------
@@ -1394,7 +1410,6 @@ void PreviewDialog::createActionsAndMenus()
 	for(TimeLineModeAction & action : timeLineModeAction)
 	{
 		QString id = action.pAction->data().toString();
-		action.pAction->setCheckable(true);
 		action.pAction->setActionGroup(m_pActionGroupTimeLineModes);
 		m_pMenuTimeLineModes->addAction(action.pAction);
 		m_actionIDToTimeLineModeMap[id] = action.timeLineMode;
@@ -1408,53 +1423,21 @@ void PreviewDialog::createActionsAndMenus()
 	addAction(m_pActionTimeStepForward);
 	addAction(m_pActionTimeStepBack);
 
-	m_pActionToggleColorPicker->setCheckable(true);
 	m_pActionToggleColorPicker->setChecked(
 		m_pSettingsManager->getColorPickerVisible());
 	m_pPreviewContextMenu->addAction(m_pActionToggleColorPicker);
 
-	m_pActionPlay->setCheckable(true);
 	m_pActionPlay->setChecked(false);
 	addAction(m_pActionPlay);
 
 //------------------------------------------------------------------------------
 
-	connect(m_pActionFrameToClipboard, SIGNAL(triggered()),
-		this, SLOT(slotFrameToClipboard()));
-	connect(m_pActionSaveSnapshot, SIGNAL(triggered()),
-		this, SLOT(slotSaveSnapshot()));
-	connect(m_pActionToggleZoomPanel, SIGNAL(toggled(bool)),
-		this, SLOT(slotToggleZoomPanelVisible(bool)));
-	connect(m_pActionSetZoomModeNoZoom, SIGNAL(toggled(bool)),
-		this, SLOT(slotZoomModeChanged()));
-	connect(m_pActionSetZoomModeFixedRatio, SIGNAL(toggled(bool)),
-		this, SLOT(slotZoomModeChanged()));
-	connect(m_pActionSetZoomModeFitToFrame, SIGNAL(toggled(bool)),
-		this, SLOT(slotZoomModeChanged()));
-	connect(m_pActionSetZoomScaleModeNearest, SIGNAL(toggled(bool)),
-		this, SLOT(slotScaleModeChanged()));
-	connect(m_pActionSetZoomScaleModeBilinear, SIGNAL(toggled(bool)),
-		this, SLOT(slotScaleModeChanged()));
-	connect(m_pActionToggleCropPanel, SIGNAL(toggled(bool)),
-		this, SLOT(slotToggleCropPanelVisible(bool)));
-	connect(m_pActionToggleTimeLinePanel, SIGNAL(toggled(bool)),
-		this, SLOT(slotToggleTimeLinePanelVisible(bool)));
-	connect(m_pActionSetTimeLineModeTime, SIGNAL(toggled(bool)),
-		this, SLOT(slotTimeLineModeChanged()));
-	connect(m_pActionSetTimeLineModeFrames, SIGNAL(toggled(bool)),
-		this, SLOT(slotTimeLineModeChanged()));
-	connect(m_pActionTimeStepForward, SIGNAL(triggered()),
-		this, SLOT(slotTimeStepForward()));
-	connect(m_pActionTimeStepBack, SIGNAL(triggered()),
-		this, SLOT(slotTimeStepBack()));
-	connect(m_pActionPasteCropSnippetIntoScript, SIGNAL(triggered()),
-		this, SLOT(slotPasteCropSnippetIntoScript()));
-	connect(m_pActionAdvancedSettingsDialog, SIGNAL(triggered()),
-		this, SLOT(slotCallAdvancedSettingsDialog()));
-	connect(m_pActionToggleColorPicker, SIGNAL(toggled(bool)),
-		this, SLOT(slotToggleColorPicker(bool)));
-	connect(m_pActionPlay, SIGNAL(toggled(bool)),
-		this, SLOT(slotPlay(bool)));
+	for(ActionToCreate & item : actionsToCreate)
+	{
+		const char * signal =
+			item.checkable ? SIGNAL(toggled(bool)) : SIGNAL(triggered());
+		connect(*item.ppAction, signal, this, item.slotToConnect);
+	}
 }
 
 // END OF void PreviewDialog::createActionsAndMenus()
