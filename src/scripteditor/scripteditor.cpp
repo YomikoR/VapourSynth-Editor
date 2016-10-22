@@ -737,15 +737,21 @@ void ScriptEditor::createActionsAndMenus()
 	{
 		QAction ** ppAction;
 		const char * id;
+		const char * slotToConnect;
 	};
 
 	ActionToCreate actionsToCreate[] =
 	{
-		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION},
-		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION},
-		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION},
-		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES},
-		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE},
+		{&m_pActionDuplicateSelection, ACTION_ID_DUPLICATE_SELECTION,
+			SLOT(slotDuplicateSelection())},
+		{&m_pActionCommentSelection, ACTION_ID_COMMENT_SELECTION,
+			SLOT(slotCommentSelection())},
+		{&m_pActionUncommentSelection, ACTION_ID_UNCOMMENT_SELECTION,
+			SLOT(slotUncommentSelection())},
+		{&m_pActionReplaceTabWithSpaces, ACTION_ID_REPLACE_TAB_WITH_SPACES,
+			SLOT(slotReplaceTabWithSpaces())},
+		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE,
+			SLOT(slotComplete())},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -758,18 +764,8 @@ void ScriptEditor::createActionsAndMenus()
 		*item.ppAction = pAction;
 		addAction(pAction);
 		m_settableActionsList.push_back(pAction);
+		connect(pAction, SIGNAL(triggered()), this, item.slotToConnect);
 	}
-
-	connect(m_pActionDuplicateSelection, SIGNAL(triggered()),
-		this, SLOT(slotDuplicateSelection()));
-	connect(m_pActionCommentSelection, SIGNAL(triggered()),
-		this, SLOT(slotCommentSelection()));
-	connect(m_pActionUncommentSelection, SIGNAL(triggered()),
-		this, SLOT(slotUncommentSelection()));
-	connect(m_pActionReplaceTabWithSpaces, SIGNAL(triggered()),
-		this, SLOT(slotReplaceTabWithSpaces()));
-	connect(m_pActionAutocomplete, SIGNAL(triggered()),
-		this, SLOT(slotComplete()));
 
 	if(m_pContextMenu)
 		delete m_pContextMenu;
