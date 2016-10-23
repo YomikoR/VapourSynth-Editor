@@ -46,6 +46,9 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_plainText()
 	, m_backgroundColor(Qt::white)
 	, m_activeLineColor(Qt::lightGray)
+	, m_highlightSelectionMatches(DEFAULT_HIGHLIGHT_SELECTION_MATCHES)
+	, m_highlightSelectionMatchesMinLength(
+		DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH)
 	, m_commonScriptTextFormat()
 	, m_tabText("\t")
 	, m_spacesInTab(DEFAULT_SPACES_IN_TAB)
@@ -55,9 +58,6 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_pActionReplaceTabWithSpaces(nullptr)
 	, m_pActionAutocomplete(nullptr)
 	, m_pContextMenu(nullptr)
-	, m_highlightSelectionMatches(DEFAULT_HIGHLIGHT_SELECTION_MATCHES)
-	, m_highlightSelectionMatchesMinLength(
-		DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH)
 {
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);

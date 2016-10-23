@@ -135,7 +135,7 @@ bool DropFileCategoryModel::setData(const QModelIndex & a_index,
 
 	if(a_index.column() == NAME_COLUMN)
 	{
-		for(size_t i = 0; i < m_categories.size(); ++i)
+		for(int i = 0; i < (int)m_categories.size(); ++i)
 		{
 			if((i != a_index.row()) &&
 				(m_categories[i].name == a_value.toString()))
@@ -148,7 +148,7 @@ bool DropFileCategoryModel::setData(const QModelIndex & a_index,
 	if(a_index.column() == MASK_LIST_COLUMN)
 	{
 		QStringList maskList = a_value.toString().split(MASK_LIST_SPLITTER);
-		for(size_t i = 0; i < m_categories.size(); ++i)
+		for(int i = 0; i < (int)m_categories.size(); ++i)
 		{
 			if(i == a_index.row())
 				continue;
@@ -195,7 +195,8 @@ void DropFileCategoryModel::setCategories(
 
 void DropFileCategoryModel::addCategory()
 {
-	beginInsertRows(QModelIndex(), m_categories.size(), m_categories.size());
+	beginInsertRows(QModelIndex(), (int)m_categories.size(),
+		(int)m_categories.size());
 	m_categories.emplace_back();
 	endInsertRows();
 }
@@ -205,7 +206,7 @@ void DropFileCategoryModel::addCategory()
 
 void DropFileCategoryModel::deleteCategory(int a_index)
 {
-	if(a_index >= m_categories.size())
+	if(a_index >= (int)m_categories.size())
 		return;
 	beginRemoveRows(QModelIndex(), a_index, a_index);
 	m_categories.erase(m_categories.begin() + a_index);
@@ -216,7 +217,7 @@ void DropFileCategoryModel::deleteCategory(int a_index)
 
 QString DropFileCategoryModel::sourceTemplate(int a_index) const
 {
-	if(a_index >= m_categories.size())
+	if(a_index >= (int)m_categories.size())
 		return QString();
 	return m_categories[a_index].sourceTemplate;
 }
@@ -226,7 +227,7 @@ QString DropFileCategoryModel::sourceTemplate(int a_index) const
 void DropFileCategoryModel::setSourceTemplate(int a_index,
 	const QString & a_text)
 {
-	if(a_index >= m_categories.size())
+	if(a_index >= (int)m_categories.size())
 		return;
 	m_categories[a_index].sourceTemplate = a_text;
 }
