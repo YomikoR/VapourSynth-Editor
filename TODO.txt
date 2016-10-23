@@ -1,4 +1,3 @@
-- subsampling variable for encoder
 - colour picking panel needs better placement
 - improved log
 - y4m header for encoding
