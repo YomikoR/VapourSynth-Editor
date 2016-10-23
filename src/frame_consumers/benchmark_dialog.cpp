@@ -223,7 +223,14 @@ void ScriptBenchmarkDialog::updateMetrics()
 		.arg(passedString).arg(QString::number(fps, 'f', 20));
 
 	if(m_framesFailed > 0)
-		text += trUtf8("; %1 frames failed.").arg(m_framesFailed);
+		text += trUtf8("; %1 frames failed").arg(m_framesFailed);
+
+	if(m_framesProcessed < m_framesTotal)
+	{
+		double estimated = (m_framesTotal - m_framesProcessed) / fps;
+		QString estimatedString = vsedit::timeToString(estimated);
+		text += trUtf8("; estimated time to finish: %1").arg(estimatedString);
+	}
 
 	m_ui.metricsEdit->setText(text);
 

@@ -659,6 +659,15 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 		double fps = (double)m_framesProcessed / passed;
 		QString text = trUtf8("Time elapsed: %1 - %2 FPS")
 			.arg(passedString).arg(QString::number(fps, 'f', 20));
+
+		if(m_framesProcessed < m_framesTotal)
+		{
+			double estimated = (m_framesTotal - m_framesProcessed) / fps;
+			QString estimatedString = vsedit::timeToString(estimated);
+			text += trUtf8("; estimated time to finish: %1")
+				.arg(estimatedString);
+		}
+
 		m_ui.metricsEdit->setText(text);
 	}
 
