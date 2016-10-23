@@ -21,6 +21,7 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -Option to highlight selection matches in script editor.
 -Timeline bookmarks with auto-saving/loading bookmarks file along the script file.
 -Remember timeline panel visibility.
+-Most timeline colours are bound to OS theme.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
