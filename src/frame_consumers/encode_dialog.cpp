@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <cassert>
+#include <algorithm>
 
 //==============================================================================
 
@@ -177,18 +178,23 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 			return;
 	}
 
-	m_ui.feedbackTextEdit->appendPlainText(trUtf8("Command line:"));
-	QString executable = m_ui.executablePathEdit->text();
-	QString decodedArguments =
-		decodeArguments(m_ui.argumentsTextEdit->toPlainText());
-	QString commandLine = QString("\"%1\" %2").arg(executable)
-		.arg(decodedArguments);
-	m_ui.feedbackTextEdit->appendPlainText(commandLine);
-
 	m_lastFrameProcessed = m_firstFrame - 1;
 	m_lastFrameRequested = m_firstFrame - 1;
 	m_framesTotal = m_lastFrame - m_firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
+
+	QString executable = m_ui.executablePathEdit->text();
+
+	// Make sure every needed variable is properly set
+	// before decoding arguments.
+	QString decodedArguments =
+		decodeArguments(m_ui.argumentsTextEdit->toPlainText());
+	QString commandLine = QString("\"%1\" %2").arg(executable)
+		.arg(decodedArguments);
+
+	m_ui.feedbackTextEdit->appendPlainText(trUtf8("Command line:"));
+	m_ui.feedbackTextEdit->appendPlainText(commandLine);
+
 	m_ui.startStopEncodeButton->setText(trUtf8("Stop"));
 
 	slotWriteLogMessage(mtDebug, trUtf8("Checking the encoder sanity."));
@@ -881,7 +887,21 @@ void EncodeDialog::fillVariables()
 				return scriptFile.completeBaseName();
 			}
 		},
+
+		{"%f", trUtf8("total frames number"),
+			[&]()
+			{
+				return QString::number(m_framesTotal);
+			}
+		},
 	};
+
+	std::sort(m_variables.begin(), m_variables.end(),
+		[&](const VariableToken & a_first, const VariableToken & a_second)
+			-> bool
+		{
+			return (a_first.token.length() > a_second.token.length());
+		});
 }
 
 // END OF void EncodeDialog::fillVariables()
