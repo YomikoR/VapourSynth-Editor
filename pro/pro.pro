@@ -33,12 +33,6 @@ CONFIG(debug, debug|release) {
 		QMAKE_CXXFLAGS += -O0
 		QMAKE_CXXFLAGS += -g
 		QMAKE_CXXFLAGS += -ggdb3
-		QMAKE_CXXFLAGS += -Wall
-		QMAKE_CXXFLAGS += -Wextra
-		QMAKE_CXXFLAGS += -Wredundant-decls
-		QMAKE_CXXFLAGS += -Wshadow
-		#QMAKE_CXXFLAGS += -Weffc++
-		QMAKE_CXXFLAGS += -pedantic
 	}
 
 	contains(QMAKE_COMPILER, msvc) {
@@ -83,7 +77,6 @@ CONFIG(debug, debug|release) {
 		}
 	}
 
-	CONFIG += warn_off
 	DEFINES += NDEBUG
 
 }
@@ -131,6 +124,13 @@ contains(QMAKE_COMPILER, clang) {
 
 contains(QMAKE_COMPILER, gcc) {
 	QMAKE_CXXFLAGS += -std=c++11
+	QMAKE_CXXFLAGS += -Wall
+	QMAKE_CXXFLAGS += -Wextra
+	QMAKE_CXXFLAGS += -Wredundant-decls
+	QMAKE_CXXFLAGS += -Wshadow
+	#QMAKE_CXXFLAGS += -Weffc++
+	QMAKE_CXXFLAGS += -pedantic
+
 	LIBS += -L$$[QT_INSTALL_LIBS]
 } else {
 	CONFIG += c++11
