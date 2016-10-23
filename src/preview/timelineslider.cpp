@@ -10,6 +10,7 @@
 #include <climits>
 #include <cmath>
 #include <cstdlib>
+#include <map>
 
 #include "../common/helpers.h"
 
@@ -47,6 +48,13 @@ TimeLineSlider::TimeLineSlider(QWidget * a_pParent) : QWidget(a_pParent)
 	qreal factor = (qreal)m_textHeight /
 		metrics.tightBoundingRect("9").height();
 	m_labelsFont.setPointSizeF(m_labelsFont.pointSizeF() * factor);
+
+	m_slideLineColor = palette().color(QPalette::Base);
+	m_activeFrameColor = palette().color(QPalette::Highlight);
+	m_inactiveFrameColor = palette().color(QPalette::Dark);
+	m_currentFramePointerColor = palette().color(QPalette::Dark);
+	m_slidingPointerColor = palette().color(QPalette::Text);
+	m_bookmarkColor = Qt::magenta;
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
@@ -146,9 +154,34 @@ void TimeLineSlider::setLabelsFont(const QFont & a_font)
 	QFontMetrics metrics(m_labelsFont);
 	m_textHeight = metrics.tightBoundingRect("9").height();
 	recalculateMinimumSize();
+	update();
 }
 
 // END OF void TimeLineSlider::setLabelsFont(const QFont & a_font)
+//==============================================================================
+
+void TimeLineSlider::setColor(ColorRole a_role, const QColor & a_color)
+{
+	std::map<ColorRole, QColor *> colorRoleMap =
+	{
+		{SlideLine, &m_slideLineColor},
+		{ActiveFrame, &m_activeFrameColor},
+		{InactiveFrame, &m_inactiveFrameColor},
+		{CurrentFramePointer, &m_currentFramePointerColor},
+		{SlidingPointer, &m_slidingPointerColor},
+		{Bookmark, &m_bookmarkColor},
+	};
+
+	std::map<ColorRole, QColor *>::iterator it = colorRoleMap.find(a_role);
+	if(it == colorRoleMap.end())
+		return;
+
+	*(it->second) = a_color;
+	update();
+}
+
+// END OF void TimeLineSlider::setColor(ColorRole a_role,
+//		const QColor & a_color)
 //==============================================================================
 
 void TimeLineSlider::addBookmark(int a_bookmark)
@@ -497,13 +530,13 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 
 	// Slide line
 	QRect l_slideLineRect = slideLineRect();
-	painter.setBrush(palette().color(QPalette::Base));
+	painter.setBrush(m_slideLineColor);
 	QPen pen = painter.pen();
 	QColor frameColor;
 	if(hasFocus())
-		frameColor = QColor("#4DBBFF");
+		frameColor = m_activeFrameColor;
 	else
-		frameColor = palette().color(QPalette::Dark);
+		frameColor = m_inactiveFrameColor;
 	pen.setColor(frameColor);
 	pen.setWidth(m_slideLineFrameWidth);
 	painter.setPen(pen);
@@ -512,7 +545,7 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 	painter.drawRect(l_slideLineRect.marginsRemoved(slideLineMargins));
 
 	// Bookmarks
-	pen.setColor(Qt::magenta);
+	pen.setColor(m_bookmarkColor);
 	pen.setWidth(1);
 	painter.setPen(pen);
 	int pointerTop = l_slideLineRect.top() + m_slideLineFrameWidth;
@@ -526,16 +559,17 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 	}
 
 	// Current frame pointer
-	painter.setPen(Qt::lightGray);
+	painter.setPen(m_currentFramePointerColor);
 	int pointerPos = frameToPos(m_currentFrame);
 	painter.drawLine(pointerPos, pointerTop, pointerPos, pointerBottom);
 
 	// Sliding frame pointer
-	painter.setPen(Qt::black);
+	painter.setPen(m_slidingPointerColor);
 	pointerPos = frameToPos(m_pointerAtFrame);
 	painter.drawLine(pointerPos, pointerTop, pointerPos, pointerBottom);
 
 	// Ruler
+	painter.setPen(palette().color(QPalette::WindowText));
 	DisplayMode l_displayMode = Time;
 	if((m_displayMode == Frames) || (m_fps == 0.0))
 		l_displayMode = Frames;

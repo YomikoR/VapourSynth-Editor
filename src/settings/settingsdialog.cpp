@@ -177,6 +177,8 @@ void SettingsDialog::addThemeElements()
 		trUtf8("Active line color"));
 	m_pThemeElementsModel->addColor(COLOR_ID_SELECTION_MATCHES,
 		trUtf8("Selection matches color"));
+	m_pThemeElementsModel->addColor(COLOR_ID_TIMELINE_BOOKMARKS,
+		trUtf8("Timeline bookmarks color"));
 }
 
 // END OF void SettingsDialog::addThemeElements()

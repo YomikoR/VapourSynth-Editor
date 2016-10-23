@@ -933,9 +933,17 @@ void PreviewDialog::slotSettingsChanged()
 		pAction->setShortcut(hotkey);
 	}
 
+	m_ui.frameNumberSlider->setUpdatesEnabled(false);
+
 	QFont sliderLabelsFont =
 		m_pSettingsManager->getTextFormat(TEXT_FORMAT_ID_TIMELINE).font();
 	m_ui.frameNumberSlider->setLabelsFont(sliderLabelsFont);
+
+	QColor bookmarksColor =
+		m_pSettingsManager->getColor(COLOR_ID_TIMELINE_BOOKMARKS);
+	m_ui.frameNumberSlider->setColor(TimeLineSlider::Bookmark, bookmarksColor);
+
+	m_ui.frameNumberSlider->setUpdatesEnabled(true);
 }
 
 // END OF void PreviewDialog::slotSettingsChanged()

@@ -163,6 +163,7 @@ const char TEXT_FORMAT_ID_TIMELINE[] = "timeline_text";
 const char COLOR_ID_TEXT_BACKGROUND[] = "text_background_color";
 const char COLOR_ID_ACTIVE_LINE[] = "active_line_color";
 const char COLOR_ID_SELECTION_MATCHES[] = "selection_matches";
+const char COLOR_ID_TIMELINE_BOOKMARKS[] = "timeline_bookmarks";
 
 const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 
@@ -650,6 +651,9 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 	if(a_colorID == COLOR_ID_SELECTION_MATCHES)
 		return QColor("#FFCCFF");
+
+	if(a_colorID == COLOR_ID_TIMELINE_BOOKMARKS)
+		return Qt::magenta;
 
 	return defaultColor;
 }

@@ -191,6 +191,7 @@ extern const char TEXT_FORMAT_ID_TIMELINE[];
 extern const char COLOR_ID_TEXT_BACKGROUND[];
 extern const char COLOR_ID_ACTIVE_LINE[];
 extern const char COLOR_ID_SELECTION_MATCHES[];
+extern const char COLOR_ID_TIMELINE_BOOKMARKS[];
 
 //==============================================================================
 

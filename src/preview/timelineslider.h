@@ -25,6 +25,16 @@ public:
 		Frames,
 	};
 
+	enum ColorRole
+	{
+		SlideLine,
+		ActiveFrame,
+		InactiveFrame,
+		CurrentFramePointer,
+		SlidingPointer,
+		Bookmark,
+	};
+
 	int frame() const;
 
 	void setFrame(int a_frame);
@@ -40,6 +50,7 @@ public:
 	void setBigStep(int a_bigStep);
 
 	void setLabelsFont(const QFont & a_font);
+	void setColor(ColorRole a_role, const QColor & a_color);
 
 	void addBookmark(int a_bookmark);
 	void removeBookmark(int a_bookmark);
@@ -127,6 +138,12 @@ private:
 	bool m_sliderPressed;
 
 	QFont m_labelsFont;
+	QColor m_slideLineColor;
+	QColor m_activeFrameColor;
+	QColor m_inactiveFrameColor;
+	QColor m_currentFramePointerColor;
+	QColor m_slidingPointerColor;
+	QColor m_bookmarkColor;
 
 	std::set<int> m_bookmarks;
 };
