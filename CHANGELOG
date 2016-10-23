@@ -17,11 +17,11 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -New script template setting.
 -Code snippets.
 -File drop templates.
--System-dependent default standard hotkeys.
 -Option to highlight selection matches in script editor.
 -Timeline bookmarks with auto-saving/loading bookmarks file along the script file.
 -Remember timeline panel visibility.
 -Most timeline colours are bound to OS theme.
+-Changes in default standard hotkeys. Many default hotkeys are now OS-dependent. CTRL + arrows in preview window now move between bookmarks and CTRL + SHIFT + arrows jump time intervals.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
