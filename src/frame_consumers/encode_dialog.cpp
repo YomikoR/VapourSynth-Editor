@@ -837,35 +837,35 @@ void EncodeDialog::fillVariables()
 {
 	m_variables =
 	{
-		{"%w", trUtf8("video width"),
+		{"{w}", trUtf8("video width"),
 			[&]()
 			{
 				return QString::number(m_cpVideoInfo->width);
 			}
 		},
 
-		{"%h", trUtf8("video height"),
+		{"{h}", trUtf8("video height"),
 			[&]()
 			{
 				return QString::number(m_cpVideoInfo->height);
 			}
 		},
 
-		{"%fpsn", trUtf8("video framerate numerator"),
+		{"{fpsn}", trUtf8("video framerate numerator"),
 			[&]()
 			{
 				return QString::number(m_cpVideoInfo->fpsNum);
 			}
 		},
 
-		{"%fpsd", trUtf8("video framerate denominator"),
+		{"{fpsd}", trUtf8("video framerate denominator"),
 			[&]()
 			{
 				return QString::number(m_cpVideoInfo->fpsDen);
 			}
 		},
 
-		{"%fps", trUtf8("video framerate as fraction"),
+		{"{fps}", trUtf8("video framerate as fraction"),
 			[&]()
 			{
 				double fps = (double)m_cpVideoInfo->fpsNum /
@@ -874,14 +874,14 @@ void EncodeDialog::fillVariables()
 			}
 		},
 
-		{"%bits", trUtf8("video colour bitdepth"),
+		{"{bits}", trUtf8("video colour bitdepth"),
 			[&]()
 			{
 				return QString::number(m_cpVideoInfo->format->bitsPerSample);
 			}
 		},
 
-		{"%sd", trUtf8("script directory"),
+		{"{sd}", trUtf8("script directory"),
 			[&]()
 			{
 				QFileInfo scriptFile(scriptName());
@@ -889,7 +889,7 @@ void EncodeDialog::fillVariables()
 			}
 		},
 
-		{"%sn", trUtf8("script name without extension"),
+		{"{sn}", trUtf8("script name without extension"),
 			[&]()
 			{
 				QFileInfo scriptFile(scriptName());
@@ -897,14 +897,14 @@ void EncodeDialog::fillVariables()
 			}
 		},
 
-		{"%f", trUtf8("total frames number"),
+		{"{f}", trUtf8("total frames number"),
 			[&]()
 			{
 				return QString::number(m_framesTotal);
 			}
 		},
 
-		{"%ss", trUtf8("subsampling string (like 420)"),
+		{"{ss}", trUtf8("subsampling string (like 420)"),
 			[&]()
 			{
 				const VSFormat * cpFormat = m_cpVideoInfo->format;
