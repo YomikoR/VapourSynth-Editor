@@ -126,8 +126,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	setUpTimeLinePanel();
 
 	m_ui.colorPickerButton->setDefaultAction(m_pActionToggleColorPicker);
-	m_ui.colorPickerLabel->setVisible(
-		m_pSettingsManager->getColorPickerVisible());
 
 	QByteArray newGeometry = m_pSettingsManager->getPreviewDialogGeometry();
 	if(!newGeometry.isEmpty())
@@ -1008,7 +1006,7 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 
 void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 {
-	if(!m_ui.colorPickerLabel->isVisible())
+	if(!m_pActionToggleColorPicker->isChecked())
 		return;
 
 	double value1 = 0.0;
@@ -1026,10 +1024,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
 
 	if((frameX >= (size_t)width) || (frameY >= (size_t)height))
-	{
-		m_ui.colorPickerLabel->clear();
 		return;
-	}
 
 	if(cpFormat->id == pfCompatBGR32)
 	{
@@ -1076,7 +1071,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	if(colorFamily == cmGray)
 	{
 		QString colorString = QString("G:%1").arg(value1);
-		m_ui.colorPickerLabel->setText(colorString);
+		QToolTip::showText(QCursor::pos(), colorString);
 		return;
 	}
 	else if((colorFamily == cmYUV) || (formatID == pfCompatYUY2))
@@ -1100,7 +1095,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 
 	QString colorString = QString("%1:%2|%3:%4|%5:%6")
 		.arg(l1).arg(value1).arg(l2).arg(value2).arg(l3).arg(value3);
-	m_ui.colorPickerLabel->setText(colorString);
+	QToolTip::showText(QCursor::pos(), colorString, m_ui.previewArea->widget());
 }
 
 // END OF void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX,
@@ -1131,7 +1126,6 @@ void PreviewDialog::slotAdvancedSettingsChanged()
 
 void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 {
-	m_ui.colorPickerLabel->setVisible(a_colorPickerVisible);
 	m_pSettingsManager->setColorPickerVisible(a_colorPickerVisible);
 }
 

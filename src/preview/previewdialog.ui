@@ -219,13 +219,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="colorPickerLabel">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
      </layout>
      <zorder>colorPickerButton</zorder>
      <zorder>frameNumberSlider</zorder>
@@ -235,7 +228,6 @@
      <zorder>cropCheckButton</zorder>
      <zorder>zoomCheckButton</zorder>
      <zorder>zoomPanel</zorder>
-     <zorder>colorPickerLabel</zorder>
      <zorder>timeLineCheckButton</zorder>
      <zorder>frameNumberSpinBox</zorder>
      <zorder>frameStatusLabel</zorder>
