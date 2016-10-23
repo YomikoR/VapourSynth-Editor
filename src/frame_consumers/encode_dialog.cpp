@@ -903,6 +903,17 @@ void EncodeDialog::fillVariables()
 				return QString::number(m_framesTotal);
 			}
 		},
+
+		{"%ss", trUtf8("subsampling string (like 420)"),
+			[&]()
+			{
+				const VSFormat * cpFormat = m_cpVideoInfo->format;
+				if(!cpFormat)
+					return QString();
+				return vsedit::subsamplingString(cpFormat->subSamplingW,
+					cpFormat->subSamplingH);
+			}
+		},
 	};
 
 	std::sort(m_variables.begin(), m_variables.end(),

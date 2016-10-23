@@ -122,6 +122,33 @@ QTime vsedit::secondsToQTime(double a_seconds)
 // END OF QTime vsedit::secondsToQTime(double a_seconds)
 //==============================================================================
 
+QString vsedit::subsamplingString(int a_subsamplingW, int a_subsamplingH)
+{
+	if((a_subsamplingW == 0) && (a_subsamplingH == 0))
+		return QString("444");
+
+	if((a_subsamplingW == 0) && (a_subsamplingH == 1))
+		return QString("440");
+
+	if((a_subsamplingW == 1) && (a_subsamplingH == 0))
+		return QString("422");
+
+	if((a_subsamplingW == 1) && (a_subsamplingH == 1))
+		return QString("420");
+
+	if((a_subsamplingW == 2) && (a_subsamplingH == 0))
+		return QString("411");
+
+	if((a_subsamplingW == 2) && (a_subsamplingH == 2))
+		return QString("410");
+
+	return QString();
+}
+
+// END OF QString vsedit::subsamplingString(int a_subsamplingW,
+//		int a_subsamplingH)
+//==============================================================================
+
 vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)
 {
 	FP32 o = { 0 };

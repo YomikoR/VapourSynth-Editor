@@ -19,6 +19,8 @@ namespace vsedit
 
 	QTime secondsToQTime(double a_seconds);
 
+	QString subsamplingString(int a_subsamplingW, int a_subsamplingH);
+
 	template<typename T1, typename T2, typename T3>
 		void clamp(T1& a_value, const T2& a_low, const T3& a_high)
 	{
