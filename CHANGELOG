@@ -22,6 +22,8 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -Remember timeline panel visibility.
 -Most timeline colours are bound to OS theme.
 -Changes in default standard hotkeys. Many default hotkeys are now OS-dependent. CTRL + arrows in preview window now move between bookmarks and CTRL + SHIFT + arrows jump time intervals.
+-Frames number variable in encoder.
+-Estimated finish time output in benchmark and encoder.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.

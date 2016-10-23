@@ -1,6 +1,5 @@
+- subsampling variable for encoder
 - colour picking panel needs better placement
-- variable for total frames in encoder
-- time to complete estimation in benchmark and encoder
 - improved log
 - y4m header for encoding
 - raw avi writing
