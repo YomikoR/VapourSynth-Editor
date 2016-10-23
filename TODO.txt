@@ -1,3 +1,4 @@
+- colour picking panel needs better placement
 - improved log
 - y4m header for encoding
 - raw avi writing
