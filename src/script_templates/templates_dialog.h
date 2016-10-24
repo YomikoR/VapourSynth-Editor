@@ -57,6 +57,7 @@ private slots:
 	void slotDeleteSelectedDropFileCategoryButtonClicked();
 	void slotDropFileCategoryViewPressed(const QModelIndex & a_index);
 	void slotDisplayCurrentDropFileCategoryTemplate();
+	void slotUpdateDropFileCategories();
 
 	void slotSaveActionTriggered();
 

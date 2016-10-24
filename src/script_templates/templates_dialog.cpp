@@ -70,6 +70,8 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotDeleteSelectedDropFileCategoryButtonClicked()));
 	connect(m_ui.dropFileCategoryView, SIGNAL(pressed(const QModelIndex &)),
 		this, SLOT(slotDropFileCategoryViewPressed(const QModelIndex &)));
+	connect(m_ui.dropFileCategoryTemplateEdit, SIGNAL(textChanged()),
+		this, SLOT(slotUpdateDropFileCategories()));
 
 	slotLoadSettings();
 }
@@ -340,6 +342,18 @@ void TemplatesDialog::slotDisplayCurrentDropFileCategoryTemplate()
 }
 
 // END OF void TemplatesDialog::slotDisplayCurrentDropFileCategoryTemplate()
+//==============================================================================
+
+void TemplatesDialog::slotUpdateDropFileCategories()
+{
+	QModelIndex index = m_ui.dropFileCategoryView->currentIndex();
+	if(!index.isValid())
+		return;
+	QString sourceTemplate = m_ui.dropFileCategoryTemplateEdit->text();
+	m_pDropFileCategoryModel->setSourceTemplate(index.row(), sourceTemplate);
+}
+
+// END OF void TemplatesDialog::slotUpdateDropFileCategories()
 //==============================================================================
 
 void TemplatesDialog::slotSaveActionTriggered()
