@@ -94,6 +94,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
+	, m_pColorPickerLabel(nullptr)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -111,6 +112,11 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	createActionsAndMenus();
 
 	createStatusBar();
+
+	m_pColorPickerLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pColorPickerLabel);
+	m_pColorPickerLabel->setVisible(
+		m_pSettingsManager->getColorPickerVisible());
 
 	m_ui.frameNumberSlider->setBigStep(m_bigFrameStep);
 	m_ui.frameNumberSlider->setDisplayMode(
@@ -1006,7 +1012,7 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 
 void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 {
-	if(!m_pActionToggleColorPicker->isChecked())
+	if(!m_pColorPickerLabel->isVisible())
 		return;
 
 	double value1 = 0.0;
@@ -1068,13 +1074,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	int colorFamily = m_cpVideoInfo->format->colorFamily;
 	int formatID = m_cpVideoInfo->format->id;
 
-	if(colorFamily == cmGray)
-	{
-		QString colorString = QString("G:%1").arg(value1);
-		QToolTip::showText(QCursor::pos(), colorString);
-		return;
-	}
-	else if((colorFamily == cmYUV) || (formatID == pfCompatYUY2))
+	if((colorFamily == cmYUV) || (formatID == pfCompatYUY2))
 	{
 		l1 = "Y";
 		l2 = "U";
@@ -1095,7 +1095,11 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 
 	QString colorString = QString("%1:%2|%3:%4|%5:%6")
 		.arg(l1).arg(value1).arg(l2).arg(value2).arg(l3).arg(value3);
-	QToolTip::showText(QCursor::pos(), colorString, m_ui.previewArea->widget());
+
+	if(colorFamily == cmGray)
+		colorString = QString("G:%1").arg(value1);
+
+	m_pColorPickerLabel->setText(colorString);
 }
 
 // END OF void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX,
@@ -1126,6 +1130,7 @@ void PreviewDialog::slotAdvancedSettingsChanged()
 
 void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 {
+	m_pColorPickerLabel->setVisible(a_colorPickerVisible);
 	m_pSettingsManager->setColorPickerVisible(a_colorPickerVisible);
 }
 

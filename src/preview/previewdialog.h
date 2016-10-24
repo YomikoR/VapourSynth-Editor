@@ -231,6 +231,8 @@ protected:
 	QTimer * m_pPlayTimer;
 	QIcon m_iconPlay;
 	QIcon m_iconPause;
+
+	QLabel * m_pColorPickerLabel;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED
