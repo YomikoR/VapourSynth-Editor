@@ -1,4 +1,4 @@
-#include "scrollnavigator.h"
+#include "scroll_navigator.h"
 
 #include <QPaintEvent>
 #include <QPainter>

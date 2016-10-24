@@ -2,7 +2,7 @@
 #define VAPOURSYNTHSCRIPTPROCESSOR_H
 
 #include "vs_script_processor_structures.h"
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
 #include <QObject>
 #include <deque>

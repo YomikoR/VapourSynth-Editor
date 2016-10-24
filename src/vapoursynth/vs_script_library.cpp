@@ -1,6 +1,6 @@
 #include "vs_script_library.h"
 
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
 #include <QSettings>
 #include <QProcessEnvironment>

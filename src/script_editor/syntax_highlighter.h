@@ -1,7 +1,7 @@
 #ifndef SYNTAXHIGHLIGHTER_H
 #define SYNTAXHIGHLIGHTER_H
 
-#include "../vapoursynth/vsplugindata.h"
+#include "../vapoursynth/vs_plugin_data.h"
 
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>

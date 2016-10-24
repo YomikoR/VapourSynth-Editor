@@ -1,7 +1,7 @@
 #ifndef SETTINGS_DEFINITIONS_H_INCLUDED
 #define SETTINGS_DEFINITIONS_H_INCLUDED
 
-#include "../preview/timelineslider.h"
+#include "../preview/timeline_slider.h"
 
 #include <QString>
 #include <QIcon>

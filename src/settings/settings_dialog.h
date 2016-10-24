@@ -1,9 +1,9 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include <ui_settingsdialog.h>
+#include <ui_settings_dialog.h>
 
-#include "actionshotkeyeditmodel.h"
+#include "actions_hotkey_edit_model.h"
 
 class SettingsManager;
 class ItemDelegateForHotkey;

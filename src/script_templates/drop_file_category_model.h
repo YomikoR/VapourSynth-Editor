@@ -1,7 +1,7 @@
 #ifndef DROP_FILE_CATEGORY_MODEL_H_INCLUDED
 #define DROP_FILE_CATEGORY_MODEL_H_INCLUDED
 
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
 #include <QAbstractItemModel>
 

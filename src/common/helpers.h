@@ -1,10 +1,11 @@
 #ifndef HELPERS_H_INCLUDED
 #define HELPERS_H_INCLUDED
 
+#include <vapoursynth/VapourSynth.h>
+
 #include <QString>
 #include <QTime>
 #include <cassert>
-#include <vapoursynth/VapourSynth.h>
 #include <algorithm>
 
 namespace vsedit

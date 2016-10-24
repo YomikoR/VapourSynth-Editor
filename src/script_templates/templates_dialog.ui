@@ -302,7 +302,7 @@ In the template below use tokens: {f} - file path; {d} - file directory; {n} - f
   <customwidget>
    <class>ScriptEditor</class>
    <extends>QPlainTextEdit</extends>
-   <header>../../src/scripteditor/scripteditor.h</header>
+   <header>../../src/script_editor/script_editor.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

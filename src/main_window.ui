@@ -100,7 +100,7 @@
   <customwidget>
    <class>ScriptEditor</class>
    <extends>QPlainTextEdit</extends>
-   <header>../../src/scripteditor/scripteditor.h</header>
+   <header>../../src/script_editor/script_editor.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

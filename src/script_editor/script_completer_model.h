@@ -1,7 +1,7 @@
 #ifndef SCRIPTCOMPLETERMODEL_H
 #define SCRIPTCOMPLETERMODEL_H
 
-#include "../vapoursynth/vsplugindata.h"
+#include "../vapoursynth/vs_plugin_data.h"
 
 #include <QStandardItemModel>
 

@@ -5,7 +5,7 @@
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
 #include <QProcess>
 #include <vector>

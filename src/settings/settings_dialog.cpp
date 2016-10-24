@@ -1,7 +1,7 @@
-#include "settingsdialog.h"
+#include "settings_dialog.h"
 
-#include "settingsmanager.h"
-#include "itemdelegateforhotkey.h"
+#include "settings_manager.h"
+#include "item_delegate_for_hotkey.h"
 #include "theme_elements_model.h"
 
 #include <QFileDialog>

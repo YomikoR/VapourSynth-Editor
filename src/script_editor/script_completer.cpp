@@ -1,4 +1,4 @@
-#include "scriptcompleter.h"
+#include "script_completer.h"
 
 //==============================================================================
 

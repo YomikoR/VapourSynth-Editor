@@ -1,7 +1,7 @@
 #include "benchmark_dialog.h"
 
 #include "../common/helpers.h"
-#include "../vapoursynth/vapoursynthscriptprocessor.h"
+#include "../vapoursynth/vapoursynth_script_processor.h"
 
 #include <vapoursynth/VapourSynth.h>
 

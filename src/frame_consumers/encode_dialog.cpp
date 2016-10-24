@@ -1,8 +1,8 @@
 #include "encode_dialog.h"
 
 #include "../common/helpers.h"
-#include "../vapoursynth/vapoursynthscriptprocessor.h"
-#include "../settings/settingsdialog.h"
+#include "../vapoursynth/vapoursynth_script_processor.h"
+#include "../settings/settings_dialog.h"
 
 #include <vapoursynth/VapourSynth.h>
 #include <vapoursynth/VSHelper.h>

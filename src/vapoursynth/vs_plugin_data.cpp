@@ -1,4 +1,4 @@
-#include "vsplugindata.h"
+#include "vs_plugin_data.h"
 
 #include <QStringList>
 

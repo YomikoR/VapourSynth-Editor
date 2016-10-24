@@ -3,7 +3,7 @@
 
 #include <ui_templates_dialog.h>
 
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
 #include <QDialog>
 

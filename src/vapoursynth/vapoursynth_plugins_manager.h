@@ -1,9 +1,9 @@
 #ifndef VAPOURSYNTHPLUGINSMANAGER_H
 #define VAPOURSYNTHPLUGINSMANAGER_H
 
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
-#include "vsplugindata.h"
+#include "vs_plugin_data.h"
 
 #include <vapoursynth/VapourSynth.h>
 

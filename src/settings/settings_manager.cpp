@@ -1,4 +1,4 @@
-#include "settingsmanager.h"
+#include "settings_manager.h"
 
 #include <QCoreApplication>
 #include <QFile>

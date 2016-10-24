@@ -647,13 +647,13 @@
   <customwidget>
    <class>PreviewArea</class>
    <extends>QScrollArea</extends>
-   <header>../../src/preview/previewarea.h</header>
+   <header>../../src/preview/preview_area.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>TimeLineSlider</class>
    <extends>QWidget</extends>
-   <header>../../src/preview/timelineslider.h</header>
+   <header>../../src/preview/timeline_slider.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

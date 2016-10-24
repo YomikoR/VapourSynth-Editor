@@ -1,6 +1,6 @@
-#include "previewarea.h"
+#include "preview_area.h"
 
-#include "scrollnavigator.h"
+#include "scroll_navigator.h"
 
 #include <QLabel>
 #include <QKeyEvent>

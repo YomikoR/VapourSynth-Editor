@@ -1,4 +1,4 @@
-#include "timelineslider.h"
+#include "timeline_slider.h"
 
 #include "../common/helpers.h"
 

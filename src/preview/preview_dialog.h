@@ -1,10 +1,10 @@
 #ifndef PREVIEWDIALOG_H_INCLUDED
 #define PREVIEWDIALOG_H_INCLUDED
 
-#include <ui_previewdialog.h>
+#include <ui_preview_dialog.h>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 #include "../common/chrono.h"
 
 #include <QPixmap>

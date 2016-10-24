@@ -1,4 +1,4 @@
-#include "actionshotkeyeditmodel.h"
+#include "actions_hotkey_edit_model.h"
 
 #include <cassert>
 

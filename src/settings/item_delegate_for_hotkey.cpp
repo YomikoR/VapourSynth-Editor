@@ -1,4 +1,4 @@
-#include "itemdelegateforhotkey.h"
+#include "item_delegate_for_hotkey.h"
 
 #include "clearable_key_sequence_editor.h"
 

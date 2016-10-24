@@ -1,7 +1,7 @@
 #ifndef THEME_ELEMENTS_MODEL_H_INCLUDED
 #define THEME_ELEMENTS_MODEL_H_INCLUDED
 
-#include "settingsmanager.h"
+#include "settings_manager.h"
 
 #include <QAbstractItemModel>
 #include <QIcon>

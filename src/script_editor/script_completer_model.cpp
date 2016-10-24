@@ -1,4 +1,4 @@
-#include "scriptcompletermodel.h"
+#include "script_completer_model.h"
 
 #include <algorithm>
 

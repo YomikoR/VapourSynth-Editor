@@ -1,6 +1,6 @@
 #include "preview_advanced_settings_dialog.h"
 
-#include "../settings/settingsmanager.h"
+#include "../settings/settings_manager.h"
 
 //==============================================================================
 

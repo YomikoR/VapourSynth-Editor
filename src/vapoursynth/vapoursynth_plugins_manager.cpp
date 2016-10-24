@@ -1,4 +1,4 @@
-#include "vapoursynthpluginsmanager.h"
+#include "vapoursynth_plugins_manager.h"
 
 #include <QDir>
 #include <QLibrary>

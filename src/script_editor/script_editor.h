@@ -1,7 +1,7 @@
 #ifndef SCRIPTEDITOR_H
 #define SCRIPTEDITOR_H
 
-#include "../vapoursynth/vsplugindata.h"
+#include "../vapoursynth/vs_plugin_data.h"
 
 #include <QPlainTextEdit>
 #include <QPoint>

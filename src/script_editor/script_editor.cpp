@@ -1,10 +1,10 @@
-#include "scripteditor.h"
+#include "script_editor.h"
 
-#include "scriptcompletermodel.h"
-#include "scriptcompleter.h"
-#include "syntaxhighlighter.h"
-#include "../settings/settingsmanager.h"
-#include "../settings/settingsdialog.h"
+#include "script_completer_model.h"
+#include "script_completer.h"
+#include "syntax_highlighter.h"
+#include "../settings/settings_manager.h"
+#include "../settings/settings_dialog.h"
 
 #include <QTextBlock>
 #include <QCursor>

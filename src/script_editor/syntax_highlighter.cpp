@@ -1,7 +1,7 @@
-#include "syntaxhighlighter.h"
+#include "syntax_highlighter.h"
 
-#include "numbermatcher.h"
-#include "../settings/settingsmanager.h"
+#include "number_matcher.h"
+#include "../settings/settings_manager.h"
 
 #include <vector>
 #include <algorithm>
