@@ -1,6 +1,6 @@
-#include <QStringList>
-
 #include "vsplugindata.h"
+
+#include <QStringList>
 
 //==============================================================================
 

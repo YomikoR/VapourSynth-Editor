@@ -1,11 +1,11 @@
 #ifndef SYNTAXHIGHLIGHTER_H
 #define SYNTAXHIGHLIGHTER_H
 
+#include "../vapoursynth/vsplugindata.h"
+
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QStringList>
-
-#include "../vapoursynth/vsplugindata.h"
 
 class SettingsManager;
 
@@ -13,46 +13,46 @@ class SyntaxHighlighter : public QSyntaxHighlighter
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		SyntaxHighlighter(QTextDocument * a_pDocument,
-			VSPluginsList a_pluginsList = VSPluginsList());
-		virtual ~SyntaxHighlighter();
+	SyntaxHighlighter(QTextDocument * a_pDocument,
+		VSPluginsList a_pluginsList = VSPluginsList());
+	virtual ~SyntaxHighlighter();
 
-		void setSettingsManager(SettingsManager * a_pSettingsManager);
+	void setSettingsManager(SettingsManager * a_pSettingsManager);
 
-		void setCoreName(const QString & a_coreName);
+	void setCoreName(const QString & a_coreName);
 
-		void setPluginsList(VSPluginsList a_pluginsList);
+	void setPluginsList(VSPluginsList a_pluginsList);
 
-	public slots:
+public slots:
 
-		void slotLoadSettings();
+	void slotLoadSettings();
 
-	protected:
+protected:
 
-		void highlightBlock(const QString & a_text);
+	void highlightBlock(const QString & a_text);
 
-	private:
+private:
 
-		SettingsManager * m_pSettingsManager;
+	SettingsManager * m_pSettingsManager;
 
-		QString m_coreName;
+	QString m_coreName;
 
-		VSPluginsList m_pluginsList;
+	VSPluginsList m_pluginsList;
 
-		QStringList m_keywordsList;
-		QStringList m_operatorsList;
+	QStringList m_keywordsList;
+	QStringList m_operatorsList;
 
-		QTextCharFormat m_keywordFormat;
-		QTextCharFormat m_operatorFormat;
-		QTextCharFormat m_stringFormat;
-		QTextCharFormat m_numberFormat;
-		QTextCharFormat m_commentFormat;
-		QTextCharFormat m_vsCoreFormat;
-		QTextCharFormat m_vsNamespaceFormat;
-		QTextCharFormat m_vsFunctionFormat;
-		QTextCharFormat m_vsArgumentFormat;
+	QTextCharFormat m_keywordFormat;
+	QTextCharFormat m_operatorFormat;
+	QTextCharFormat m_stringFormat;
+	QTextCharFormat m_numberFormat;
+	QTextCharFormat m_commentFormat;
+	QTextCharFormat m_vsCoreFormat;
+	QTextCharFormat m_vsNamespaceFormat;
+	QTextCharFormat m_vsFunctionFormat;
+	QTextCharFormat m_vsArgumentFormat;
 };
 
 #endif // SYNTAXHIGHLIGHTER_H

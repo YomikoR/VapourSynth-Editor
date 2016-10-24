@@ -1,13 +1,13 @@
-#include <QFileDialog>
-#include <QListWidgetItem>
-#include <QFontDialog>
-#include <QColorDialog>
+#include "settingsdialog.h"
 
 #include "settingsmanager.h"
 #include "itemdelegateforhotkey.h"
 #include "theme_elements_model.h"
 
-#include "settingsdialog.h"
+#include <QFileDialog>
+#include <QListWidgetItem>
+#include <QFontDialog>
+#include <QColorDialog>
 
 //==============================================================================
 
@@ -83,7 +83,7 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 }
 
 // END OF SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
-//		QWidget * a_pParent, Qt::WindowFlags a_windowFlags)
+//		QWidget * a_pParent)
 //==============================================================================
 
 SettingsDialog::~SettingsDialog()
@@ -518,5 +518,5 @@ void SettingsDialog::slotColourButtonClicked()
 	m_pThemeElementsModel->saveThemeElementData(themeElementData);
 }
 
-// END OF void SettingsDialog::slotFontButtonClicked()
+// END OF void SettingsDialog::slotColourButtonClicked()
 //==============================================================================

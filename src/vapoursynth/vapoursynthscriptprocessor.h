@@ -34,9 +34,6 @@ public:
 
 	const VSVideoInfo * videoInfo(int a_outputIndex = 0);
 
-	const VSFrameRef * requestFrame(int a_frameNumber,
-		int a_outputIndex = 0);
-
 	bool requestFrameAsync(int a_frameNumber, int a_outputIndex = 0,
 		bool a_needPreview = false);
 

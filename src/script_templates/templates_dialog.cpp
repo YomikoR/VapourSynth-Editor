@@ -342,4 +342,3 @@ void TemplatesDialog::slotSaveActionTriggered()
 
 // END OF void TemplatesDialog::slotSaveActionTriggered()
 //==============================================================================
-

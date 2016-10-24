@@ -1,3 +1,16 @@
+#include "mainwindow.h"
+
+#include "settings/settingsmanager.h"
+#include "vapoursynth/vs_script_library.h"
+#include "vapoursynth/vapoursynthscriptprocessor.h"
+#include "vapoursynth/vapoursynthpluginsmanager.h"
+#include "preview/previewdialog.h"
+#include "settings/settingsdialog.h"
+#include "frame_consumers/benchmark_dialog.h"
+#include "frame_consumers/encode_dialog.h"
+#include "script_templates/templates_dialog.h"
+#include "common/helpers.h"
+
 #include <QCoreApplication>
 #include <QSettings>
 #include <QByteArray>
@@ -17,19 +30,6 @@
 #include <QDir>
 #include <QFontDatabase>
 #include <QResource>
-
-#include "settings/settingsmanager.h"
-#include "vapoursynth/vs_script_library.h"
-#include "vapoursynth/vapoursynthscriptprocessor.h"
-#include "vapoursynth/vapoursynthpluginsmanager.h"
-#include "preview/previewdialog.h"
-#include "settings/settingsdialog.h"
-#include "frame_consumers/benchmark_dialog.h"
-#include "frame_consumers/encode_dialog.h"
-#include "script_templates/templates_dialog.h"
-#include "common/helpers.h"
-
-#include "mainwindow.h"
 
 //==============================================================================
 
@@ -488,7 +488,6 @@ void MainWindow::slotScriptFileDropped(const QString & a_filePath,
 //		bool * a_pHandled)
 //==============================================================================
 
-
 void MainWindow::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -767,5 +766,5 @@ void MainWindow::destroyOrphanQObjects()
 	}
 }
 
-// END OF void MainWindow::loadFonts()
+// END OF void MainWindow::destroyOrphanQObjects()
 //==============================================================================

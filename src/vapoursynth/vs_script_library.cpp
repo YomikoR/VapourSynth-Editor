@@ -69,7 +69,7 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 }
 
 // END OF void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
-//	void * a_pUserData)
+//		void * a_pUserData)
 //==============================================================================
 
 VSScriptLibrary::VSScriptLibrary(SettingsManager * a_pSettingsManager,
@@ -95,7 +95,6 @@ VSScriptLibrary::~VSScriptLibrary()
 
 // END OF VSScriptLibrary::~VSScriptLibrary()
 //==============================================================================
-
 
 bool VSScriptLibrary::initialize()
 {
@@ -137,7 +136,6 @@ bool VSScriptLibrary::initialize()
 // END OF bool VSScriptLibrary::initialize()
 //==============================================================================
 
-
 bool VSScriptLibrary::finalize()
 {
 	m_cpVSAPI = nullptr;
@@ -156,7 +154,6 @@ bool VSScriptLibrary::finalize()
 
 // END OF bool VSScriptLibrary::finalize()
 //==============================================================================
-
 
 bool VSScriptLibrary::isInitialized() const
 {
@@ -396,7 +393,6 @@ void VSScriptLibrary::freeLibrary()
 // END OF void VSScriptLibrary::freeLibrary()
 //==============================================================================
 
-
 void VSScriptLibrary::handleVSMessage(int a_messageType,
 	const QString & a_message)
 {
@@ -406,4 +402,3 @@ void VSScriptLibrary::handleVSMessage(int a_messageType,
 // END OF void VSScriptLibrary::handleVSMessage(int a_messageType,
 //		const QString & a_message)
 //==============================================================================
-

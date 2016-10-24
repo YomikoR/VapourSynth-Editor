@@ -1,6 +1,6 @@
-#include <cmath>
-
 #include "helpers.h"
+
+#include <cmath>
 
 //==============================================================================
 
@@ -147,6 +147,18 @@ QString vsedit::subsamplingString(int a_subsamplingW, int a_subsamplingH)
 
 // END OF QString vsedit::subsamplingString(int a_subsamplingW,
 //		int a_subsamplingH)
+//==============================================================================
+
+QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
+{
+	if(!a_cpFormat)
+		return QString();
+
+	return subsamplingString(a_cpFormat->subSamplingW,
+		a_cpFormat->subSamplingH);
+}
+
+// END OF QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
 //==============================================================================
 
 vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)

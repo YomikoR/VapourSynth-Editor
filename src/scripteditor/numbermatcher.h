@@ -6,38 +6,38 @@
 /// Finite state machine Python number matcher for QString.
 class NumberMatcher
 {
-	public:
+public:
 
-		NumberMatcher();
+	NumberMatcher();
 
-		bool beginsWithNumber(const QString & a_string, int a_matchFrom);
+	bool beginsWithNumber(const QString & a_string, int a_matchFrom);
 
-		int matchedLength() const;
+	int matchedLength() const;
 
-	private:
+private:
 
-		enum State
-		{
-			Initial,
-			FirstZero, // Valid final state
-			BinLiteral,
-			BinNumber, // Valid final state
-			OctLiteral,
-			OctNumber, // Valid final state
-			HexLiteral,
-			HexNumber, // Valid final state
-			Integer, // Valid final state
-			DotAfterInteger, // Valid final state
-			FirstDot,
-			Fraction, // Valid final state
-			ExpLiteral,
-			ExpSign,
-			ExpComplete, // Valid final state
-		};
+	enum State
+	{
+		Initial,
+		FirstZero, // Valid final state
+		BinLiteral,
+		BinNumber, // Valid final state
+		OctLiteral,
+		OctNumber, // Valid final state
+		HexLiteral,
+		HexNumber, // Valid final state
+		Integer, // Valid final state
+		DotAfterInteger, // Valid final state
+		FirstDot,
+		Fraction, // Valid final state
+		ExpLiteral,
+		ExpSign,
+		ExpComplete, // Valid final state
+	};
 
-		State m_state;
+	State m_state;
 
-		int m_lastValidLength;
+	int m_lastValidLength;
 };
 
 #endif // NUMBERMATCHER_H_INCLUDED

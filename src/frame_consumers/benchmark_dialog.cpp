@@ -34,7 +34,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 }
 
 // END OF ScriptBenchmarkDialog::ScriptBenchmarkDialog(
-//		VapourSynthScriptProcessor * a_pVapourSynthScriptProcessor,
+//		SettingsManager * a_pSettingsManager,
 //		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent
 //==============================================================================
 

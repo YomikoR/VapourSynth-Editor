@@ -1,18 +1,17 @@
 #ifndef PREVIEWDIALOG_H_INCLUDED
 #define PREVIEWDIALOG_H_INCLUDED
 
-#include <QPixmap>
-#include <QIcon>
-#include <map>
-#include <vector>
-#include <set>
-#include <chrono>
+#include <ui_previewdialog.h>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../settings/settingsmanager.h"
 #include "../common/chrono.h"
 
-#include <ui_previewdialog.h>
+#include <QPixmap>
+#include <QIcon>
+#include <map>
+#include <vector>
+#include <chrono>
 
 class QEvent;
 class QMoveEvent;

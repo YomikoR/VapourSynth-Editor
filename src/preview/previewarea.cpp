@@ -1,13 +1,13 @@
+#include "previewarea.h"
+
+#include "scrollnavigator.h"
+
 #include <QLabel>
 #include <QKeyEvent>
 #include <QWheelEvent>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QCoreApplication>
-
-#include "scrollnavigator.h"
-
-#include "previewarea.h"
 
 //==============================================================================
 

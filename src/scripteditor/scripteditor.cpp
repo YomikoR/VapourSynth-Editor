@@ -1,3 +1,11 @@
+#include "scripteditor.h"
+
+#include "scriptcompletermodel.h"
+#include "scriptcompleter.h"
+#include "syntaxhighlighter.h"
+#include "../settings/settingsmanager.h"
+#include "../settings/settingsdialog.h"
+
 #include <QTextBlock>
 #include <QCursor>
 #include <QCompleter>
@@ -16,14 +24,6 @@
 #include <QMenu>
 #include <algorithm>
 #include <cassert>
-
-#include "scriptcompletermodel.h"
-#include "scriptcompleter.h"
-#include "syntaxhighlighter.h"
-#include "../settings/settingsmanager.h"
-#include "../settings/settingsdialog.h"
-
-#include "scripteditor.h"
 
 //==============================================================================
 
@@ -167,7 +167,7 @@ void ScriptEditor::setPluginsList(const VSPluginsList & a_pluginsList)
 	update();
 }
 
-// END OF void ScriptEditor::setModified(bool a_modified)
+// END OF void ScriptEditor::setPluginsList(const VSPluginsList & a_pluginsList)
 //==============================================================================
 
 void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
@@ -627,11 +627,11 @@ void ScriptEditor::dropEvent(QDropEvent * a_pEvent)
 		QString number = i > 0 ? QString::number(i + 1) : QString();
 		QString sourceTemplate =
 			m_pSettingsManager->getDropFileTemplate(filePath);
-		sourceTemplate = sourceTemplate.replace("%f", filePath);
-		sourceTemplate = sourceTemplate.replace("%d", directory);
-		sourceTemplate = sourceTemplate.replace("%n", fileName);
-		sourceTemplate = sourceTemplate.replace("%x", extension);
-		sourceTemplate = sourceTemplate.replace("%i", number);
+		sourceTemplate = sourceTemplate.replace("{f}", filePath);
+		sourceTemplate = sourceTemplate.replace("{d}", directory);
+		sourceTemplate = sourceTemplate.replace("{n}", fileName);
+		sourceTemplate = sourceTemplate.replace("{x}", extension);
+		sourceTemplate = sourceTemplate.replace("{i}", number);
 		textList += sourceTemplate;
 	}
 	slotInsertTextAtNewLine(textList.join("\n"));

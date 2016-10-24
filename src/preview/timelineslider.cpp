@@ -1,3 +1,7 @@
+#include "timelineslider.h"
+
+#include "../common/helpers.h"
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPaintEvent>
@@ -11,10 +15,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
-
-#include "../common/helpers.h"
-
-#include "timelineslider.h"
+#include <cassert>
 
 //==============================================================================
 
@@ -40,6 +41,8 @@ TimeLineSlider::TimeLineSlider(QWidget * a_pParent) : QWidget(a_pParent)
 	, m_sliderPressed(false)
 	, m_labelsFont("Digital Mini")
 {
+	assert(m_bigStep > 0);
+
 	setAutoFillBackground(true);
 	setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking(true);
@@ -69,7 +72,7 @@ TimeLineSlider::~TimeLineSlider()
 
 }
 
-// END OF TimeLineSlider::TimeLineSlider(QWidget * a_pParent)
+// END OF TimeLineSlider::~TimeLineSlider()
 //==============================================================================
 
 int TimeLineSlider::frame() const
@@ -126,7 +129,7 @@ TimeLineSlider::DisplayMode TimeLineSlider::displayMode() const
 	return m_displayMode;
 }
 
-// END OF DisplayMode TimeLineSlider::displayMode() const
+// END OF TimeLineSlider::DisplayMode TimeLineSlider::displayMode() const
 //==============================================================================
 
 void TimeLineSlider::setDisplayMode(DisplayMode a_displayMode)
@@ -141,7 +144,7 @@ void TimeLineSlider::setDisplayMode(DisplayMode a_displayMode)
 
 void TimeLineSlider::setBigStep(int a_bigStep)
 {
-	m_bigStep = std::abs(a_bigStep);
+	m_bigStep = std::max(std::abs(a_bigStep), 1);
 }
 
 
@@ -290,10 +293,7 @@ void TimeLineSlider::slotStepDown()
 
 void TimeLineSlider::slotBigStepUp()
 {
-	if(m_bigStep <= (m_maxFrame - m_currentFrame))
-		setFrame(m_currentFrame + m_bigStep);
-	else
-		setFrame(m_maxFrame);
+	slotStepBy(m_bigStep);
 }
 
 // END OF void TimeLineSlider::slotBigStepUp()
@@ -301,10 +301,7 @@ void TimeLineSlider::slotBigStepUp()
 
 void TimeLineSlider::slotBigStepDown()
 {
-	if(m_bigStep <= m_currentFrame)
-		setFrame(m_currentFrame - m_bigStep);
-	else
-		setFrame(0);
+	slotStepBy(-m_bigStep);
 }
 
 // END OF void TimeLineSlider::slotBigStepDown()

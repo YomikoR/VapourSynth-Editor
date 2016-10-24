@@ -1,52 +1,51 @@
 #ifndef ACTIONSHOTKEYEDITMODEL_H
 #define ACTIONSHOTKEYEDITMODEL_H
 
-#include <QAbstractItemModel>
-
 #include "settingsmanager.h"
+
+#include <QAbstractItemModel>
 
 class ActionsHotkeyEditModel : public QAbstractItemModel
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		ActionsHotkeyEditModel(SettingsManager * a_pSettingsManager,
-			QObject * a_pParent = nullptr);
+	ActionsHotkeyEditModel(SettingsManager * a_pSettingsManager,
+		QObject * a_pParent = nullptr);
 
-		virtual ~ActionsHotkeyEditModel();
+	virtual ~ActionsHotkeyEditModel();
 
-		QModelIndex index(int a_row, int a_column,
-			const QModelIndex & a_parent = QModelIndex()) const override;
+	QModelIndex index(int a_row, int a_column,
+		const QModelIndex & a_parent = QModelIndex()) const override;
 
-		QModelIndex parent(const QModelIndex & a_child) const override;
+	QModelIndex parent(const QModelIndex & a_child) const override;
 
-		Qt::ItemFlags flags(const QModelIndex & a_index) const override;
+	Qt::ItemFlags flags(const QModelIndex & a_index) const override;
 
-		QVariant data(const QModelIndex & a_index, int a_role = Qt::DisplayRole)
-			const override;
+	QVariant data(const QModelIndex & a_index, int a_role = Qt::DisplayRole)
+		const override;
 
-		int rowCount(const QModelIndex & a_parent = QModelIndex()) const
-			override;
+	int rowCount(const QModelIndex & a_parent = QModelIndex()) const
+		override;
 
-		int columnCount(const QModelIndex & a_parent = QModelIndex()) const
-			override;
+	int columnCount(const QModelIndex & a_parent = QModelIndex()) const
+		override;
 
-		bool setData(const QModelIndex & a_index, const QVariant & a_value,
-			int a_role = Qt::EditRole) override;
+	bool setData(const QModelIndex & a_index, const QVariant & a_value,
+		int a_role = Qt::EditRole) override;
 
-		void reloadHotkeysSettings();
+	void reloadHotkeysSettings();
 
-	public slots:
+public slots:
 
-		void slotSaveActionsHotkeys();
+	void slotSaveActionsHotkeys();
 
-	private:
+private:
 
-		std::vector<StandardAction> m_actions;
+	std::vector<StandardAction> m_actions;
 
-		SettingsManager * m_pSettingsManager;
-
+	SettingsManager * m_pSettingsManager;
 };
 
 #endif // ACTIONSHOTKEYEDITMODEL_H

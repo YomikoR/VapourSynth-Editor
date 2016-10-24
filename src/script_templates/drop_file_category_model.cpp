@@ -18,6 +18,8 @@ DropFileCategoryModel::DropFileCategoryModel(QObject * a_pParent) :
 {
 }
 
+// END OF DropFileCategoryModel::DropFileCategoryModel(QObject * a_pParent) :
+//		QAbstractItemModel(a_pParent)
 //==============================================================================
 
 DropFileCategoryModel::~DropFileCategoryModel()
@@ -25,6 +27,7 @@ DropFileCategoryModel::~DropFileCategoryModel()
 
 }
 
+// END OF DropFileCategoryModel::~DropFileCategoryModel()
 //==============================================================================
 
 QModelIndex DropFileCategoryModel::index(int a_row, int a_column,
@@ -34,6 +37,8 @@ QModelIndex DropFileCategoryModel::index(int a_row, int a_column,
 	return createIndex(a_row, a_column);
 }
 
+// END OF QModelIndex DropFileCategoryModel::index(int a_row, int a_column,
+//		const QModelIndex & a_parent) const
 //==============================================================================
 
 QModelIndex DropFileCategoryModel::parent(const QModelIndex & a_child) const
@@ -42,6 +47,8 @@ QModelIndex DropFileCategoryModel::parent(const QModelIndex & a_child) const
 	return QModelIndex();
 }
 
+// END OF QModelIndex DropFileCategoryModel::parent(
+//		const QModelIndex & a_child) const
 //==============================================================================
 
 Qt::ItemFlags DropFileCategoryModel::flags(const QModelIndex & a_index) const
@@ -61,6 +68,8 @@ Qt::ItemFlags DropFileCategoryModel::flags(const QModelIndex & a_index) const
 	return cellFlags;
 }
 
+// END OF Qt::ItemFlags DropFileCategoryModel::flags(
+//		const QModelIndex & a_index) const
 //==============================================================================
 
 QVariant DropFileCategoryModel::data(const QModelIndex & a_index, int a_role)
@@ -85,6 +94,8 @@ QVariant DropFileCategoryModel::data(const QModelIndex & a_index, int a_role)
 	return QVariant();
 }
 
+// END OF QVariant DropFileCategoryModel::data(const QModelIndex & a_index,
+//		int a_role)
 //==============================================================================
 
 QVariant DropFileCategoryModel::headerData(int a_section,
@@ -105,6 +116,8 @@ QVariant DropFileCategoryModel::headerData(int a_section,
 	return QVariant();
 }
 
+// END OF QVariant DropFileCategoryModel::headerData(int a_section,
+//		Qt::Orientation a_orientation, int a_role) const
 //==============================================================================
 
 int DropFileCategoryModel::rowCount(const QModelIndex & a_parent) const
@@ -113,6 +126,8 @@ int DropFileCategoryModel::rowCount(const QModelIndex & a_parent) const
 	return (int)m_categories.size();
 }
 
+// END OF int DropFileCategoryModel::rowCount(const QModelIndex & a_parent)
+//		const
 //==============================================================================
 
 int DropFileCategoryModel::columnCount(const QModelIndex & a_parent) const
@@ -121,6 +136,8 @@ int DropFileCategoryModel::columnCount(const QModelIndex & a_parent) const
 	return COLUMNS_NUMBER;
 }
 
+// END OF int DropFileCategoryModel::columnCount(const QModelIndex & a_parent)
+//		const
 //==============================================================================
 
 bool DropFileCategoryModel::setData(const QModelIndex & a_index,
@@ -175,6 +192,8 @@ bool DropFileCategoryModel::setData(const QModelIndex & a_index,
 	return false;
 }
 
+// END OF bool DropFileCategoryModel::setData(const QModelIndex & a_index,
+//		const QVariant & a_value, int a_role)
 //==============================================================================
 
 std::vector<DropFileCategory> DropFileCategoryModel::getCategories() const
@@ -182,6 +201,8 @@ std::vector<DropFileCategory> DropFileCategoryModel::getCategories() const
 	return m_categories;
 }
 
+// END OF std::vector<DropFileCategory> DropFileCategoryModel::getCategories()
+//		const
 //==============================================================================
 
 void DropFileCategoryModel::setCategories(
@@ -191,6 +212,8 @@ void DropFileCategoryModel::setCategories(
 	emit layoutChanged();
 }
 
+// END OF void DropFileCategoryModel::setCategories(
+//		const std::vector<DropFileCategory> & a_categories)
 //==============================================================================
 
 void DropFileCategoryModel::addCategory()
@@ -201,8 +224,8 @@ void DropFileCategoryModel::addCategory()
 	endInsertRows();
 }
 
+// END OF void DropFileCategoryModel::addCategory()
 //==============================================================================
-
 
 void DropFileCategoryModel::deleteCategory(int a_index)
 {
@@ -213,6 +236,7 @@ void DropFileCategoryModel::deleteCategory(int a_index)
 	endRemoveRows();
 }
 
+// END OF void DropFileCategoryModel::deleteCategory(int a_index)
 //==============================================================================
 
 QString DropFileCategoryModel::sourceTemplate(int a_index) const
@@ -222,6 +246,7 @@ QString DropFileCategoryModel::sourceTemplate(int a_index) const
 	return m_categories[a_index].sourceTemplate;
 }
 
+// END OF QString DropFileCategoryModel::sourceTemplate(int a_index) const
 //==============================================================================
 
 void DropFileCategoryModel::setSourceTemplate(int a_index,
@@ -232,4 +257,6 @@ void DropFileCategoryModel::setSourceTemplate(int a_index,
 	m_categories[a_index].sourceTemplate = a_text;
 }
 
+// END OF void DropFileCategoryModel::setSourceTemplate(int a_index,
+//		const QString & a_text)
 //==============================================================================

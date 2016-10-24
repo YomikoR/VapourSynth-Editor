@@ -1,8 +1,9 @@
-#include <QApplication>
-#include <cassert>
+#include "mainwindow.h"
+
 #include <vapoursynth/VSScript.h>
 
-#include "mainwindow.h"
+#include <QApplication>
+#include <cassert>
 
 Q_DECLARE_OPAQUE_POINTER(const VSFrameRef *)
 Q_DECLARE_OPAQUE_POINTER(VSNodeRef *)

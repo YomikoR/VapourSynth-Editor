@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <vector>
-
 #include <ui_mainwindow.h>
+
+#include <vector>
 
 class SettingsManager;
 class VapourSynthPluginsManager;

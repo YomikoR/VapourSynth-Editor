@@ -1,14 +1,11 @@
 #ifndef THEME_ELEMENTS_MODEL_H_INCLUDED
 #define THEME_ELEMENTS_MODEL_H_INCLUDED
 
+#include "settingsmanager.h"
 
 #include <QAbstractItemModel>
 #include <QIcon>
 #include <vector>
-
-#include "settingsmanager.h"
-
-class SettingsManager;
 
 enum class ThemeElementType
 {
@@ -32,54 +29,53 @@ class ThemeElementsModel : public QAbstractItemModel
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		ThemeElementsModel(SettingsManager * a_pSettingsManager,
-			QObject * a_pParent = nullptr);
+	ThemeElementsModel(SettingsManager * a_pSettingsManager,
+		QObject * a_pParent = nullptr);
 
-		virtual ~ThemeElementsModel();
+	virtual ~ThemeElementsModel();
 
-		QModelIndex index(int a_row, int a_column,
-			const QModelIndex & a_parent = QModelIndex()) const override;
+	QModelIndex index(int a_row, int a_column,
+		const QModelIndex & a_parent = QModelIndex()) const override;
 
-		QModelIndex parent(const QModelIndex & a_child) const override;
+	QModelIndex parent(const QModelIndex & a_child) const override;
 
-		Qt::ItemFlags flags(const QModelIndex & a_index) const override;
+	Qt::ItemFlags flags(const QModelIndex & a_index) const override;
 
-		QVariant data(const QModelIndex & a_index, int a_role = Qt::DisplayRole)
-			const override;
+	QVariant data(const QModelIndex & a_index, int a_role = Qt::DisplayRole)
+		const override;
 
-		int rowCount(const QModelIndex & a_parent = QModelIndex()) const
-			override;
+	int rowCount(const QModelIndex & a_parent = QModelIndex()) const
+		override;
 
-		int columnCount(const QModelIndex & a_parent = QModelIndex()) const
-			override;
+	int columnCount(const QModelIndex & a_parent = QModelIndex()) const
+		override;
 
-		bool setData(const QModelIndex & a_index, const QVariant & a_value,
-			int a_role = Qt::EditRole) override;
+	bool setData(const QModelIndex & a_index, const QVariant & a_value,
+		int a_role = Qt::EditRole) override;
 
-		void addThemeElement(const ThemeElementData & a_themeElementData);
+	void addThemeElement(const ThemeElementData & a_themeElementData);
 
-		void addTextCharFormat(const QString & a_id, const QString & a_text);
+	void addTextCharFormat(const QString & a_id, const QString & a_text);
 
-		void addColor(const QString & a_id, const QString & a_text);
+	void addColor(const QString & a_id, const QString & a_text);
 
-		void reloadThemeSettings();
+	void reloadThemeSettings();
 
-		ThemeElementData getThemeElementData(const QString & a_id);
+	ThemeElementData getThemeElementData(const QString & a_id);
 
-		bool saveThemeElementData(const ThemeElementData & a_themeElementData);
+	bool saveThemeElementData(const ThemeElementData & a_themeElementData);
 
-	public slots:
+public slots:
 
-		void slotSaveThemeSettings();
+	void slotSaveThemeSettings();
 
-	private:
+private:
 
-		ThemeElementsList m_themeElementsList;
+	ThemeElementsList m_themeElementsList;
 
-		SettingsManager * m_pSettingsManager;
-
+	SettingsManager * m_pSettingsManager;
 };
 
 #endif // THEME_ELEMENTS_MODEL_H_INCLUDED

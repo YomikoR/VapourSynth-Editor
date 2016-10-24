@@ -15,54 +15,53 @@ class PreviewArea : public QScrollArea
 {
 	Q_OBJECT
 
-	public:
+public:
 
-		PreviewArea(QWidget * a_pParent = nullptr);
+	PreviewArea(QWidget * a_pParent = nullptr);
 
-		virtual ~PreviewArea();
+	virtual ~PreviewArea();
 
-		void setWidget(QWidget * a_pWidget) = delete;
+	void setWidget(QWidget * a_pWidget) = delete;
 
-		const QPixmap * pixmap() const;
+	const QPixmap * pixmap() const;
 
-		void setPixmap(const QPixmap & a_pixmap);
+	void setPixmap(const QPixmap & a_pixmap);
 
-	public slots:
+public slots:
 
-		void slotScrollLeft();
-		void slotScrollRight();
-		void slotScrollTop();
-		void slotScrollBottom();
+	void slotScrollLeft();
+	void slotScrollRight();
+	void slotScrollTop();
+	void slotScrollBottom();
 
-	protected:
+protected:
 
-		void resizeEvent(QResizeEvent * a_pEvent) override;
-		void keyPressEvent(QKeyEvent * a_pEvent) override;
-		void wheelEvent(QWheelEvent * a_pEvent) override;
-		void mousePressEvent(QMouseEvent * a_pEvent) override;
-		void mouseMoveEvent(QMouseEvent * a_pEvent) override;
-		void mouseReleaseEvent(QMouseEvent * a_pEvent) override;
+	void resizeEvent(QResizeEvent * a_pEvent) override;
+	void keyPressEvent(QKeyEvent * a_pEvent) override;
+	void wheelEvent(QWheelEvent * a_pEvent) override;
+	void mousePressEvent(QMouseEvent * a_pEvent) override;
+	void mouseMoveEvent(QMouseEvent * a_pEvent) override;
+	void mouseReleaseEvent(QMouseEvent * a_pEvent) override;
 
-	signals:
+signals:
 
-		void signalSizeChanged();
-		void signalCtrlWheel(QPoint a_angleDelta);
-		void signalMouseMiddleButtonReleased();
-		void signalMouseRightButtonReleased();
-		void signalMouseOverPoint(float a_normX, float a_normY);
+	void signalSizeChanged();
+	void signalCtrlWheel(QPoint a_angleDelta);
+	void signalMouseMiddleButtonReleased();
+	void signalMouseRightButtonReleased();
+	void signalMouseOverPoint(float a_normX, float a_normY);
 
-	private:
+private:
 
-		void drawScrollNavigator();
+	void drawScrollNavigator();
 
-		QLabel * m_pPreviewLabel;
+	QLabel * m_pPreviewLabel;
 
-		ScrollNavigator * m_pScrollNavigator;
+	ScrollNavigator * m_pScrollNavigator;
 
-		bool m_draggingPreview;
-		QPoint m_lastCursorPos;
-		QPoint m_lastPreviewLabelPos;
-
+	bool m_draggingPreview;
+	QPoint m_lastCursorPos;
+	QPoint m_lastPreviewLabelPos;
 };
 
 #endif // PREVIEWAREA_H

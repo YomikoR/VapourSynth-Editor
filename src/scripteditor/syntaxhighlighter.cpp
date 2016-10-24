@@ -1,10 +1,10 @@
-#include <vector>
-#include <algorithm>
+#include "syntaxhighlighter.h"
 
 #include "numbermatcher.h"
 #include "../settings/settingsmanager.h"
 
-#include "syntaxhighlighter.h"
+#include <vector>
+#include <algorithm>
 
 //==============================================================================
 

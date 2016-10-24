@@ -1,8 +1,12 @@
-#include <algorithm>
-
 #include "scriptcompletermodel.h"
 
+#include <algorithm>
+
+//==============================================================================
+
 const char DEFAULT_CORE_NAME[] = "core";
+
+//==============================================================================
 
 ScriptCompleterModel::ScriptCompleterModel(QObject * a_pParent):
 	QStandardItemModel(a_pParent)
@@ -10,10 +14,16 @@ ScriptCompleterModel::ScriptCompleterModel(QObject * a_pParent):
 	setCoreName(DEFAULT_CORE_NAME);
 }
 
+// END OF ScriptCompleterModel::ScriptCompleterModel(QObject * a_pParent)
+//==============================================================================
+
 ScriptCompleterModel::~ScriptCompleterModel()
 {
 
 }
+
+// END OF ScriptCompleterModel::~ScriptCompleterModel()
+//==============================================================================
 
 void ScriptCompleterModel::setPluginsList(const VSPluginsList & a_pluginsList)
 {
@@ -41,6 +51,10 @@ void ScriptCompleterModel::setPluginsList(const VSPluginsList & a_pluginsList)
 	}
 }
 
+// END OF void ScriptCompleterModel::setPluginsList(
+//		const VSPluginsList & a_pluginsList)
+//==============================================================================
+
 void ScriptCompleterModel::setCoreName(const QString & a_coreName)
 {
 	QStandardItem * pRootItem = invisibleRootItem();
@@ -55,3 +69,6 @@ void ScriptCompleterModel::setCoreName(const QString & a_coreName)
 		pCoreItem->setText(a_coreName);
 	}
 }
+
+// END OF void ScriptCompleterModel::setCoreName(const QString & a_coreName)
+//==============================================================================

@@ -9,6 +9,8 @@ ThemeElementsModel::ThemeElementsModel(SettingsManager * a_pSettingsManager,
 
 }
 
+// END OF ThemeElementsModel::ThemeElementsModel(
+//		SettingsManager * a_pSettingsManager, QObject * a_pParent)
 //==============================================================================
 
 ThemeElementsModel::~ThemeElementsModel()
@@ -16,8 +18,8 @@ ThemeElementsModel::~ThemeElementsModel()
 
 }
 
+// END OF ThemeElementsModel::~ThemeElementsModel()
 //==============================================================================
-
 
 QModelIndex ThemeElementsModel::index(int a_row, int a_column,
 	const QModelIndex & a_parent) const
@@ -26,8 +28,9 @@ QModelIndex ThemeElementsModel::index(int a_row, int a_column,
 	return createIndex(a_row, a_column);
 }
 
+// END OF QModelIndex ThemeElementsModel::index(int a_row, int a_column,
+//		const QModelIndex & a_parent) const
 //==============================================================================
-
 
 QModelIndex ThemeElementsModel::parent(const QModelIndex & a_child) const
 {
@@ -35,8 +38,9 @@ QModelIndex ThemeElementsModel::parent(const QModelIndex & a_child) const
 	return QModelIndex();
 }
 
+// END OF QModelIndex ThemeElementsModel::parent(const QModelIndex & a_child)
+//		const
 //==============================================================================
-
 
 Qt::ItemFlags ThemeElementsModel::flags(const QModelIndex & a_index) const
 {
@@ -53,6 +57,8 @@ Qt::ItemFlags ThemeElementsModel::flags(const QModelIndex & a_index) const
 	return cellFlags;
 }
 
+// END OF Qt::ItemFlags ThemeElementsModel::flags(const QModelIndex & a_index)
+//		const
 //==============================================================================
 
 QVariant ThemeElementsModel::data(const QModelIndex & a_index, int a_role) const
@@ -75,8 +81,9 @@ QVariant ThemeElementsModel::data(const QModelIndex & a_index, int a_role) const
 	return QVariant();
 }
 
+// END OF QVariant ThemeElementsModel::data(const QModelIndex & a_index,
+//		int a_role) const
 //==============================================================================
-
 
 int ThemeElementsModel::rowCount(const QModelIndex & a_parent) const
 {
@@ -84,6 +91,7 @@ int ThemeElementsModel::rowCount(const QModelIndex & a_parent) const
 	return (int)m_themeElementsList.size();
 }
 
+// END OF int ThemeElementsModel::rowCount(const QModelIndex & a_parent) const
 //==============================================================================
 
 int ThemeElementsModel::columnCount(const QModelIndex & a_parent) const
@@ -92,6 +100,8 @@ int ThemeElementsModel::columnCount(const QModelIndex & a_parent) const
 	return 2;
 }
 
+// END OF int ThemeElementsModel::columnCount(const QModelIndex & a_parent)
+//		const
 //==============================================================================
 
 bool ThemeElementsModel::setData(const QModelIndex & a_index,
@@ -103,6 +113,8 @@ bool ThemeElementsModel::setData(const QModelIndex & a_index,
 	return false;
 }
 
+// END OF bool ThemeElementsModel::setData(const QModelIndex & a_index,
+//		const QVariant & a_value, int a_role)
 //==============================================================================
 
 void ThemeElementsModel::addThemeElement(
@@ -118,6 +130,8 @@ void ThemeElementsModel::addThemeElement(
 	emit layoutChanged();
 }
 
+// END OF void ThemeElementsModel::addThemeElement(
+//		const ThemeElementData & a_themeElementData)
 //==============================================================================
 
 void ThemeElementsModel::addTextCharFormat(const QString & a_id,
@@ -133,6 +147,8 @@ void ThemeElementsModel::addTextCharFormat(const QString & a_id,
 	addThemeElement(newThemeElementData);
 }
 
+// END OF void ThemeElementsModel::addTextCharFormat(const QString & a_id,
+//		const QString & a_text)
 //==============================================================================
 
 void ThemeElementsModel::addColor(const QString & a_id,
@@ -147,6 +163,8 @@ void ThemeElementsModel::addColor(const QString & a_id,
 	addThemeElement(newThemeElementData);
 }
 
+// END OF void ThemeElementsModel::addColor(const QString & a_id,
+//		const QString & a_text)
 //==============================================================================
 
 void ThemeElementsModel::reloadThemeSettings()
@@ -166,6 +184,7 @@ void ThemeElementsModel::reloadThemeSettings()
 	}
 }
 
+// END OF void ThemeElementsModel::reloadThemeSettings()
 //==============================================================================
 
 ThemeElementData ThemeElementsModel::getThemeElementData(const QString & a_id)
@@ -179,6 +198,8 @@ ThemeElementData ThemeElementsModel::getThemeElementData(const QString & a_id)
 	return ThemeElementData();
 }
 
+// END OF ThemeElementData ThemeElementsModel::getThemeElementData(
+//		const QString & a_id)
 //==============================================================================
 
 bool ThemeElementsModel::saveThemeElementData(
@@ -198,6 +219,8 @@ bool ThemeElementsModel::saveThemeElementData(
 	return false;
 }
 
+// END OF bool ThemeElementsModel::saveThemeElementData(
+//		const ThemeElementData & a_themeElementData)
 //==============================================================================
 
 void ThemeElementsModel::slotSaveThemeSettings()
@@ -217,4 +240,5 @@ void ThemeElementsModel::slotSaveThemeSettings()
 	}
 }
 
+// END OF void ThemeElementsModel::slotSaveThemeSettings()
 //==============================================================================

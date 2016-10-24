@@ -1,9 +1,14 @@
 #include "numbermatcher.h"
 
+//==============================================================================
+
 NumberMatcher::NumberMatcher() : m_state(Initial), m_lastValidLength(0)
 {
 
 }
+
+// END OF NumberMatcher::NumberMatcher()
+//==============================================================================
 
 bool NumberMatcher::beginsWithNumber(const QString & a_string, int a_matchFrom)
 {
@@ -206,7 +211,15 @@ bool NumberMatcher::beginsWithNumber(const QString & a_string, int a_matchFrom)
 	return (m_lastValidLength != 0);
 }
 
+// END OF bool NumberMatcher::beginsWithNumber(const QString & a_string,
+//		int a_matchFrom)
+//==============================================================================
+
 int NumberMatcher::matchedLength() const
 {
 	return m_lastValidLength;
 }
+
+
+// END OF int NumberMatcher::matchedLength() const
+//==============================================================================

@@ -1,9 +1,10 @@
 #ifndef VS_SCRIPT_LIBRARY_H_INCLUDED
 #define VS_SCRIPT_LIBRARY_H_INCLUDED
 
+#include <vapoursynth/VSScript.h>
+
 #include <QObject>
 #include <QLibrary>
-#include <vapoursynth/VSScript.h>
 
 class SettingsManager;
 

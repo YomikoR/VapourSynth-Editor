@@ -282,8 +282,12 @@
 		<Unit filename="src/scripteditor/syntaxhighlighter.h" />
 		<Unit filename="src/settings/actionshotkeyeditmodel.cpp" />
 		<Unit filename="src/settings/actionshotkeyeditmodel.h" />
+		<Unit filename="src/settings/clearable_key_sequence_editor.cpp" />
+		<Unit filename="src/settings/clearable_key_sequence_editor.h" />
 		<Unit filename="src/settings/itemdelegateforhotkey.cpp" />
 		<Unit filename="src/settings/itemdelegateforhotkey.h" />
+		<Unit filename="src/settings/settings_definitions.cpp" />
+		<Unit filename="src/settings/settings_definitions.h" />
 		<Unit filename="src/settings/settingsdialog.cpp" />
 		<Unit filename="src/settings/settingsdialog.h" />
 		<Unit filename="src/settings/settingsdialog.ui" />
@@ -318,16 +322,16 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="release-64bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
 				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-64bit-gcc">
+				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-32bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

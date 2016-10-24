@@ -1,11 +1,11 @@
+#include "vapoursynthpluginsmanager.h"
+
 #include <QDir>
 #include <QLibrary>
 #include <QFileInfoList>
 #include <QSettings>
 #include <QProcessEnvironment>
 #include <algorithm>
-
-#include "vapoursynthpluginsmanager.h"
 
 //==============================================================================
 

@@ -1,15 +1,15 @@
 #ifndef ENCODE_DIALOG_H_INCLUDED
 #define ENCODE_DIALOG_H_INCLUDED
 
-#include <QProcess>
-#include <vector>
-#include <functional>
-
 #include <ui_encode_dialog.h>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
 #include "../settings/settingsmanager.h"
+
+#include <QProcess>
+#include <vector>
+#include <functional>
 
 struct VariableToken
 {

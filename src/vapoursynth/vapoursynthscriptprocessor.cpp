@@ -230,67 +230,6 @@ const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
 // END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
 //==============================================================================
 
-const VSFrameRef * VapourSynthScriptProcessor::requestFrame(int a_frameNumber,
-	int a_outputIndex)
-{
-	if(!m_initialized)
-		return nullptr;
-
-	if(a_frameNumber < 0)
-	{
-		m_error = trUtf8("Requested frame number %1 is negative.")
-			.arg(a_outputIndex);
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return nullptr;
-	}
-
-	assert(m_cpVSAPI);
-
-	VSNodeRef * pNode =
-		m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
-	if(!pNode)
-	{
-		m_error = trUtf8("Couldn't resolve output node number %1.")
-			.arg(a_outputIndex);
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return nullptr;
-	}
-
-	std::unique_ptr<VSNodeRef, std::function<void(VSNodeRef *)> >
-		nodeDeleter(pNode, [&](VSNodeRef * a_pNode)
-		{m_cpVSAPI->freeNode(a_pNode);});
-
-	const VSVideoInfo * cpVideoInfo = m_cpVSAPI->getVideoInfo(pNode);
-	assert(cpVideoInfo);
-
-	if(a_frameNumber >= cpVideoInfo->numFrames)
-	{
-		m_error = trUtf8("Requested frame number %1 is outside the frame "
-			"range.").arg(a_outputIndex);
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return nullptr;
-	}
-
-	char getFrameErrorMessage[1024] = {0};
-	const VSFrameRef * cpNewFrameRef = m_cpVSAPI->getFrame(a_frameNumber,
-		pNode, getFrameErrorMessage, sizeof(getFrameErrorMessage) - 1);
-
-	if(!cpNewFrameRef)
-	{
-		m_error = trUtf8("Error getting the frame number %1:\n%2")
-			.arg(a_frameNumber).arg(QString::fromUtf8(getFrameErrorMessage));
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return nullptr;
-	}
-
-	m_error.clear();
-	return cpNewFrameRef;
-}
-
-// END OF bool VapourSynthScriptProcessor::requestFrame(int a_frameNumber,
-//		int a_outputIndex)
-//==============================================================================
-
 bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	int a_outputIndex, bool a_needPreview)
 {

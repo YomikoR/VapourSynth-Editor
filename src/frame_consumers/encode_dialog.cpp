@@ -392,7 +392,6 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 //		const QString & a_text)
 //==============================================================================
 
-
 void EncodeDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 	const VSFrameRef * a_cpOutputFrameRef,
 	const VSFrameRef * a_cpPreviewFrameRef)

@@ -21,6 +21,8 @@ ActionsHotkeyEditModel::ActionsHotkeyEditModel(
 	reloadHotkeysSettings();
 }
 
+// END OF ActionsHotkeyEditModel::ActionsHotkeyEditModel(
+//		SettingsManager * a_pSettingsManager, QObject * a_pParent)
 //==============================================================================
 
 ActionsHotkeyEditModel::~ActionsHotkeyEditModel()
@@ -28,6 +30,7 @@ ActionsHotkeyEditModel::~ActionsHotkeyEditModel()
 
 }
 
+// END OF ActionsHotkeyEditModel::~ActionsHotkeyEditModel()
 //==============================================================================
 
 QModelIndex ActionsHotkeyEditModel::index(int a_row, int a_column,
@@ -37,6 +40,8 @@ QModelIndex ActionsHotkeyEditModel::index(int a_row, int a_column,
 	return createIndex(a_row, a_column);
 }
 
+// END OF QModelIndex ActionsHotkeyEditModel::index(int a_row, int a_column,
+//		const QModelIndex & a_parent) const
 //==============================================================================
 
 QModelIndex ActionsHotkeyEditModel::parent(const QModelIndex & a_child) const
@@ -45,6 +50,8 @@ QModelIndex ActionsHotkeyEditModel::parent(const QModelIndex & a_child) const
 	return QModelIndex();
 }
 
+// END OF QModelIndex ActionsHotkeyEditModel::parent(
+//		const QModelIndex & a_child) const
 //==============================================================================
 
 Qt::ItemFlags ActionsHotkeyEditModel::flags(const QModelIndex & a_index) const
@@ -65,6 +72,8 @@ Qt::ItemFlags ActionsHotkeyEditModel::flags(const QModelIndex & a_index) const
 	return cellFlags;
 }
 
+// END OF Qt::ItemFlags ActionsHotkeyEditModel::flags(
+//		const QModelIndex & a_index) const
 //==============================================================================
 
 QVariant ActionsHotkeyEditModel::data(const QModelIndex & a_index, int a_role)
@@ -90,6 +99,8 @@ QVariant ActionsHotkeyEditModel::data(const QModelIndex & a_index, int a_role)
 	return QVariant();
 }
 
+// END OF QVariant ActionsHotkeyEditModel::data(const QModelIndex & a_index,
+//		int a_role) const
 //==============================================================================
 
 int ActionsHotkeyEditModel::rowCount(const QModelIndex & a_parent) const
@@ -98,6 +109,8 @@ int ActionsHotkeyEditModel::rowCount(const QModelIndex & a_parent) const
 	return (int)m_actions.size();
 }
 
+// END OF int ActionsHotkeyEditModel::rowCount(const QModelIndex & a_parent)
+//		const
 //==============================================================================
 
 int ActionsHotkeyEditModel::columnCount(const QModelIndex & a_parent) const
@@ -106,6 +119,8 @@ int ActionsHotkeyEditModel::columnCount(const QModelIndex & a_parent) const
 	return COLUMNS_NUMBER;
 }
 
+// END OF int ActionsHotkeyEditModel::columnCount(const QModelIndex & a_parent)
+//		const
 //==============================================================================
 
 bool ActionsHotkeyEditModel::setData(const QModelIndex & a_index,
@@ -118,6 +133,8 @@ bool ActionsHotkeyEditModel::setData(const QModelIndex & a_index,
 	return true;
 }
 
+// END OF bool ActionsHotkeyEditModel::setData(const QModelIndex & a_index,
+//		const QVariant & a_value, int a_role)
 //==============================================================================
 
 void ActionsHotkeyEditModel::reloadHotkeysSettings()
@@ -128,6 +145,7 @@ void ActionsHotkeyEditModel::reloadHotkeysSettings()
 		createIndex(HOTKEY_COLUMN, (int)m_actions.size() - 1));
 }
 
+// END OF void ActionsHotkeyEditModel::reloadHotkeysSettings()
 //==============================================================================
 
 void ActionsHotkeyEditModel::slotSaveActionsHotkeys()
@@ -136,4 +154,5 @@ void ActionsHotkeyEditModel::slotSaveActionsHotkeys()
 		m_pSettingsManager->setHotkey(action.id, action.hotkey);
 }
 
+// END OF void ActionsHotkeyEditModel::slotSaveActionsHotkeys()
 //==============================================================================

@@ -1,11 +1,11 @@
 #ifndef SCRIPTEDITOR_H
 #define SCRIPTEDITOR_H
 
+#include "../vapoursynth/vsplugindata.h"
+
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <vector>
-
-#include "../vapoursynth/vsplugindata.h"
 
 class QEvent;
 class QKeyEvent;

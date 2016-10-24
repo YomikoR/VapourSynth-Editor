@@ -1,3 +1,14 @@
+#include "previewdialog.h"
+
+#include "../common/helpers.h"
+#include "../vapoursynth/vapoursynthscriptprocessor.h"
+#include "../settings/settingsdialog.h"
+#include "scrollnavigator.h"
+#include "timelineslider.h"
+#include "preview_advanced_settings_dialog.h"
+
+#include <vapoursynth/VapourSynth.h>
+
 #include <QEvent>
 #include <QCloseEvent>
 #include <QMoveEvent>
@@ -22,17 +33,6 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
-
-#include <vapoursynth/VapourSynth.h>
-
-#include "../common/helpers.h"
-#include "../vapoursynth/vapoursynthscriptprocessor.h"
-#include "../settings/settingsdialog.h"
-#include "scrollnavigator.h"
-#include "timelineslider.h"
-#include "preview_advanced_settings_dialog.h"
-
-#include "previewdialog.h"
 
 //==============================================================================
 
@@ -170,8 +170,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-//		VSScriptLibrary * a_pVSScriptLibrary,
-//		SettingsDialog * a_pSettingsDialog, QWidget * a_pParent)
+//		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent)
 //==============================================================================
 
 PreviewDialog::~PreviewDialog()

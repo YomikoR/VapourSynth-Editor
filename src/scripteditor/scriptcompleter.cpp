@@ -1,15 +1,21 @@
 #include "scriptcompleter.h"
 
+//==============================================================================
+
 ScriptCompleter::ScriptCompleter(QAbstractItemModel * a_pModel,
 	QObject * a_pParent) : QCompleter(a_pModel, a_pParent)
 {
 
 }
 
+//==============================================================================
+
 ScriptCompleter::~ScriptCompleter()
 {
 
 }
+
+//==============================================================================
 
 QString ScriptCompleter::pathFromIndex(const QModelIndex & a_index) const
 {
@@ -28,7 +34,11 @@ QString ScriptCompleter::pathFromIndex(const QModelIndex & a_index) const
 	return path;
 }
 
+//==============================================================================
+
 QStringList ScriptCompleter::splitPath(const QString & a_path) const
 {
 	return a_path.split('.');
 }
+
+//==============================================================================
