@@ -1,3 +1,5 @@
+- action to past current previewed frame number into script
+- update file drop templates on typing
 - colour picking panel needs better placement
 - improved log
 - y4m header for encoding
