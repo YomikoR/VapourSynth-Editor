@@ -4,19 +4,12 @@
 #include <ui_encode_dialog.h>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
-#include "../common/chrono.h"
 #include "../settings/settings_manager.h"
+#include "../common/chrono.h"
+#include "../common/helpers.h"
 
 #include <QProcess>
 #include <vector>
-#include <functional>
-
-struct VariableToken
-{
-	QString token;
-	QString description;
-	std::function<QString()> evaluate;
-};
 
 class EncodeDialog : public VSScriptProcessorDialog
 {
@@ -113,7 +106,7 @@ protected:
 	int m_lastFrameProcessed;
 	int m_lastFrameRequested;
 
-	std::vector<VariableToken> m_variables;
+	std::vector<vsedit::VariableToken> m_variables;
 
 	State m_state;
 

@@ -279,10 +279,10 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="fileDropTemplatesInfoLabel">
          <property name="text">
           <string>Write file name mask list as a list of wildcards, separated by semicolons without spaces.
-In the template below use tokens: {f} - file path; {d} - file directory; {n} - file name; {x} - file extension; {i} - number in the list of dropped files.</string>
+In the template below use tokens: </string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

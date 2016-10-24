@@ -7,9 +7,17 @@
 #include <QTime>
 #include <cassert>
 #include <algorithm>
+#include <functional>
 
 namespace vsedit
 {
+
+struct VariableToken
+{
+	QString token;
+	QString description;
+	std::function<QString()> evaluate;
+};
 
 QString timeToString(double a_seconds, bool a_fullFormat = false);
 

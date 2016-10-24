@@ -74,6 +74,8 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 
 	m_pContextMenu = createStandardContextMenu();
 
+	fillVariables();
+
 	connect(m_pCompleter, SIGNAL(activated(const QString &)),
 		this, SLOT(slotInsertCompletion(const QString &)));
 	connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
@@ -186,6 +188,17 @@ std::vector<QAction *> ScriptEditor::actionsForMenu() const
 {
 	return {m_pActionDuplicateSelection, m_pActionCommentSelection,
 		m_pActionUncommentSelection, m_pActionReplaceTabWithSpaces};
+}
+
+// END OF std::vector<QAction *> ScriptEditor::actionsForMenu() const
+//==============================================================================
+
+std::vector<vsedit::VariableToken> ScriptEditor::variables() const
+{
+	std::vector<vsedit::VariableToken> cleanVariables = m_variables;
+	for(vsedit::VariableToken & variable : cleanVariables)
+		variable.evaluate = nullptr;
+	return cleanVariables;
 }
 
 // END OF std::vector<QAction *> ScriptEditor::actionsForMenu() const
@@ -615,23 +628,17 @@ void ScriptEditor::dropEvent(QDropEvent * a_pEvent)
 	}
 
 	QStringList textList;
-	for(int i = 0; i < urls.size(); ++i)
+	for(m_droppedFileNumber = 0; m_droppedFileNumber < urls.size();
+		++m_droppedFileNumber)
 	{
-		QString filePath = QDir::cleanPath(urls[i].toLocalFile());
-		filePath = QDir::toNativeSeparators(filePath);
-		QFileInfo file(filePath);
-		QString directory = file.path();
-		directory = QDir::toNativeSeparators(directory);
-		QString fileName = file.completeBaseName();
-		QString extension = file.suffix();
-		QString number = i > 0 ? QString::number(i + 1) : QString();
+		m_droppedFilePath =
+			QDir::cleanPath(urls[m_droppedFileNumber].toLocalFile());
+		m_droppedFilePath = QDir::toNativeSeparators(m_droppedFilePath);
 		QString sourceTemplate =
-			m_pSettingsManager->getDropFileTemplate(filePath);
-		sourceTemplate = sourceTemplate.replace("{f}", filePath);
-		sourceTemplate = sourceTemplate.replace("{d}", directory);
-		sourceTemplate = sourceTemplate.replace("{n}", fileName);
-		sourceTemplate = sourceTemplate.replace("{x}", extension);
-		sourceTemplate = sourceTemplate.replace("{i}", number);
+			m_pSettingsManager->getDropFileTemplate(m_droppedFilePath);
+		for(const vsedit::VariableToken & variable : m_variables)
+			sourceTemplate = sourceTemplate.replace(variable.token,
+				variable.evaluate());
 		textList += sourceTemplate;
 	}
 	slotInsertTextAtNewLine(textList.join("\n"));
@@ -1005,4 +1012,59 @@ void ScriptEditor::removeSelectedLinesBegin(const QString & a_text)
 }
 
 // END OF void ScriptEditor::removeSelectedLinesBegin(const QString & a_text)
+//==============================================================================
+
+void ScriptEditor::fillVariables()
+{
+	m_variables =
+	{
+		{"{f}", trUtf8("file path"),
+			[&]()
+			{
+				return m_droppedFilePath;
+			}
+		},
+
+		{"{d}", trUtf8("file directory"),
+			[&]()
+			{
+				QFileInfo file(m_droppedFilePath);
+				return QDir::toNativeSeparators(file.path());
+			}
+		},
+
+		{"{n}", trUtf8("file name"),
+			[&]()
+			{
+				QFileInfo file(m_droppedFilePath);
+				return file.completeBaseName();
+			}
+		},
+
+		{"{x}", trUtf8("file extension"),
+			[&]()
+			{
+				QFileInfo file(m_droppedFilePath);
+				return file.suffix();
+			}
+		},
+
+		{"{i}", trUtf8("file number in the list of dropped files"),
+			[&]()
+			{
+				return m_droppedFileNumber > 0 ?
+					QString::number(m_droppedFileNumber + 1) : QString();
+			}
+		},
+	};
+
+	std::sort(m_variables.begin(), m_variables.end(),
+		[&](const vsedit::VariableToken & a_first,
+			const vsedit::VariableToken & a_second) -> bool
+		{
+			return (a_first.token.length() > a_second.token.length());
+		});
+}
+
+// END OF void ScriptEditor::fillVariables()
 //==============================================================================

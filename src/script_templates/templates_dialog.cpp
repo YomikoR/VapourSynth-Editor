@@ -27,6 +27,19 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 	m_pDropFileCategoryModel = new DropFileCategoryModel(this);
 	m_ui.dropFileCategoryView->setModel(m_pDropFileCategoryModel);
 
+	QString fileDropTemplatesInfo = trUtf8("Write file name mask list "
+		"as a list of wildcards, separated by semicolons without spaces.\n"
+		"In the template below use tokens: ");
+	QStringList tokenInfoList;
+	std::vector<vsedit::VariableToken> variables =
+		m_ui.dropFileCategoryTemplateEdit->variables();
+	for(const vsedit::VariableToken & variable : variables)
+		tokenInfoList += QString("%1 - %2").arg(variable.token)
+			.arg(variable.description);
+	fileDropTemplatesInfo += tokenInfoList.join("; ");
+	fileDropTemplatesInfo += trUtf8(".");
+	m_ui.fileDropTemplatesInfoLabel->setText(fileDropTemplatesInfo);
+
 	m_pSaveAction = m_pSettingsManager->createStandardAction(
 		ACTION_ID_SAVE_SCRIPT, this);
 	addAction(m_pSaveAction);

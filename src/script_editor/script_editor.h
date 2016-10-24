@@ -3,6 +3,8 @@
 
 #include "../vapoursynth/vs_plugin_data.h"
 
+#include "../common/helpers.h"
+
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <vector>
@@ -48,6 +50,8 @@ public:
 	void setSettingsManager(SettingsManager * a_pSettingsManager);
 
 	std::vector<QAction *> actionsForMenu() const;
+
+	std::vector<vsedit::VariableToken> variables() const;
 
 public slots:
 
@@ -120,6 +124,8 @@ private:
 	void insertSelectedLinesBegin(const QString & a_text);
 	void removeSelectedLinesBegin(const QString & a_text);
 
+	void fillVariables();
+
 	SettingsManager * m_pSettingsManager;
 
 	QWidget * m_pSideBox;
@@ -165,6 +171,11 @@ private:
 	std::vector<QAction *> m_settableActionsList;
 
 	QMenu * m_pContextMenu;
+
+	QString m_droppedFilePath;
+	int m_droppedFileNumber;
+
+	std::vector<vsedit::VariableToken> m_variables;
 };
 
 #endif // SCRIPTEDITOR_H

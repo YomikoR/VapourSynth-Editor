@@ -251,7 +251,7 @@ void EncodeDialog::slotExecutableBrowseButtonPressed()
 void EncodeDialog::slotArgumentsHelpButtonPressed()
 {
 	QString argumentsHelpString = trUtf8("Use following placeholders:");
-	for(const VariableToken & variable : m_variables)
+	for(const vsedit::VariableToken & variable : m_variables)
 	{
 		argumentsHelpString += QString("\n%1 - %2")
 			.arg(variable.token).arg(variable.description);
@@ -807,7 +807,7 @@ QString EncodeDialog::decodeArguments(const QString & a_arguments)
 {
 	QString decodedString = a_arguments.simplified();
 
-	for(const VariableToken & variable : m_variables)
+	for(const vsedit::VariableToken & variable : m_variables)
 	{
 		decodedString = decodedString.replace(variable.token,
 			variable.evaluate());
@@ -916,8 +916,8 @@ void EncodeDialog::fillVariables()
 	};
 
 	std::sort(m_variables.begin(), m_variables.end(),
-		[&](const VariableToken & a_first, const VariableToken & a_second)
-			-> bool
+		[&](const vsedit::VariableToken & a_first,
+			const vsedit::VariableToken & a_second) -> bool
 		{
 			return (a_first.token.length() > a_second.token.length());
 		});
