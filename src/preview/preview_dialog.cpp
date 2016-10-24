@@ -90,6 +90,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionUnbookmarkCurrentFrame(nullptr)
 	, m_pActionGoToPreviousBookmark(nullptr)
 	, m_pActionGoToNextBookmark(nullptr)
+	, m_pActionPasteShownFrameNumberIntoScript(nullptr)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
@@ -814,26 +815,28 @@ void PreviewDialog::slotPasteCropSnippetIntoScript()
 		return;
 
 	CropMode cropMode = (CropMode)m_ui.cropModeComboBox->currentData().toInt();
+	QString cropString;
+
 	if(cropMode == CropMode::Absolute)
 	{
-		QString cropString = QString("***CLIP*** = core.std.CropAbs"
+		cropString = QString("***CLIP*** = core.std.CropAbs"
 			"(***CLIP***, x=%1, y=%2, width=%3, height=%4)")
 			.arg(m_ui.cropLeftSpinBox->value())
 			.arg(m_ui.cropTopSpinBox->value())
 			.arg(m_ui.cropWidthSpinBox->value())
 			.arg(m_ui.cropHeightSpinBox->value());
-		emit signalInsertLineIntoScript(cropString);
 	}
 	else
 	{
-		QString cropString = QString("***CLIP*** = core.std.CropRel"
+		cropString = QString("***CLIP*** = core.std.CropRel"
 			"(***CLIP***, left=%1, top=%2, right=%3, bottom=%4)")
 			.arg(m_ui.cropLeftSpinBox->value())
 			.arg(m_ui.cropTopSpinBox->value())
 			.arg(m_ui.cropRightSpinBox->value())
 			.arg(m_ui.cropBottomSpinBox->value());
-		emit signalInsertLineIntoScript(cropString);
 	}
+
+	emit signalPasteIntoScriptAtNewLine(cropString);
 }
 
 // END OF void PreviewDialog::slotPasteCropSnippetIntoScript()
@@ -1319,6 +1322,14 @@ void PreviewDialog::slotGoToNextBookmark()
 // END OF void PreviewDialog::slotGoToNextBookmark()
 //==============================================================================
 
+void PreviewDialog::slotPasteShownFrameNumberIntoScript()
+{
+	emit signalPasteIntoScriptAtCursor(QString::number(m_frameShown));
+}
+
+// END OF void PreviewDialog::slotPasteShownFrameNumberIntoScript()
+//==============================================================================
+
 void PreviewDialog::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -1383,6 +1394,9 @@ void PreviewDialog::createActionsAndMenus()
 			false, SLOT(slotGoToPreviousBookmark())},
 		{&m_pActionGoToNextBookmark, ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK,
 			false, SLOT(slotGoToNextBookmark())},
+		{&m_pActionPasteShownFrameNumberIntoScript,
+			ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT,
+			false, SLOT(slotPasteShownFrameNumberIntoScript())},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -1531,6 +1545,9 @@ void PreviewDialog::createActionsAndMenus()
 	addAction(m_pActionUnbookmarkCurrentFrame);
 	addAction(m_pActionGoToPreviousBookmark);
 	addAction(m_pActionGoToNextBookmark);
+
+	addAction(m_pActionPasteShownFrameNumberIntoScript);
+	m_pPreviewContextMenu->addAction(m_pActionPasteShownFrameNumberIntoScript);
 
 //------------------------------------------------------------------------------
 

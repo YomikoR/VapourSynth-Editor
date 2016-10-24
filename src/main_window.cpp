@@ -101,8 +101,11 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 	connect(m_pPreviewDialog,
-		SIGNAL(signalInsertLineIntoScript(const QString &)),
+		SIGNAL(signalPasteIntoScriptAtNewLine(const QString &)),
 		this, SLOT(slotInsertTextIntoScriptAtNewLine(const QString &)));
+	connect(m_pPreviewDialog,
+		SIGNAL(signalPasteIntoScriptAtCursor(const QString &)),
+		this, SLOT(slotInsertTextIntoScriptAtCursor(const QString &)));
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pPreviewDialog, SLOT(slotSettingsChanged()));
 
@@ -178,6 +181,15 @@ void MainWindow::slotInsertTextIntoScriptAtNewLine(const QString & a_text)
 }
 
 // END OF void MainWindow::slotInsertTextIntoScriptAtNewLine(
+//		const QString & a_text)
+//==============================================================================
+
+void MainWindow::slotInsertTextIntoScriptAtCursor(const QString & a_text)
+{
+	m_ui.scriptEdit->insertPlainText(a_text);
+}
+
+// END OF void MainWindow::slotInsertTextIntoScriptAtCursor(
 //		const QString & a_text)
 //==============================================================================
 

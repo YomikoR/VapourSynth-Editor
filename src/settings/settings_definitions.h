@@ -168,6 +168,7 @@ extern const char ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME[];
 extern const char ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME[];
 extern const char ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK[];
 extern const char ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK[];
+extern const char ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT[];
 
 //==============================================================================
 

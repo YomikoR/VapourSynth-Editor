@@ -43,7 +43,8 @@ public:
 
 signals:
 
-	void signalInsertLineIntoScript(const QString& a_line);
+	void signalPasteIntoScriptAtNewLine(const QString& a_line);
+	void signalPasteIntoScriptAtCursor(const QString& a_line);
 
 protected slots:
 
@@ -127,6 +128,8 @@ protected slots:
 	void slotUnbookmarkCurrentFrame();
 	void slotGoToPreviousBookmark();
 	void slotGoToNextBookmark();
+
+	void slotPasteShownFrameNumberIntoScript();
 
 protected:
 
@@ -213,6 +216,7 @@ protected:
 	QAction * m_pActionUnbookmarkCurrentFrame;
 	QAction * m_pActionGoToPreviousBookmark;
 	QAction * m_pActionGoToNextBookmark;
+	QAction * m_pActionPasteShownFrameNumberIntoScript;
 
 	std::map<QString, ZoomMode> m_actionIDToZoomModeMap;
 

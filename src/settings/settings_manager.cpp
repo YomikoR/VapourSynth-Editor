@@ -143,6 +143,8 @@ const char ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK[] =
 	"timeline_go_to_previous_bookmark";
 const char ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK[] =
 	"timeline_go_to_next_bookmark";
+const char ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT[] =
+	"paste_shown_frame_number_into_script";
 
 //==============================================================================
 
@@ -414,6 +416,9 @@ void SettingsManager::initializeStandardActions()
 			trUtf8("Go to next bookmark"),
 			QIcon(":timeline_bookmark_next.png"),
 			QKeySequence(Qt::CTRL + Qt::Key_Right)},
+		{ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT,
+			trUtf8("Paste shown frame number into script"), QIcon(),
+			QKeySequence()},
 	};
 }
 
