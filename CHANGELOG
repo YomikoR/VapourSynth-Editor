@@ -25,6 +25,7 @@ Reset on previewing new script. Unsaved script preview is always reset.
 -Frames number and subsampling string tokens in encoder.
 -Estimated finish time output in benchmark and encoder.
 -Encoder argument tokens format changed into more readable one.
+-Colour picker moved into status bar.
 
 r⑨:
 -Asynchronous frames processing. More responsive GUI.
