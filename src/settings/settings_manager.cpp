@@ -193,7 +193,7 @@ const char DROP_FILE_TEMPLATES_GROUP[] = "drop_file_templates";
 const char DROP_FILE_CATEGORY_MASK_LIST_KEY[] = "mask_list";
 const char DROP_FILE_CATEGORY_SOURCE_TEMPLATE_KEY[] = "template";
 
-const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'%f\'";
+const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'{f}\'";
 
 //==============================================================================
 
