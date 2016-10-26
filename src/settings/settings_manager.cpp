@@ -13,161 +13,58 @@
 
 const char SETTINGS_FILE_NAME[] = "/vsedit.config";
 
+//==============================================================================
+
 const char COMMON_GROUP[] = "common";
 
 const char MAIN_WINDOW_GEOMETRY_KEY[] = "main_window_geometry";
 const char PREVIEW_DIALOG_GEOMETRY_KEY[] = "prewiew_dialog_geometry";
 const char MAIN_WINDOW_MAXIMIZED_KEY[] = "main_window_maximized";
-const bool DEFAULT_MAIN_WINDOW_MAXIMIZED = false;
 const char PREVIEW_DIALOG_MAXIMIZED_KEY[] = "preview_dialog_maximized";
-const bool DEFAULT_PREVIEW_DIALOG_MAXIMIZED = false;
 const char AUTO_LOAD_LAST_SCRIPT_KEY[] = "auto_load_last_script";
-const bool DEFAULT_AUTO_LOAD_LAST_SCRIPT = true;
 const char ZOOM_PANEL_VISIBLE_KEY[] = "zoom_panel_visible";
-const bool DEFAULT_ZOOM_PANEL_VISIBLE = true;
 const char ZOOM_MODE_KEY[] = "zoom_mode";
-const ZoomMode DEFAULT_ZOOM_MODE = ZoomMode::NoZoom;
 const char ZOOM_RATIO_KEY[] = "zoom_ratio";
-const double DEFAULT_ZOOM_RATIO = 2.0;
 const char SCALE_MODE_KEY[] = "scale_mode";
-const Qt::TransformationMode DEFAULT_SCALE_MODE = Qt::FastTransformation;
 const char CROP_MODE_KEY[] = "crop_mode";
-const CropMode DEFAULT_CROP_MODE = CropMode::Relative;
 const char CROP_ZOOM_RATIO_KEY[] = "crop_zoom_ratio";
-const int DEFAULT_CROP_ZOOM_RATIO = 1;
 const char PROMPT_TO_SAVE_CHANGES_KEY[] = "prompt_to_save_changes";
-const bool DEFAULT_PROMPT_TO_SAVE_CHANGES = true;
 const char RECENT_FILES_LIST_KEY[] = "recent_files_list";
 const char MAX_RECENT_FILES_NUMBER_KEY[] = "max_recent_files_number";
-const unsigned int DEFAULT_MAX_RECENT_FILES_NUMBER = 10;
 const char VAPOURSYNTH_LIBRARY_PATHS_KEY[] = "vapoursynth_library_paths";
 const char VAPOURSYNTH_PLUGINS_PATHS_KEY[] = "vapoursynth_plugins_paths";
 const char VAPOURSYNTH_DOCUMENTATION_PATHS_KEY[] =
 	"vapoursynth_documentation_paths";
-const QStringList DEFAULT_DOCUMENTATION_PATHS("./documentation");
 const char CHARACTERS_TYPED_TO_START_COMPLETION_KEY[] =
 	"characters_typed_to_start_completion";
-const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION = 2;
 const char TIMELINE_MODE_KEY[] = "timeline_mode";
-const TimeLineSlider::DisplayMode DEFAULT_TIMELINE_MODE =
-	TimeLineSlider::DisplayMode::Time;
 const char TIME_STEP_KEY[] = "time_step_mode";
-const double DEFAULT_TIME_STEP = 5.0;
 const char CHROMA_RESAMPLING_FILTER_KEY[] = "chroma_resampling_filter";
-const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER =
-	ResamplingFilter::Spline16;
 const char YUV_MATRIX_COEFFICIENTS_KEY[] = "yuv_matrix_coefficients";
-const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS =
-	YuvMatrixCoefficients::m709;
 const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
-const ChromaPlacement DEFAULT_CHROMA_PLACEMENT = ChromaPlacement::MPEG2;
 const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
-const double DEFAULT_BICUBIC_FILTER_PARAMETER_B = 1.0 / 3.0;
 const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
-const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 1.0 / 3.0;
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
-const int DEFAULT_LANCZOS_FILTER_TAPS = 3;
 const char COLOR_PICKER_VISIBLE_KEY[] = "color_picker_visible";
-const bool DEFAULT_COLOR_PICKER_VISIBLE = false;
 const char PLAY_FPS_LIMIT_MODE_KEY[] = "play_fps_limit_mode";
-const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE =
-	PlayFPSLimitMode::FromVideo;
 const char PLAY_FPS_LIMIT_KEY[] = "play_fps_limit";
-const double DEFAULT_PLAY_FPS_LIMIT = 23.976;
 const char USE_SPACES_AS_TAB_KEY[] = "use_spaces_as_tab";
-const bool DEFAULT_USE_SPACES_AS_TAB = false;
 const char SPACES_IN_TAB_KEY[] = "spaces_in_tab";
-const int DEFAULT_SPACES_IN_TAB = 4;
 const char REMEMBER_LAST_PREVIEW_FRAME_KEY[] = "remember_last_preview_frame";
-const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME = false;
 const char LAST_PREVIEW_FRAME_KEY[] = "last_preview_frame";
-const int DEFAULT_LAST_PREVIEW_FRAME = 0;
 const char NEW_SCRIPT_TEMPLATE_KEY[] = "new_script_template";
 const char HIGHLIGHT_SELECTION_MATCHES_KEY[] = "highlight_selection_matches";
-const bool DEFAULT_HIGHLIGHT_SELECTION_MATCHES = true;
 const char HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY[] =
 	"highlight_selection_matches_min_length";
-const int DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH = 3;
 const char TIMELINE_PANEL_VISIBLE_KEY[] = "timeline_panel_visible";
-const bool DEFAULT_TIMELINE_PANEL_VISIBLE = true;
 
 //==============================================================================
 
 const char HOTKEYS_GROUP[] = "hotkeys";
 
-const char ACTION_ID_NEW_SCRIPT[] = "new_script";
-const char ACTION_ID_OPEN_SCRIPT[] = "open_script";
-const char ACTION_ID_SAVE_SCRIPT[] = "save_script";
-const char ACTION_ID_SAVE_SCRIPT_AS[] = "save_script_as";
-const char ACTION_ID_TEMPLATES[] = "templates";
-const char ACTION_ID_SETTINGS[] = "settings";
-const char ACTION_ID_PREVIEW[] = "preview";
-const char ACTION_ID_CHECK_SCRIPT[] = "check_script";
-const char ACTION_ID_BENCHMARK[] = "benchmark";
-const char ACTION_ID_CLI_ENCODE[] = "cli_encode";
-const char ACTION_ID_EXIT[] = "exit";
-const char ACTION_ID_ABOUT[] = "about";
-const char ACTION_ID_AUTOCOMPLETE[] = "autocomplete";
-const char ACTION_ID_SAVE_SNAPSHOT[] = "save_snapshot";
-const char ACTION_ID_TOGGLE_ZOOM_PANEL[] = "toggle_zoom_panel";
-const char ACTION_ID_SET_ZOOM_MODE_NO_ZOOM[] = "set_zoom_mode_no_zoom";
-const char ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO[] = "set_zoom_mode_fixed_ratio";
-const char ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME[] =
-	"set_zoom_mode_fit_to_frame";
-const char ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST[] =
-	"set_zoom_scale_mode_nearest";
-const char ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR[] =
-	"set_zoom_scale_mode_bilinear";
-const char ACTION_ID_TOGGLE_CROP_PANEL[] = "toggle_crop_panel";
-const char ACTION_ID_PASTE_CROP_SNIPPET_INTO_SCRIPT[] =
-	"paste_crop_snippet_into_script";
-const char ACTION_ID_FRAME_TO_CLIPBOARD[] = "frame_to_clipboard";
-const char ACTION_ID_TOGGLE_TIMELINE_PANEL[] = "toggle_timeline_panel";
-const char ACTION_ID_SET_TIMELINE_MODE_TIME[] = "set_timeline_mode_time";
-const char ACTION_ID_SET_TIMELINE_MODE_FRAMES[] = "set_timeline_mode_frames";
-const char ACTION_ID_TIME_STEP_FORWARD[] = "time_step_forward";
-const char ACTION_ID_TIME_STEP_BACK[] = "time_step_back";
-const char ACTION_ID_ADVANCED_PREVIEW_SETTINGS[] = "advanced_preview_settings";
-const char ACTION_ID_TOGGLE_COLOR_PICKER[] = "toggle_color_picker";
-const char ACTION_ID_PLAY[] = "play";
-const char ACTION_ID_DUPLICATE_SELECTION[] = "duplicate_selection";
-const char ACTION_ID_COMMENT_SELECTION[] = "comment_selection";
-const char ACTION_ID_UNCOMMENT_SELECTION[] = "uncomment_selection";
-const char ACTION_ID_REPLACE_TAB_WITH_SPACES[] = "replace_tab_with_spaces";
-const char ACTION_ID_TIMELINE_CLEAR_BOOKMARKS[] = "timeline_clear_bookmarks";
-const char ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME[] =
-	"timeline_bookmark_current_frame";
-const char ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME[] =
-	"timeline_unbookmark_current_frame";
-const char ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK[] =
-	"timeline_go_to_previous_bookmark";
-const char ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK[] =
-	"timeline_go_to_next_bookmark";
-const char ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT[] =
-	"paste_shown_frame_number_into_script";
-
 //==============================================================================
 
 const char THEME_GROUP[] = "theme";
-
-const char TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT[] = "common_script_text";
-const char TEXT_FORMAT_ID_KEYWORD[] = "keyword";
-const char TEXT_FORMAT_ID_OPERATOR[] = "operator";
-const char TEXT_FORMAT_ID_STRING[] = "string";
-const char TEXT_FORMAT_ID_NUMBER[] = "number";
-const char TEXT_FORMAT_ID_COMMENT[] = "comment";
-const char TEXT_FORMAT_ID_VS_CORE[] = "vs_core";
-const char TEXT_FORMAT_ID_VS_NAMESPACE[] = "vs_namespace";
-const char TEXT_FORMAT_ID_VS_FUNCTION[] = "vs_function";
-const char TEXT_FORMAT_ID_VS_ARGUMENT[] = "vs_argument";
-const char TEXT_FORMAT_ID_TIMELINE[] = "timeline_text";
-
-const char COLOR_ID_TEXT_BACKGROUND[] = "text_background_color";
-const char COLOR_ID_ACTIVE_LINE[] = "active_line_color";
-const char COLOR_ID_SELECTION_MATCHES[] = "selection_matches";
-const char COLOR_ID_TIMELINE_BOOKMARKS[] = "timeline_bookmarks";
-
-const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 
 //==============================================================================
 
@@ -177,10 +74,6 @@ const char ENCODING_PRESET_ENCODING_TYPE_KEY[] = "encoding_type";
 const char ENCODING_PRESET_HEADER_TYPE_KEY[] = "header_type";
 const char ENCODING_PRESET_EXECUTABLE_PATH_KEY[] = "executable_path";
 const char ENCODING_PRESET_ARGUMENTS_KEY[] = "arguments";
-
-const EncodingType DEFAULT_ENCODING_TYPE = EncodingType::CLI;
-const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =
-	EncodingHeaderType::NoHeader;
 
 //==============================================================================
 
@@ -192,8 +85,6 @@ const char DROP_FILE_TEMPLATES_GROUP[] = "drop_file_templates";
 
 const char DROP_FILE_CATEGORY_MASK_LIST_KEY[] = "mask_list";
 const char DROP_FILE_CATEGORY_SOURCE_TEMPLATE_KEY[] = "template";
-
-const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'{f}\'";
 
 //==============================================================================
 
