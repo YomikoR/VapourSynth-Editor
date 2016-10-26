@@ -236,6 +236,8 @@ protected:
 	QIcon m_iconPause;
 
 	QLabel * m_pColorPickerLabel;
+
+	bool m_alwaysKeepCurrentFrame;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

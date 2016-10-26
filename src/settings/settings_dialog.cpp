@@ -116,6 +116,8 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getHighlightSelectionMatchesMinLength());
 	m_ui.rememberLastPreviewFrameCheckBox->setChecked(
 		m_pSettingsManager->getRememberLastPreviewFrame());
+	m_ui.alwaysKeepCurrentFrameCheckBox->setChecked(
+		m_pSettingsManager->getAlwaysKeepCurrentFrame());
 
 	m_ui.vsLibraryPathsListWidget->clear();
 	m_ui.vsLibraryPathsListWidget->addItems(
@@ -215,6 +217,8 @@ void SettingsDialog::slotApply()
 		m_ui.highlightSelectionMatchesMinLengthSpinBox->value());
 	m_pSettingsManager->setRememberLastPreviewFrame(
 		m_ui.rememberLastPreviewFrameCheckBox->isChecked());
+	m_pSettingsManager->setAlwaysKeepCurrentFrame(
+		m_ui.alwaysKeepCurrentFrameCheckBox->isChecked());
 
 	QStringList vapourSynthLibraryPaths;
 	int vsLibraryPathsNumber = m_ui.vsLibraryPathsListWidget->count();

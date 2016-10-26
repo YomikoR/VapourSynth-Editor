@@ -96,6 +96,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
 	, m_pColorPickerLabel(nullptr)
+	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -215,7 +216,10 @@ void PreviewDialog::previewScript(const QString& a_script,
 			(double)m_cpVideoInfo->fpsDen);
 	}
 
-	if((previousScript != a_script) && (previousScriptName != a_scriptName))
+	bool scriptChanged = ((previousScript != a_script) &&
+		(previousScriptName != a_scriptName));
+
+	if(scriptChanged && (!m_alwaysKeepCurrentFrame))
 	{
 		m_frameExpected = 0;
 		m_ui.previewArea->setPixmap(QPixmap());
@@ -938,6 +942,8 @@ void PreviewDialog::slotSettingsChanged()
 		hotkey = m_pSettingsManager->getHotkey(pAction->data().toString());
 		pAction->setShortcut(hotkey);
 	}
+
+	m_alwaysKeepCurrentFrame = m_pSettingsManager->getAlwaysKeepCurrentFrame();
 
 	m_ui.frameNumberSlider->setUpdatesEnabled(false);
 

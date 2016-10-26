@@ -239,6 +239,10 @@ public:
 
 	bool setTimeLinePanelVisible(bool a_visible);
 
+	bool getAlwaysKeepCurrentFrame() const;
+
+	bool setAlwaysKeepCurrentFrame(bool a_keep);
+
 private:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,

@@ -57,6 +57,7 @@ const char HIGHLIGHT_SELECTION_MATCHES_KEY[] = "highlight_selection_matches";
 const char HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY[] =
 	"highlight_selection_matches_min_length";
 const char TIMELINE_PANEL_VISIBLE_KEY[] = "timeline_panel_visible";
+const char ALWAYS_KEEP_CURRENT_FRAME_KEY[] = "always_keep_current_frame";
 
 //==============================================================================
 
@@ -1242,6 +1243,19 @@ bool SettingsManager::getTimeLinePanelVisible() const
 bool SettingsManager::setTimeLinePanelVisible(bool a_visible)
 {
 	return setValue(TIMELINE_PANEL_VISIBLE_KEY, a_visible);
+}
+
+//==============================================================================
+
+bool SettingsManager::getAlwaysKeepCurrentFrame() const
+{
+	return value(ALWAYS_KEEP_CURRENT_FRAME_KEY,
+		DEFAULT_ALWAYS_KEEP_CURRENT_FRAME).toBool();
+}
+
+bool SettingsManager::setAlwaysKeepCurrentFrame(bool a_keep)
+{
+	return setValue(ALWAYS_KEEP_CURRENT_FRAME_KEY, a_keep);
 }
 
 //==============================================================================

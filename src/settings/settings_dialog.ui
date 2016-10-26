@@ -238,6 +238,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="alwaysKeepCurrentFrameCheckBox">
+         <property name="text">
+          <string>Keep current frame when previewing different script</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="delimiter">
          <property name="frameShape">
           <enum>QFrame::HLine</enum>
