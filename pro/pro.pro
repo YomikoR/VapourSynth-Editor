@@ -170,6 +170,7 @@ FORMS += ../src/main_window.ui
 HEADERS += ../src/common/helpers.h
 HEADERS += ../src/common/aligned_vector.h
 HEADERS += ../src/common/chrono.h
+HEADERS += ../src/common/styled_log_view.h
 HEADERS += ../src/settings/settings_definitions.h
 HEADERS += ../src/settings/settings_manager.h
 HEADERS += ../src/settings/actions_hotkey_edit_model.h
@@ -200,6 +201,7 @@ HEADERS += ../src/script_templates/templates_dialog.h
 HEADERS += ../src/main_window.h
 
 SOURCES += ../src/common/helpers.cpp
+SOURCES += ../src/common/styled_log_view.cpp
 SOURCES += ../src/settings/settings_definitions.cpp
 SOURCES += ../src/settings/settings_manager.cpp
 SOURCES += ../src/settings/actions_hotkey_edit_model.cpp

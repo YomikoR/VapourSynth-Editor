@@ -162,13 +162,7 @@ MainWindow::~MainWindow()
 void MainWindow::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
-	if((a_messageType == mtFatal) || (a_messageType == mtCritical))
-		m_ui.logEdit->setTextColor(QColor(255, 0, 0));
-	else if(a_messageType == mtWarning)
-		m_ui.logEdit->setTextColor(QColor(0, 0, 255));
-	else
-		m_ui.logEdit->setTextColor(QColor(0, 0, 0));
-	m_ui.logEdit->append(a_message);
+	m_ui.logView->addEntry(a_message);
 }
 
 // END OF void MainWindow::slotWriteLogMessage(int a_messageType,
