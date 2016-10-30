@@ -129,12 +129,28 @@ void StyledLogView::updateHtml()
 		return;
 	}
 
-	QString html;
+	QString html = QString(
+		"<body>\n"
+		"<style type=\"text/css\">\n"
+		"table {"
+			"border-width: 1px;"
+			"border-style: solid;"
+			"border-color: {table-border-color};"
+		"}\n"
+		"div {"
+			"margin-left: 2px;"
+			"margin-top: 2px;"
+			"margin-right: 2px;"
+			"margin-bottom: 2px;"
+		"}\n"
+		"</style>"
+		"<table width=\"100%\" cellspacing=\"-1\">\n"
+		).replace("{table-border-color}",
+		palette().color(QPalette::Dark).name());
+
 	bool openBlock = false;
 	QDateTime lastTime;
 	QString lastStyle;
-
-	html += QString("<table>");
 
 	for(const LogEntry & entry : m_entries)
 	{
@@ -143,7 +159,7 @@ void StyledLogView::updateHtml()
 			if(entry.isDivider || (lastTime.msecsTo(entry.time) > 2000) ||
 				(entry.style != lastStyle))
 			{
-				html += QString("</td></tr>");
+				html += QString("</td></tr>\n");
 				openBlock = false;
 			}
 		}
@@ -164,27 +180,36 @@ void StyledLogView::updateHtml()
 		if(it != m_styles.end())
 			style = *it;
 
+		QTextCharFormat format = style.textFormat;
+
 		if(!openBlock)
 		{
 			html += QString("<tr bgcolor=\"%1\"><td>")
 				.arg(style.backgroundColor.name());
 			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
-			html += QString("<p><font size=\"-2\">%1</font></p>")
-				.arg(timeString);
+			html += QString("<div><font family=\"%1\" size=\"-2\" "
+			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
+			.arg(format.foreground().color().name())
+			.arg(timeString);
 			openBlock = true;
 		}
 
 		QString entryHtml = entry.text;
 		entryHtml.replace("\n", "<br>");
-		html += QString("<p>%1</p>").arg(entryHtml);
+		html += QString("<div><font family=\"%1\" "
+			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
+			.arg(format.foreground().color().name())
+			.arg(entryHtml);
 	}
 
 	if(openBlock)
-		html += QString("</td></tr>");
+		html += QString("</td></tr>\n");
 
-	html += QString("</table>");
+	html += QString("</table>\n</body>");
 
-	document()->setHtml(html);
+	setHtml(html);
+
+	//setPlainText(toHtml());
 
 	verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 }

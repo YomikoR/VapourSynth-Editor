@@ -65,6 +65,11 @@ MainWindow::MainWindow() : QMainWindow()
 
 	setWindowIcon(QIcon(":vsedit.ico"));
 
+	QTextCharFormat charFormat;
+	charFormat.setForeground(Qt::red);
+	TextBlockStyle style = {QString("error"), QColor("#ffeeee"), charFormat};
+	m_ui.logView->addStyle(style);
+
 	m_pSettingsManager = new SettingsManager(this);
 	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 
@@ -162,7 +167,11 @@ MainWindow::~MainWindow()
 void MainWindow::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
-	m_ui.logView->addEntry(a_message);
+	QString style("default");
+	if(a_messageType == mtCritical)
+		style = QString("error");
+
+	m_ui.logView->addEntry(a_message, style);
 }
 
 // END OF void MainWindow::slotWriteLogMessage(int a_messageType,
