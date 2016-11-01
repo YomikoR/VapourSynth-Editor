@@ -27,6 +27,8 @@ public:
 public slots:
 
 	void slotWriteLogMessage(int a_messageType, const QString & a_message);
+	void slotWriteLogMessage(const QString & a_message,
+		const QString & a_style = LOG_STYLE_DEFAULT);
 
 	void slotInsertTextIntoScriptAtNewLine(const QString & a_text);
 	void slotInsertTextIntoScriptAtCursor(const QString & a_text);

@@ -163,11 +163,21 @@ void MainWindow::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
 	QString style = vsMessageTypeToStyleName(a_messageType);
-	m_ui.logView->addEntry(a_message, style);
+	slotWriteLogMessage(a_message, style);
 }
 
 // END OF void MainWindow::slotWriteLogMessage(int a_messageType,
 //		const QString & a_message)
+//==============================================================================
+
+void MainWindow::slotWriteLogMessage(const QString & a_message,
+	const QString & a_style)
+{
+	m_ui.logView->addEntry(a_message, a_style);
+}
+
+// END OF void MainWindow::slotWriteLogMessage(const QString & a_message,
+//		const QString & a_style);
 //==============================================================================
 
 void MainWindow::slotInsertTextIntoScriptAtNewLine(const QString & a_text)

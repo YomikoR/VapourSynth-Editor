@@ -1,6 +1,5 @@
 #include "main_window.h"
-
-#include <vapoursynth/VSScript.h>
+#include "log/vs_editor_log.h"
 
 #include <QApplication>
 #include <cassert>
@@ -15,30 +14,31 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 {
 	int messageType = mtDebug;
 	QString prefix = "Qt debug";
+	QString style = LOG_STYLE_DEFAULT;
 
     switch(a_type)
     {
     case QtDebugMsg:
-		messageType = mtDebug;
 		prefix = "Qt debug";
+		style = LOG_STYLE_QT_DEBUG;
         break;
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
     case QtInfoMsg:
-		messageType = mtDebug;
 		prefix = "Qt info";
+		style = LOG_STYLE_QT_INFO;
         break;
 #endif
     case QtWarningMsg:
-		messageType = mtDebug;
 		prefix = "Qt warning";
+		style = LOG_STYLE_QT_WARNING;
         break;
     case QtCriticalMsg:
-		messageType = mtCritical;
 		prefix = "Qt critical";
+		style = LOG_STYLE_QT_CRITICAL;
         break;
     case QtFatalMsg:
-    	messageType = mtFatal;
 		prefix = "Qt fatal";
+		style = LOG_STYLE_QT_FATAL;
 		break;
 	default:
 		assert(false);
@@ -57,7 +57,7 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 	if(!fileString.isEmpty())
 		fullMessage += lineInfo;
 
-    pMainWindow->slotWriteLogMessage(messageType, fullMessage);
+    pMainWindow->slotWriteLogMessage(fullMessage, style);
 
     if(a_type == QtFatalMsg)
 		abort();

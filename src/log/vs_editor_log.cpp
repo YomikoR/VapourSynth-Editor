@@ -9,6 +9,17 @@ const char LOG_STYLE_DEBUG[] = "debug";
 const char LOG_STYLE_WARNING[] = "warning";
 const char LOG_STYLE_POSITIVE[] = "positive";
 
+const char LOG_STYLE_VS_DEBUG[] = "vs_debug";
+const char LOG_STYLE_VS_WARNING[] = "vs_warning";
+const char LOG_STYLE_VS_CRITICAL[] = "vs_critical";
+const char LOG_STYLE_VS_FATAL[] = "vs_fatal";
+
+const char LOG_STYLE_QT_DEBUG[] = "qt_debug";
+const char LOG_STYLE_QT_INFO[] = "qt_info";
+const char LOG_STYLE_QT_WARNING[] = "qt_warning";
+const char LOG_STYLE_QT_CRITICAL[] = "qt_critical";
+const char LOG_STYLE_QT_FATAL[] = "qt_fatal";
+
 //==============================================================================
 
 QString vsMessageTypeToStyleName(int a_messageType)
@@ -18,14 +29,16 @@ QString vsMessageTypeToStyleName(int a_messageType)
 	switch(a_messageType)
 	{
 	case mtDebug:
-		style = LOG_STYLE_DEBUG;
+		style = LOG_STYLE_VS_DEBUG;
 		break;
 	case mtWarning:
-		style = LOG_STYLE_WARNING;
+		style = LOG_STYLE_VS_WARNING;
 		break;
 	case mtCritical:
+		style = LOG_STYLE_VS_CRITICAL;
+		break;
 	case mtFatal:
-		style = LOG_STYLE_ERROR;
+		style = LOG_STYLE_VS_FATAL;
 		break;
 	default:
 		style = LOG_STYLE_DEFAULT;
@@ -78,6 +91,18 @@ void VSEditorLog::initializeStyles()
 			styleToCreate.backgroundColor, charFormat};
 		addStyle(style);
 	}
+
+	m_styleAliases = {
+		{LOG_STYLE_VS_DEBUG, LOG_STYLE_DEBUG},
+		{LOG_STYLE_VS_WARNING, LOG_STYLE_WARNING},
+		{LOG_STYLE_VS_CRITICAL, LOG_STYLE_ERROR},
+		{LOG_STYLE_VS_FATAL, LOG_STYLE_ERROR},
+		{LOG_STYLE_QT_DEBUG, LOG_STYLE_DEBUG},
+		{LOG_STYLE_QT_INFO, LOG_STYLE_DEFAULT},
+		{LOG_STYLE_QT_WARNING, LOG_STYLE_WARNING},
+		{LOG_STYLE_QT_CRITICAL, LOG_STYLE_ERROR},
+		{LOG_STYLE_QT_FATAL, LOG_STYLE_ERROR},
+	};
 }
 
 // END OF void VSEditorLog::initializeStyles()
