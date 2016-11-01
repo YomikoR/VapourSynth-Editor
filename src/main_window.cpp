@@ -65,11 +65,6 @@ MainWindow::MainWindow() : QMainWindow()
 
 	setWindowIcon(QIcon(":vsedit.ico"));
 
-	QTextCharFormat charFormat;
-	charFormat.setForeground(Qt::red);
-	TextBlockStyle style = {QString("error"), QColor("#ffeeee"), charFormat};
-	m_ui.logView->addStyle(style);
-
 	m_pSettingsManager = new SettingsManager(this);
 	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 
@@ -167,10 +162,7 @@ MainWindow::~MainWindow()
 void MainWindow::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
-	QString style("default");
-	if(a_messageType == mtCritical)
-		style = QString("error");
-
+	QString style = vsMessageTypeToStyleName(a_messageType);
 	m_ui.logView->addEntry(a_message, style);
 }
 
@@ -347,7 +339,7 @@ void MainWindow::slotPreview()
 		QString message = trUtf8("Preview dialog appears busy processing "
 			"frames. Please stop any active actions in the dialog and wait "
 			"for script processor to finish processing.");
-		slotWriteLogMessage(mtDebug, message);
+		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
 		return;
 	}
 
@@ -372,7 +364,7 @@ void MainWindow::slotCheckScript()
 		QString message = trUtf8("Script was successfully evaluated. "
 			"Output video info:\n");
 		message += vsedit::videoInfoString(tempProcessor.videoInfo());
-		slotWriteLogMessage(mtDebug, message);
+		m_ui.logView->addEntry(message, LOG_STYLE_POSITIVE);
 	}
 }
 
@@ -386,7 +378,7 @@ void MainWindow::slotBenchmark()
 		QString message = trUtf8("Benchmark dialog appears busy processing "
 			"frames. Please stop any active actions in the dialog and wait "
 			"for script processor to finish processing.");
-		slotWriteLogMessage(mtDebug, message);
+		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
 		return;
 	}
 
@@ -404,7 +396,7 @@ void MainWindow::slotEncode()
 		QString message = trUtf8("Encode dialog appears busy processing "
 			"frames. Please stop any active actions in the dialog and wait "
 			"for script processor to finish processing.");
-		slotWriteLogMessage(mtDebug, message);
+		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
 		return;
 	}
 

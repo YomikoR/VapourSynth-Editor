@@ -77,7 +77,7 @@
       <number>0</number>
      </property>
      <item row="0" column="0">
-      <widget class="StyledLogView" name="logView"/>
+      <widget class="VSEditorLog" name="logView"/>
      </item>
     </layout>
    </widget>
@@ -90,9 +90,9 @@
    <header>../../src/script_editor/script_editor.h</header>
   </customwidget>
   <customwidget>
-   <class>StyledLogView</class>
+   <class>VSEditorLog</class>
    <extends>QTextEdit</extends>
-   <header>../../src/common/styled_log_view.h</header>
+   <header>../../src/log/vs_editor_log.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

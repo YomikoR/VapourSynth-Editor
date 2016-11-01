@@ -5,7 +5,7 @@
 
 //==============================================================================
 
-const char DEFAULT_LOG_TEXT_BLOCK_STYLE_NAME[] = "default";
+const char LOG_STYLE_DEFAULT[] = "default";
 
 //==============================================================================
 
@@ -61,7 +61,7 @@ TextBlockStyle StyledLogView::defaultStyle() const
 {
 	TextBlockStyle style =
 	{
-		QString("default"),
+		LOG_STYLE_DEFAULT,
 		palette().color(QPalette::Active, QPalette::Base),
 		QTextCharFormat()
 	};
@@ -69,6 +69,35 @@ TextBlockStyle StyledLogView::defaultStyle() const
 }
 
 // END OF TextBlockStyle StyledLogView::defaultStyle() const
+//==============================================================================
+
+TextBlockStyle StyledLogView::getStyle(const QString & a_styleName) const
+{
+	QString styleName = a_styleName;
+
+	// resolve alias
+	std::map<QString, QString>::const_iterator aliases_it =
+		m_styleAliases.find(a_styleName);
+	if(aliases_it != m_styleAliases.end())
+		styleName = aliases_it->second;
+	assert(!styleName.isEmpty());
+
+	// get actual style
+	std::vector<TextBlockStyle>::const_iterator it =
+		std::find_if(m_styles.begin(), m_styles.end(),
+			[&](const TextBlockStyle & a_style) -> bool
+			{
+				return (a_style.name == styleName);
+			});
+
+	if(it != m_styles.end())
+		return *it;
+	else
+		return defaultStyle();
+}
+
+// END OF TextBlockStyle StyledLogView::getStyle(
+//		const QString & a_styleName) const
 //==============================================================================
 
 void StyledLogView::addStyle(const TextBlockStyle & a_style,
@@ -84,10 +113,48 @@ void StyledLogView::addStyle(const TextBlockStyle & a_style,
 		m_styles.push_back(a_style);
 	else if(a_updateExisting)
 		*it = a_style;
+
+	m_styleAliases.erase(a_style.name);
 }
 
 // END OF void StyledLogView::addStyle(const TextBlockStyle & a_style,
 //		bool a_updateExisting)
+//==============================================================================
+
+void StyledLogView::addStyle(const QString & a_styleName,
+		const QString & a_existingStyleName)
+{
+	// no aliasing default style name
+	if(a_styleName == LOG_STYLE_DEFAULT)
+		return;
+
+	// check if style name already corresponds to real style
+	std::vector<TextBlockStyle>::iterator it = std::find_if(m_styles.begin(),
+		m_styles.end(), [&](const TextBlockStyle & a_style) -> bool
+		{
+			return (a_style.name == a_styleName);
+		});
+
+	if(it != m_styles.end())
+		return;
+
+	// aliasing
+	QString existingStyleName = LOG_STYLE_DEFAULT;
+
+	it = std::find_if(m_styles.begin(), m_styles.end(),
+		[&](const TextBlockStyle & a_style) -> bool
+		{
+			return (a_style.name == a_existingStyleName);
+		});
+
+	if(it != m_styles.end())
+		existingStyleName = a_existingStyleName;
+
+	m_styleAliases[a_styleName] = existingStyleName;
+}
+
+// END OF void StyledLogView::addStyle(const QString & a_styleName,
+//		const QString & a_existingStyleName)
 //==============================================================================
 
 void StyledLogView::addEntry(const QString & a_text, const QString & a_style)
@@ -170,16 +237,7 @@ void StyledLogView::updateHtml()
 		if(entry.isDivider)
 			continue;
 
-		TextBlockStyle style = defaultStyle();
-		std::vector<TextBlockStyle>::iterator it =
-			std::find_if(m_styles.begin(), m_styles.end(),
-				[&](const TextBlockStyle & a_style)
-				{
-					return (a_style.name == entry.style);
-				});
-		if(it != m_styles.end())
-			style = *it;
-
+		TextBlockStyle style = getStyle(entry.style);
 		QTextCharFormat format = style.textFormat;
 
 		if(!openBlock)
@@ -208,8 +266,6 @@ void StyledLogView::updateHtml()
 	html += QString("</table>\n</body>");
 
 	setHtml(html);
-
-	//setPlainText(toHtml());
 
 	verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 }

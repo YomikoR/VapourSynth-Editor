@@ -4,6 +4,9 @@
 #include <QTextEdit>
 #include <QDateTime>
 #include <vector>
+#include <map>
+
+//==============================================================================
 
 struct TextBlockStyle
 {
@@ -12,7 +15,11 @@ struct TextBlockStyle
 	QTextCharFormat textFormat;
 };
 
-extern const char DEFAULT_LOG_TEXT_BLOCK_STYLE_NAME[];
+//==============================================================================
+
+extern const char LOG_STYLE_DEFAULT[];
+
+//==============================================================================
 
 struct LogEntry
 {
@@ -22,13 +29,15 @@ struct LogEntry
 	QString style;
 
 	LogEntry(bool a_isDivider = false, const QString & a_text = QString(),
-		const QString & a_style = DEFAULT_LOG_TEXT_BLOCK_STYLE_NAME);
+		const QString & a_style = LOG_STYLE_DEFAULT);
 
 	LogEntry(const QString & a_text, const QString & a_style =
-		DEFAULT_LOG_TEXT_BLOCK_STYLE_NAME);
+		LOG_STYLE_DEFAULT);
 
 	static LogEntry divider();
 };
+
+//==============================================================================
 
 class StyledLogView : public QTextEdit
 {
@@ -41,11 +50,16 @@ public:
 
 	virtual TextBlockStyle defaultStyle() const;
 
+	virtual TextBlockStyle getStyle(const QString & a_styleName) const;
+
 	virtual void addStyle(const TextBlockStyle & a_style,
 		bool a_updateExisting = true);
 
+	virtual void addStyle(const QString & a_styleName,
+		const QString & a_existingStyleName = LOG_STYLE_DEFAULT);
+
 	virtual void addEntry(const QString & a_text,
-		const QString & a_style = DEFAULT_LOG_TEXT_BLOCK_STYLE_NAME);
+		const QString & a_style = LOG_STYLE_DEFAULT);
 
 	virtual void startNewBlock();
 
@@ -59,6 +73,10 @@ protected:
 
 	std::vector<TextBlockStyle> m_styles;
 	std::vector<LogEntry> m_entries;
+
+	std::map<QString, QString> m_styleAliases;
 };
+
+//==============================================================================
 
 #endif // STYLED_LOG_VIEW_H_INCLUDED
