@@ -2,6 +2,8 @@
 
 #include <vapoursynth/VapourSynth.h>
 
+#include <map>
+
 //==============================================================================
 
 const char LOG_STYLE_ERROR[] = "error";
@@ -26,23 +28,17 @@ QString vsMessageTypeToStyleName(int a_messageType)
 {
 	QString style(LOG_STYLE_DEFAULT);
 
-	switch(a_messageType)
-	{
-	case mtDebug:
-		style = LOG_STYLE_VS_DEBUG;
-		break;
-	case mtWarning:
-		style = LOG_STYLE_VS_WARNING;
-		break;
-	case mtCritical:
-		style = LOG_STYLE_VS_CRITICAL;
-		break;
-	case mtFatal:
-		style = LOG_STYLE_VS_FATAL;
-		break;
-	default:
-		style = LOG_STYLE_DEFAULT;
-	}
+	std::map<int, QString> vsTypeToStyleMap = {
+		{mtDebug, LOG_STYLE_VS_DEBUG},
+		{mtWarning, LOG_STYLE_VS_WARNING},
+		{mtCritical, LOG_STYLE_VS_CRITICAL},
+		{mtFatal, LOG_STYLE_VS_FATAL},
+	};
+
+	std::map<int, QString>::const_iterator it =
+		vsTypeToStyleMap.find(a_messageType);
+	if(it != vsTypeToStyleMap.end())
+		return it->second;
 
 	return style;
 }
