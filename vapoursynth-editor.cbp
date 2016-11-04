@@ -251,6 +251,8 @@
 		<Unit filename="src/frame_consumers/encode_dialog.ui" />
 		<Unit filename="src/log/styled_log_view.cpp" />
 		<Unit filename="src/log/styled_log_view.h" />
+		<Unit filename="src/log/styled_log_view_structures.cpp" />
+		<Unit filename="src/log/styled_log_view_structures.h" />
 		<Unit filename="src/log/vs_editor_log.cpp" />
 		<Unit filename="src/log/vs_editor_log.h" />
 		<Unit filename="src/main.cpp" />

@@ -68,31 +68,14 @@ VSEditorLog::~VSEditorLog()
 
 void VSEditorLog::initializeStyles()
 {
-	struct StyleToCreate
-	{
-		QString name;
-		QColor textColor;
-		QColor backgroundColor;
-	};
+	TextBlockStyle stylesToCreate[] = {
+		{LOG_STYLE_ERROR, QColor("#ffeeee"), Qt::darkRed},
+		{LOG_STYLE_DEBUG, palette().color(QPalette::Active, QPalette::Base),
+			palette().color(QPalette::Active, QPalette::Dark)},
+		{LOG_STYLE_WARNING, QColor("#eeeeff"), Qt::darkBlue},
+		{LOG_STYLE_POSITIVE, QColor("#eeffee"), Qt::darkGreen},
 
-	StyleToCreate stylesToCreate[] = {
-		{LOG_STYLE_ERROR, Qt::darkRed, QColor("#ffeeee")},
-		{LOG_STYLE_DEBUG, palette().color(QPalette::Active, QPalette::Dark),
-			palette().color(QPalette::Active, QPalette::Base)},
-		{LOG_STYLE_WARNING, Qt::darkBlue, QColor("#eeeeff")},
-		{LOG_STYLE_POSITIVE, Qt::darkGreen, QColor("#eeffee")},
-	};
-
-	for(StyleToCreate & styleToCreate : stylesToCreate)
-	{
-		QTextCharFormat charFormat;
-		charFormat.setForeground(styleToCreate.textColor);
-		TextBlockStyle style = {styleToCreate.name,
-			styleToCreate.backgroundColor, charFormat};
-		addStyle(style);
-	}
-
-	m_styleAliases = {
+		// Aliases
 		{LOG_STYLE_VS_DEBUG, LOG_STYLE_DEBUG},
 		{LOG_STYLE_VS_WARNING, LOG_STYLE_WARNING},
 		{LOG_STYLE_VS_CRITICAL, LOG_STYLE_ERROR},
@@ -103,6 +86,9 @@ void VSEditorLog::initializeStyles()
 		{LOG_STYLE_QT_CRITICAL, LOG_STYLE_ERROR},
 		{LOG_STYLE_QT_FATAL, LOG_STYLE_ERROR},
 	};
+
+	for(TextBlockStyle & styleToCreate : stylesToCreate)
+		addStyle(styleToCreate);
 }
 
 // END OF void VSEditorLog::initializeStyles()

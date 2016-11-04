@@ -5,46 +5,11 @@
 
 //==============================================================================
 
-const char LOG_STYLE_DEFAULT[] = "default";
-
-//==============================================================================
-
-LogEntry::LogEntry(bool a_isDivider, const QString & a_text,
-	const QString & a_style) :
-	  isDivider(a_isDivider)
-	, time(QDateTime::currentDateTime())
-	, text(a_text)
-	, style(a_style)
-{
-}
-
-// END OF LogEntry::LogEntry(bool a_isDivider, const QString & a_text,
-//		const QString & a_style)
-//==============================================================================
-
-LogEntry::LogEntry(const QString & a_text, const QString & a_style) :
-	  isDivider(false)
-	, time(QDateTime::currentDateTime())
-	, text(a_text)
-	, style(a_style)
-{
-}
-
-// END OF LogEntry::LogEntry(const QString & a_text, const QString & a_style)
-//==============================================================================
-
-LogEntry LogEntry::divider()
-{
-	return LogEntry(true, QString(), QString());
-}
-
-// END OF LogEntry LogEntry::divider()
-//==============================================================================
-
 StyledLogView::StyledLogView(QWidget * a_pParent) :
 	  QTextEdit(a_pParent)
 {
 	setReadOnly(true);
+	addStyle(TextBlockStyle(LOG_STYLE_DEFAULT));
 }
 
 // END OF StyledLogView::StyledLogView(QWidget * a_pParent)
@@ -57,43 +22,48 @@ StyledLogView::~StyledLogView()
 // END OF StyledLogView::~StyledLogView()
 //==============================================================================
 
-TextBlockStyle StyledLogView::defaultStyle() const
-{
-	TextBlockStyle style =
-	{
-		LOG_STYLE_DEFAULT,
-		palette().color(QPalette::Active, QPalette::Base),
-		QTextCharFormat()
-	};
-	return style;
-}
-
-// END OF TextBlockStyle StyledLogView::defaultStyle() const
-//==============================================================================
-
 TextBlockStyle StyledLogView::getStyle(const QString & a_styleName) const
 {
+	TextBlockStyle style(a_styleName);
+
 	QString styleName = a_styleName;
 
-	// resolve alias
-	std::map<QString, QString>::const_iterator aliases_it =
-		m_styleAliases.find(a_styleName);
-	if(aliases_it != m_styleAliases.end())
-		styleName = aliases_it->second;
-	assert(!styleName.isEmpty());
+	QStringList foundAliasesList;
 
-	// get actual style
-	std::vector<TextBlockStyle>::const_iterator it =
-		std::find_if(m_styles.begin(), m_styles.end(),
+	std::vector<TextBlockStyle>::const_iterator it = m_styles.end();
+
+	while(true)
+	{
+		it = std::find_if(m_styles.begin(), m_styles.end(),
 			[&](const TextBlockStyle & a_style) -> bool
 			{
 				return (a_style.name == styleName);
 			});
 
-	if(it != m_styles.end())
-		return *it;
-	else
-		return defaultStyle();
+		if(it == m_styles.end())
+			return style;
+
+		// Alias retains its own visibility
+		if(it->name == a_styleName)
+			style.isVisible = it->isVisible;
+
+		if(!it->isAlias)
+		{
+			style.backgroundColor = it->backgroundColor;
+			style.textFormat = it->textFormat;
+			return style;
+		}
+
+		foundAliasesList += it->name;
+
+		// Check for aliasing loop
+		if(foundAliasesList.contains(it->originalStyleName))
+			return style;
+
+		styleName = it->originalStyleName;
+	}
+
+	return style;
 }
 
 // END OF TextBlockStyle StyledLogView::getStyle(
@@ -103,58 +73,43 @@ TextBlockStyle StyledLogView::getStyle(const QString & a_styleName) const
 void StyledLogView::addStyle(const TextBlockStyle & a_style,
 	bool a_updateExisting)
 {
+	TextBlockStyle newStyle(a_style);
+
+	// Resolve original style for alias to prevent alias loop
+	if(newStyle.isAlias)
+	{
+		TextBlockStyle originalStyle = getStyle(newStyle.originalStyleName);
+		newStyle.originalStyleName = originalStyle.name;
+	}
+
 	std::vector<TextBlockStyle>::iterator it = std::find_if(m_styles.begin(),
 		m_styles.end(), [&](const TextBlockStyle & la_style) -> bool
 		{
-			return (la_style.name == a_style.name);
+			return (la_style.name == newStyle.name);
 		});
 
 	if(it == m_styles.end())
-		m_styles.push_back(a_style);
+		m_styles.push_back(newStyle);
 	else if(a_updateExisting)
-		*it = a_style;
-
-	m_styleAliases.erase(a_style.name);
+		*it = newStyle;
 }
 
 // END OF void StyledLogView::addStyle(const TextBlockStyle & a_style,
 //		bool a_updateExisting)
 //==============================================================================
 
-void StyledLogView::addStyle(const QString & a_styleName,
-		const QString & a_existingStyleName)
+void StyledLogView::addStyle(const QString & a_aliasName,
+		const QString & a_originalStyleName)
 {
 	// no aliasing default style name
-	if(a_styleName == LOG_STYLE_DEFAULT)
+	if(a_aliasName == LOG_STYLE_DEFAULT)
 		return;
 
-	// check if style name already corresponds to real style
-	std::vector<TextBlockStyle>::iterator it = std::find_if(m_styles.begin(),
-		m_styles.end(), [&](const TextBlockStyle & a_style) -> bool
-		{
-			return (a_style.name == a_styleName);
-		});
-
-	if(it != m_styles.end())
-		return;
-
-	// aliasing
-	QString existingStyleName = LOG_STYLE_DEFAULT;
-
-	it = std::find_if(m_styles.begin(), m_styles.end(),
-		[&](const TextBlockStyle & a_style) -> bool
-		{
-			return (a_style.name == a_existingStyleName);
-		});
-
-	if(it != m_styles.end())
-		existingStyleName = a_existingStyleName;
-
-	m_styleAliases[a_styleName] = existingStyleName;
+	addStyle(TextBlockStyle(a_aliasName, a_originalStyleName));
 }
 
-// END OF void StyledLogView::addStyle(const QString & a_styleName,
-//		const QString & a_existingStyleName)
+// END OF void StyledLogView::addStyle(const QString & a_aliasName,
+//		const QString & a_originalStyleName)
 //==============================================================================
 
 void StyledLogView::addEntry(const QString & a_text, const QString & a_style)
@@ -221,6 +176,11 @@ void StyledLogView::updateHtml()
 
 	for(const LogEntry & entry : m_entries)
 	{
+		TextBlockStyle style = getStyle(entry.style);
+
+		if(!style.isVisible)
+			continue;
+
 		if(openBlock)
 		{
 			if(entry.isDivider || (lastTime.msecsTo(entry.time) > 2000) ||
@@ -237,7 +197,6 @@ void StyledLogView::updateHtml()
 		if(entry.isDivider)
 			continue;
 
-		TextBlockStyle style = getStyle(entry.style);
 		QTextCharFormat format = style.textFormat;
 
 		if(!openBlock)
