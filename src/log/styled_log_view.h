@@ -21,6 +21,7 @@ public:
 		bool a_updateExisting = true);
 
 	virtual void addStyle(const QString & a_aliasName,
+		const QString & a_title,
 		const QString & a_originalStyleName = LOG_STYLE_DEFAULT);
 
 	virtual void addEntry(const QString & a_text,

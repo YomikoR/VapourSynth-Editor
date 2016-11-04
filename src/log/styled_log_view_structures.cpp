@@ -6,11 +6,13 @@
 //==============================================================================
 
 const char LOG_STYLE_DEFAULT[] = "default";
+const char LOG_STYLE_TITLE_DEFAULT[] = "Common message";
 
 //==============================================================================
 
-TextBlockStyle::TextBlockStyle(const QString & a_name):
+TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title):
 	  name(a_name)
+	, title(a_title)
 	, isAlias(false)
 	, isVisible(true)
 {
@@ -19,12 +21,14 @@ TextBlockStyle::TextBlockStyle(const QString & a_name):
 	textFormat.setForeground(palette.color(QPalette::Active, QPalette::Text));
 }
 
-// END OFTextBlockStyle::TextBlockStyle(const QString & a_name)
+// END OFTextBlockStyle::TextBlockStyle(const QString & a_name,
+//		const QString & a_title)
 //==============================================================================
 
-TextBlockStyle::TextBlockStyle(const QString & a_name,
+TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title,
 	const QColor & a_backgroundColor, const QTextCharFormat & a_textFormat):
 	  name(a_name)
+	, title(a_title)
 	, backgroundColor(a_backgroundColor)
 	, textFormat(a_textFormat)
 	, isAlias(false)
@@ -33,12 +37,14 @@ TextBlockStyle::TextBlockStyle(const QString & a_name,
 }
 
 // END OF TextBlockStyle::TextBlockStyle(const QString & a_name,
-//		const QColor & a_backgroundColor, const QTextCharFormat & a_textFormat)
+//		const QString & a_title const QColor & a_backgroundColor,
+//		const QTextCharFormat & a_textFormat)
 //==============================================================================
 
-TextBlockStyle::TextBlockStyle(const QString & a_name,
+TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title,
 	const QColor & a_backgroundColor, const QColor & a_textColor):
 	  name(a_name)
+	, title(a_title)
 	, backgroundColor(a_backgroundColor)
 	, isAlias(false)
 	, isVisible(true)
@@ -47,12 +53,14 @@ TextBlockStyle::TextBlockStyle(const QString & a_name,
 }
 
 // END OF TextBlockStyle::TextBlockStyle(const QString & a_name,
-//		const QColor & a_backgroundColor, const QColor & a_textColor)
+//		const QString & a_title, const QColor & a_backgroundColor,
+//		const QColor & a_textColor)
 //==============================================================================
 
 TextBlockStyle::TextBlockStyle(const QString & a_aliasName,
-	const QString & a_originalStyleName):
+	const QString & a_title, const QString & a_originalStyleName):
 	  name(a_aliasName)
+	, title(a_title)
 	, isAlias(true)
 	, originalStyleName(a_originalStyleName)
 	, isVisible(true)
@@ -60,7 +68,7 @@ TextBlockStyle::TextBlockStyle(const QString & a_aliasName,
 }
 
 // END OF TextBlockStyle::TextBlockStyle(const QString & a_aliasName,
-//		const QString & a_originalStyleName)
+//		const QString & a_title, const QString & a_originalStyleName)
 //==============================================================================
 
 LogEntry::LogEntry(bool a_isDivider, const QString & a_text,

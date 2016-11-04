@@ -65,22 +65,27 @@ VSEditorLog::~VSEditorLog()
 void VSEditorLog::initializeStyles()
 {
 	TextBlockStyle stylesToCreate[] = {
-		{LOG_STYLE_ERROR, QColor("#ffeeee"), Qt::darkRed},
-		{LOG_STYLE_DEBUG, palette().color(QPalette::Active, QPalette::Base),
+		{LOG_STYLE_ERROR, trUtf8("Error"), QColor("#ffeeee"), Qt::darkRed},
+		{LOG_STYLE_DEBUG, trUtf8("Debug message"),
+			palette().color(QPalette::Active, QPalette::Base),
 			palette().color(QPalette::Active, QPalette::Dark)},
-		{LOG_STYLE_WARNING, QColor("#eeeeff"), Qt::darkBlue},
-		{LOG_STYLE_POSITIVE, QColor("#eeffee"), Qt::darkGreen},
+		{LOG_STYLE_WARNING, trUtf8("Warning"), QColor("#eeeeff"), Qt::darkBlue},
+		{LOG_STYLE_POSITIVE, trUtf8("Positive message"), QColor("#eeffee"),
+			Qt::darkGreen},
 
 		// Aliases
-		{LOG_STYLE_VS_DEBUG, LOG_STYLE_DEBUG},
-		{LOG_STYLE_VS_WARNING, LOG_STYLE_WARNING},
-		{LOG_STYLE_VS_CRITICAL, LOG_STYLE_ERROR},
-		{LOG_STYLE_VS_FATAL, LOG_STYLE_ERROR},
-		{LOG_STYLE_QT_DEBUG, LOG_STYLE_DEBUG},
-		{LOG_STYLE_QT_INFO, LOG_STYLE_DEFAULT},
-		{LOG_STYLE_QT_WARNING, LOG_STYLE_WARNING},
-		{LOG_STYLE_QT_CRITICAL, LOG_STYLE_ERROR},
-		{LOG_STYLE_QT_FATAL, LOG_STYLE_ERROR},
+		{LOG_STYLE_VS_DEBUG, trUtf8("VapourSynth debug message"),
+			LOG_STYLE_DEBUG},
+		{LOG_STYLE_VS_WARNING, trUtf8("VapourSynth warning"),
+			LOG_STYLE_WARNING},
+		{LOG_STYLE_VS_CRITICAL, trUtf8("VapourSynth error"), LOG_STYLE_ERROR},
+		{LOG_STYLE_VS_FATAL, trUtf8("VapourSynth fatal error"),
+			LOG_STYLE_ERROR},
+		{LOG_STYLE_QT_DEBUG, trUtf8("Qt debug message"), LOG_STYLE_DEBUG},
+		{LOG_STYLE_QT_INFO, trUtf8("Qt info"), LOG_STYLE_DEFAULT},
+		{LOG_STYLE_QT_WARNING, trUtf8("Qt warning"), LOG_STYLE_WARNING},
+		{LOG_STYLE_QT_CRITICAL, trUtf8("Qt critical error"), LOG_STYLE_ERROR},
+		{LOG_STYLE_QT_FATAL, trUtf8("Qt fatal error"), LOG_STYLE_ERROR},
 	};
 
 	for(TextBlockStyle & styleToCreate : stylesToCreate)

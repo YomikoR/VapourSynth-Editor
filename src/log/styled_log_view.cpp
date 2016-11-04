@@ -43,9 +43,12 @@ TextBlockStyle StyledLogView::getStyle(const QString & a_styleName) const
 		if(it == m_styles.end())
 			return style;
 
-		// Alias retains its own visibility
+		// Alias retains its own visibility and title
 		if(it->name == a_styleName)
+		{
 			style.isVisible = it->isVisible;
+			style.title = it->title;
+		}
 
 		if(!it->isAlias)
 		{
@@ -99,17 +102,17 @@ void StyledLogView::addStyle(const TextBlockStyle & a_style,
 //==============================================================================
 
 void StyledLogView::addStyle(const QString & a_aliasName,
-		const QString & a_originalStyleName)
+	const QString & a_title, const QString & a_originalStyleName)
 {
 	// no aliasing default style name
 	if(a_aliasName == LOG_STYLE_DEFAULT)
 		return;
 
-	addStyle(TextBlockStyle(a_aliasName, a_originalStyleName));
+	addStyle(TextBlockStyle(a_aliasName, a_title, a_originalStyleName));
 }
 
 // END OF void StyledLogView::addStyle(const QString & a_aliasName,
-//		const QString & a_originalStyleName)
+//		const QString & a_title, const QString & a_originalStyleName)
 //==============================================================================
 
 void StyledLogView::addEntry(const QString & a_text, const QString & a_style)
