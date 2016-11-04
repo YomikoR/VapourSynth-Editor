@@ -12,7 +12,6 @@ MainWindow * pMainWindow = nullptr;
 void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 	const QString & a_message)
 {
-	int messageType = mtDebug;
 	QString prefix = "Qt debug";
 	QString style = LOG_STYLE_DEFAULT;
 
