@@ -1,5 +1,6 @@
 #include "styled_log_view.h"
 
+#include <QMenu>
 #include <QScrollBar>
 #include <cassert>
 
@@ -8,9 +9,15 @@
 StyledLogView::StyledLogView(QWidget * a_pParent) :
 	  QTextEdit(a_pParent)
 	, m_millisecondsToDivideBlocks(2000)
+	, m_pContextMenu(nullptr)
 {
 	setReadOnly(true);
+	setContextMenuPolicy(Qt::CustomContextMenu);
 	addStyle(TextBlockStyle(LOG_STYLE_DEFAULT));
+	createActionsAndMenus();
+
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+		this, SLOT(slotShowCustomMenu(const QPoint &)));
 }
 
 // END OF StyledLogView::StyledLogView(QWidget * a_pParent)
@@ -96,6 +103,8 @@ void StyledLogView::addStyle(const TextBlockStyle & a_style,
 		m_styles.push_back(newStyle);
 	else if(a_updateExisting)
 		*it = newStyle;
+
+	createActionsAndMenus();
 }
 
 // END OF void StyledLogView::addStyle(const TextBlockStyle & a_style,
@@ -180,6 +189,39 @@ void StyledLogView::clear()
 }
 
 // END OF void StyledLogView::clear()
+//==============================================================================
+
+void StyledLogView::slotToggleStyleVisibility(bool a_visible)
+{
+	QAction * pAction = qobject_cast<QAction *>(sender());
+	if(!pAction)
+		return;
+
+	QString styleName = pAction->data().toString();
+
+	std::vector<TextBlockStyle>::iterator it = std::find_if(m_styles.begin(),
+		m_styles.end(), [&](const TextBlockStyle & a_style) -> bool
+		{
+			return (a_style.name == styleName);
+		});
+
+	if(it == m_styles.end())
+		return;
+
+	it->isVisible = a_visible;
+	updateHtml();
+}
+
+// END OF void StyledLogView::slotToggleStyleVisibility(bool a_visible)
+//==============================================================================
+
+void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
+{
+	QPoint globalPosition = mapToGlobal(a_position);
+    m_pContextMenu->exec(globalPosition);
+}
+
+// END OF void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
 //==============================================================================
 
 void StyledLogView::updateHtml()
@@ -270,4 +312,30 @@ void StyledLogView::updateHtml()
 }
 
 // END OF void StyledLogView::updateHtml()
+//==============================================================================
+
+void StyledLogView::createActionsAndMenus()
+{
+	if(m_pContextMenu)
+		delete m_pContextMenu;
+
+	m_pContextMenu = createStandardContextMenu();
+	m_pContextMenu->addSeparator();
+
+	QMenu * pStyleFiltersMenu =
+		m_pContextMenu->addMenu(trUtf8("Filter messages"));
+
+	for(const TextBlockStyle & style : m_styles)
+	{
+		QAction * pStyleFilterAction =
+			pStyleFiltersMenu->addAction(style.title);
+		pStyleFilterAction->setData(style.name);
+		pStyleFilterAction->setCheckable(true);
+		pStyleFilterAction->setChecked(style.isVisible);
+		connect(pStyleFilterAction, SIGNAL(toggled(bool)),
+			this, SLOT(slotToggleStyleVisibility(bool)));
+	}
+}
+
+// END OF void StyledLogView::createActionsAndMenus()
 //==============================================================================

@@ -39,14 +39,24 @@ public slots:
 
 	virtual void clear();
 
+protected slots:
+
+	virtual void slotToggleStyleVisibility(bool a_visible);
+
+	virtual void slotShowCustomMenu(const QPoint & a_position);
+
 protected:
 
 	virtual void updateHtml();
+
+	virtual void createActionsAndMenus();
 
 	std::vector<TextBlockStyle> m_styles;
 	std::vector<LogEntry> m_entries;
 
 	qint64 m_millisecondsToDivideBlocks;
+
+	QMenu * m_pContextMenu;
 };
 
 #endif // STYLED_LOG_VIEW_H_INCLUDED
