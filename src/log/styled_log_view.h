@@ -29,9 +29,11 @@ public:
 
 	virtual void startNewBlock();
 
-	virtual qint64 millisecondsToDivideBlocks();
+	virtual qint64 millisecondsToDivideBlocks() const;
 
 	virtual bool setMillisecondsToDivideBlocks(qint64 a_value);
+
+	virtual QStringList styles(bool a_excludeAliases = false) const;
 
 public slots:
 

@@ -138,14 +138,13 @@ void StyledLogView::startNewBlock()
 // END OF void StyledLogView::startNewBlock()
 //==============================================================================
 
-qint64 StyledLogView::millisecondsToDivideBlocks()
+qint64 StyledLogView::millisecondsToDivideBlocks() const
 {
 	return m_millisecondsToDivideBlocks;
 }
 
-// END OF qint64 StyledLogView::millisecondsToDivideBlocks()
+// END OF qint64 StyledLogView::millisecondsToDivideBlocks() const
 //==============================================================================
-
 
 bool StyledLogView::setMillisecondsToDivideBlocks(qint64 a_value)
 {
@@ -160,6 +159,19 @@ bool StyledLogView::setMillisecondsToDivideBlocks(qint64 a_value)
 // END OF bool StyledLogView::setMillisecondsToDivideBlocks(qint64 a_value)
 //==============================================================================
 
+QStringList StyledLogView::styles(bool a_excludeAliases) const
+{
+	QStringList stylesList;
+
+	for(const TextBlockStyle & style : m_styles)
+		if(!(a_excludeAliases && style.isAlias))
+			stylesList += style.name;
+
+	return stylesList;
+}
+
+// END OF QStringList StyledLogView::styles(bool a_excludeAliases) const
+//==============================================================================
 
 void StyledLogView::clear()
 {
