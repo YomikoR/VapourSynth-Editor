@@ -7,6 +7,7 @@
 
 StyledLogView::StyledLogView(QWidget * a_pParent) :
 	  QTextEdit(a_pParent)
+	, m_millisecondsToDivideBlocks(2000)
 {
 	setReadOnly(true);
 	addStyle(TextBlockStyle(LOG_STYLE_DEFAULT));
@@ -137,6 +138,29 @@ void StyledLogView::startNewBlock()
 // END OF void StyledLogView::startNewBlock()
 //==============================================================================
 
+qint64 StyledLogView::millisecondsToDivideBlocks()
+{
+	return m_millisecondsToDivideBlocks;
+}
+
+// END OF qint64 StyledLogView::millisecondsToDivideBlocks()
+//==============================================================================
+
+
+bool StyledLogView::setMillisecondsToDivideBlocks(qint64 a_value)
+{
+	if(a_value < 0)
+		return false;
+
+	m_millisecondsToDivideBlocks = a_value;
+	updateHtml();
+	return true;
+}
+
+// END OF bool StyledLogView::setMillisecondsToDivideBlocks(qint64 a_value)
+//==============================================================================
+
+
 void StyledLogView::clear()
 {
 	m_entries.clear();
@@ -186,7 +210,8 @@ void StyledLogView::updateHtml()
 
 		if(openBlock)
 		{
-			if(entry.isDivider || (lastTime.msecsTo(entry.time) > 2000) ||
+			if(entry.isDivider ||
+				(lastTime.msecsTo(entry.time) > m_millisecondsToDivideBlocks) ||
 				(entry.style != lastStyle))
 			{
 				html += QString("</td></tr>\n");

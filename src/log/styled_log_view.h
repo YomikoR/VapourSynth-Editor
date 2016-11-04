@@ -29,6 +29,10 @@ public:
 
 	virtual void startNewBlock();
 
+	virtual qint64 millisecondsToDivideBlocks();
+
+	virtual bool setMillisecondsToDivideBlocks(qint64 a_value);
+
 public slots:
 
 	virtual void clear();
@@ -39,6 +43,8 @@ protected:
 
 	std::vector<TextBlockStyle> m_styles;
 	std::vector<LogEntry> m_entries;
+
+	qint64 m_millisecondsToDivideBlocks;
 };
 
 #endif // STYLED_LOG_VIEW_H_INCLUDED
