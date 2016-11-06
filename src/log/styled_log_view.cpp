@@ -413,6 +413,7 @@ void StyledLogView::createActionsAndMenus()
 	ActionToCreate actionsToCreate[] = {
 		{trUtf8("Save"), SLOT(slotSaveHtml())},
 		{trUtf8("Save filtered"), SLOT(slotSaveHtmlFiltered())},
+		{trUtf8("Clear"), SLOT(clear())},
 	};
 
 	for(const ActionToCreate & action : actionsToCreate)
