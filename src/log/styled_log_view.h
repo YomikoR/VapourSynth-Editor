@@ -35,9 +35,18 @@ public:
 
 	virtual QStringList styles(bool a_excludeAliases = false) const;
 
+	virtual bool saveHtml(const QString & a_filePath,
+		bool a_excludeFiltered = false);
+
+	virtual bool saveHtml(bool a_excludeFiltered = false);
+
 public slots:
 
 	virtual void clear();
+
+	virtual void slotSaveHtml();
+
+	virtual void slotSaveHtmlFiltered();
 
 protected slots:
 
@@ -50,6 +59,8 @@ protected:
 	virtual void updateHtml();
 
 	virtual void createActionsAndMenus();
+
+	virtual QString realHtml(bool a_excludeFiltered = false) const;
 
 	std::vector<TextBlockStyle> m_styles;
 	std::vector<LogEntry> m_entries;

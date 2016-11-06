@@ -2,6 +2,9 @@
 
 #include <QMenu>
 #include <QScrollBar>
+#include <QDir>
+#include <QFileDialog>
+#include <QFile>
 #include <cassert>
 
 //==============================================================================
@@ -182,6 +185,52 @@ QStringList StyledLogView::styles(bool a_excludeAliases) const
 // END OF QStringList StyledLogView::styles(bool a_excludeAliases) const
 //==============================================================================
 
+bool StyledLogView::saveHtml(const QString & a_filePath,
+	bool a_excludeFiltered)
+{
+	if(a_filePath.isEmpty())
+		return false;
+
+	QFile file(a_filePath);
+
+	bool result = file.open(QIODevice::WriteOnly);
+	if(!result)
+		return false;
+
+	QByteArray htmlData = realHtml(a_excludeFiltered).toUtf8();
+	qint64 bytesWritten = file.write(htmlData);
+	file.close();
+
+	if(bytesWritten != htmlData.size())
+		return false;
+
+	return true;
+}
+
+// END OF bool StyledLogView::saveHtml(const QString & a_filePath,
+//		bool a_excludeFiltered)
+//==============================================================================
+
+bool StyledLogView::saveHtml(bool a_excludeFiltered)
+{
+	QString timeString =
+		QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss-zzz");
+	QString fileName = trUtf8("vapoursynth_editor_log_{time}.html")
+		.replace("{time}", timeString);
+
+	QString currentDir = QDir(".").absolutePath();
+
+	QString filePath = currentDir + QString("/") + fileName;
+
+	filePath = QFileDialog::getSaveFileName(this, trUtf8("Save log"),
+		filePath, trUtf8("HTML files (*.html);;All files (*.*)"));
+
+	return saveHtml(filePath, a_excludeFiltered);
+}
+
+// END OF bool StyledLogView::saveHtml(bool a_excludeFiltered)
+//==============================================================================
+
 void StyledLogView::clear()
 {
 	m_entries.clear();
@@ -189,6 +238,22 @@ void StyledLogView::clear()
 }
 
 // END OF void StyledLogView::clear()
+//==============================================================================
+
+void StyledLogView::slotSaveHtml()
+{
+	saveHtml();
+}
+
+// END OF void StyledLogView::slotSaveHtml()
+//==============================================================================
+
+void StyledLogView::slotSaveHtmlFiltered()
+{
+	saveHtml(true);
+}
+
+// END OF void StyledLogView::slotSaveHtmlFiltered()
 //==============================================================================
 
 void StyledLogView::slotToggleStyleVisibility(bool a_visible)
@@ -232,6 +297,8 @@ void StyledLogView::updateHtml()
 		return;
 	}
 
+	QString borderColor = palette().color(QPalette::Dark).name();
+
 	QString html = QString(
 		"<body>\n"
 		"<style type=\"text/css\">\n"
@@ -246,10 +313,9 @@ void StyledLogView::updateHtml()
 			"margin-right: 2px;"
 			"margin-bottom: 2px;"
 		"}\n"
-		"</style>"
+		"</style>\n"
 		"<table width=\"100%\" cellspacing=\"-1\">\n"
-		).replace("{table-border-color}",
-		palette().color(QPalette::Dark).name());
+		).replace("{table-border-color}", borderColor);
 
 	bool openBlock = false;
 	QDateTime lastTime;
@@ -286,7 +352,7 @@ void StyledLogView::updateHtml()
 			html += QString("<tr bgcolor=\"%1\"><td>")
 				.arg(style.backgroundColor.name());
 			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
-			html += QString("<div><font family=\"%1\" size=\"-2\" "
+			html += QString("<div><font face=\"%1\" size=\"-2\" "
 			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
 			.arg(format.foreground().color().name())
 			.arg(timeString);
@@ -295,7 +361,7 @@ void StyledLogView::updateHtml()
 
 		QString entryHtml = entry.text;
 		entryHtml.replace("\n", "<br>");
-		html += QString("<div><font family=\"%1\" "
+		html += QString("<div><font face=\"%1\" "
 			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
 			.arg(format.foreground().color().name())
 			.arg(entryHtml);
@@ -335,7 +401,114 @@ void StyledLogView::createActionsAndMenus()
 		connect(pStyleFilterAction, SIGNAL(toggled(bool)),
 			this, SLOT(slotToggleStyleVisibility(bool)));
 	}
+
+	m_pContextMenu->addSeparator();
+
+	struct ActionToCreate
+	{
+		QString title;
+		const char * slotToConnect;
+	};
+
+	ActionToCreate actionsToCreate[] = {
+		{trUtf8("Save"), SLOT(slotSaveHtml())},
+		{trUtf8("Save filtered"), SLOT(slotSaveHtmlFiltered())},
+	};
+
+	for(const ActionToCreate & action : actionsToCreate)
+		m_pContextMenu->addAction(action.title, this, action.slotToConnect);
 }
 
 // END OF void StyledLogView::createActionsAndMenus()
+//==============================================================================
+
+QString StyledLogView::realHtml(bool a_excludeFiltered) const
+{
+	QString title = trUtf8("VapourSynth Editor log ") +
+		QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
+
+	QString borderColor = palette().color(QPalette::Dark).name();
+
+	QString styleText = QString(
+		"<style type=\"text/css\">\n"
+		"table, td {border: 1px solid {table-border-color};}\n"
+		"table {border-collapse: collapse; width: 100%;}\n"
+		"p {padding: 0; margin: 0;}\n"
+	).replace("{table-border-color}", borderColor);
+
+	styleText += "</style>\n";
+
+	QString html = QString(
+		"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" "
+		"\"http://www.w3.org/TR/html4/strict.dtd\">\n"
+		"<html>\n"
+		"<head>\n"
+		"<title>{title}</title>\n"
+		"{style}"
+		"</head>\n"
+		"<body>\n"
+		"<table>\n"
+	).replace("{title}", title)
+		.replace("{style}", styleText);
+
+	bool openBlock = false;
+	QDateTime lastTime;
+	QString lastStyle;
+
+	for(const LogEntry & entry : m_entries)
+	{
+		TextBlockStyle style = getStyle(entry.style);
+
+		if(a_excludeFiltered && (!style.isVisible))
+			continue;
+
+		if(openBlock)
+		{
+			if(entry.isDivider ||
+				(lastTime.msecsTo(entry.time) > m_millisecondsToDivideBlocks) ||
+				(entry.style != lastStyle))
+			{
+				html += QString("</td></tr>\n");
+				openBlock = false;
+			}
+		}
+
+		lastStyle = entry.style;
+		lastTime = entry.time;
+
+		if(entry.isDivider)
+			continue;
+
+		QTextCharFormat format = style.textFormat;
+
+		if(!openBlock)
+		{
+			html += QString("<tr bgcolor=\"%1\"><td>\n")
+				.arg(style.backgroundColor.name());
+			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
+			html += QString("<p style=\"font-family: %1; "
+				"font-size: 0.7em; color: %2;\">%3</p>\n")
+				.arg(format.fontFamily())
+				.arg(format.foreground().color().name())
+				.arg(timeString);
+			openBlock = true;
+		}
+
+		QString entryHtml = entry.text;
+		entryHtml.replace("\n", "<br>\n");
+		html += QString("<p style=\"font-family: %1; color: %2;\">%3</p>\n")
+			.arg(format.fontFamily())
+			.arg(format.foreground().color().name())
+			.arg(entryHtml);
+	}
+
+	if(openBlock)
+		html += QString("</td>\n</tr>\n");
+
+	html += "</table>\n</body>\n</html>\n";
+
+	return html;
+}
+
+// END OF QString StyledLogView::realHtml(bool a_excludeFiltered) const
 //==============================================================================
