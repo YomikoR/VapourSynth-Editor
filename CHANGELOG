@@ -1,5 +1,6 @@
 r11:
 -BUGFIX: Default file drop template.
+-BUGFIX: Preview non-YUV clips.
 -An option to keep the currently previewed frame number on previewing different script.
 
 r10:
