@@ -551,102 +551,115 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return true;
 	}
 
+	bool isYUV = ((cpFormat->colorFamily == cmYUV) ||
+		(cpFormat->id == pfCompatYUY2));
+	bool canSubsample = (isYUV || (cpFormat->colorFamily == cmYCoCg));
+
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 	VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
 		"com.vapoursynth.resize", pCore);
-	const char * resizeName = nullptr;
+	const char * resizeName = "Point";
 
 	VSMap * pArgumentMap = m_cpVSAPI->createMap();
 	m_cpVSAPI->propSetNode(pArgumentMap, "clip", a_nodePair.pOutputNode,
 		paReplace);
 	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
 
-	switch(m_chromaResamplingFilter)
+	if(canSubsample)
 	{
-	case ResamplingFilter::Point:
-		resizeName = "Point";
-		break;
-	case ResamplingFilter::Bilinear:
-		resizeName = "Bilinear";
-		break;
-	case ResamplingFilter::Bicubic:
-		resizeName = "Bicubic";
-		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-			m_resamplingFilterParameterA, paReplace);
-		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
-			m_resamplingFilterParameterB, paReplace);
-		break;
-	case ResamplingFilter::Lanczos:
-		resizeName = "Lanczos";
-		m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-			m_resamplingFilterParameterA, paReplace);
-		break;
-	case ResamplingFilter::Spline16:
-		resizeName = "Spline16";
-		break;
-	case ResamplingFilter::Spline36:
-		resizeName = "Spline36";
-		break;
-	default:
-		assert(false);
+		switch(m_chromaResamplingFilter)
+		{
+		case ResamplingFilter::Point:
+			resizeName = "Point";
+			break;
+		case ResamplingFilter::Bilinear:
+			resizeName = "Bilinear";
+			break;
+		case ResamplingFilter::Bicubic:
+			resizeName = "Bicubic";
+			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+				m_resamplingFilterParameterA, paReplace);
+			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
+				m_resamplingFilterParameterB, paReplace);
+			break;
+		case ResamplingFilter::Lanczos:
+			resizeName = "Lanczos";
+			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+				m_resamplingFilterParameterA, paReplace);
+			break;
+		case ResamplingFilter::Spline16:
+			resizeName = "Spline16";
+			break;
+		case ResamplingFilter::Spline36:
+			resizeName = "Spline36";
+			break;
+		default:
+			assert(false);
+		}
 	}
 
 	m_cpVSAPI->propSetInt(pArgumentMap, "prefer_props", 1, paReplace);
 
-	const char * matrixInS = nullptr;
-	switch(m_yuvMatrix)
+	if(isYUV)
 	{
-	case YuvMatrixCoefficients::m709:
-		matrixInS = "709";
-		break;
-	case YuvMatrixCoefficients::m470BG:
-		matrixInS = "470bg";
-		break;
-	case YuvMatrixCoefficients::m170M:
-		matrixInS = "170m";
-		break;
-	case YuvMatrixCoefficients::m2020_NCL:
-		matrixInS = "2020ncl";
-		break;
-	case YuvMatrixCoefficients::m2020_CL:
-		matrixInS = "2020cl";
-		break;
-	default:
-		assert(false);
+		const char * matrixInS = nullptr;
+		switch(m_yuvMatrix)
+		{
+		case YuvMatrixCoefficients::m709:
+			matrixInS = "709";
+			break;
+		case YuvMatrixCoefficients::m470BG:
+			matrixInS = "470bg";
+			break;
+		case YuvMatrixCoefficients::m170M:
+			matrixInS = "170m";
+			break;
+		case YuvMatrixCoefficients::m2020_NCL:
+			matrixInS = "2020ncl";
+			break;
+		case YuvMatrixCoefficients::m2020_CL:
+			matrixInS = "2020cl";
+			break;
+		default:
+			assert(false);
+		}
+
+		int matrixStringLength = (int)strlen(matrixInS);
+		m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
+			matrixInS, matrixStringLength, paReplace);
+
+		if(m_yuvMatrix == YuvMatrixCoefficients::m2020_CL)
+		{
+			const char * transferIn = "709";
+			const char * transferOut = "2020_10";
+
+			m_cpVSAPI->propSetData(pArgumentMap, "transfer_in_s",
+				transferIn, (int)strlen(transferIn), paReplace);
+			m_cpVSAPI->propSetData(pArgumentMap, "transfer_s",
+				transferOut, (int)strlen(transferOut), paReplace);
+		}
 	}
 
-	int matrixStringLength = (int)strlen(matrixInS);
-	m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
-		matrixInS, matrixStringLength, paReplace);
-
-	if(m_yuvMatrix == YuvMatrixCoefficients::m2020_CL)
+	if(canSubsample)
 	{
-		const char * transferIn = "709";
-		const char * transferOut = "2020_10";
-
-		m_cpVSAPI->propSetData(pArgumentMap, "transfer_in_s",
-			transferIn, (int)strlen(transferIn), paReplace);
-		m_cpVSAPI->propSetData(pArgumentMap, "transfer_s",
-			transferOut, (int)strlen(transferOut), paReplace);
+		int64_t chromaLoc = 0;
+		switch(m_chromaPlacement)
+		{
+		case ChromaPlacement::MPEG1:
+			chromaLoc = 1;
+			break;
+		case ChromaPlacement::MPEG2:
+			chromaLoc = 0;
+			break;
+		case ChromaPlacement::DV:
+			chromaLoc = 2;
+			break;
+		default:
+			assert(false);
+		}
+		m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
+			chromaLoc, paReplace);
 	}
-
-	int64_t chromaLoc = 0;
-	switch(m_chromaPlacement)
-	{
-	case ChromaPlacement::MPEG1:
-		chromaLoc = 1;
-		break;
-	case ChromaPlacement::MPEG2:
-		chromaLoc = 0;
-		break;
-	case ChromaPlacement::DV:
-		chromaLoc = 2;
-		break;
-	default:
-		assert(false);
-	}
-	m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
-		chromaLoc, paReplace);
 
 	VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
 		pArgumentMap);
