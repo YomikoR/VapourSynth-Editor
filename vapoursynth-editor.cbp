@@ -231,10 +231,11 @@
 		<Unit filename="TODO.txt" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
 		<Unit filename="generated/ui/ui_encode_dialog.h" />
-		<Unit filename="generated/ui/ui_mainwindow.h" />
+		<Unit filename="generated/ui/ui_main_window.h" />
 		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
-		<Unit filename="generated/ui/ui_previewdialog.h" />
-		<Unit filename="generated/ui/ui_settingsdialog.h" />
+		<Unit filename="generated/ui/ui_preview_dialog.h" />
+		<Unit filename="generated/ui/ui_settings_dialog.h" />
+		<Unit filename="generated/ui/ui_styled_log_view_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_templates_dialog.h" />
 		<Unit filename="pro/local_quirks.pri" />
 		<Unit filename="pro/pro.pro" />
@@ -249,8 +250,12 @@
 		<Unit filename="src/frame_consumers/encode_dialog.cpp" />
 		<Unit filename="src/frame_consumers/encode_dialog.h" />
 		<Unit filename="src/frame_consumers/encode_dialog.ui" />
+		<Unit filename="src/log/log_styles_model.cpp" />
+		<Unit filename="src/log/log_styles_model.h" />
 		<Unit filename="src/log/styled_log_view.cpp" />
 		<Unit filename="src/log/styled_log_view.h" />
+		<Unit filename="src/log/styled_log_view_settings_dialog.cpp" />
+		<Unit filename="src/log/styled_log_view_settings_dialog.h" />
 		<Unit filename="src/log/styled_log_view_structures.cpp" />
 		<Unit filename="src/log/styled_log_view_structures.h" />
 		<Unit filename="src/log/vs_editor_log.cpp" />
@@ -331,13 +336,13 @@
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
+				<remote_debugging target="release-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-64bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

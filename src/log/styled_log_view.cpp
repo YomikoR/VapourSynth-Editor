@@ -1,5 +1,7 @@
 #include "styled_log_view.h"
 
+#include "styled_log_view_settings_dialog.h"
+
 #include <QMenu>
 #include <QScrollBar>
 #include <QDir>
@@ -13,14 +15,19 @@ StyledLogView::StyledLogView(QWidget * a_pParent) :
 	  QTextEdit(a_pParent)
 	, m_millisecondsToDivideBlocks(2000)
 	, m_pContextMenu(nullptr)
+	, m_pSettingsDialog(nullptr)
 {
 	setReadOnly(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	addStyle(TextBlockStyle(LOG_STYLE_DEFAULT));
 	createActionsAndMenus();
 
+	m_pSettingsDialog = new StyledLogViewSettingsDialog();
+
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
 		this, SLOT(slotShowCustomMenu(const QPoint &)));
+	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
+		this, SLOT(slotLogSettingsChanged()));
 }
 
 // END OF StyledLogView::StyledLogView(QWidget * a_pParent)
@@ -28,6 +35,7 @@ StyledLogView::StyledLogView(QWidget * a_pParent) :
 
 StyledLogView::~StyledLogView()
 {
+	delete m_pSettingsDialog;
 }
 
 // END OF StyledLogView::~StyledLogView()
@@ -106,8 +114,6 @@ void StyledLogView::addStyle(const TextBlockStyle & a_style,
 		m_styles.push_back(newStyle);
 	else if(a_updateExisting)
 		*it = newStyle;
-
-	createActionsAndMenus();
 }
 
 // END OF void StyledLogView::addStyle(const TextBlockStyle & a_style,
@@ -256,30 +262,6 @@ void StyledLogView::slotSaveHtmlFiltered()
 // END OF void StyledLogView::slotSaveHtmlFiltered()
 //==============================================================================
 
-void StyledLogView::slotToggleStyleVisibility(bool a_visible)
-{
-	QAction * pAction = qobject_cast<QAction *>(sender());
-	if(!pAction)
-		return;
-
-	QString styleName = pAction->data().toString();
-
-	std::vector<TextBlockStyle>::iterator it = std::find_if(m_styles.begin(),
-		m_styles.end(), [&](const TextBlockStyle & a_style) -> bool
-		{
-			return (a_style.name == styleName);
-		});
-
-	if(it == m_styles.end())
-		return;
-
-	it->isVisible = a_visible;
-	updateHtml();
-}
-
-// END OF void StyledLogView::slotToggleStyleVisibility(bool a_visible)
-//==============================================================================
-
 void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
 {
 	QPoint globalPosition = mapToGlobal(a_position);
@@ -287,6 +269,25 @@ void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
 }
 
 // END OF void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
+//==============================================================================
+
+void StyledLogView::slotLogSettings()
+{
+	assert(m_pSettingsDialog);
+	m_pSettingsDialog->setStyles(m_styles);
+	m_pSettingsDialog->show();
+}
+
+// END OF void StyledLogView::slotLogSettings()
+//==============================================================================
+
+void StyledLogView::slotLogSettingsChanged()
+{
+	m_styles = m_pSettingsDialog->styles();
+	updateHtml();
+}
+
+// END OF void StyledLogView::slotLogSettingsChanged()
 //==============================================================================
 
 void StyledLogView::updateHtml()
@@ -386,38 +387,39 @@ void StyledLogView::createActionsAndMenus()
 		delete m_pContextMenu;
 
 	m_pContextMenu = createStandardContextMenu();
-	m_pContextMenu->addSeparator();
-
-	QMenu * pStyleFiltersMenu =
-		m_pContextMenu->addMenu(trUtf8("Filter messages"));
-
-	for(const TextBlockStyle & style : m_styles)
-	{
-		QAction * pStyleFilterAction =
-			pStyleFiltersMenu->addAction(style.title);
-		pStyleFilterAction->setData(style.name);
-		pStyleFilterAction->setCheckable(true);
-		pStyleFilterAction->setChecked(style.isVisible);
-		connect(pStyleFilterAction, SIGNAL(toggled(bool)),
-			this, SLOT(slotToggleStyleVisibility(bool)));
-	}
-
-	m_pContextMenu->addSeparator();
 
 	struct ActionToCreate
 	{
 		QString title;
 		const char * slotToConnect;
+		bool isSeparator;
+
+		ActionToCreate(const QString & a_title, const char * a_slotToConnect) :
+			title(a_title), slotToConnect(a_slotToConnect), isSeparator(false)
+		{};
+
+		ActionToCreate() : title(), slotToConnect(nullptr), isSeparator(true)
+		{};
 	};
 
+	const ActionToCreate SEPARATOR;
+
 	ActionToCreate actionsToCreate[] = {
+		SEPARATOR,
+		{trUtf8("Log settings"), SLOT(slotLogSettings())},
+		SEPARATOR,
 		{trUtf8("Save"), SLOT(slotSaveHtml())},
 		{trUtf8("Save filtered"), SLOT(slotSaveHtmlFiltered())},
 		{trUtf8("Clear"), SLOT(clear())},
 	};
 
 	for(const ActionToCreate & action : actionsToCreate)
-		m_pContextMenu->addAction(action.title, this, action.slotToConnect);
+	{
+		if(action.isSeparator)
+			m_pContextMenu->addSeparator();
+		else
+			m_pContextMenu->addAction(action.title, this, action.slotToConnect);
+	}
 }
 
 // END OF void StyledLogView::createActionsAndMenus()

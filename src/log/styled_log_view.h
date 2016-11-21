@@ -6,6 +6,8 @@
 #include <QTextEdit>
 #include <vector>
 
+class StyledLogViewSettingsDialog;
+
 class StyledLogView : public QTextEdit
 {
 	Q_OBJECT
@@ -50,9 +52,11 @@ public slots:
 
 protected slots:
 
-	virtual void slotToggleStyleVisibility(bool a_visible);
-
 	virtual void slotShowCustomMenu(const QPoint & a_position);
+
+	virtual void slotLogSettings();
+
+	virtual void slotLogSettingsChanged();
 
 protected:
 
@@ -68,6 +72,8 @@ protected:
 	qint64 m_millisecondsToDivideBlocks;
 
 	QMenu * m_pContextMenu;
+
+	StyledLogViewSettingsDialog * m_pSettingsDialog;
 };
 
 #endif // STYLED_LOG_VIEW_H_INCLUDED
