@@ -73,8 +73,9 @@ void ScriptBenchmarkDialog::call()
 
 	assert(m_cpVideoInfo);
 
+	m_ui.feedbackTextEdit->clear();
 	QString text = trUtf8("Ready to benchmark script %1").arg(scriptName());
-	m_ui.feedbackTextEdit->setPlainText(text);
+	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
 	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
@@ -102,12 +103,8 @@ void ScriptBenchmarkDialog::stopAndCleanUp()
 void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
-	QColor textColor = m_ui.feedbackTextEdit->palette().text().color();
-	if((a_messageType == mtCritical) ||(a_messageType == mtFatal))
-		textColor = QColor(255, 0, 0);
-	QString html = QString("<font color=\"%1\">%2</font>")
-		.arg(textColor.name()).arg(a_message);
-	m_ui.feedbackTextEdit->appendHtml(html);
+	QString style = vsMessageTypeToStyleName(a_messageType);
+	m_ui.feedbackTextEdit->addEntry(a_message, style);
 }
 
 // END OF void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
@@ -140,8 +137,9 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 
 	if(firstFrame > lastFrame)
 	{
-		m_ui.feedbackTextEdit->appendPlainText(trUtf8(
-			"First frame number is larger than the last frame number."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8(
+			"First frame number is larger than the last frame number."),
+			LOG_STYLE_WARNING);
 			return;
 	}
 

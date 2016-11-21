@@ -30,12 +30,12 @@
     <number>4</number>
    </property>
    <item>
-    <widget class="QPlainTextEdit" name="feedbackTextEdit">
+    <widget class="VSEditorLog" name="feedbackTextEdit">
      <property name="readOnly">
       <bool>true</bool>
      </property>
      <property name="textInteractionFlags">
-      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+      <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
@@ -115,6 +115,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VSEditorLog</class>
+   <extends>QTextEdit</extends>
+   <header>../../src/log/vs_editor_log.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

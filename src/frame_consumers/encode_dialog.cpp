@@ -108,8 +108,9 @@ void EncodeDialog::call()
 
 	assert(m_cpVideoInfo);
 
+	m_ui.feedbackTextEdit->clear();
 	QString text = trUtf8("Ready to encode script %1").arg(scriptName());
-	m_ui.feedbackTextEdit->setPlainText(text);
+	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
 	m_firstFrame = 0;
 	m_lastFrame = m_cpVideoInfo->numFrames - 1;
@@ -129,12 +130,8 @@ void EncodeDialog::call()
 void EncodeDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
-	QColor textColor = m_ui.feedbackTextEdit->palette().text().color();
-	if((a_messageType == mtCritical) ||(a_messageType == mtFatal))
-		textColor = QColor(255, 0, 0);
-	QString html = QString("<font color=\"%1\">%2</font>")
-		.arg(textColor.name()).arg(a_message);
-	m_ui.feedbackTextEdit->appendHtml(html);
+	QString style = vsMessageTypeToStyleName(a_messageType);
+	m_ui.feedbackTextEdit->addEntry(a_message, style);
 }
 
 // END OF void EncodeDialog::slotWriteLogMessage(int a_messageType,
@@ -173,8 +170,8 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 
 	if(m_firstFrame > m_lastFrame)
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("First frame number is "
-			"larger than the last frame number."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("First frame number is "
+			"larger than the last frame number."), LOG_STYLE_WARNING);
 			return;
 	}
 
@@ -192,18 +189,20 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	QString commandLine = QString("\"%1\" %2").arg(executable)
 		.arg(decodedArguments);
 
-	m_ui.feedbackTextEdit->appendPlainText(trUtf8("Command line:"));
-	m_ui.feedbackTextEdit->appendPlainText(commandLine);
+	m_ui.feedbackTextEdit->addEntry(trUtf8("Command line:"));
+	m_ui.feedbackTextEdit->addEntry(commandLine);
 
 	m_ui.startStopEncodeButton->setText(trUtf8("Stop"));
 
-	slotWriteLogMessage(mtDebug, trUtf8("Checking the encoder sanity."));
+	m_ui.feedbackTextEdit->addEntry(trUtf8("Checking the encoder sanity."),
+		LOG_STYLE_DEBUG);
 	m_state = State::CheckingEncoderSanity;
 
 	m_encoder.start(commandLine);
 	if(!m_encoder.waitForStarted(3000))
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Encoder wouldn't start."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder wouldn't start."),
+			LOG_STYLE_ERROR);
 		m_state = State::Idle;
 		return;
 	}
@@ -211,15 +210,16 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	m_encoder.closeWriteChannel();
 	if(!m_encoder.waitForFinished(3000))
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Program is not behaving "
-			"like a CLI encoder. Terminating."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Program is not behaving "
+			"like a CLI encoder. Terminating."), LOG_STYLE_ERROR);
 		m_encoder.kill();
 		m_encoder.waitForFinished(-1);
 		m_state = State::Idle;
 		return;
 	}
 
-	slotWriteLogMessage(mtDebug, trUtf8("Encoder seems sane. Starting."));
+	m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder seems sane. Starting."),
+		LOG_STYLE_DEBUG);
 	m_state = State::StartingEncoder;
 	m_encoder.start(commandLine);
 }
@@ -268,8 +268,8 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 	EncodingPreset preset(m_ui.encodingPresetComboBox->currentText());
 	if(preset.name.isEmpty())
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Error saving preset. "
-			"Preset name must not be empty."));
+		m_ui.feedbackTextEdit->addEntry(
+			trUtf8("Preset name must not be empty."), LOG_STYLE_WARNING);
 		return;
 	}
 
@@ -278,8 +278,9 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 		preset.executablePath = m_ui.executablePathEdit->text();
 		if(preset.executablePath.isEmpty())
 		{
-			slotWriteLogMessage(mtCritical, trUtf8("Error saving preset. "
-				"Executable path must not be empty."));
+			m_ui.feedbackTextEdit->addEntry(
+				trUtf8("Executable path must not be empty."),
+				LOG_STYLE_WARNING);
 			return;
 		}
 
@@ -289,7 +290,8 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 	bool success = m_pSettingsManager->saveEncodingPreset(preset);
 	if(!success)
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Error saving preset."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error saving preset."),
+			LOG_STYLE_ERROR);
 		return;
 	}
 
@@ -308,8 +310,8 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 		*it = preset;
 	}
 
-	slotWriteLogMessage(mtDebug, trUtf8("Preset \'%1\' saved.")
-		.arg(preset.name));
+	m_ui.feedbackTextEdit->addEntry(trUtf8("Preset \'%1\' saved.")
+		.arg(preset.name), LOG_STYLE_POSITIVE);
 }
 
 // END OF void EncodeDialog::slotEncodingPresetSaveButtonPressed()
@@ -334,8 +336,8 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 	if(it == m_encodingPresets.end())
 	{
 		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
-		slotWriteLogMessage(mtCritical, trUtf8("Error deleting preset. "
-			"Preset was never saved."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error deleting preset. "
+			"Preset was never saved."), LOG_STYLE_ERROR);
 		return;
 	}
 
@@ -350,13 +352,13 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 	bool success = m_pSettingsManager->deleteEncodingPreset(preset.name);
 	if(!success)
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Error deleting "
-			"preset \'%1\'.").arg(preset.name));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error deleting "
+			"preset \'%1\'.").arg(preset.name), LOG_STYLE_ERROR);
 		return;
 	}
 
-	slotWriteLogMessage(mtDebug, trUtf8("Preset \'%1\' deleted.")
-		.arg(preset.name));
+	m_ui.feedbackTextEdit->addEntry(trUtf8("Preset \'%1\' deleted.")
+		.arg(preset.name), LOG_STYLE_POSITIVE);
 }
 
 // END OF void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
@@ -377,8 +379,8 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
 	if(it == m_encodingPresets.end())
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Error. There is no preset "
-			"named \'%1\'.").arg(preset.name));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error. There is no preset "
+			"named \'%1\'.").arg(preset.name), LOG_STYLE_ERROR);
 		return;
 	}
 
@@ -445,14 +447,14 @@ void EncodeDialog::slotEncoderStarted()
 	if(m_state == State::CheckingEncoderSanity)
 		return;
 
-	slotWriteLogMessage(mtDebug, trUtf8("Encoder started. "
-		"Beginning encoding."));
+	m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder started. "
+		"Beginning encoding."), LOG_STYLE_DEBUG);
 
 	if(!m_encoder.isWritable())
 	{
 		m_state = State::Aborting;
-		slotWriteLogMessage(mtDebug, trUtf8("Can not write into encoder. "
-			"Aborting."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Can not write into encoder. "
+			"Aborting."), LOG_STYLE_ERROR);
 		stopProcessing();
 		return;
 	}
@@ -476,21 +478,23 @@ void EncodeDialog::slotEncoderFinished(int a_exitCode,
 
 	if(m_state == State::Idle)
 	{
-		slotWriteLogMessage(mtDebug, trUtf8("Encoder has finished working "
-			"while it shouldn't be running at all. Ignoring."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has finished working "
+			"while it shouldn't be running at all. Ignoring."),
+			LOG_STYLE_WARNING);
 		return;
 	}
 	else if(m_state == State::Finishing)
 	{
-		slotWriteLogMessage(mtDebug, trUtf8("Finished encoding."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Finished encoding."),
+			LOG_STYLE_POSITIVE);
 	}
 	else if(vsedit::contains(workingStates, m_state))
 	{
 		QString exitStatusString = (a_exitStatus == QProcess::CrashExit) ?
 			trUtf8("crash") : trUtf8("normal exit");
-		slotWriteLogMessage(mtDebug, trUtf8("Encoder has finished "
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has finished "
 			"unexpectedly.\nReason: %1; exit code: %2")
-			.arg(exitStatusString).arg(a_exitCode));
+			.arg(exitStatusString).arg(a_exitCode), LOG_STYLE_ERROR);
 	}
 
 	stopProcessing();
@@ -507,23 +511,24 @@ void EncodeDialog::slotEncoderError(QProcess::ProcessError a_error)
 
 	if(m_state == State::Idle)
 	{
-		slotWriteLogMessage(mtDebug, trUtf8("Encoder has reported an error "
-			"while it shouldn't be running at all. Ignoring."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has reported an error "
+			"while it shouldn't be running at all. Ignoring."),
+			LOG_STYLE_WARNING);
 		return;
 	}
 
 	switch(a_error)
 	{
 	case QProcess::FailedToStart:
-		slotWriteLogMessage(mtCritical, trUtf8("Encoder has failed to start. "
-			"Aborting."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has failed to start. "
+			"Aborting."), LOG_STYLE_ERROR);
 		m_state = State::Aborting;
 		stopProcessing();
 		break;
 
 	case QProcess::Crashed:
-		slotWriteLogMessage(mtCritical, trUtf8("Encoder has crashed. "
-			"Aborting."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has crashed. "
+			"Aborting."), LOG_STYLE_ERROR);
 		m_state = State::EncoderCrashed;
 		stopProcessing();
 		break;
@@ -534,25 +539,27 @@ void EncodeDialog::slotEncoderError(QProcess::ProcessError a_error)
 	case QProcess::WriteError:
 		if(m_state == State::WritingFrame)
 		{
-			slotWriteLogMessage(mtCritical, trUtf8("Writing to encoder failed. "
-				"Aborting."));
+			m_ui.feedbackTextEdit->addEntry(trUtf8("Writing to encoder failed. "
+				"Aborting."), LOG_STYLE_ERROR);
 			m_state = State::Aborting;
 			stopProcessing();
 		}
 		else
 		{
-			slotWriteLogMessage(mtDebug, trUtf8("Encoder has returned a "
-				"writing error, but we were not writing. Ignoring."));
+			m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has returned a "
+				"writing error, but we were not writing. Ignoring."),
+				LOG_STYLE_WARNING);
 		}
 		break;
 
 	case QProcess::ReadError:
-		slotWriteLogMessage(mtDebug, trUtf8("Error on reading the encoder "
-			"feedback."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error on reading the encoder "
+			"feedback."), LOG_STYLE_WARNING);
 		break;
 
 	case QProcess::UnknownError:
-		slotWriteLogMessage(mtDebug, trUtf8("Unknown error in encoder."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Unknown error in encoder."),
+			LOG_STYLE_WARNING);
 		break;
 
 	default:
@@ -570,15 +577,16 @@ void EncodeDialog::slotEncoderReadChannelFinished()
 
 	if(m_state == State::Idle)
 	{
-		slotWriteLogMessage(mtDebug, trUtf8("Encoder has suddenly stopped "
-			"accepting data while it shouldn't be running at all. Ignoring."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has suddenly stopped "
+			"accepting data while it shouldn't be running at all. Ignoring."),
+			LOG_STYLE_WARNING);
 		return;
 	}
 
 	if((m_state != State::Finishing) && (m_state != State::Aborting))
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Encoder has suddenly stopped "
-			"accepting data. Aborting."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has suddenly stopped "
+			"accepting data. Aborting."), LOG_STYLE_ERROR);
 		m_state = State::Aborting;
 		stopProcessing();
 	}
@@ -594,8 +602,9 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 
 	if(m_state == State::Idle)
 	{
-		slotWriteLogMessage(mtDebug, trUtf8("Encoder has reported written "
-			"data while it shouldn't be running at all. Ignoring."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has reported written "
+			"data while it shouldn't be running at all. Ignoring."),
+			LOG_STYLE_WARNING);
 		return;
 	}
 
@@ -604,17 +613,18 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 
 	if((m_state != State::WritingFrame) && (m_state != State::WritingHeader))
 	{
-		slotWriteLogMessage(mtDebug, trUtf8("Encoder reports successful "
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder reports successful "
 			"write, but we were not writing anything.\nData written: "
-			"%1 bytes.").arg(a_bytes));
+			"%1 bytes.").arg(a_bytes), LOG_STYLE_WARNING);
 		return;
 	}
 
 	if(a_bytes <= 0)
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Error on writing data to "
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error on writing data to "
 			"encoder.\nExpected to write: %1 bytes. Data written: %2 bytes.\n"
-			"Aborting.").arg(m_bytesToWrite).arg(m_bytesWritten));
+			"Aborting.").arg(m_bytesToWrite).arg(m_bytesWritten),
+			LOG_STYLE_ERROR);
 		m_state = State::Aborting;
 		stopProcessing();
 		return;
@@ -624,8 +634,8 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 
 	if((m_bytesWritten + m_encoder.bytesToWrite()) < m_bytesToWrite)
 	{
-		slotWriteLogMessage(mtCritical, trUtf8("Encoder has lost written "
-		"data. Aborting."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has lost written "
+			"data. Aborting."), LOG_STYLE_ERROR);
 		m_state = State::Aborting;
 		stopProcessing();
 		return;
@@ -790,8 +800,8 @@ void EncodeDialog::processFramesQueue()
 	if(bytesWritten < 0)
 	{
 		m_state = State::Aborting;
-		slotWriteLogMessage(mtCritical, trUtf8("Error on writing data to "
-			"encoder. Aborting."));
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error on writing data to "
+			"encoder. Aborting."), LOG_STYLE_ERROR);
 		stopProcessing();
 		return;
 	}
@@ -826,7 +836,7 @@ void EncodeDialog::outputStandardError()
 	QString standardErrorText = QString::fromUtf8(standardError);
 	standardErrorText = standardErrorText.trimmed();
 	if(!standardErrorText.isEmpty())
-		m_ui.feedbackTextEdit->appendPlainText(standardErrorText);
+		m_ui.feedbackTextEdit->addEntry(standardErrorText);
 }
 
 // END OF void EncodeDialog::clearFramesQueue()

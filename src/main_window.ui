@@ -77,7 +77,11 @@
       <number>0</number>
      </property>
      <item row="0" column="0">
-      <widget class="VSEditorLog" name="logView"/>
+      <widget class="VSEditorLog" name="logView">
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
