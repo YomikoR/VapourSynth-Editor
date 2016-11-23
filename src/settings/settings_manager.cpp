@@ -89,6 +89,18 @@ const char DROP_FILE_CATEGORY_SOURCE_TEMPLATE_KEY[] = "template";
 
 //==============================================================================
 
+const char LOGS_GROUP[] = "logs";
+const char LOG_STYLES_GROUP[] = "styles";
+
+const char LOG_STYLE_TITLE_KEY[] = "title";
+const char LOG_STYLE_BACKGROUND_COLOR_KEY[] = "background_color";
+const char LOG_STYLE_TEXT_FORMAT_KEY[] = "text_format";
+const char LOG_STYLE_IS_ALIAS_KEY[] = "is_alias";
+const char LOG_STYLE_ORIGINAL_STYLE_NAME_KEY[] = "original_style_name";
+const char LOG_STYLE_IS_VISIBLE_KEY[] = "is_visible";
+
+//==============================================================================
+
 SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 {
 	QString applicationDir = QCoreApplication::applicationDirPath();
@@ -1256,6 +1268,87 @@ bool SettingsManager::getAlwaysKeepCurrentFrame() const
 bool SettingsManager::setAlwaysKeepCurrentFrame(bool a_keep)
 {
 	return setValue(ALWAYS_KEEP_CURRENT_FRAME_KEY, a_keep);
+}
+
+//==============================================================================
+
+std::vector<TextBlockStyle> SettingsManager::getLogStyles(
+	const QString & a_logName) const
+{
+	std::vector<TextBlockStyle> styles;
+
+	if(a_logName.isEmpty())
+		return styles;
+
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(LOGS_GROUP);
+
+	QStringList logNames = settings.childGroups();
+	if(!logNames.contains(a_logName))
+		return styles;
+
+	settings.beginGroup(a_logName);
+	settings.beginGroup(LOG_STYLES_GROUP);
+
+	QStringList styleNames = settings.childGroups();
+	for(const QString & styleName : styleNames)
+	{
+		settings.beginGroup(styleName);
+
+		TextBlockStyle style;
+		style.name = styleName;
+		style.title = settings.value(LOG_STYLE_TITLE_KEY).toString();
+		if(settings.contains(LOG_STYLE_BACKGROUND_COLOR_KEY))
+			style.backgroundColor = qvariant_cast<QColor>(
+				settings.value(LOG_STYLE_BACKGROUND_COLOR_KEY));
+		if(settings.contains(LOG_STYLE_TEXT_FORMAT_KEY))
+			style.textFormat = qvariant_cast<QTextFormat>(
+				settings.value(LOG_STYLE_TEXT_FORMAT_KEY)).toCharFormat();
+		style.isAlias = settings.value(LOG_STYLE_IS_ALIAS_KEY, false).toBool();
+		style.originalStyleName =
+			settings.value(LOG_STYLE_ORIGINAL_STYLE_NAME_KEY).toString();
+		style.isVisible =
+			settings.value(LOG_STYLE_IS_VISIBLE_KEY, true).toBool();
+
+		styles.push_back(style);
+
+		settings.endGroup();
+	}
+
+	return styles;
+}
+
+bool SettingsManager::setLogStyles(const QString & a_logName,
+	const std::vector<TextBlockStyle> a_styles)
+{
+	if(a_logName.isEmpty())
+		return false;
+
+	if(a_styles.empty())
+		return false;
+
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(LOGS_GROUP);
+	settings.beginGroup(a_logName);
+	settings.remove(LOG_STYLES_GROUP);
+	settings.beginGroup(LOG_STYLES_GROUP);
+	for(const TextBlockStyle & style : a_styles)
+	{
+		settings.beginGroup(style.name);
+		settings.setValue(LOG_STYLE_TITLE_KEY, style.title);
+		settings.setValue(LOG_STYLE_BACKGROUND_COLOR_KEY,
+			style.backgroundColor);
+		settings.setValue(LOG_STYLE_TEXT_FORMAT_KEY, style.textFormat);
+		settings.setValue(LOG_STYLE_IS_ALIAS_KEY, style.isAlias);
+		settings.setValue(LOG_STYLE_ORIGINAL_STYLE_NAME_KEY,
+			style.originalStyleName);
+		settings.setValue(LOG_STYLE_IS_VISIBLE_KEY, style.isVisible);
+		settings.endGroup();
+	}
+
+	settings.sync();
+	bool success = (QSettings::NoError == settings.status());
+	return success;
 }
 
 //==============================================================================

@@ -243,6 +243,11 @@ public:
 
 	bool setAlwaysKeepCurrentFrame(bool a_keep);
 
+	std::vector<TextBlockStyle> getLogStyles(const QString & a_logName) const;
+
+	bool setLogStyles(const QString & a_logName,
+		const std::vector<TextBlockStyle> a_styles);
+
 private:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,

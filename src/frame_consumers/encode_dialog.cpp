@@ -46,6 +46,10 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 
 	m_ui.argumentsHelpButton->setIcon(QIcon(":information.png"));
 
+	m_ui.feedbackTextEdit->setName("encode_log");
+	m_ui.feedbackTextEdit->setSettingsManager(m_pSettingsManager);
+	m_ui.feedbackTextEdit->loadSettings();
+
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startStopEncodeButton, SIGNAL(clicked()),

@@ -5,6 +5,10 @@
 
 //==============================================================================
 
+class SettingsManager;
+
+//==============================================================================
+
 extern const char LOG_STYLE_ERROR[];
 extern const char LOG_STYLE_DEBUG[];
 extern const char LOG_STYLE_WARNING[];
@@ -36,9 +40,26 @@ public:
 	VSEditorLog(QWidget * a_pParent = nullptr);
 	virtual ~VSEditorLog();
 
+	virtual QString name() const;
+	virtual void setName(const QString & a_name);
+
+	virtual void setSettingsManager(SettingsManager * a_pSettingsManager);
+
+	virtual bool loadSettings();
+
+	virtual bool saveSettings();
+
+protected slots:
+
+	virtual void slotLogSettingsChanged() override;
+
 protected:
 
 	virtual void initializeStyles();
+
+	QString m_name;
+
+	SettingsManager * m_pSettingsManager;
 };
 
 //==============================================================================

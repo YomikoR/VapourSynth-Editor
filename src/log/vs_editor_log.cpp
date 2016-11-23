@@ -1,8 +1,10 @@
 #include "vs_editor_log.h"
 
-#include <vapoursynth/VapourSynth.h>
+#include "../settings/settings_manager.h"
 
+#include <vapoursynth/VapourSynth.h>
 #include <map>
+#include <algorithm>
 
 //==============================================================================
 
@@ -48,6 +50,7 @@ QString vsMessageTypeToStyleName(int a_messageType)
 
 VSEditorLog::VSEditorLog(QWidget * a_pParent) :
 	  StyledLogView(a_pParent)
+	, m_pSettingsManager(nullptr)
 {
 	initializeStyles();
 }
@@ -60,6 +63,84 @@ VSEditorLog::~VSEditorLog()
 }
 
 // END OF VSEditorLog::~VSEditorLog()
+//==============================================================================
+
+QString VSEditorLog::name() const
+{
+	return m_name;
+}
+
+// END OF QString VSEditorLog::name() const
+//==============================================================================
+
+void VSEditorLog::setName(const QString & a_name)
+{
+	m_name = a_name;
+}
+
+// END OF void VSEditorLog::setName(const QString & a_name)
+//==============================================================================
+
+void VSEditorLog::setSettingsManager(SettingsManager * a_pSettingsManager)
+{
+	m_pSettingsManager = a_pSettingsManager;
+}
+
+// END OF void VSEditorLog::setSettingsManager(
+//		SettingsManager * a_pSettingsManager)
+//==============================================================================
+
+bool VSEditorLog::loadSettings()
+{
+	if(!m_pSettingsManager)
+		return false;
+
+	if(m_name.isEmpty())
+		return false;
+
+	const std::vector<TextBlockStyle> styles =
+		m_pSettingsManager->getLogStyles(m_name);
+
+	for(TextBlockStyle & style : m_styles)
+	{
+		std::vector<TextBlockStyle>::const_iterator it =
+			std::find_if(styles.begin(), styles.end(),
+				[&](const TextBlockStyle & a_style) -> bool
+				{
+					return (a_style.name == style.name);
+				});
+
+		if(it != styles.end())
+			style = *it;
+	}
+
+	return true;
+}
+
+// END OF bool VSEditorLog::loadSettings()
+//==============================================================================
+
+bool VSEditorLog::saveSettings()
+{
+	if(!m_pSettingsManager)
+		return false;
+
+	if(m_name.isEmpty())
+		return false;
+
+	return m_pSettingsManager->setLogStyles(m_name, m_styles);
+}
+
+// END OF bool VSEditorLog::saveSettings()
+//==============================================================================
+
+void VSEditorLog::slotLogSettingsChanged()
+{
+	StyledLogView::slotLogSettingsChanged();
+	saveSettings();
+}
+
+// END OF void VSEditorLog::slotLogSettingsChanged()
 //==============================================================================
 
 void VSEditorLog::initializeStyles()

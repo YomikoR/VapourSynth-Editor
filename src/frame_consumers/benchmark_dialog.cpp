@@ -27,6 +27,10 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 
 	createStatusBar();
 
+	m_ui.feedbackTextEdit->setName("benchmark_log");
+	m_ui.feedbackTextEdit->setSettingsManager(m_pSettingsManager);
+	m_ui.feedbackTextEdit->loadSettings();
+
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startStopBenchmarkButton, SIGNAL(clicked()),

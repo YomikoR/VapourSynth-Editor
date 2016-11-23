@@ -2,6 +2,7 @@
 #define SETTINGS_DEFINITIONS_H_INCLUDED
 
 #include "../preview/timeline_slider.h"
+#include "../log/styled_log_view_structures.h"
 
 #include <QString>
 #include <QIcon>

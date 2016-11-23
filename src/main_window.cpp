@@ -92,6 +92,10 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalScriptFileDropped(const QString &, bool *)),
 		this, SLOT(slotScriptFileDropped(const QString &, bool *)));
 
+	m_ui.logView->setName("main_log");
+	m_ui.logView->setSettingsManager(m_pSettingsManager);
+	m_ui.logView->loadSettings();
+
 	createActionsAndMenus();
 
 	m_pPreviewDialog =
