@@ -256,6 +256,7 @@
 		<Unit filename="src/log/styled_log_view.h" />
 		<Unit filename="src/log/styled_log_view_settings_dialog.cpp" />
 		<Unit filename="src/log/styled_log_view_settings_dialog.h" />
+		<Unit filename="src/log/styled_log_view_settings_dialog.ui" />
 		<Unit filename="src/log/styled_log_view_structures.cpp" />
 		<Unit filename="src/log/styled_log_view_structures.h" />
 		<Unit filename="src/log/vs_editor_log.cpp" />
@@ -336,10 +337,10 @@
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
+				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-32bit-gcc">
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-64bit-gcc">
