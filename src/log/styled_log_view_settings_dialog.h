@@ -31,7 +31,17 @@ protected slots:
 
 	virtual void slotApply();
 
+	virtual void slotStyleSelected(const QModelIndex & a_index);
+
+	virtual void slotFontButtonClicked();
+
+	virtual void slotTextColorButtonClicked();
+
+	virtual void slotBackgroundColorButtonClicked();
+
 protected:
+
+	virtual void enableStyleSettingsControls(bool a_enable = true);
 
 	Ui::StyledLogViewSettingsDialog m_ui;
 

@@ -38,7 +38,16 @@ public:
 
 	virtual void setStyles(const std::vector<TextBlockStyle> & a_styles);
 
+	virtual TextBlockStyle style(int a_index) const;
+	virtual TextBlockStyle style(const QModelIndex & a_index) const;
+
+	virtual bool setStyleFont(int a_index, const QFont & a_font);
+	virtual bool setStyleTextColor(int a_index, const QColor & a_color);
+	virtual bool setStyleBackgroundColor(int a_index, const QColor & a_color);
+
 protected:
+
+	virtual bool styleIndexValid(int a_index) const;
 
 	std::vector<TextBlockStyle> m_styles;
 };

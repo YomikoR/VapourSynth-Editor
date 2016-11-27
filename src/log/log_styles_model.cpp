@@ -1,5 +1,7 @@
 #include "log_styles_model.h"
 
+#include <cassert>
+
 //==============================================================================
 
 LogStylesModel::LogStylesModel(QObject * a_pParent) :
@@ -144,4 +146,69 @@ void LogStylesModel::setStyles(const std::vector<TextBlockStyle> & a_styles)
 
 // END OF void LogStylesModel::setStyles(
 //		const std::vector<TextBlockStyle> & a_styles)
+//==============================================================================
+
+TextBlockStyle LogStylesModel::style(int a_index) const
+{
+	assert(styleIndexValid(a_index));
+	return m_styles[a_index];
+}
+
+// END OF TextBlockStyle LogStylesModel::style(int a_index) const
+//==============================================================================
+
+TextBlockStyle LogStylesModel::style(const QModelIndex & a_index) const
+{
+	return style(a_index.row());
+}
+
+// END OF TextBlockStyle LogStylesModel::style(const QModelIndex & a_index)
+//		const
+//==============================================================================
+
+bool LogStylesModel::setStyleFont(int a_index, const QFont & a_font)
+{
+	if(!styleIndexValid(a_index))
+		return false;
+
+	m_styles[a_index].textFormat.setFont(a_font);
+	return true;
+}
+
+// END OF bool LogStylesModel::setStyleFont(int a_index, const QFont & a_font)
+//==============================================================================
+
+bool LogStylesModel::setStyleTextColor(int a_index, const QColor & a_color)
+{
+	if(!styleIndexValid(a_index))
+		return false;
+
+	m_styles[a_index].textFormat.setForeground(a_color);
+	return true;
+}
+
+// END OF bool LogStylesModel::setStyleTextColor(int a_index,
+//		const QColor & a_color)
+//==============================================================================
+
+bool LogStylesModel::setStyleBackgroundColor(int a_index,
+	const QColor & a_color)
+{
+	if(!styleIndexValid(a_index))
+		return false;
+
+	m_styles[a_index].textFormat.setBackground(a_color);
+	return true;
+}
+
+// END OF bool LogStylesModel::setStyleBackgroundColor(int a_index,
+//		const QColor & a_color)
+//==============================================================================
+
+bool LogStylesModel::styleIndexValid(int a_index) const
+{
+	return ((a_index >= 0) && (a_index < (int)m_styles.size()));
+}
+
+// END OF bool LogStylesModel::styleIndexValid(int a_index) const
 //==============================================================================
