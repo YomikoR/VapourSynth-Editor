@@ -17,7 +17,7 @@ TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title):
 	, isVisible(true)
 {
 	QPalette palette = QGuiApplication::palette();
-	backgroundColor = palette.color(QPalette::Active, QPalette::Base);
+	textFormat.setBackground(palette.color(QPalette::Active, QPalette::Base));
 	textFormat.setForeground(palette.color(QPalette::Active, QPalette::Text));
 }
 
@@ -26,10 +26,9 @@ TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title):
 //==============================================================================
 
 TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title,
-	const QColor & a_backgroundColor, const QTextCharFormat & a_textFormat):
+	const QTextCharFormat & a_textFormat):
 	  name(a_name)
 	, title(a_title)
-	, backgroundColor(a_backgroundColor)
 	, textFormat(a_textFormat)
 	, isAlias(false)
 	, isVisible(true)
@@ -37,19 +36,18 @@ TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title,
 }
 
 // END OF TextBlockStyle::TextBlockStyle(const QString & a_name,
-//		const QString & a_title const QColor & a_backgroundColor,
-//		const QTextCharFormat & a_textFormat)
+//		const QString & a_title, const QTextCharFormat & a_textFormat)
 //==============================================================================
 
 TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title,
 	const QColor & a_backgroundColor, const QColor & a_textColor):
 	  name(a_name)
 	, title(a_title)
-	, backgroundColor(a_backgroundColor)
 	, isAlias(false)
 	, isVisible(true)
 {
 	textFormat.setForeground(a_textColor);
+	textFormat.setBackground(a_backgroundColor);
 }
 
 // END OF TextBlockStyle::TextBlockStyle(const QString & a_name,

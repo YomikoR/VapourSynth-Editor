@@ -93,7 +93,6 @@ const char LOGS_GROUP[] = "logs";
 const char LOG_STYLES_GROUP[] = "styles";
 
 const char LOG_STYLE_TITLE_KEY[] = "title";
-const char LOG_STYLE_BACKGROUND_COLOR_KEY[] = "background_color";
 const char LOG_STYLE_TEXT_FORMAT_KEY[] = "text_format";
 const char LOG_STYLE_IS_ALIAS_KEY[] = "is_alias";
 const char LOG_STYLE_ORIGINAL_STYLE_NAME_KEY[] = "original_style_name";
@@ -1298,9 +1297,6 @@ std::vector<TextBlockStyle> SettingsManager::getLogStyles(
 		TextBlockStyle style;
 		style.name = styleName;
 		style.title = settings.value(LOG_STYLE_TITLE_KEY).toString();
-		if(settings.contains(LOG_STYLE_BACKGROUND_COLOR_KEY))
-			style.backgroundColor = qvariant_cast<QColor>(
-				settings.value(LOG_STYLE_BACKGROUND_COLOR_KEY));
 		if(settings.contains(LOG_STYLE_TEXT_FORMAT_KEY))
 			style.textFormat = qvariant_cast<QTextFormat>(
 				settings.value(LOG_STYLE_TEXT_FORMAT_KEY)).toCharFormat();
@@ -1336,8 +1332,6 @@ bool SettingsManager::setLogStyles(const QString & a_logName,
 	{
 		settings.beginGroup(style.name);
 		settings.setValue(LOG_STYLE_TITLE_KEY, style.title);
-		settings.setValue(LOG_STYLE_BACKGROUND_COLOR_KEY,
-			style.backgroundColor);
 		settings.setValue(LOG_STYLE_TEXT_FORMAT_KEY, style.textFormat);
 		settings.setValue(LOG_STYLE_IS_ALIAS_KEY, style.isAlias);
 		settings.setValue(LOG_STYLE_ORIGINAL_STYLE_NAME_KEY,

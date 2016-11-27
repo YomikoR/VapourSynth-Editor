@@ -71,7 +71,6 @@ TextBlockStyle StyledLogView::getStyle(const QString & a_styleName) const
 
 		if(!it->isAlias)
 		{
-			style.backgroundColor = it->backgroundColor;
 			style.textFormat = it->textFormat;
 			return style;
 		}
@@ -351,7 +350,7 @@ void StyledLogView::updateHtml()
 		if(!openBlock)
 		{
 			html += QString("<tr bgcolor=\"%1\"><td>")
-				.arg(style.backgroundColor.name());
+				.arg(format.background().color().name());
 			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
 			html += QString("<div><font face=\"%1\" size=\"-2\" "
 			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
@@ -487,7 +486,7 @@ QString StyledLogView::realHtml(bool a_excludeFiltered) const
 		if(!openBlock)
 		{
 			html += QString("<tr bgcolor=\"%1\"><td>\n")
-				.arg(style.backgroundColor.name());
+				.arg(format.background().color().name());
 			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
 			html += QString("<p style=\"font-family: %1; "
 				"font-size: 0.7em; color: %2;\">%3</p>\n")
