@@ -105,17 +105,17 @@ void StyledLogViewSettingsDialog::slotStyleSelected(const QModelIndex & a_index)
 		QString("QLabel {background-color : \"%1\"; color : \"%2\";}")
 		.arg(backgroundColorString).arg(textColorString);
 
+	m_ui.fontLabel->setStyleSheet(styleSheetString);
+
 	if(style.isAlias)
 	{
 		m_ui.fontLabel->clear();
 	}
 	else
 	{
-		m_ui.fontLabel->setText(format.font().family());
 		m_ui.fontLabel->setFont(format.font());
+		m_ui.fontLabel->setText(format.font().family());
 	}
-
-	m_ui.fontLabel->setStyleSheet(styleSheetString);
 }
 
 // END OF void StyledLogViewSettingsDialog::slotStyleSelected(
@@ -125,6 +125,9 @@ void StyledLogViewSettingsDialog::slotStyleSelected(const QModelIndex & a_index)
 void StyledLogViewSettingsDialog::slotFontButtonClicked()
 {
 	QModelIndex index = m_ui.stylesView->currentIndex();
+	if(!index.isValid())
+		return;
+
 	TextBlockStyle style = m_pLogStylesModel->style(index);
 
 	QFontDialog fontDialog;
@@ -144,6 +147,9 @@ void StyledLogViewSettingsDialog::slotFontButtonClicked()
 void StyledLogViewSettingsDialog::slotTextColorButtonClicked()
 {
 	QModelIndex index = m_ui.stylesView->currentIndex();
+	if(!index.isValid())
+		return;
+
 	TextBlockStyle style = m_pLogStylesModel->style(index);
 
 	QColorDialog colorDialog;
@@ -164,6 +170,9 @@ void StyledLogViewSettingsDialog::slotTextColorButtonClicked()
 void StyledLogViewSettingsDialog::slotBackgroundColorButtonClicked()
 {
 	QModelIndex index = m_ui.stylesView->currentIndex();
+	if(!index.isValid())
+		return;
+
 	TextBlockStyle style = m_pLogStylesModel->style(index);
 
 	QColorDialog colorDialog;
