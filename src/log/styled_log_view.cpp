@@ -346,23 +346,35 @@ void StyledLogView::updateHtml()
 			continue;
 
 		QTextCharFormat format = style.textFormat;
+		QFont styleFont = format.font();
 
 		if(!openBlock)
 		{
 			html += QString("<tr bgcolor=\"%1\"><td>")
 				.arg(format.background().color().name());
 			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
-			html += QString("<div><font face=\"%1\" size=\"-2\" "
-			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
-			.arg(format.foreground().color().name())
-			.arg(timeString);
+			html += QString("<div><font size=\"-2\" "
+				"color=\"%1\">%2</font></div>")
+				.arg(format.foreground().color().name())
+				.arg(timeString);
 			openBlock = true;
 		}
 
 		QString entryHtml = entry.text;
 		entryHtml.replace("\n", "<br>");
+
+		if(styleFont.bold())
+			entryHtml = QString("<b>%1</b>").arg(entryHtml);
+		if(styleFont.italic())
+			entryHtml = QString("<i>%1</i>").arg(entryHtml);
+		if(styleFont.underline())
+			entryHtml = QString("<u>%1</u>").arg(entryHtml);
+		if(styleFont.strikeOut())
+			entryHtml = QString("<s>%1</s>").arg(entryHtml);
+
 		html += QString("<div><font face=\"%1\" "
-			"color=\"%2\">%3</font></div>").arg(format.fontFamily())
+			"color=\"%2\">%3</font></div>")
+			.arg(styleFont.family())
 			.arg(format.foreground().color().name())
 			.arg(entryHtml);
 	}
@@ -482,15 +494,15 @@ QString StyledLogView::realHtml(bool a_excludeFiltered) const
 			continue;
 
 		QTextCharFormat format = style.textFormat;
+		QFont styleFont = format.font();
 
 		if(!openBlock)
 		{
 			html += QString("<tr bgcolor=\"%1\"><td>\n")
 				.arg(format.background().color().name());
 			QString timeString = entry.time.toString("yyyy-MM-dd hh:mm:ss.zzz");
-			html += QString("<p style=\"font-family: %1; "
-				"font-size: 0.7em; color: %2;\">%3</p>\n")
-				.arg(format.fontFamily())
+			html += QString("<p style=\"font-size: 70%; "
+				"color: %1;\">%2</p>\n")
 				.arg(format.foreground().color().name())
 				.arg(timeString);
 			openBlock = true;
@@ -498,8 +510,18 @@ QString StyledLogView::realHtml(bool a_excludeFiltered) const
 
 		QString entryHtml = entry.text;
 		entryHtml.replace("\n", "<br>\n");
+
+		if(styleFont.bold())
+			entryHtml = QString("<b>%1</b>").arg(entryHtml);
+		if(styleFont.italic())
+			entryHtml = QString("<i>%1</i>").arg(entryHtml);
+		if(styleFont.underline())
+			entryHtml = QString("<u>%1</u>").arg(entryHtml);
+		if(styleFont.strikeOut())
+			entryHtml = QString("<s>%1</s>").arg(entryHtml);
+
 		html += QString("<p style=\"font-family: %1; color: %2;\">%3</p>\n")
-			.arg(format.fontFamily())
+			.arg(styleFont.family())
 			.arg(format.foreground().color().name())
 			.arg(entryHtml);
 	}
