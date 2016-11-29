@@ -23,7 +23,7 @@ public:
 
 signals:
 
-	virtual void signalSettingsChanged();
+	void signalSettingsChanged();
 
 protected slots:
 
