@@ -1,3 +1,7 @@
+r12:
+-Improved log.
+-Crash log is saved as HTML from the main log.
+
 r11:
 -BUGFIX: Default file drop template.
 -BUGFIX: Preview non-YUV clips.
