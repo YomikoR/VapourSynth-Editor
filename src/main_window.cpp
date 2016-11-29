@@ -30,6 +30,9 @@
 #include <QDir>
 #include <QFontDatabase>
 #include <QResource>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QDateTime>
 
 //==============================================================================
 
@@ -178,6 +181,39 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 	const QString & a_style)
 {
 	m_ui.logView->addEntry(a_message, a_style);
+
+	QString fatalTypes[] = {LOG_STYLE_VS_FATAL, LOG_STYLE_QT_FATAL};
+	if(!vsedit::contains(fatalTypes, a_style))
+		return;
+
+	QDateTime now = QDateTime::currentDateTime();
+	QString timeString = now.toString("hh:mm:ss.zzz");
+	QString dateString = now.toString("yyyy-MM-dd");
+	QString caption = QObject::trUtf8("VapourSynth fatal error!");
+	QString fullMessage = dateString + QString(" ") + timeString +
+		QString("\n") + caption + QString("\n") + a_message;
+
+    QString tempPath =
+		QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+	if(tempPath.isEmpty())
+	{
+		QMessageBox::critical(nullptr, caption, fullMessage);
+		return;
+	}
+
+	QString filePath = tempPath + QString("/") +
+		QString("VapourSynth-Editor-crashlog-") + dateString + QString("-") +
+		timeString.replace(':', '-') + QString(".html");
+
+	bool saved = m_ui.logView->saveHtml(filePath);
+	if(!saved)
+	{
+		QMessageBox::critical(nullptr, caption, fullMessage);
+		return;
+	}
+
+	QUrl fileUrl = QUrl::fromLocalFile(filePath);
+	QDesktopServices::openUrl(fileUrl);
 }
 
 // END OF void MainWindow::slotWriteLogMessage(const QString & a_message,

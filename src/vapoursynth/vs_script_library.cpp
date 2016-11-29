@@ -4,12 +4,6 @@
 
 #include <QSettings>
 #include <QProcessEnvironment>
-#include <QStandardPaths>
-#include <QDesktopServices>
-#include <QMessageBox>
-#include <QFile>
-#include <QUrl>
-#include <QDateTime>
 #include <cassert>
 
 //==============================================================================
@@ -17,55 +11,9 @@
 void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 	void * a_pUserData)
 {
-	if(a_msgType != mtFatal)
-	{
-		VSScriptLibrary * pVSScriptLibrary =
-			static_cast<VSScriptLibrary *>(a_pUserData);
-		pVSScriptLibrary->handleVSMessage(a_msgType, a_message);
-		return;
-	}
-
-    // Fatal error
-    QDateTime now = QDateTime::currentDateTime();
-	QString timeString = now.toString("hh:mm:ss.zzz");
-	QString dateString = now.toString("yyyy-MM-dd");
-	QString caption = QObject::trUtf8("VapourSynth fatal error!");
-	QString errorMessage = QObject::trUtf8(a_message);
-	QString fullMessage = dateString + QString(" ") + timeString +
-		QString("\n") + caption + QString("\n") + errorMessage;
-
-    QString tempPath =
-		QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-	if(tempPath.isEmpty())
-	{
-		QMessageBox::critical(nullptr, caption, fullMessage);
-		return;
-	}
-
-	QString filePath = tempPath + QString("/") +
-		QString("VapourSynth-Editor-crashlog-") + dateString + QString("-") +
-		timeString.replace(':', '-') + QString(".txt");
-
-	QFile file(filePath);
-	if(!file.open(QIODevice::WriteOnly))
-	{
-		QMessageBox::critical(nullptr, caption, fullMessage);
-		return;
-	}
-
-	QByteArray data = fullMessage.toUtf8();
-
-	qint64 bytesWritten = file.write(data);
-	file.close();
-
-	if(bytesWritten == -1)
-	{
-		QMessageBox::critical(nullptr, caption, fullMessage);
-		return;
-	}
-
-	QUrl fileUrl = QUrl::fromLocalFile(filePath);
-	QDesktopServices::openUrl(fileUrl);
+	VSScriptLibrary * pVSScriptLibrary =
+		static_cast<VSScriptLibrary *>(a_pUserData);
+	pVSScriptLibrary->handleVSMessage(a_msgType, a_message);
 }
 
 // END OF void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
