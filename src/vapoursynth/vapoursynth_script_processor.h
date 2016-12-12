@@ -71,8 +71,6 @@ private slots:
 
 private:
 
-	void handleVSMessage(int a_messageType, const QString & a_message);
-
 	void receiveFrame(const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 		VSNodeRef * a_pNodeRef, const QString & a_errorMessage);
 
@@ -85,6 +83,10 @@ private:
 	void freeFrameTicket(FrameTicket & a_ticket);
 
 	NodePair & getNodePair(int a_outputIndex, bool a_needPreview);
+
+	QString framePropsString(const VSFrameRef * a_cpFrame) const;
+
+	void printFrameProps(const VSFrameRef * a_cpFrame);
 
 	SettingsManager * m_pSettingsManager;
 
