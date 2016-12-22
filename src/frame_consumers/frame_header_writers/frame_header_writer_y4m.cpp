@@ -32,6 +32,9 @@ bool FrameHeaderWriterY4M::isCompatible()
 	if(!vsedit::contains(compatibleColorFamily, cpFormat->colorFamily))
 		return false;
 
+	if(cpFormat->sampleType != stInteger)
+		return false;
+
 	std::pair<int, int> compatibleSubsampling[] =
 		{{0, 0}, {0, 1}, {1, 0}, {1, 1}, {2, 0}, {2, 2}};
 	std::pair<int, int> subsampling(cpFormat->subSamplingW,
