@@ -856,7 +856,7 @@ void EncodeDialog::processFramesQueue()
 		int prefixSize = framePrefix.size();
 		if(prefixSize > 0)
 		{
-			if(prefixSize > m_framebuffer.size())
+			if((size_t)prefixSize > m_framebuffer.size())
 				m_framebuffer.resize(prefixSize);
 			memcpy(m_framebuffer.data(), framePrefix.data(), prefixSize);
 			currentDataSize += prefixSize;
