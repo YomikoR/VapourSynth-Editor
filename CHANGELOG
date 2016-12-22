@@ -1,3 +1,6 @@
+r13:
+-yuv4mpeg header for video encoding.
+
 r12:
 -Improved log.
 -Crash log is saved as HTML from the main log.

@@ -1,9 +1,7 @@
 - colour picking panel needs better placement
-- y4m header for encoding
-- raw avi writing
 - functions autocompletion refinement
 - python error parsing and script line highlighting
 - encoding jobs queue with conditions
 - multiple output nodes comparison
-- vfw encoding
 - reference and documentation
+- raw avi writing
