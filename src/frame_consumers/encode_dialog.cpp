@@ -3,6 +3,8 @@
 #include "../common/helpers.h"
 #include "../vapoursynth/vapoursynth_script_processor.h"
 #include "../settings/settings_dialog.h"
+#include "frame_header_writers/frame_header_writer_null.h"
+#include "frame_header_writers/frame_header_writer_y4m.h"
 
 #include <vapoursynth/VapourSynth.h>
 #include <vapoursynth/VSHelper.h>
@@ -32,6 +34,8 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	, m_state(State::Idle)
 	, m_bytesToWrite(0)
 	, m_bytesWritten(0)
+	, m_headerType(EncodingHeaderType::NoHeader)
+	, m_pFrameHeaderWriter(nullptr)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
@@ -49,6 +53,11 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	m_ui.feedbackTextEdit->setName("encode_log");
 	m_ui.feedbackTextEdit->setSettingsManager(m_pSettingsManager);
 	m_ui.feedbackTextEdit->loadSettings();
+
+	m_ui.headerTypeComboBox->addItem(trUtf8("No header"),
+		(int)EncodingHeaderType::NoHeader);
+	m_ui.headerTypeComboBox->addItem(trUtf8("Y4M"),
+		(int)EncodingHeaderType::Y4M);
 
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
@@ -193,6 +202,28 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	QString commandLine = QString("\"%1\" %2").arg(executable)
 		.arg(decodedArguments);
 
+	m_headerType = (EncodingHeaderType)
+		m_ui.headerTypeComboBox->currentData().toInt();
+
+	if(m_pFrameHeaderWriter)
+		delete m_pFrameHeaderWriter;
+
+	assert(m_cpVSAPI);
+	if(m_headerType == EncodingHeaderType::Y4M)
+		m_pFrameHeaderWriter =
+			new FrameHeaderWriterY4M(m_cpVSAPI, m_cpVideoInfo, this);
+	else
+		m_pFrameHeaderWriter =
+			new FrameHeaderWriterNull(m_cpVSAPI, m_cpVideoInfo, this);
+
+	bool compatibleHeader = m_pFrameHeaderWriter->isCompatible();
+	if(!compatibleHeader)
+	{
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Video is not compatible "
+			"with the chosen header."), LOG_STYLE_ERROR);
+		return;
+	}
+
 	m_ui.feedbackTextEdit->addEntry(trUtf8("Command line:"));
 	m_ui.feedbackTextEdit->addEntry(commandLine);
 
@@ -290,6 +321,9 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 
 		preset.arguments = m_ui.argumentsTextEdit->toPlainText();
 	}
+
+	preset.headerType = (EncodingHeaderType)
+		m_ui.headerTypeComboBox->currentData().toInt();
 
 	bool success = m_pSettingsManager->saveEncodingPreset(preset);
 	if(!success)
@@ -392,6 +426,16 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 
 	m_ui.executablePathEdit->setText(preset.executablePath);
 	m_ui.argumentsTextEdit->setPlainText(preset.arguments);
+
+	int headerTypeIndex =
+		m_ui.headerTypeComboBox->findData((int)preset.headerType);
+	if(headerTypeIndex < 0)
+	{
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error. Preset \'%1\' "
+			"has unknown header type.").arg(preset.name), LOG_STYLE_ERROR);
+		headerTypeIndex = 0;
+	}
+	m_ui.headerTypeComboBox->setCurrentIndex(headerTypeIndex);
 }
 
 // END OF void EncodeDialog::slotEncodingPresetComboBoxActivated(
@@ -457,10 +501,40 @@ void EncodeDialog::slotEncoderStarted()
 	if(!m_encoder.isWritable())
 	{
 		m_state = State::Aborting;
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Can not write into encoder. "
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Can not write to encoder. "
 			"Aborting."), LOG_STYLE_ERROR);
 		stopProcessing();
 		return;
+	}
+
+	assert(m_pFrameHeaderWriter);
+	if(m_pFrameHeaderWriter->needVideoHeader())
+	{
+		QByteArray videoHeader =
+			m_pFrameHeaderWriter->videoHeader(m_framesTotal);
+
+		if(m_headerType == EncodingHeaderType::Y4M)
+			m_ui.feedbackTextEdit->addEntry(trUtf8("Y4M header: ") +
+				QString::fromLatin1(videoHeader), LOG_STYLE_DEBUG);
+
+		m_bytesToWrite = videoHeader.size();
+		if(m_bytesToWrite > 0)
+		{
+			m_bytesWritten = 0;
+			m_state = State::WritingHeader;
+			qint64 bytesWritten = m_encoder.write(videoHeader);
+			if(bytesWritten < 0)
+			{
+				m_state = State::Aborting;
+				m_ui.feedbackTextEdit->addEntry(
+					trUtf8("Error on writing header to encoder. Aborting."),
+					LOG_STYLE_ERROR);
+				stopProcessing();
+				return;
+			}
+
+			return;
+		}
 	}
 
 	m_state = State::WaitingForFrames;
@@ -775,6 +849,20 @@ void EncodeDialog::processFramesQueue()
 	const VSFormat * cpFormat = m_cpVideoInfo->format;
 	assert(cpFormat);
 
+	if(m_pFrameHeaderWriter->needFramePrefix())
+	{
+		QByteArray framePrefix =
+			m_pFrameHeaderWriter->framePrefix(frame.cpOutputFrameRef);
+		int prefixSize = framePrefix.size();
+		if(prefixSize > 0)
+		{
+			if(prefixSize > m_framebuffer.size())
+				m_framebuffer.resize(prefixSize);
+			memcpy(m_framebuffer.data(), framePrefix.data(), prefixSize);
+			currentDataSize += prefixSize;
+		}
+	}
+
 	for(int i = 0; i < cpFormat->numPlanes; ++i)
 	{
 		const uint8_t * cpPlane =
@@ -794,6 +882,22 @@ void EncodeDialog::processFramesQueue()
 			cpPlane, stride, framebufferStride, height);
 
 		currentDataSize += planeSize;
+	}
+
+	if(m_pFrameHeaderWriter->needFramePostfix())
+	{
+		QByteArray framePostfix =
+			m_pFrameHeaderWriter->framePostfix(frame.cpOutputFrameRef);
+		int postfixSize = framePostfix.size();
+		if(postfixSize > 0)
+		{
+			size_t neededFramebufferSize = currentDataSize + postfixSize;
+			if(neededFramebufferSize > m_framebuffer.size())
+				m_framebuffer.resize(neededFramebufferSize);
+			memcpy(m_framebuffer.data() + currentDataSize,
+				framePostfix.data(), postfixSize);
+			currentDataSize += postfixSize;
+		}
 	}
 
 	m_state = State::WritingFrame;

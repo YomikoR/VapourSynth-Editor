@@ -7,6 +7,7 @@
 #include "../settings/settings_manager.h"
 #include "../common/chrono.h"
 #include "../common/helpers.h"
+#include "frame_header_writers/frame_header_writer.h"
 
 #include <QProcess>
 #include <vector>
@@ -114,6 +115,10 @@ protected:
 	size_t m_bytesWritten;
 
 	std::vector<EncodingPreset> m_encodingPresets;
+
+	EncodingHeaderType m_headerType;
+
+	FrameHeaderWriter * m_pFrameHeaderWriter;
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

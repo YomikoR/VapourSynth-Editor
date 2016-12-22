@@ -250,6 +250,12 @@
 		<Unit filename="src/frame_consumers/encode_dialog.cpp" />
 		<Unit filename="src/frame_consumers/encode_dialog.h" />
 		<Unit filename="src/frame_consumers/encode_dialog.ui" />
+		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer.cpp" />
+		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer.h" />
+		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_null.cpp" />
+		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_null.h" />
+		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_y4m.cpp" />
+		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_y4m.h" />
 		<Unit filename="src/log/log_styles_model.cpp" />
 		<Unit filename="src/log/log_styles_model.h" />
 		<Unit filename="src/log/styled_log_view.cpp" />
@@ -340,10 +346,10 @@
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-64bit-gcc">
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

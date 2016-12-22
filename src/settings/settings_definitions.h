@@ -67,6 +67,7 @@ enum class EncodingType
 enum class EncodingHeaderType
 {
 	NoHeader,
+	Y4M,
 };
 
 struct EncodingPreset
