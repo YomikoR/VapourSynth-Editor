@@ -1,3 +1,6 @@
+r14:
+-Core buffer usage display.
+
 r13:
 -yuv4mpeg header for video encoding.
 
