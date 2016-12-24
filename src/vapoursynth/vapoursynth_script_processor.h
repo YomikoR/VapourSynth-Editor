@@ -63,11 +63,15 @@ signals:
 	void signalFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
 		size_t a_maxThreads);
 
+	void signalCoreFramebufferUsedBytes(int64_t a_bytes);
+
 private slots:
 
 	void slotReceiveFrameAndProcessQueue(
 		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 		VSNodeRef * a_pNodeRef, QString a_errorMessage);
+
+	void slotSendCoreFramebufferUsedBytes();
 
 private:
 
@@ -116,6 +120,8 @@ private:
 	double m_resamplingFilterParameterA;
 	double m_resamplingFilterParameterB;
 	YuvMatrixCoefficients m_yuvMatrix;
+
+	QTimer * m_pCoreFramebufferWatchTimer;
 };
 
 //==============================================================================

@@ -54,6 +54,8 @@ protected slots:
 	virtual void slotFrameQueueStateChanged(size_t a_inQueue,
 		size_t a_inProcess, size_t a_maxThreads);
 
+	virtual void slotCoreFramebufferUsedBytes(int64_t a_bytes);
+
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		const VSFrameRef * a_cpOutputFrameRef,
 		const VSFrameRef * a_cpPreviewFrameRef) = 0;
@@ -99,6 +101,7 @@ protected:
 	QLabel * m_pScriptProcessorStatusPixmapLabel;
 	QLabel * m_pScriptProcessorStatusLabel;
 	QLabel * m_pVideoInfoLabel;
+	QLabel * m_pCoreFramebufferUsedLabel;
 
 	QPixmap m_readyPixmap;
 	QPixmap m_busyPixmap;

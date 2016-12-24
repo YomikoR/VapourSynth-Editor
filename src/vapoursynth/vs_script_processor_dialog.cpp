@@ -12,6 +12,7 @@
 #include <QStatusBar>
 #include <QLabel>
 #include <QLayout>
+#include <QLocale>
 
 //==============================================================================
 
@@ -32,6 +33,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_pScriptProcessorStatusPixmapLabel(nullptr)
 	, m_pScriptProcessorStatusLabel(nullptr)
 	, m_pVideoInfoLabel(nullptr)
+	, m_pCoreFramebufferUsedLabel(nullptr)
 	, m_readyPixmap(":tick.png")
 	, m_busyPixmap(":busy.png")
 	, m_errorPixmap(":cross.png")
@@ -56,6 +58,9 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+	connect(m_pVapourSynthScriptProcessor,
+		SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
+		this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
 			const VSFrameRef *)),
@@ -200,6 +205,21 @@ void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 //		size_t a_inQueue, size_t a_inProcess, size_t a_maxThreads)
 //==============================================================================
 
+void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(int64_t a_bytes)
+{
+	if(!m_pCoreFramebufferUsedLabel)
+		return;
+
+	QString number = QLocale::system().toString(a_bytes);
+
+	m_pCoreFramebufferUsedLabel->setText(
+		trUtf8("Core framebuffer: %1 B").arg(number));
+}
+
+// END OF void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(
+//		int64_t a_bytes)
+//==============================================================================
+
 void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 {
     stopAndCleanUp();
@@ -248,6 +268,9 @@ void VSScriptProcessorDialog::createStatusBar()
 {
 	QLayout * pLayout = layout();
 	assert(pLayout);
+	if(!pLayout)
+		return;
+
 	m_pStatusBar = new QStatusBar(this);
 	pLayout->addWidget(m_pStatusBar);
 
@@ -259,6 +282,9 @@ void VSScriptProcessorDialog::createStatusBar()
 
 	m_pScriptProcessorStatusLabel = new QLabel(m_pStatusBar);
 	m_pStatusBar->addPermanentWidget(m_pScriptProcessorStatusLabel);
+
+	m_pCoreFramebufferUsedLabel = new QLabel(m_pStatusBar);
+	m_pStatusBar->addPermanentWidget(m_pCoreFramebufferUsedLabel);
 
 	slotFrameQueueStateChanged(0, 0, 0);
 }

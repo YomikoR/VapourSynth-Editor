@@ -3,6 +3,7 @@
 #include "../common/helpers.h"
 #include "vs_script_library.h"
 
+#include <QTimer>
 #include <cassert>
 #include <vector>
 #include <cmath>
@@ -48,10 +49,17 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_pVSScript(nullptr)
 	, m_cpVideoInfo(nullptr)
 	, m_cpCoreInfo(nullptr)
+	, m_pCoreFramebufferWatchTimer(nullptr)
 {
 	assert(m_pSettingsManager);
 	assert(m_pVSScriptLibrary);
+
+	m_pCoreFramebufferWatchTimer = new QTimer(this);
+
 	slotResetSettings();
+
+	connect (m_pCoreFramebufferWatchTimer, SIGNAL(timeout()),
+		this, SLOT(slotSendCoreFramebufferUsedBytes()));
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
@@ -129,6 +137,8 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	m_script = a_script;
 	m_scriptName = a_scriptName;
 
+	m_pCoreFramebufferWatchTimer->start(500);
+
 	m_error.clear();
 	m_initialized = true;
 
@@ -152,6 +162,8 @@ bool VapourSynthScriptProcessor::finalize()
 		emit signalWriteLogMessage(mtCritical, m_error);
 		return false;
 	}
+
+	m_pCoreFramebufferWatchTimer->stop();
 
 	for(std::pair<const int, NodePair> & mapItem : m_nodePairForOutputIndex)
 	{
@@ -332,6 +344,25 @@ void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 // END OF void VapourSynthScriptProcessor::slotReceiveFrameAndProcessQueue(
 //		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 //		VSNodeRef * a_pNodeRef, QString a_errorMessage)
+//==============================================================================
+
+void VapourSynthScriptProcessor::slotSendCoreFramebufferUsedBytes()
+{
+//	assert(m_cpCoreInfo);
+//	if(!m_cpCoreInfo)
+//		return;
+
+	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+	if(!pCore)
+		return;
+	const VSCoreInfo * cpCoreInfo = m_cpVSAPI->getCoreInfo(pCore);
+	if(!cpCoreInfo)
+		return;
+
+	emit signalCoreFramebufferUsedBytes(cpCoreInfo->usedFramebufferSize);
+}
+
+// END OF void VapourSynthScriptProcessor::slotSendCoreFramebufferUsedBytes()
 //==============================================================================
 
 void VapourSynthScriptProcessor::slotResetSettings()
