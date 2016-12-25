@@ -210,7 +210,7 @@ void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 	if(!m_pCoreFramebufferUsedLabel)
 		return;
 
-	QString number = QLocale::system().toString(a_bytes);
+	QString number = QLocale::system().toString((qlonglong)a_bytes);
 
 	m_pCoreFramebufferUsedLabel->setText(
 		trUtf8("Core framebuffer: %1 B").arg(number));
