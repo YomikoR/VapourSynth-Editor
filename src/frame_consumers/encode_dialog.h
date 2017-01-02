@@ -12,6 +12,11 @@
 #include <QProcess>
 #include <vector>
 
+#ifdef Q_OS_WIN
+	class QWinTaskbarButton;
+	class QWinTaskbarProgress;
+#endif
+
 class EncodeDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
@@ -119,6 +124,11 @@ protected:
 	EncodingHeaderType m_headerType;
 
 	FrameHeaderWriter * m_pFrameHeaderWriter;
+
+#ifdef Q_OS_WIN
+	QWinTaskbarButton * m_pWinTaskbarButton;
+	QWinTaskbarProgress * m_pWinTaskbarProgress;
+#endif
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

@@ -5,6 +5,11 @@
 
 #include <vapoursynth/VapourSynth.h>
 
+#ifdef Q_OS_WIN
+	#include <QWinTaskbarButton>
+	#include <QWinTaskbarProgress>
+#endif
+
 //==============================================================================
 
 ScriptBenchmarkDialog::ScriptBenchmarkDialog(
@@ -21,6 +26,11 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
 	, m_framesFailed(0)
+
+#ifdef Q_OS_WIN
+	, m_pWinTaskbarButton(nullptr)
+	, m_pWinTaskbarProgress(nullptr)
+#endif
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":benchmark.png"));
@@ -90,6 +100,17 @@ void ScriptBenchmarkDialog::call()
 	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
 	m_ui.processingProgressBar->setValue(0);
 	show();
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarButton)
+	{
+		m_pWinTaskbarButton = new QWinTaskbarButton(this);
+		m_pWinTaskbarButton->setWindow(windowHandle());
+		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
+	}
+
+	m_pWinTaskbarProgress->setVisible(false);
+#endif
 }
 
 // END OF void ScriptBenchmarkDialog::call()
@@ -152,8 +173,16 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
 	setWindowTitle(trUtf8("0% Benchmark: %1").arg(scriptName()));
-	m_processing = true;
 
+#ifdef Q_OS_WIN
+	assert(m_pWinTaskbarProgress);
+	m_pWinTaskbarProgress->setMaximum(m_framesTotal);
+	m_pWinTaskbarProgress->setValue(0);
+	m_pWinTaskbarProgress->resume();
+	m_pWinTaskbarProgress->setVisible(true);
+#endif
+
+	m_processing = true;
 	m_benchmarkStartTime = hr_clock::now();
 
 	for(int i = firstFrame; i <= lastFrame; ++i)
@@ -211,6 +240,14 @@ void ScriptBenchmarkDialog::stopProcessing()
 	m_processing = false;
 	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
+
+#ifdef Q_OS_WIN
+	assert(m_pWinTaskbarProgress);
+	if(m_framesProcessed == m_framesTotal)
+		m_pWinTaskbarProgress->setVisible(false);
+	else
+		m_pWinTaskbarProgress->stop();
+#endif
 }
 
 // END OF void ScriptBenchmarkDialog::stopProcessing()
@@ -242,6 +279,11 @@ void ScriptBenchmarkDialog::updateMetrics()
 		(double)m_framesTotal);
 	setWindowTitle(trUtf8("%1% Benchmark: %2")
 		.arg(percentage).arg(scriptName()));
+
+#ifdef Q_OS_WIN
+	assert(m_pWinTaskbarProgress);
+	m_pWinTaskbarProgress->setValue(m_framesProcessed);
+#endif
 
 	if(m_framesProcessed == m_framesTotal)
 		stopProcessing();

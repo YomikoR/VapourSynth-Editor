@@ -14,6 +14,11 @@
 #include <cassert>
 #include <algorithm>
 
+#ifdef Q_OS_WIN
+	#include <QWinTaskbarButton>
+	#include <QWinTaskbarProgress>
+#endif
+
 //==============================================================================
 
 EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
@@ -36,6 +41,11 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	, m_bytesWritten(0)
 	, m_headerType(EncodingHeaderType::NoHeader)
 	, m_pFrameHeaderWriter(nullptr)
+
+#ifdef Q_OS_WIN
+	, m_pWinTaskbarButton(nullptr)
+	, m_pWinTaskbarProgress(nullptr)
+#endif
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
@@ -136,6 +146,17 @@ void EncodeDialog::call()
 	m_ui.processingProgressBar->setValue(0);
 	m_state = State::Idle;
 	show();
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarButton)
+	{
+		m_pWinTaskbarButton = new QWinTaskbarButton(this);
+		m_pWinTaskbarButton->setWindow(windowHandle());
+		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
+	}
+
+	m_pWinTaskbarProgress->hide();
+#endif
 }
 
 // END OF void EncodeDialog::call()
@@ -511,6 +532,16 @@ void EncodeDialog::slotEncoderStarted()
 		return;
 	}
 
+	setWindowTitle(trUtf8("0% Encode: %1").arg(scriptName()));
+
+#ifdef Q_OS_WIN
+	assert(m_pWinTaskbarProgress);
+	m_pWinTaskbarProgress->setMaximum(m_framesTotal);
+	m_pWinTaskbarProgress->setValue(0);
+	m_pWinTaskbarProgress->resume();
+	m_pWinTaskbarProgress->show();
+#endif
+
 	assert(m_pFrameHeaderWriter);
 	if(m_pFrameHeaderWriter->needVideoHeader())
 	{
@@ -540,8 +571,6 @@ void EncodeDialog::slotEncoderStarted()
 			return;
 		}
 	}
-
-	setWindowTitle(trUtf8("0% Encode: %1").arg(scriptName()));
 
 	m_state = State::WaitingForFrames;
 	m_encodeStartTime = hr_clock::now();
@@ -768,6 +797,10 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 		setWindowTitle(trUtf8("%1% Encode: %2")
 			.arg(percentage).arg(scriptName()));
 
+#ifdef Q_OS_WIN
+		assert(m_pWinTaskbarProgress);
+		m_pWinTaskbarProgress->setValue(m_framesProcessed);
+#endif
 	}
 
 	m_state = State::WaitingForFrames;
@@ -809,6 +842,14 @@ void EncodeDialog::stopProcessing()
 	{
 		m_ui.startStopEncodeButton->setText(trUtf8("Start"));
 		m_state = State::Idle;
+
+#ifdef Q_OS_WIN
+		assert(m_pWinTaskbarProgress);
+		if(m_framesProcessed == m_framesTotal)
+			m_pWinTaskbarProgress->hide();
+		else
+			m_pWinTaskbarProgress->stop();
+#endif
 	}
 	else
 	{
