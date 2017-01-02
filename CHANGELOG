@@ -1,5 +1,6 @@
 r14:
 -Core buffer usage display.
+-Relative paths are resolved from the application directory, not CWD.
 
 r13:
 -yuv4mpeg header for video encoding.
