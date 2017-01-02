@@ -78,6 +78,7 @@ void ScriptBenchmarkDialog::call()
 	assert(m_cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
+	setWindowTitle(trUtf8("Benchmark: %1").arg(scriptName()));
 	QString text = trUtf8("Ready to benchmark script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
@@ -150,6 +151,7 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_framesTotal = lastFrame - firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
+	setWindowTitle(trUtf8("0% Benchmark: %1").arg(scriptName()));
 	m_processing = true;
 
 	m_benchmarkStartTime = hr_clock::now();
@@ -235,6 +237,11 @@ void ScriptBenchmarkDialog::updateMetrics()
 	}
 
 	m_ui.metricsEdit->setText(text);
+
+	int percentage = (int)((double)m_framesProcessed * 100.0 /
+		(double)m_framesTotal);
+	setWindowTitle(trUtf8("%1% Benchmark: %2")
+		.arg(percentage).arg(scriptName()));
 
 	if(m_framesProcessed == m_framesTotal)
 		stopProcessing();

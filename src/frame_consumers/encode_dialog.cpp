@@ -122,6 +122,7 @@ void EncodeDialog::call()
 	assert(m_cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
+	setWindowTitle(trUtf8("Encode: %1").arg(scriptName()));
 	QString text = trUtf8("Ready to encode script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
@@ -176,6 +177,8 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 		stopProcessing();
 		return;
 	}
+
+	setWindowTitle(trUtf8("Encode: %1").arg(scriptName()));
 
 	m_framesProcessed = 0;
 	m_firstFrame = m_ui.fromFrameSpinBox->value();
@@ -538,6 +541,8 @@ void EncodeDialog::slotEncoderStarted()
 		}
 	}
 
+	setWindowTitle(trUtf8("0% Encode: %1").arg(scriptName()));
+
 	m_state = State::WaitingForFrames;
 	m_encodeStartTime = hr_clock::now();
 	processFramesQueue();
@@ -757,6 +762,12 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 		}
 
 		m_ui.metricsEdit->setText(text);
+
+		int percentage = (int)((double)m_framesProcessed * 100.0 /
+			(double)m_framesTotal);
+		setWindowTitle(trUtf8("%1% Encode: %2")
+			.arg(percentage).arg(scriptName()));
+
 	}
 
 	m_state = State::WaitingForFrames;
