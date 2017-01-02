@@ -1,5 +1,8 @@
 #include "helpers.h"
 
+#include <QDir>
+#include <QFileInfo>
+#include <QCoreApplication>
 #include <cmath>
 
 //==============================================================================
@@ -159,6 +162,29 @@ QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
 }
 
 // END OF QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
+//==============================================================================
+
+QString vsedit::resolvePathFromApplication(const QString & a_relativePath)
+{
+	// Remember the working directory and change it to application directory.
+	QString cwd = QDir::currentPath();
+	QString applicationDirPath = QCoreApplication::applicationDirPath();
+	QDir::setCurrent(applicationDirPath);
+
+	QFileInfo fileInfo(a_relativePath);
+	// If no parent directory is specified - leave the path as it is.
+	if(fileInfo.path() == ".")
+		return(a_relativePath);
+	QString absolutePath = fileInfo.absoluteFilePath();
+
+	// Restore the working directory.
+	QDir::setCurrent(cwd);
+
+	return absolutePath;
+}
+
+// END OF QString vsedit::resolvePathFromApplication(
+//		const QString & a_relativePath)
 //==============================================================================
 
 vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)

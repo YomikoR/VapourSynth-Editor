@@ -193,7 +193,8 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	m_framesTotal = m_lastFrame - m_firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 
-	QString executable = m_ui.executablePathEdit->text();
+	QString executable = vsedit::resolvePathFromApplication(
+		m_ui.executablePathEdit->text());
 
 	// Make sure every needed variable is properly set
 	// before decoding arguments.
