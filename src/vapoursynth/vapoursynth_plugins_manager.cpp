@@ -1,5 +1,7 @@
 #include "vapoursynth_plugins_manager.h"
 
+#include "../common/helpers.h"
+
 #include <QDir>
 #include <QLibrary>
 #include <QFileInfoList>
@@ -150,7 +152,8 @@ void VapourSynthPluginsManager::getCorePlugins()
 			m_pSettingsManager->getVapourSynthLibraryPaths();
 		for(const QString & path : librarySearchPaths)
 		{
-			libraryFullPath = path + QString("/") + libraryName;
+			libraryFullPath = vsedit::resolvePathFromApplication(path) +
+				QString("/") + libraryName;
 			vsLibrary.setFileName(libraryFullPath);
 			loaded = vsLibrary.load();
 			if(loaded)
@@ -322,7 +325,8 @@ void VapourSynthPluginsManager::pollPaths(const QStringList & a_pluginsPaths)
 {
 	for(const QString & dirPath : a_pluginsPaths)
 	{
-		QFileInfoList fileInfoList = QDir(dirPath).entryInfoList();
+		QString absolutePath = vsedit::resolvePathFromApplication(dirPath);
+		QFileInfoList fileInfoList = QDir(absolutePath).entryInfoList();
 		for(const QFileInfo & fileInfo : fileInfoList)
 		{
 			QString filePath = fileInfo.absoluteFilePath();

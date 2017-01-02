@@ -1,6 +1,7 @@
 #include "vs_script_library.h"
 
 #include "../settings/settings_manager.h"
+#include "../common/helpers.h"
 
 #include <QSettings>
 #include <QProcessEnvironment>
@@ -256,7 +257,8 @@ bool VSScriptLibrary::initLibrary()
 			m_pSettingsManager->getVapourSynthLibraryPaths();
 		for(const QString & path : librarySearchPaths)
 		{
-			libraryFullPath = path + QString("/") + libraryName;
+			libraryFullPath = vsedit::resolvePathFromApplication(path) +
+				QString("/") + libraryName;
 			m_vsScriptLibrary.setFileName(libraryFullPath);
 			loaded = m_vsScriptLibrary.load();
 			if(loaded)
