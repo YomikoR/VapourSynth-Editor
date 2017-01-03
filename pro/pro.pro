@@ -99,6 +99,8 @@ macx {
 }
 
 win32 {
+	QT += winextras
+
 	INCLUDEPATH += 'C:/Program Files (x86)/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt

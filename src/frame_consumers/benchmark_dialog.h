@@ -6,6 +6,11 @@
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../common/chrono.h"
 
+#ifdef Q_OS_WIN
+	class QWinTaskbarButton;
+	class QWinTaskbarProgress;
+#endif
+
 class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
@@ -57,6 +62,11 @@ protected:
 	int m_framesFailed;
 
 	hr_time_point m_benchmarkStartTime;
+
+#ifdef Q_OS_WIN
+	QWinTaskbarButton * m_pWinTaskbarButton;
+	QWinTaskbarProgress * m_pWinTaskbarProgress;
+#endif
 };
 
 #endif // BENCHMARK_DIALOG_H_INCLUDED

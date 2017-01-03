@@ -1,5 +1,9 @@
 r14:
+-BUGFIX: Encoding logic.
 -Core buffer usage display.
+-Relative paths are resolved from the application directory, not CWD.
+-Benchmark and encoding progress in window title.
+-MS Windows: taskbar button progress for benchmark and encoding.
 
 r13:
 -yuv4mpeg header for video encoding.

@@ -14,6 +14,11 @@
 #include <cassert>
 #include <algorithm>
 
+#ifdef Q_OS_WIN
+	#include <QWinTaskbarButton>
+	#include <QWinTaskbarProgress>
+#endif
+
 //==============================================================================
 
 EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
@@ -36,6 +41,11 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	, m_bytesWritten(0)
 	, m_headerType(EncodingHeaderType::NoHeader)
 	, m_pFrameHeaderWriter(nullptr)
+
+#ifdef Q_OS_WIN
+	, m_pWinTaskbarButton(nullptr)
+	, m_pWinTaskbarProgress(nullptr)
+#endif
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":film_save.png"));
@@ -122,6 +132,7 @@ void EncodeDialog::call()
 	assert(m_cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
+	setWindowTitle(trUtf8("Encode: %1").arg(scriptName()));
 	QString text = trUtf8("Ready to encode script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
@@ -135,6 +146,17 @@ void EncodeDialog::call()
 	m_ui.processingProgressBar->setValue(0);
 	m_state = State::Idle;
 	show();
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarButton)
+	{
+		m_pWinTaskbarButton = new QWinTaskbarButton(this);
+		m_pWinTaskbarButton->setWindow(windowHandle());
+		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
+	}
+
+	m_pWinTaskbarProgress->hide();
+#endif
 }
 
 // END OF void EncodeDialog::call()
@@ -177,6 +199,8 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 		return;
 	}
 
+	setWindowTitle(trUtf8("Encode: %1").arg(scriptName()));
+
 	m_framesProcessed = 0;
 	m_firstFrame = m_ui.fromFrameSpinBox->value();
 	m_lastFrame = m_ui.toFrameSpinBox->value();
@@ -193,7 +217,8 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	m_framesTotal = m_lastFrame - m_firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 
-	QString executable = m_ui.executablePathEdit->text();
+	QString executable = vsedit::resolvePathFromApplication(
+		m_ui.executablePathEdit->text());
 
 	// Make sure every needed variable is properly set
 	// before decoding arguments.
@@ -238,7 +263,7 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 	{
 		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder wouldn't start."),
 			LOG_STYLE_ERROR);
-		m_state = State::Idle;
+		goIdle();
 		return;
 	}
 
@@ -249,7 +274,7 @@ void EncodeDialog::slotStartStopEncodeButtonPressed()
 			"like a CLI encoder. Terminating."), LOG_STYLE_ERROR);
 		m_encoder.kill();
 		m_encoder.waitForFinished(-1);
-		m_state = State::Idle;
+		goIdle();
 		return;
 	}
 
@@ -483,6 +508,7 @@ void EncodeDialog::slotFrameRequestDiscarded(int a_frameNumber,
 	if(!vsedit::contains(validStates, m_state))
 		return;
 
+	m_state = State::Aborting;
 	stopProcessing();
 }
 
@@ -506,6 +532,16 @@ void EncodeDialog::slotEncoderStarted()
 		stopProcessing();
 		return;
 	}
+
+	setWindowTitle(trUtf8("0% Encode: %1").arg(scriptName()));
+
+#ifdef Q_OS_WIN
+	assert(m_pWinTaskbarProgress);
+	m_pWinTaskbarProgress->setMaximum(m_framesTotal);
+	m_pWinTaskbarProgress->setValue(0);
+	m_pWinTaskbarProgress->resume();
+	m_pWinTaskbarProgress->show();
+#endif
 
 	assert(m_pFrameHeaderWriter);
 	if(m_pFrameHeaderWriter->needVideoHeader())
@@ -548,23 +584,22 @@ void EncodeDialog::slotEncoderStarted()
 void EncodeDialog::slotEncoderFinished(int a_exitCode,
 	QProcess::ExitStatus a_exitStatus)
 {
-	if(m_state == State::CheckingEncoderSanity)
-		return;
-
 	State workingStates[] = {State::WaitingForFrames, State::WritingFrame,
 		State::WritingHeader};
 
-	if(m_state == State::Idle)
-	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Encoder has finished working "
-			"while it shouldn't be running at all. Ignoring."),
-			LOG_STYLE_WARNING);
+	if(m_state == State::CheckingEncoderSanity)
 		return;
-	}
+	else if(m_state == State::Idle)
+		return;
 	else if(m_state == State::Finishing)
 	{
 		m_ui.feedbackTextEdit->addEntry(trUtf8("Finished encoding."),
 			LOG_STYLE_POSITIVE);
+	}
+	else if(m_state == State::Aborting)
+	{
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Aborted encoding."),
+			LOG_STYLE_WARNING);
 	}
 	else if(vsedit::contains(workingStates, m_state))
 	{
@@ -576,6 +611,7 @@ void EncodeDialog::slotEncoderFinished(int a_exitCode,
 	}
 
 	stopProcessing();
+	goIdle();
 }
 
 // END OF void EncodeDialog::slotEncoderFinished(int a_exitCode,
@@ -756,6 +792,16 @@ void EncodeDialog::slotEncoderBytesWritten(qint64 a_bytes)
 		}
 
 		m_ui.metricsEdit->setText(text);
+
+		int percentage = (int)((double)m_framesProcessed * 100.0 /
+			(double)m_framesTotal);
+		setWindowTitle(trUtf8("%1% Encode: %2")
+			.arg(percentage).arg(scriptName()));
+
+#ifdef Q_OS_WIN
+		assert(m_pWinTaskbarProgress);
+		m_pWinTaskbarProgress->setValue(m_framesProcessed);
+#endif
 	}
 
 	m_state = State::WaitingForFrames;
@@ -793,19 +839,32 @@ void EncodeDialog::stopProcessing()
 	clearFramesCache();
 	m_framebuffer.clear();
 
-	if(m_encoder.state() != QProcess::Running)
+	if(m_encoder.state() == QProcess::Running)
 	{
-		m_ui.startStopEncodeButton->setText(trUtf8("Start"));
-		m_state = State::Idle;
-	}
-	else
-	{
-		m_state = State::Finishing;
+		if(m_state != State::Aborting)
+			m_state = State::Finishing;
 		m_encoder.closeWriteChannel();
 	}
 }
 
 // END OF void EncodeDialog::stopProcessing()
+//==============================================================================
+
+void EncodeDialog::goIdle()
+{
+	m_ui.startStopEncodeButton->setText(trUtf8("Start"));
+	m_state = State::Idle;
+
+#ifdef Q_OS_WIN
+	assert(m_pWinTaskbarProgress);
+	if(m_framesProcessed == m_framesTotal)
+		m_pWinTaskbarProgress->hide();
+	else
+		m_pWinTaskbarProgress->stop();
+#endif
+}
+
+// END OF void EncodeDialog::goIdle()
 //==============================================================================
 
 void EncodeDialog::processFramesQueue()
