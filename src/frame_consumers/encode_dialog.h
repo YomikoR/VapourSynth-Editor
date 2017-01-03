@@ -86,6 +86,8 @@ protected:
 
 	void stopProcessing();
 
+	void goIdle();
+
 	void processFramesQueue();
 
 	QString decodeArguments(const QString & a_arguments);
