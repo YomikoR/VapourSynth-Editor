@@ -601,6 +601,11 @@ void EncodeDialog::slotEncoderFinished(int a_exitCode,
 		m_ui.feedbackTextEdit->addEntry(trUtf8("Finished encoding."),
 			LOG_STYLE_POSITIVE);
 	}
+	else if(m_state == State::Aborting)
+	{
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Aborted encoding."),
+			LOG_STYLE_WARNING);
+	}
 	else if(vsedit::contains(workingStates, m_state))
 	{
 		QString exitStatusString = (a_exitStatus == QProcess::CrashExit) ?
@@ -853,7 +858,8 @@ void EncodeDialog::stopProcessing()
 	}
 	else
 	{
-		m_state = State::Finishing;
+		if(m_state != State::Aborting)
+			m_state = State::Finishing;
 		m_encoder.closeWriteChannel();
 	}
 }
