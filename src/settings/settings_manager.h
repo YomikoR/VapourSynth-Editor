@@ -248,6 +248,10 @@ public:
 	bool setLogStyles(const QString & a_logName,
 		const std::vector<TextBlockStyle> a_styles);
 
+	QString getLastSnapshotExtension() const;
+
+	bool setLastSnapshotExtension(const QString & a_extension);
+
 private:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,

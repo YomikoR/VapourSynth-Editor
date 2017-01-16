@@ -31,6 +31,7 @@
 #include <QClipboard>
 #include <QTimer>
 #include <QImageWriter>
+#include <QFileInfo>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -477,10 +478,18 @@ void PreviewDialog::slotSaveSnapshot()
 	if((m_frameShown < 0) || m_framePixmap.isNull())
 		return;
 
-	QString defaultExtension("png");
+	std::map<QString, QString> extensionToFilterMap =
+	{
+		{"png", trUtf8("PNG image (*.png)")},
+	};
+
+	QString fileExtension = m_pSettingsManager->getLastSnapshotExtension();
 
 	QList<QByteArray> supportedFormats = QImageWriter::supportedImageFormats();
 	bool webpSupported = (supportedFormats.indexOf("webp") > -1);
+
+	if(webpSupported)
+		extensionToFilterMap["webp"] = trUtf8("WebP image (*.webp)");
 
 	QString snapshotFilePath = scriptName();
 	if(snapshotFilePath.isEmpty())
@@ -491,26 +500,31 @@ void PreviewDialog::slotSaveSnapshot()
 	}
 	else
 		snapshotFilePath += QString(" - %1.").arg(m_frameShown);
-	snapshotFilePath += defaultExtension;
+	snapshotFilePath += fileExtension;
 
 	QStringList saveFormatsList;
-	saveFormatsList << trUtf8("PNG image (*.png)");
-	if(webpSupported)
-		saveFormatsList << trUtf8("WebP image (*.webp)");
-	saveFormatsList << trUtf8("All files (*)");
+	for(const std::pair<QString, QString> & pair : extensionToFilterMap)
+		saveFormatsList << pair.second;
+
+	QString selectedFilter = extensionToFilterMap[fileExtension];
 
 	snapshotFilePath = QFileDialog::getSaveFileName(this,
 		trUtf8("Save frame as image"), snapshotFilePath,
-		saveFormatsList.join(";;"));
+		saveFormatsList.join(";;"), &selectedFilter);
+
+	QFileInfo fileInfo(snapshotFilePath);
+	QString suffix = fileInfo.suffix().toLower();
 
 	QByteArray format("png");
-	if(snapshotFilePath.endsWith(".webp", Qt::CaseInsensitive) && webpSupported)
+	if((suffix == "webp") && webpSupported)
 		format = "webp";
 
 	if(!snapshotFilePath.isEmpty())
 	{
 		bool success = m_framePixmap.save(snapshotFilePath, format, 100);
-		if(!success)
+		if(success)
+			m_pSettingsManager->setLastSnapshotExtension(suffix);
+		else
 		{
 			QMessageBox::critical(this, trUtf8("Image save error"),
 				trUtf8("Error while saving image ") + snapshotFilePath);
