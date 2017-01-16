@@ -3,6 +3,8 @@
 
 #include "vs_script_processor_structures.h"
 
+#include "../script_status_bar_widget/script_status_bar_widget.h"
+
 #include <QDialog>
 #include <QPixmap>
 #include <list>
@@ -98,10 +100,7 @@ protected:
 	bool m_wantToFinalize;
 
 	QStatusBar * m_pStatusBar;
-	QLabel * m_pScriptProcessorStatusPixmapLabel;
-	QLabel * m_pScriptProcessorStatusLabel;
-	QLabel * m_pVideoInfoLabel;
-	QLabel * m_pCoreFramebufferUsedLabel;
+	ScriptStatusBarWidget * m_pStatusBarWidget;
 
 	QPixmap m_readyPixmap;
 	QPixmap m_busyPixmap;

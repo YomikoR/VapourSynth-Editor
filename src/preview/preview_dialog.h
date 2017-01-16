@@ -235,8 +235,6 @@ protected:
 	QIcon m_iconPlay;
 	QIcon m_iconPause;
 
-	QLabel * m_pColorPickerLabel;
-
 	bool m_alwaysKeepCurrentFrame;
 };
 

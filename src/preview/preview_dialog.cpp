@@ -30,6 +30,8 @@
 #include <QByteArray>
 #include <QClipboard>
 #include <QTimer>
+#include <QImageWriter>
+#include <QFileInfo>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -95,7 +97,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_processingPlayQueue(false)
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
-	, m_pColorPickerLabel(nullptr)
 	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
 {
 	m_ui.setupUi(this);
@@ -114,10 +115,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	createActionsAndMenus();
 
 	createStatusBar();
-
-	m_pColorPickerLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pColorPickerLabel);
-	m_pColorPickerLabel->setVisible(
+	m_pStatusBarWidget->setColorPickerVisible(
 		m_pSettingsManager->getColorPickerVisible());
 
 	m_ui.frameNumberSlider->setBigStep(m_bigFrameStep);
@@ -227,10 +225,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	if(m_frameExpected > lastFrameNumber)
 		m_frameExpected = lastFrameNumber;
-
-	QString newVideoInfoString = vsedit::videoInfoString(m_cpVideoInfo);
-	m_pVideoInfoLabel->setText(newVideoInfoString);
-	m_pVideoInfoLabel->setToolTip(newVideoInfoString);
 
 	resetCropSpinBoxes();
 
@@ -484,25 +478,53 @@ void PreviewDialog::slotSaveSnapshot()
 	if((m_frameShown < 0) || m_framePixmap.isNull())
 		return;
 
+	std::map<QString, QString> extensionToFilterMap =
+	{
+		{"png", trUtf8("PNG image (*.png)")},
+	};
+
+	QString fileExtension = m_pSettingsManager->getLastSnapshotExtension();
+
+	QList<QByteArray> supportedFormats = QImageWriter::supportedImageFormats();
+	bool webpSupported = (supportedFormats.indexOf("webp") > -1);
+
+	if(webpSupported)
+		extensionToFilterMap["webp"] = trUtf8("WebP image (*.webp)");
+
 	QString snapshotFilePath = scriptName();
 	if(snapshotFilePath.isEmpty())
 	{
 		snapshotFilePath =
 			QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-		snapshotFilePath += QString("/%1.png").arg(m_frameShown);
+		snapshotFilePath += QString("/%1.").arg(m_frameShown);
 	}
 	else
-		snapshotFilePath += QString(" - %1.png").arg(m_frameShown);
+		snapshotFilePath += QString(" - %1.").arg(m_frameShown);
+	snapshotFilePath += fileExtension;
+
+	QStringList saveFormatsList;
+	for(const std::pair<QString, QString> & pair : extensionToFilterMap)
+		saveFormatsList << pair.second;
+
+	QString selectedFilter = extensionToFilterMap[fileExtension];
 
 	snapshotFilePath = QFileDialog::getSaveFileName(this,
-		trUtf8("Save frame as image"),
-		snapshotFilePath,
-		trUtf8("PNG image (*.png);;All files (*)"));
+		trUtf8("Save frame as image"), snapshotFilePath,
+		saveFormatsList.join(";;"), &selectedFilter);
+
+	QFileInfo fileInfo(snapshotFilePath);
+	QString suffix = fileInfo.suffix().toLower();
+
+	QByteArray format("png");
+	if((suffix == "webp") && webpSupported)
+		format = "webp";
 
 	if(!snapshotFilePath.isEmpty())
 	{
-		bool success = m_framePixmap.save(snapshotFilePath, "PNG");
-		if(!success)
+		bool success = m_framePixmap.save(snapshotFilePath, format, 100);
+		if(success)
+			m_pSettingsManager->setLastSnapshotExtension(suffix);
+		else
 		{
 			QMessageBox::critical(this, trUtf8("Image save error"),
 				trUtf8("Error while saving image ") + snapshotFilePath);
@@ -1020,7 +1042,7 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 
 void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 {
-	if(!m_pColorPickerLabel->isVisible())
+	if(!m_pStatusBarWidget->colorPickerVisible())
 		return;
 
 	double value1 = 0.0;
@@ -1107,7 +1129,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	if(colorFamily == cmGray)
 		colorString = QString("G:%1").arg(value1);
 
-	m_pColorPickerLabel->setText(colorString);
+	m_pStatusBarWidget->setColorPickerString(colorString);
 }
 
 // END OF void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX,
@@ -1138,7 +1160,7 @@ void PreviewDialog::slotAdvancedSettingsChanged()
 
 void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 {
-	m_pColorPickerLabel->setVisible(a_colorPickerVisible);
+	m_pStatusBarWidget->setColorPickerVisible(a_colorPickerVisible);
 	m_pSettingsManager->setColorPickerVisible(a_colorPickerVisible);
 }
 

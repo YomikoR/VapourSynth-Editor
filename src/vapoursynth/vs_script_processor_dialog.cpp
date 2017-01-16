@@ -12,7 +12,6 @@
 #include <QStatusBar>
 #include <QLabel>
 #include <QLayout>
-#include <QLocale>
 
 //==============================================================================
 
@@ -30,10 +29,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_maxThreads(0)
 	, m_wantToFinalize(false)
 	, m_pStatusBar(nullptr)
-	, m_pScriptProcessorStatusPixmapLabel(nullptr)
-	, m_pScriptProcessorStatusLabel(nullptr)
-	, m_pVideoInfoLabel(nullptr)
-	, m_pCoreFramebufferUsedLabel(nullptr)
+	, m_pStatusBarWidget(nullptr)
 	, m_readyPixmap(":tick.png")
 	, m_busyPixmap(":busy.png")
 	, m_errorPixmap(":cross.png")
@@ -51,6 +47,8 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 
 	m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
 		m_pSettingsManager, m_pVSScriptLibrary, this);
+
+	m_pStatusBarWidget = new ScriptStatusBarWidget();
 
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
@@ -114,11 +112,7 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
 	assert(m_cpVideoInfo);
 
-	if(m_pVideoInfoLabel)
-	{
-		QString infoString = vsedit::videoInfoString(m_cpVideoInfo);
-		m_pVideoInfoLabel->setText(infoString);
-	}
+	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo);
 
 	return true;
 }
@@ -177,20 +171,8 @@ void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 	m_framesInProcess = a_inProcess;
 	m_maxThreads = a_maxThreads;
 
-	if(m_pScriptProcessorStatusPixmapLabel)
-	{
-		if((m_framesInProcess + m_framesInQueue) > 0)
-			m_pScriptProcessorStatusPixmapLabel->setPixmap(m_busyPixmap);
-		else
-			m_pScriptProcessorStatusPixmapLabel->setPixmap(m_readyPixmap);
-	}
-
-	if(m_pScriptProcessorStatusLabel)
-	{
-		m_pScriptProcessorStatusLabel->setText(
-			trUtf8("Script processor queue: %1:%2(%3)")
-			.arg(m_framesInQueue).arg(m_framesInProcess).arg(m_maxThreads));
-	}
+	m_pStatusBarWidget->setQueueState(m_framesInQueue, m_framesInProcess,
+		m_maxThreads);
 
 	if(m_wantToFinalize && (m_framesInProcess == 0) && (m_framesInQueue == 0))
 	{
@@ -207,13 +189,7 @@ void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 
 void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 {
-	if(!m_pCoreFramebufferUsedLabel)
-		return;
-
-	QString number = QLocale::system().toString((qlonglong)a_bytes);
-
-	m_pCoreFramebufferUsedLabel->setText(
-		trUtf8("Core framebuffer: %1 B").arg(number));
+	m_pStatusBarWidget->setCoreFramebufferUsedBytes(a_bytes);
 }
 
 // END OF void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(
@@ -274,19 +250,7 @@ void VSScriptProcessorDialog::createStatusBar()
 	m_pStatusBar = new QStatusBar(this);
 	pLayout->addWidget(m_pStatusBar);
 
-	m_pVideoInfoLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pVideoInfoLabel);
-
-	m_pScriptProcessorStatusPixmapLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pScriptProcessorStatusPixmapLabel);
-
-	m_pScriptProcessorStatusLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pScriptProcessorStatusLabel);
-
-	m_pCoreFramebufferUsedLabel = new QLabel(m_pStatusBar);
-	m_pStatusBar->addPermanentWidget(m_pCoreFramebufferUsedLabel);
-
-	slotFrameQueueStateChanged(0, 0, 0);
+	m_pStatusBar->addPermanentWidget(m_pStatusBarWidget, 1);
 }
 
 // END OF void VSScriptProcessorDialog::createStatusBar()

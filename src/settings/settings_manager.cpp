@@ -58,6 +58,7 @@ const char HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY[] =
 	"highlight_selection_matches_min_length";
 const char TIMELINE_PANEL_VISIBLE_KEY[] = "timeline_panel_visible";
 const char ALWAYS_KEEP_CURRENT_FRAME_KEY[] = "always_keep_current_frame";
+const char LAST_SNAPSHOT_EXTENSION_KEY[] = "last_snapshot_extension";
 
 //==============================================================================
 
@@ -1343,6 +1344,19 @@ bool SettingsManager::setLogStyles(const QString & a_logName,
 	settings.sync();
 	bool success = (QSettings::NoError == settings.status());
 	return success;
+}
+
+//==============================================================================
+
+QString SettingsManager::getLastSnapshotExtension() const
+{
+	return value(LAST_SNAPSHOT_EXTENSION_KEY,
+		DEFAULT_LAST_SNAPSHOT_EXTENSION).toString();
+}
+
+bool SettingsManager::setLastSnapshotExtension(const QString & a_extension)
+{
+	return setValue(LAST_SNAPSHOT_EXTENSION_KEY, a_extension);
 }
 
 //==============================================================================
