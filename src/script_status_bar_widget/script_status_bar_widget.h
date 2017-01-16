@@ -1,0 +1,41 @@
+#ifndef SCRIPT_STATUS_BAR_WIDGET_H_INCLUDED
+#define SCRIPT_STATUS_BAR_WIDGET_H_INCLUDED
+
+#include <ui_script_status_bar_widget.h>
+
+#include <vapoursynth/VSScript.h>
+#include <QPixmap>
+
+class ScriptStatusBarWidget: public QWidget
+{
+	Q_OBJECT
+
+public:
+
+	ScriptStatusBarWidget(QWidget * a_pParent = nullptr);
+	virtual ~ScriptStatusBarWidget();
+
+	virtual bool colorPickerVisible() const;
+
+public slots:
+
+	virtual void setColorPickerVisible(bool a_visible = true);
+
+	virtual void setColorPickerString(const QString & a_string);
+
+	virtual void setQueueState(size_t a_inQueue, size_t a_inProcess,
+		size_t a_maxThreads);
+
+	virtual void setCoreFramebufferUsedBytes(int64_t a_bytes);
+
+	virtual void setVideoInfo(const VSVideoInfo * a_cpVideoInfo);
+
+protected:
+
+	Ui::ScriptStatusBarWidget m_ui;
+
+	QPixmap m_readyPixmap;
+	QPixmap m_busyPixmap;
+};
+
+#endif // SCRIPT_STATUS_BAR_WIDGET_H_INCLUDED
