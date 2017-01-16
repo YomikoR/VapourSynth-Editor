@@ -30,6 +30,7 @@
 #include <QByteArray>
 #include <QClipboard>
 #include <QTimer>
+#include <QImageWriter>
 #include <cassert>
 #include <algorithm>
 #include <cmath>
@@ -476,24 +477,39 @@ void PreviewDialog::slotSaveSnapshot()
 	if((m_frameShown < 0) || m_framePixmap.isNull())
 		return;
 
+	QString defaultExtension("png");
+
+	QList<QByteArray> supportedFormats = QImageWriter::supportedImageFormats();
+	bool webpSupported = (supportedFormats.indexOf("webp") > -1);
+
 	QString snapshotFilePath = scriptName();
 	if(snapshotFilePath.isEmpty())
 	{
 		snapshotFilePath =
 			QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-		snapshotFilePath += QString("/%1.png").arg(m_frameShown);
+		snapshotFilePath += QString("/%1.").arg(m_frameShown);
 	}
 	else
-		snapshotFilePath += QString(" - %1.png").arg(m_frameShown);
+		snapshotFilePath += QString(" - %1.").arg(m_frameShown);
+	snapshotFilePath += defaultExtension;
+
+	QStringList saveFormatsList;
+	saveFormatsList << trUtf8("PNG image (*.png)");
+	if(webpSupported)
+		saveFormatsList << trUtf8("WebP image (*.webp)");
+	saveFormatsList << trUtf8("All files (*)");
 
 	snapshotFilePath = QFileDialog::getSaveFileName(this,
-		trUtf8("Save frame as image"),
-		snapshotFilePath,
-		trUtf8("PNG image (*.png);;All files (*)"));
+		trUtf8("Save frame as image"), snapshotFilePath,
+		saveFormatsList.join(";;"));
+
+	QByteArray format("png");
+	if(snapshotFilePath.endsWith(".webp", Qt::CaseInsensitive) && webpSupported)
+		format = "webp";
 
 	if(!snapshotFilePath.isEmpty())
 	{
-		bool success = m_framePixmap.save(snapshotFilePath, "PNG");
+		bool success = m_framePixmap.save(snapshotFilePath, format, 100);
 		if(!success)
 		{
 			QMessageBox::critical(this, trUtf8("Image save error"),

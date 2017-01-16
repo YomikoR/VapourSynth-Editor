@@ -5,6 +5,7 @@ r14:
 -Benchmark and encoding progress in window title.
 -MS Windows: taskbar button progress for benchmark and encoding.
 -Script dialogs status bar reorganized.
+-WebP snapshots support.
 
 r13:
 -yuv4mpeg header for video encoding.
