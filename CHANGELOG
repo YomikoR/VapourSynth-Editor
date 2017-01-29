@@ -1,5 +1,6 @@
 r15:
 -BUGFIX: crash on colour picking while refreshing preview.
+-BUGFIX: random junk instead of black frame on preview refresh.
 
 r14:
 -BUGFIX: Encoding logic.

@@ -268,7 +268,9 @@ void PreviewDialog::stopAndCleanUp()
 	const QPixmap * pPreviewPixmap = m_ui.previewArea->pixmap();
 	int pixmapWidth = pPreviewPixmap->width();
 	int pixmapHeight = pPreviewPixmap->height();
-	m_ui.previewArea->setPixmap(QPixmap(pixmapWidth, pixmapHeight));
+	QPixmap blackPixmap(pixmapWidth, pixmapHeight);
+	blackPixmap.fill(Qt::black);
+	m_ui.previewArea->setPixmap(blackPixmap);
 
 	if(m_cpFrameRef)
 	{
