@@ -32,8 +32,12 @@ bool FrameHeaderWriterY4M::isCompatible()
 	if(!vsedit::contains(compatibleColorFamily, cpFormat->colorFamily))
 		return false;
 
-	if(cpFormat->sampleType != stInteger)
-		return false;
+	if(cpFormat->sampleType == stFloat)
+	{
+		int acceptableBitDepths[] = {16, 32, 64};
+		if(!vsedit::contains(acceptableBitDepths, cpFormat->bitsPerSample))
+			return false;
+	}
 
 	std::pair<int, int> compatibleSubsampling[] =
 		{{0, 0}, {0, 1}, {1, 0}, {1, 1}, {2, 0}, {2, 2}};
@@ -88,8 +92,23 @@ QByteArray FrameHeaderWriterY4M::videoHeader(int a_totalFrames)
 			cpFormat->subSamplingH);
 		header += subsamplingStringMap[subsampling];
 
-		if(cpFormat->bitsPerSample > 8)
+		if((cpFormat->bitsPerSample > 8) && (cpFormat->sampleType == stInteger))
 			header += "p" + std::to_string(cpFormat->bitsPerSample);
+		else if(cpFormat->sampleType == stFloat)
+		{
+			header += "p";
+			if(cpFormat->bitsPerSample == 16)
+				header += "h";
+			else if(cpFormat->bitsPerSample == 32)
+				header += "s";
+			else if(cpFormat->bitsPerSample == 64)
+				header += "d";
+			else
+			{
+				assert(false);
+				header += "u";
+			}
+		}
 	}
 	else
 	{
@@ -108,7 +127,7 @@ QByteArray FrameHeaderWriterY4M::videoHeader(int a_totalFrames)
         + " XLENGTH=" + std::to_string(totalFrames)
         + "\n";
 
-	QByteArray headerData = QByteArray::fromStdString(header);
+	QByteArray headerData(header.c_str());
 	return headerData;
 }
 
@@ -127,7 +146,7 @@ QByteArray FrameHeaderWriterY4M::framePrefix(const VSFrameRef * a_cpFrameRef)
 {
 	(void)a_cpFrameRef;
 	std::string prefix = "FRAME\n";
-	QByteArray prefixData = QByteArray::fromStdString(prefix);
+	QByteArray prefixData(prefix.c_str());
 	return prefixData;
 }
 

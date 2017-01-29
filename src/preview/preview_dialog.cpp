@@ -268,7 +268,9 @@ void PreviewDialog::stopAndCleanUp()
 	const QPixmap * pPreviewPixmap = m_ui.previewArea->pixmap();
 	int pixmapWidth = pPreviewPixmap->width();
 	int pixmapHeight = pPreviewPixmap->height();
-	m_ui.previewArea->setPixmap(QPixmap(pixmapWidth, pixmapHeight));
+	QPixmap blackPixmap(pixmapWidth, pixmapHeight);
+	blackPixmap.fill(Qt::black);
+	m_ui.previewArea->setPixmap(blackPixmap);
 
 	if(m_cpFrameRef)
 	{
@@ -1042,6 +1044,9 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 
 void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 {
+	if(!m_cpFrameRef)
+		return;
+
 	if(!m_pStatusBarWidget->colorPickerVisible())
 		return;
 
@@ -1884,8 +1889,10 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 
 double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
 {
-	assert(m_cpFrameRef);
 	assert(m_cpVSAPI);
+
+	if(!m_cpFrameRef)
+		return 0.0;
 
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
 
