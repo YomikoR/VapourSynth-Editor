@@ -21,7 +21,7 @@ QString vsedit::timeToString(double a_seconds, bool a_fullFormat)
 	integer /= 60ll;
 	int minutes = integer % 60ll;
 	integer /= 60ll;
-	int hours = integer % 60ll;
+	int hours = integer;
 
 	QString timeString;
 
