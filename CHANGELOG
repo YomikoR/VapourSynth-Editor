@@ -3,6 +3,7 @@ r15:
 -BUGFIX: random junk instead of black frame on preview refresh.
 -BUGFIX: wrong hours displayed in estimated finish time for benchmark and encoding.
 -Buildable with Qt version lower than 5.4.
+-Float formats support in yuv4mpeg video header for encoding.
 
 r14:
 -BUGFIX: Encoding logic.
