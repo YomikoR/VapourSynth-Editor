@@ -1,3 +1,6 @@
+r15:
+-BUGFIX: crash on colour picking while refreshing preview.
+
 r14:
 -BUGFIX: Encoding logic.
 -Core buffer usage display.
