@@ -108,7 +108,7 @@ QByteArray FrameHeaderWriterY4M::videoHeader(int a_totalFrames)
         + " XLENGTH=" + std::to_string(totalFrames)
         + "\n";
 
-	QByteArray headerData = QByteArray::fromStdString(header);
+	QByteArray headerData(header.c_str());
 	return headerData;
 }
 
@@ -127,7 +127,7 @@ QByteArray FrameHeaderWriterY4M::framePrefix(const VSFrameRef * a_cpFrameRef)
 {
 	(void)a_cpFrameRef;
 	std::string prefix = "FRAME\n";
-	QByteArray prefixData = QByteArray::fromStdString(prefix);
+	QByteArray prefixData(prefix.c_str());
 	return prefixData;
 }
 
