@@ -8,12 +8,12 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<MakeCommands>
-			<Build command="$make -f $makefile $target" />
+			<Build command="$make -f $makefile -j9 $target" />
 			<CompileFile command="$make -f $makefile $file" />
 			<Clean command="$make -f $makefile clean" />
 			<DistClean command="$make -f $makefile distclean$target" />
 			<AskRebuildNeeded command="$make -q -f $makefile $target" />
-			<SilentBuild command="$make -f $makefile $target &gt; $(CMD_NULL)" />
+			<SilentBuild command="$make -f $makefile -j9 $target &gt; $(CMD_NULL)" />
 		</MakeCommands>
 		<Build>
 			<Target title="debug-64bit-gcc">
@@ -32,12 +32,12 @@
 					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=debug" />
 				</ExtraCommands>
 				<MakeCommands>
-					<Build command="$make -f $makefile debug" />
+					<Build command="$make -f $makefile -j9 debug" />
 					<CompileFile command="$make -f $makefile $file" />
 					<Clean command="$make -f $makefile clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
 					<AskRebuildNeeded command="$make -q -f $makefile debug" />
-					<SilentBuild command="$make -f $makefile debug &gt; $(CMD_NULL)" />
+					<SilentBuild command="$make -f $makefile -j9 debug &gt; $(CMD_NULL)" />
 				</MakeCommands>
 			</Target>
 			<Target title="release-64bit-gcc">
@@ -59,12 +59,12 @@
 					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=release" />
 				</ExtraCommands>
 				<MakeCommands>
-					<Build command="$make -f $makefile release" />
+					<Build command="$make -f $makefile -j9 release" />
 					<CompileFile command="$make -f $makefile $file" />
 					<Clean command="$make -f $makefile clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
 					<AskRebuildNeeded command="$make -q -f $makefile release" />
-					<SilentBuild command="$make -f $makefile release &gt; $(CMD_NULL)" />
+					<SilentBuild command="$make -f $makefile -j9 release &gt; $(CMD_NULL)" />
 				</MakeCommands>
 			</Target>
 			<Target title="debug-32bit-gcc">
@@ -83,12 +83,12 @@
 					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=debug" />
 				</ExtraCommands>
 				<MakeCommands>
-					<Build command="$make -f $makefile debug" />
+					<Build command="$make -f $makefile -j9 debug" />
 					<CompileFile command="$make -f $makefile $file" />
 					<Clean command="$make -f $makefile clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
 					<AskRebuildNeeded command="$make -q -f $makefile debug" />
-					<SilentBuild command="$make -f $makefile debug &gt; $(CMD_NULL)" />
+					<SilentBuild command="$make -f $makefile -j9 debug &gt; $(CMD_NULL)" />
 				</MakeCommands>
 			</Target>
 			<Target title="release-32bit-gcc">
@@ -110,12 +110,12 @@
 					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=release" />
 				</ExtraCommands>
 				<MakeCommands>
-					<Build command="$make -f $makefile release" />
+					<Build command="$make -f $makefile -j9 release" />
 					<CompileFile command="$make -f $makefile $file" />
 					<Clean command="$make -f $makefile clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
 					<AskRebuildNeeded command="$make -q -f $makefile release" />
-					<SilentBuild command="$make -f $makefile release &gt; $(CMD_NULL)" />
+					<SilentBuild command="$make -f $makefile -j9 release &gt; $(CMD_NULL)" />
 				</MakeCommands>
 			</Target>
 			<Target title="debug-64bit-msvc">
@@ -231,6 +231,8 @@
 		<Unit filename="TODO.txt" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
 		<Unit filename="generated/ui/ui_encode_dialog.h" />
+		<Unit filename="generated/ui/ui_job_edit_dialog.h" />
+		<Unit filename="generated/ui/ui_jobs_dialog.h" />
 		<Unit filename="generated/ui/ui_main_window.h" />
 		<Unit filename="generated/ui/ui_preview_advanced_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_preview_dialog.h" />
@@ -257,6 +259,10 @@
 		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_null.h" />
 		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_y4m.cpp" />
 		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_y4m.h" />
+		<Unit filename="src/jobs/job.cpp" />
+		<Unit filename="src/jobs/job.h" />
+		<Unit filename="src/jobs/job_edit_dialog.ui" />
+		<Unit filename="src/jobs/jobs_dialog.ui" />
 		<Unit filename="src/log/log_styles_model.cpp" />
 		<Unit filename="src/log/log_styles_model.h" />
 		<Unit filename="src/log/styled_log_view.cpp" />
@@ -347,13 +353,13 @@
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
+				<remote_debugging target="release-64bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-32bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
-				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

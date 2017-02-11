@@ -70,6 +70,24 @@ enum class EncodingHeaderType
 	Y4M,
 };
 
+enum class JobType
+{
+	EncodeScriptCLI,
+	RunProcess,
+	RunShellCommand,
+};
+
+enum class JobState
+{
+	Waiting,
+	Running,
+	Paused,
+	Aborted,
+	Failed,
+	DependencyNotMet,
+	Completed,
+};
+
 struct EncodingPreset
 {
 	QString name;

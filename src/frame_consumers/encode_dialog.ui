@@ -226,6 +226,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="addToJobListButton">
+       <property name="text">
+        <string>Add to job list</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="startStopEncodeButton">
        <property name="text">
         <string>Start</string>

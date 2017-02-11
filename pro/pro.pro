@@ -169,6 +169,8 @@ FORMS += ../src/preview/preview_dialog.ui
 FORMS += ../src/frame_consumers/benchmark_dialog.ui
 FORMS += ../src/frame_consumers/encode_dialog.ui
 FORMS += ../src/script_templates/templates_dialog.ui
+FORMS += ../src/jobs/job_edit_dialog.ui
+FORMS += ../src/jobs/jobs_dialog.ui
 FORMS += ../src/main_window.ui
 
 HEADERS += ../src/common/helpers.h
@@ -210,6 +212,7 @@ HEADERS += ../src/frame_consumers/frame_header_writers/frame_header_writer_y4m.h
 HEADERS += ../src/frame_consumers/encode_dialog.h
 HEADERS += ../src/script_templates/drop_file_category_model.h
 HEADERS += ../src/script_templates/templates_dialog.h
+HEADERS += ../src/jobs/job.h
 HEADERS += ../src/main_window.h
 
 SOURCES += ../src/common/helpers.cpp
@@ -249,6 +252,7 @@ SOURCES += ../src/frame_consumers/frame_header_writers/frame_header_writer_y4m.c
 SOURCES += ../src/frame_consumers/encode_dialog.cpp
 SOURCES += ../src/script_templates/drop_file_category_model.cpp
 SOURCES += ../src/script_templates/templates_dialog.cpp
+SOURCES += ../src/jobs/job.cpp
 SOURCES += ../src/main_window.cpp
 SOURCES += ../src/main.cpp
 
