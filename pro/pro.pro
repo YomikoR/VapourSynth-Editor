@@ -213,6 +213,8 @@ HEADERS += ../src/frame_consumers/encode_dialog.h
 HEADERS += ../src/script_templates/drop_file_category_model.h
 HEADERS += ../src/script_templates/templates_dialog.h
 HEADERS += ../src/jobs/job.h
+HEADERS += ../src/jobs/job_edit_dialog.h
+HEADERS += ../src/jobs/jobs_dialog.h
 HEADERS += ../src/main_window.h
 
 SOURCES += ../src/common/helpers.cpp
@@ -253,6 +255,8 @@ SOURCES += ../src/frame_consumers/encode_dialog.cpp
 SOURCES += ../src/script_templates/drop_file_category_model.cpp
 SOURCES += ../src/script_templates/templates_dialog.cpp
 SOURCES += ../src/jobs/job.cpp
+SOURCES += ../src/jobs/job_edit_dialog.cpp
+SOURCES += ../src/jobs/jobs_dialog.cpp
 SOURCES += ../src/main_window.cpp
 SOURCES += ../src/main.cpp
 

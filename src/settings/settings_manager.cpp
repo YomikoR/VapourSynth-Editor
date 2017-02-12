@@ -260,6 +260,8 @@ void SettingsManager::initializeStandardActions()
 			QKeySequence(Qt::Key_F7)},
 		{ACTION_ID_CLI_ENCODE, trUtf8("Encode video"),
 			QIcon(":film_save.png"), QKeySequence(Qt::Key_F8)},
+		{ACTION_ID_JOBS, trUtf8("Jobs"),
+			QIcon(":jobs.png"), QKeySequence(Qt::Key_F9)},
 		{ACTION_ID_ABOUT, trUtf8("About..."), QIcon(), QKeySequence()},
 		{ACTION_ID_AUTOCOMPLETE, trUtf8("Autocomplete"), QIcon(),
 			QKeySequence(Qt::CTRL + Qt::Key_Space)},

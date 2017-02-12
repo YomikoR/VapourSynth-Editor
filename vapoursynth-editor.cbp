@@ -261,7 +261,11 @@
 		<Unit filename="src/frame_consumers/frame_header_writers/frame_header_writer_y4m.h" />
 		<Unit filename="src/jobs/job.cpp" />
 		<Unit filename="src/jobs/job.h" />
+		<Unit filename="src/jobs/job_edit_dialog.cpp" />
+		<Unit filename="src/jobs/job_edit_dialog.h" />
 		<Unit filename="src/jobs/job_edit_dialog.ui" />
+		<Unit filename="src/jobs/jobs_dialog.cpp" />
+		<Unit filename="src/jobs/jobs_dialog.h" />
 		<Unit filename="src/jobs/jobs_dialog.ui" />
 		<Unit filename="src/log/log_styles_model.cpp" />
 		<Unit filename="src/log/log_styles_model.h" />

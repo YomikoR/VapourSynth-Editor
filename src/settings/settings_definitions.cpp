@@ -60,6 +60,7 @@ const char ACTION_ID_PREVIEW[] = "preview";
 const char ACTION_ID_CHECK_SCRIPT[] = "check_script";
 const char ACTION_ID_BENCHMARK[] = "benchmark";
 const char ACTION_ID_CLI_ENCODE[] = "cli_encode";
+const char ACTION_ID_JOBS[] = "jobs";
 const char ACTION_ID_EXIT[] = "exit";
 const char ACTION_ID_ABOUT[] = "about";
 const char ACTION_ID_AUTOCOMPLETE[] = "autocomplete";
