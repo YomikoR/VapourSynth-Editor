@@ -12,6 +12,7 @@ class PreviewDialog;
 class SettingsDialog;
 class ScriptBenchmarkDialog;
 class EncodeDialog;
+class JobsDialog;
 class TemplatesDialog;
 
 class MainWindow : public QMainWindow
@@ -46,22 +47,17 @@ protected:
 private slots:
 
 	void slotNewScript();
-
 	bool slotSaveScript();
-
 	bool slotSaveScriptAs();
-
 	bool slotOpenScript();
 
 	void slotTemplates();
 
 	void slotPreview();
-
 	void slotCheckScript();
-
 	void slotBenchmark();
-
 	void slotEncode();
+	void slotJobs();
 
 	void slotAbout();
 
@@ -111,6 +107,7 @@ private:
 	QAction * m_pActionCheckScript;
 	QAction * m_pActionBenchmark;
 	QAction * m_pActionEncode;
+	QAction * m_pActionJobs;
 	QAction * m_pActionExit;
 	QAction * m_pActionAbout;
 
@@ -122,6 +119,7 @@ private:
 	SettingsDialog * m_pSettingsDialog;
 	ScriptBenchmarkDialog * m_pBenchmarkDialog;
 	EncodeDialog * m_pEncodeDialog;
+	JobsDialog * m_pJobsDialog;
 	TemplatesDialog * m_pTemplatesDialog;
 
 	QString m_scriptFilePath;

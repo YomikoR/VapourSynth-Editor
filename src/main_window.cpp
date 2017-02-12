@@ -8,6 +8,7 @@
 #include "settings/settings_dialog.h"
 #include "frame_consumers/benchmark_dialog.h"
 #include "frame_consumers/encode_dialog.h"
+#include "jobs/jobs_dialog.h"
 #include "script_templates/templates_dialog.h"
 #include "common/helpers.h"
 
@@ -50,6 +51,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionCheckScript(nullptr)
 	, m_pActionBenchmark(nullptr)
 	, m_pActionEncode(nullptr)
+	, m_pActionJobs(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
 	, m_settableActionsList()
@@ -127,6 +129,8 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
+	m_pJobsDialog = new JobsDialog(m_pSettingsManager);
+
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);
 
@@ -141,6 +145,7 @@ MainWindow::MainWindow() : QMainWindow()
 		(QObject **)&m_pSettingsDialog,
 		(QObject **)&m_pBenchmarkDialog,
 		(QObject **)&m_pEncodeDialog,
+		(QObject **)&m_pJobsDialog,
 		(QObject **)&m_pTemplatesDialog
 	};
 
@@ -457,6 +462,14 @@ void MainWindow::slotEncode()
 // END OF void MainWindow::slotEncode()
 //==============================================================================
 
+void MainWindow::slotJobs()
+{
+	m_pJobsDialog->show();
+}
+
+// END OF void MainWindow::slotJobs()
+//==============================================================================
+
 void MainWindow::slotAbout()
 {
 	QResource aboutResource(":readme");
@@ -577,6 +590,8 @@ void MainWindow::createActionsAndMenus()
 			this, SLOT(slotCheckScript())},
 		{&m_pActionBenchmark, ACTION_ID_BENCHMARK,
 			this, SLOT(slotBenchmark())},
+		{&m_pActionJobs, ACTION_ID_JOBS,
+			this, SLOT(slotJobs())},
 		{&m_pActionEncode, ACTION_ID_CLI_ENCODE,
 			this, SLOT(slotEncode())},
 		{&m_pActionAbout, ACTION_ID_ABOUT,
@@ -628,6 +643,7 @@ void MainWindow::createActionsAndMenus()
 	pScriptMenu->addAction(m_pActionCheckScript);
 	pScriptMenu->addAction(m_pActionBenchmark);
 	pScriptMenu->addAction(m_pActionEncode);
+	pScriptMenu->addAction(m_pActionJobs);
 
 //------------------------------------------------------------------------------
 
