@@ -267,6 +267,8 @@
 		<Unit filename="src/jobs/jobs_dialog.cpp" />
 		<Unit filename="src/jobs/jobs_dialog.h" />
 		<Unit filename="src/jobs/jobs_dialog.ui" />
+		<Unit filename="src/jobs/jobs_model.cpp" />
+		<Unit filename="src/jobs/jobs_model.h" />
 		<Unit filename="src/log/log_styles_model.cpp" />
 		<Unit filename="src/log/log_styles_model.h" />
 		<Unit filename="src/log/styled_log_view.cpp" />
