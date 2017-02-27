@@ -22,6 +22,8 @@ class Job : public QObject
 public:
 
 	Job(QObject * a_pParent = nullptr);
+	Job(const Job & a_other);
+	Job & operator=(const Job & a_other);
 	virtual ~Job();
 
 	enum class EncodingState

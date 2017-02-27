@@ -10,6 +10,27 @@ vsedit::Job::Job(QObject * a_pParent) :
 // END OF
 //==============================================================================
 
+vsedit::Job::Job(const Job & a_other) :
+	  QObject(a_other.parent())
+{
+}
+
+// END OF
+//==============================================================================
+
+vsedit::Job & vsedit::Job::operator=(const vsedit::Job & a_other)
+{
+	if(&a_other == this)
+		return *this;
+
+	setParent(a_other.parent());
+
+	return *this;
+}
+
+// END OF
+//==============================================================================
+
 vsedit::Job::~Job()
 {
 }

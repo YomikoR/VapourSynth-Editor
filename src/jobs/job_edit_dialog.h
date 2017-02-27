@@ -3,6 +3,8 @@
 
 #include <ui_job_edit_dialog.h>
 
+#include "job.h"
+
 class SettingsManager;
 
 class JobEditDialog : public QDialog
@@ -16,7 +18,13 @@ public:
 
 	virtual ~JobEditDialog();
 
+	vsedit::Job job() const;
+
 public slots:
+
+	int call(const vsedit::Job * a_cpJob = nullptr);
+
+private slots:
 
 private:
 
@@ -24,9 +32,7 @@ private:
 
 	SettingsManager * m_pSettingsManager;
 
-private slots:
-
-
+	vsedit::Job m_job;
 };
 
 #endif // JOB_EDIT_DIALOG_H_INCLUDED

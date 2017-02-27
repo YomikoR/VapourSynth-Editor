@@ -4,6 +4,8 @@
 #include <ui_jobs_dialog.h>
 
 class SettingsManager;
+class JobsModel;
+class JobEditDialog;
 
 class JobsDialog : public QDialog
 {
@@ -18,15 +20,28 @@ public:
 
 public slots:
 
+private slots:
+
+	void slotJobNewButtonClicked();
+	void slotJobEditButtonClicked();
+	void slotJobMoveUpButtonClicked();
+	void slotJobMoveDownButtonClicked();
+	void slotJobDeleteButtonClicked();
+	void slotJobResetStateButtonClicked();
+	void slotStartButtonClicked();
+	void slotPauseButtonClicked();
+	void slotResumeButtonClicked();
+	void slotAbortButtonClicked();
+
 private:
 
 	Ui::JobsDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;
 
-private slots:
+	JobsModel * m_pJobsModel;
 
-
+	JobEditDialog * m_pJobEditDialog;
 };
 
 #endif // JOBS_DIALOG_H_INCLUDED
