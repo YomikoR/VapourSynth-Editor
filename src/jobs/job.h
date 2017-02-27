@@ -41,17 +41,23 @@ public:
 	virtual void pause();
 	virtual void abort();
 
-	virtual QUuid id();
+	virtual QUuid id() const;
 	virtual bool setId(const QUuid & a_id);
 
-	virtual JobType type();
+	virtual JobType type() const;
 	virtual bool setType(JobType a_type);
 
-	virtual JobState state();
+	virtual JobState state() const;
 	virtual bool setState(JobState a_state);
 
-	virtual std::vector<QUuid> dependsOnJobIds();
+	virtual std::vector<QUuid> dependsOnJobIds() const;
 	virtual bool setDependsOnJobIds(const std::vector<QUuid> & a_ids);
+
+	virtual QString subject() const;
+
+	static QString typeName(JobType a_type);
+
+	static QString stateName(JobState a_state);
 
 signals:
 

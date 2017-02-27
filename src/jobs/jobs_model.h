@@ -39,6 +39,8 @@ public:
 
 private:
 
+	ptrdiff_t indexOfJob(const QUuid & a_uuid) const;
+
 	std::vector<vsedit::Job> m_jobs;
 
 	SettingsManager * m_pSettingsManager;
