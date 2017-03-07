@@ -2,15 +2,20 @@
 #define JOB_H_INCLUDED
 
 #include "../settings/settings_definitions.h"
-#include "../frame_consumers/frame_header_writers/frame_header_writer.h"
 #include "../common/chrono.h"
 #include "../common/helpers.h"
+#include "../vapoursynth/vs_script_processor_structures.h"
 
 #include <QObject>
 #include <QUuid>
 #include <QDateTime>
 #include <QProcess>
 #include <vector>
+
+class SettingsManager;
+class VSScriptLibrary;
+class VapourSynthScriptProcessor;
+class FrameHeaderWriter;
 
 namespace vsedit
 {
@@ -21,7 +26,8 @@ class Job : public QObject
 
 public:
 
-	Job(QObject * a_pParent = nullptr);
+	Job(SettingsManager * a_pSettingsManager,
+		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent = nullptr);
 	Job(const Job & a_other);
 	Job & operator=(const Job & a_other);
 	virtual ~Job();
@@ -67,6 +73,10 @@ signals:
 
 protected:
 
+	int framesTotal();
+
+	void fillVariables();
+
 	QUuid m_id;
 
 	JobType m_type;
@@ -87,7 +97,6 @@ protected:
 
 	int m_firstFrame;
 	int m_lastFrame;
-	int m_framesTotal;
 	int m_framesProcessed;
 
 	hr_time_point m_encodeStartTime;
@@ -106,7 +115,20 @@ protected:
 	size_t m_bytesToWrite;
 	size_t m_bytesWritten;
 
+	SettingsManager * m_pSettingsManager;
+
+	VSScriptLibrary * m_pVSScriptLibrary;
+
+	VapourSynthScriptProcessor * m_pVapourSynthScriptProcessor;
+
+	const VSAPI * m_cpVSAPI;
+
+	const VSVideoInfo * m_cpVideoInfo;
+
 	FrameHeaderWriter * m_pFrameHeaderWriter;
+
+	std::list<Frame> m_framesCache;
+	size_t m_cachedFramesLimit;
 };
 
 }
