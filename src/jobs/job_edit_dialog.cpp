@@ -14,6 +14,7 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 		| Qt::WindowMaximizeButtonHint
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
+	, m_pJob(nullptr)
 {
 	m_ui.setupUi(this);
 
@@ -34,22 +35,12 @@ JobEditDialog::~JobEditDialog()
 // END OF
 //==============================================================================
 
-vsedit::Job JobEditDialog::job() const
+int JobEditDialog::call(vsedit::Job * a_pJob)
 {
-	return m_job;
-}
+	if(!a_pJob)
+		return QDialog::Rejected;
 
-// END OF
-//==============================================================================
-
-
-int JobEditDialog::call(const vsedit::Job * a_cpJob)
-{
-	if(a_cpJob)
-		m_job = *a_cpJob;
-	else
-		m_job = vsedit::Job();
-
+	m_pJob = a_pJob;
 	return exec();
 }
 

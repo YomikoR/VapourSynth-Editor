@@ -7,7 +7,7 @@
 //==============================================================================
 
 JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
-	QWidget * a_pParent) :
+	JobsModel * a_pJobsModel, QWidget * a_pParent) :
 	  QDialog(a_pParent, (Qt::WindowFlags)0
 		| Qt::Dialog
 		| Qt::CustomizeWindowHint
@@ -16,12 +16,13 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		| Qt::WindowMaximizeButtonHint
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
-	, m_pJobsModel(nullptr)
+	, m_pJobsModel(a_pJobsModel)
 	, m_pJobEditDialog(nullptr)
 {
 	m_ui.setupUi(this);
 
-	m_pJobsModel = new JobsModel(m_pSettingsManager, this);
+	m_ui.jobsTableView->setModel(m_pJobsModel);
+
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
 
 	connect(m_ui.jobNewButton, SIGNAL(clicked()),
@@ -58,7 +59,13 @@ JobsDialog::~JobsDialog()
 
 void JobsDialog::slotJobNewButtonClicked()
 {
-	int result = m_pJobEditDialog->call();
+	vsedit::Job * pJob = m_pJobsModel->createJob();
+	int result = m_pJobEditDialog->call(pJob);
+    if(result == QDialog::Rejected)
+	{
+		m_pJobsModel->deleteJob(pJob);
+		return;
+	}
 }
 
 // END OF

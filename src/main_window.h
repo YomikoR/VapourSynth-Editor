@@ -10,6 +10,7 @@ class VapourSynthPluginsManager;
 class VSScriptLibrary;
 class PreviewDialog;
 class SettingsDialog;
+class JobsModel;
 class ScriptBenchmarkDialog;
 class EncodeDialog;
 class JobsDialog;
@@ -96,6 +97,7 @@ private:
 	SettingsManager * m_pSettingsManager;
 	VapourSynthPluginsManager * m_pVapourSynthPluginsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
+	JobsModel * m_pJobsModel;
 
 	QAction * m_pActionNewScript;
 	QAction * m_pActionOpenScript;

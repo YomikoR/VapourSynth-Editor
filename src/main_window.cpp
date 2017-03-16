@@ -4,6 +4,7 @@
 #include "vapoursynth/vs_script_library.h"
 #include "vapoursynth/vapoursynth_script_processor.h"
 #include "vapoursynth/vapoursynth_plugins_manager.h"
+#include "jobs/jobs_model.h"
 #include "preview/preview_dialog.h"
 #include "settings/settings_dialog.h"
 #include "frame_consumers/benchmark_dialog.h"
@@ -41,6 +42,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsManager(nullptr)
 	, m_pVapourSynthPluginsManager(nullptr)
 	, m_pVSScriptLibrary(nullptr)
+	, m_pJobsModel(nullptr)
 	, m_pActionNewScript(nullptr)
 	, m_pActionOpenScript(nullptr)
 	, m_pActionSaveScript(nullptr)
@@ -86,6 +88,8 @@ MainWindow::MainWindow() : QMainWindow()
 		new VapourSynthPluginsManager(m_pSettingsManager, this);
 	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
 
+	m_pJobsModel = new JobsModel(m_pSettingsManager, m_pVSScriptLibrary, this);
+
 	m_ui.scriptEdit->setPluginsList(vsPluginsList);
 	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
 
@@ -129,7 +133,7 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
-	m_pJobsDialog = new JobsDialog(m_pSettingsManager);
+	m_pJobsDialog = new JobsDialog(m_pSettingsManager, m_pJobsModel);
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);

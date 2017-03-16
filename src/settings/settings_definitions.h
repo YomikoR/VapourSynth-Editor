@@ -82,6 +82,7 @@ enum class JobState
 	Waiting,
 	Running,
 	Paused,
+	Aborting,
 	Aborted,
 	Failed,
 	DependencyNotMet,

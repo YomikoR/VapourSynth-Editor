@@ -18,11 +18,9 @@ public:
 
 	virtual ~JobEditDialog();
 
-	vsedit::Job job() const;
-
 public slots:
 
-	int call(const vsedit::Job * a_cpJob = nullptr);
+	int call(vsedit::Job * a_pJob = nullptr);
 
 private slots:
 
@@ -32,7 +30,7 @@ private:
 
 	SettingsManager * m_pSettingsManager;
 
-	vsedit::Job m_job;
+	vsedit::Job * m_pJob;
 };
 
 #endif // JOB_EDIT_DIALOG_H_INCLUDED

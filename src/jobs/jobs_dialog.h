@@ -13,7 +13,7 @@ class JobsDialog : public QDialog
 
 public:
 
-	JobsDialog(SettingsManager * a_pSettingsManager,
+	JobsDialog(SettingsManager * a_pSettingsManager, JobsModel * a_pJobsModel,
 		QWidget * a_pParent = nullptr);
 
 	virtual ~JobsDialog();

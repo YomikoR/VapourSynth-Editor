@@ -28,8 +28,6 @@ public:
 
 	Job(SettingsManager * a_pSettingsManager,
 		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent = nullptr);
-	Job(const Job & a_other);
-	Job & operator=(const Job & a_other);
 	virtual ~Job();
 
 	enum class EncodingState
