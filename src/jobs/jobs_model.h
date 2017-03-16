@@ -41,7 +41,7 @@ public:
 	virtual bool setData(const QModelIndex & a_index, const QVariant & a_value,
 		int a_role = Qt::EditRole) override;
 
-	vsedit::Job * createJob();
+	int createJob();
 
 	bool deleteJob(int a_index);
 	bool deleteJob(const vsedit::Job * a_pJob);

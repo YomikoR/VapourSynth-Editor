@@ -59,13 +59,9 @@ JobsDialog::~JobsDialog()
 
 void JobsDialog::slotJobNewButtonClicked()
 {
-	vsedit::Job * pJob = m_pJobsModel->createJob();
-	int result = m_pJobEditDialog->call(pJob);
+	int result = m_pJobEditDialog->call();
     if(result == QDialog::Rejected)
-	{
-		m_pJobsModel->deleteJob(pJob);
 		return;
-	}
 }
 
 // END OF

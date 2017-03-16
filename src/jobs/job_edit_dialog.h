@@ -20,17 +20,17 @@ public:
 
 public slots:
 
-	int call(vsedit::Job * a_pJob = nullptr);
+	int call(const vsedit::Job * a_pJob = nullptr);
 
 private slots:
+
+	void slotJobTypeChanged(int a_index);
 
 private:
 
 	Ui::JobEditDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;
-
-	vsedit::Job * m_pJob;
 };
 
 #endif // JOB_EDIT_DIALOG_H_INCLUDED

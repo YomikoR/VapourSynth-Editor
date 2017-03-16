@@ -181,7 +181,7 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 //		const QVariant & a_value, int a_role)
 //==============================================================================
 
-vsedit::Job * JobsModel::createJob()
+int JobsModel::createJob()
 {
 	vsedit::Job * pJob = new vsedit::Job(m_pSettingsManager,
 		m_pVSScriptLibrary, this);
@@ -189,10 +189,10 @@ vsedit::Job * JobsModel::createJob()
 	beginInsertRows(QModelIndex(), newRow, newRow);
 	m_jobs.push_back(pJob);
 	endInsertRows();
-	return pJob;
+	return newRow;
 }
 
-// END OF vsedit::Job * JobsModel::createJob()
+// END OF int JobsModel::createJob()
 //==============================================================================
 
 bool JobsModel::deleteJob(int a_index)
