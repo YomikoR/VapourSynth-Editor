@@ -18,6 +18,15 @@ public:
 
 	virtual ~JobEditDialog();
 
+	JobType jobType() const;
+	QString encodingScriptPath() const;
+	EncodingHeaderType encodingHeaderType() const;
+	QString encodingExecutablePath() const;
+	QString encodingArguments() const;
+	QString processExecutablePath() const;
+	QString processArguments() const;
+	QString shellCommand() const;
+
 public slots:
 
 	int call(const vsedit::Job * a_pJob = nullptr);
@@ -25,12 +34,26 @@ public slots:
 private slots:
 
 	void slotJobTypeChanged(int a_index);
+	void slotEncodingScriptBrowseButtonClicked();
+	void slotEncodingPresetComboBoxActivated(const QString & a_text);
+	void slotEncodingPresetSaveButtonClicked();
+	void slotEncodingPresetDeleteButton();
+	void slotEncodingExecutableBrowseButtonClicked();
+	void slotEncodingArgumentsHelpButtonClicked();
+	void slotProcessExecutableBrowseButtonClicked();
 
 private:
+
+	void setUpEncodingPresets();
+
+	QString chooseExecutable(const QString & a_dialogTitle,
+		const QString & a_initialPath = QString());
 
 	Ui::JobEditDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;
+
+	std::vector<EncodingPreset> m_encodingPresets;
 };
 
 #endif // JOB_EDIT_DIALOG_H_INCLUDED
