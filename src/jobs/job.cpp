@@ -54,6 +54,41 @@ vsedit::Job::~Job()
 // END OF
 //==============================================================================
 
+QString vsedit::Job::typeName(JobType a_type)
+{
+	static std::map<JobType, QString> typeNameMap =
+	{
+		{JobType::EncodeScriptCLI, trUtf8("CLI encoding")},
+		{JobType::RunProcess, trUtf8("Process run")},
+		{JobType::RunShellCommand, trUtf8("Shell command")},
+	};
+
+	return typeNameMap[a_type];
+}
+
+// END OF
+//==============================================================================
+
+QString vsedit::Job::stateName(JobState a_state)
+{
+	static std::map<JobState, QString> stateNameMap =
+	{
+		{JobState::Waiting, trUtf8("Waiting")},
+		{JobState::Running, trUtf8("Running")},
+		{JobState::Paused, trUtf8("Paused")},
+		{JobState::Aborted, trUtf8("Aborted")},
+		{JobState::Aborting, trUtf8("Aborting")},
+		{JobState::Failed, trUtf8("Failed")},
+		{JobState::DependencyNotMet, trUtf8("Dependency not met")},
+		{JobState::Completed, trUtf8("Completed")},
+	};
+
+	return stateNameMap[a_state];
+}
+
+// END OF
+//==============================================================================
+
 void vsedit::Job::start()
 {
 }
@@ -109,6 +144,91 @@ bool vsedit::Job::setType(JobType a_type)
 // END OF
 //==============================================================================
 
+QString vsedit::Job::scriptName() const
+{
+	return m_scriptName;
+}
+
+// END OF
+//==============================================================================
+
+bool vsedit::Job::setScriptName(const QString & a_scriptName)
+{
+	m_scriptName = a_scriptName;
+	return true;
+}
+
+// END OF
+//==============================================================================
+
+EncodingHeaderType vsedit::Job::encodingHeaderType() const
+{
+	return m_encodingHeaderType;
+}
+
+// END OF
+//==============================================================================
+
+bool vsedit::Job::setEncodingHeaderType(EncodingHeaderType a_headerType)
+{
+	m_encodingHeaderType = a_headerType;
+	return true;
+}
+
+// END OF
+//==============================================================================
+
+QString vsedit::Job::executablePath() const
+{
+	return m_executablePath;
+}
+
+// END OF
+//==============================================================================
+
+bool vsedit::Job::setExecutablePath(const QString & a_path)
+{
+	m_executablePath = a_path;
+	return true;
+}
+
+// END OF
+//==============================================================================
+
+QString vsedit::Job::arguments() const
+{
+	return m_arguments;
+}
+
+// END OF
+//==============================================================================
+
+bool vsedit::Job::setArguments(const QString & a_arguments)
+{
+	m_arguments = a_arguments;
+	return true;
+}
+
+// END OF
+//==============================================================================
+
+QString vsedit::Job::shellCommand() const
+{
+	return m_shellCommand;
+}
+
+// END OF
+//==============================================================================
+
+bool vsedit::Job::setShellCommand(const QString & a_command)
+{
+	m_shellCommand = a_command;
+	return true;
+}
+
+// END OF
+//==============================================================================
+
 JobState vsedit::Job::state() const
 {
 	return m_jobState;
@@ -153,40 +273,6 @@ QString vsedit::Job::subject() const
 		return m_shellCommand;
 	else
 		return "-";
-}
-
-// END OF
-//==============================================================================
-
-QString vsedit::Job::typeName(JobType a_type)
-{
-	static std::map<JobType, QString> typeNameMap =
-	{
-		{JobType::EncodeScriptCLI, trUtf8("CLI encoding")},
-		{JobType::RunProcess, trUtf8("Process run")},
-		{JobType::RunShellCommand, trUtf8("Shell command")},
-	};
-
-	return typeNameMap[a_type];
-}
-
-// END OF
-//==============================================================================
-
-QString vsedit::Job::stateName(JobState a_state)
-{
-	static std::map<JobState, QString> stateNameMap =
-	{
-		{JobState::Waiting, trUtf8("Waiting")},
-		{JobState::Running, trUtf8("Running")},
-		{JobState::Paused, trUtf8("Paused")},
-		{JobState::Aborted, trUtf8("Aborted")},
-		{JobState::Failed, trUtf8("Failed")},
-		{JobState::DependencyNotMet, trUtf8("Dependency not met")},
-		{JobState::Completed, trUtf8("Completed")},
-	};
-
-	return stateNameMap[a_state];
 }
 
 // END OF

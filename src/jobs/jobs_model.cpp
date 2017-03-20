@@ -181,6 +181,16 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 //		const QVariant & a_value, int a_role)
 //==============================================================================
 
+const vsedit::Job * JobsModel::job(int a_index) const
+{
+	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
+		return nullptr;
+	return m_jobs[a_index];
+}
+
+// END OF const vsedit::Job * JobsModel::job(int a_index) const
+//==============================================================================
+
 int JobsModel::createJob()
 {
 	vsedit::Job * pJob = new vsedit::Job(m_pSettingsManager,
@@ -243,6 +253,82 @@ bool JobsModel::deleteJob(const QUuid & a_uuid)
 // END OF bool JobsModel::deleteJob(const QUuid & a_uuid)
 //==============================================================================
 
+bool JobsModel::setJobType(int a_index, JobType a_type)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setType(a_type);
+}
+
+// END OF bool JobsModel::setJobType(int a_index, JobType a_type)
+//==============================================================================
+
+bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setScriptName(a_scriptName);
+}
+
+// END OF bool JobsModel::setJobScriptName(int a_index,
+//		const QString & a_scriptName)
+//==============================================================================
+
+bool JobsModel::setJobEncodingHeaderType(int a_index,
+	EncodingHeaderType a_headerType)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setEncodingHeaderType(a_headerType);
+}
+
+// END OF bool JobsModel::setJobEncodingHeaderType(int a_index,
+//		EncodingHeaderType a_headerType)
+//==============================================================================
+
+bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setExecutablePath(a_path);
+}
+
+// END OF bool JobsModel::setJobExecutablePath(int a_index,
+//		const QString & a_path)
+//==============================================================================
+
+bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setArguments(a_arguments);
+}
+
+// END OF bool JobsModel::setJobArguments(int a_index,
+//		const QString & a_arguments)
+//==============================================================================
+
+bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setShellCommand(a_command);
+}
+
+// END OF bool JobsModel::setJobShellCommand(int a_index,
+//		const QString & a_command)
+//==============================================================================
+
+bool JobsModel::setJobState(int a_index, JobState a_state)
+{
+	if(!canModifyJob(a_index))
+		return false;
+	return m_jobs[a_index]->setState(a_state);
+}
+
+// END OF bool JobsModel::setJobState(int a_index, JobState a_state)
+//==============================================================================
+
 ptrdiff_t JobsModel::indexOfJob(const QUuid & a_uuid) const
 {
 	std::vector<vsedit::Job *>::const_iterator it =
@@ -268,3 +354,23 @@ void JobsModel::clearJobs()
 // END OF void JobsModel::clearJobs()
 //==============================================================================
 
+bool JobsModel::canModifyJob(int a_index)
+{
+	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
+		return false;
+
+	vsedit::Job * pJob = m_jobs[a_index];
+	assert(pJob);
+	if(!pJob)
+		return false;
+
+	JobState forbiddenStates[] = {JobState::Running, JobState::Paused,
+		JobState::Aborting};
+	if(vsedit::contains(forbiddenStates, pJob->state()))
+		return false;
+
+	return true;
+}
+
+// END OF bool JobsModel::canModifyJob(int a_index)
+//==============================================================================

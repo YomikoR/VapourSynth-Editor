@@ -41,17 +41,29 @@ public:
 	virtual bool setData(const QModelIndex & a_index, const QVariant & a_value,
 		int a_role = Qt::EditRole) override;
 
+	const vsedit::Job * job(int a_index) const;
+
 	int createJob();
 
 	bool deleteJob(int a_index);
 	bool deleteJob(const vsedit::Job * a_pJob);
 	bool deleteJob(const QUuid & a_uuid);
 
+	bool setJobType(int a_index, JobType a_type);
+	bool setJobScriptName(int a_index, const QString & a_scriptName);
+	bool setJobEncodingHeaderType(int a_index, EncodingHeaderType a_headerType);
+	bool setJobExecutablePath(int a_index, const QString & a_path);
+	bool setJobArguments(int a_index, const QString & a_arguments);
+	bool setJobShellCommand(int a_index, const QString & a_command);
+	bool setJobState(int a_index, JobState a_state);
+
 private:
 
 	ptrdiff_t indexOfJob(const QUuid & a_uuid) const;
 
 	void clearJobs();
+
+	bool canModifyJob(int a_index);
 
 	std::vector<vsedit::Job *> m_jobs;
 

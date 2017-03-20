@@ -43,6 +43,10 @@ public:
 		Aborting,
 	};
 
+	static QString typeName(JobType a_type);
+
+	static QString stateName(JobState a_state);
+
 	virtual void start();
 	virtual void pause();
 	virtual void abort();
@@ -53,6 +57,21 @@ public:
 	virtual JobType type() const;
 	virtual bool setType(JobType a_type);
 
+	virtual QString scriptName() const;
+	virtual bool setScriptName(const QString & a_scriptName);
+
+	virtual EncodingHeaderType encodingHeaderType() const;
+	virtual bool setEncodingHeaderType(EncodingHeaderType a_headerType);
+
+	virtual QString executablePath() const;
+	virtual bool setExecutablePath(const QString & a_path);
+
+	virtual QString arguments() const;
+	virtual bool setArguments(const QString & a_arguments);
+
+	virtual QString shellCommand() const;
+	virtual bool setShellCommand(const QString & a_command);
+
 	virtual JobState state() const;
 	virtual bool setState(JobState a_state);
 
@@ -60,10 +79,6 @@ public:
 	virtual bool setDependsOnJobIds(const std::vector<QUuid> & a_ids);
 
 	virtual QString subject() const;
-
-	static QString typeName(JobType a_type);
-
-	static QString stateName(JobState a_state);
 
 signals:
 

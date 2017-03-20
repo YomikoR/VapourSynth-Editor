@@ -135,23 +135,30 @@ QString JobEditDialog::shellCommand() const
 
 int JobEditDialog::call(const vsedit::Job * a_pJob)
 {
-	//TODO: Implement.
 	setUpEncodingPresets();
 
 	if(a_pJob)
 	{
 		int index = m_ui.jobTypeComboBox->findData((int)a_pJob->type());
 		m_ui.jobTypeComboBox->setCurrentIndex(index);
-		if(a_pJob->type() == JobType::EncodeScriptCLI)
-		{
-			m_ui.encodingPresetComboBox->clearEditText();
-		}
+		m_ui.encodingPresetComboBox->clearEditText();
+		index = m_ui.encodingHeaderTypeComboBox->findData(
+			(int)a_pJob->encodingHeaderType());
+		m_ui.encodingHeaderTypeComboBox->setCurrentIndex(index);
+		m_ui.encodingExecutablePathEdit->setText(a_pJob->executablePath());
+		m_ui.encodingArgumentsTextEdit->setPlainText(a_pJob->arguments());
+		m_ui.processExecutablePathEdit->setText(a_pJob->executablePath());
+		m_ui.processArgumentsTextEdit->setPlainText(a_pJob->arguments());
+		m_ui.shellCommandTextEdit->setPlainText(a_pJob->shellCommand());
 	}
 	else
 	{
-
+		m_ui.jobTypeComboBox->setCurrentIndex(0);
+		m_ui.encodingPresetComboBox->setCurrentIndex(0);
+		m_ui.processExecutablePathEdit->clear();
+		m_ui.processArgumentsTextEdit->clear();
+		m_ui.shellCommandTextEdit->clear();
 	}
-
 
 	return exec();
 }
