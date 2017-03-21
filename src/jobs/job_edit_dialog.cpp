@@ -133,9 +133,10 @@ QString JobEditDialog::shellCommand() const
 // END OF QString JobEditDialog::shellCommand() const
 //==============================================================================
 
-int JobEditDialog::call(const vsedit::Job * a_pJob)
+int JobEditDialog::call(const QString & a_title, const vsedit::Job * a_pJob)
 {
 	setUpEncodingPresets();
+	setWindowTitle(a_title);
 
 	if(a_pJob)
 	{
@@ -163,7 +164,8 @@ int JobEditDialog::call(const vsedit::Job * a_pJob)
 	return exec();
 }
 
-// END OF int JobEditDialog::call(const vsedit::Job * a_pJob)
+// END OF int JobEditDialog::call(const QString & a_title,
+//		const vsedit::Job * a_pJob)
 //==============================================================================
 
 void JobEditDialog::slotJobTypeChanged(int a_index)
@@ -359,7 +361,15 @@ void JobEditDialog::slotEncodingExecutableBrowseButtonClicked()
 
 void JobEditDialog::slotEncodingArgumentsHelpButtonClicked()
 {
-	//TODO: Make variables accessible from the Job class and implement.
+	vsedit::Job job;
+	QString argumentsHelpString = trUtf8("Use following placeholders:");
+	for(const vsedit::VariableToken & variable : job.variables())
+	{
+		argumentsHelpString += QString("\n%1 - %2")
+			.arg(variable.token).arg(variable.description);
+	}
+	QString title = trUtf8("Encoder arguments");
+	QMessageBox::information(this, title, argumentsHelpString);
 }
 
 // END OF void JobEditDialog::slotEncodingArgumentsHelpButtonClicked()

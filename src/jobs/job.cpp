@@ -36,12 +36,10 @@ vsedit::Job::Job(SettingsManager * a_pSettingsManager,
 	, m_pFrameHeaderWriter(nullptr)
 	, m_cachedFramesLimit(100)
 {
-	assert(m_pSettingsManager);
-	assert(m_pVSScriptLibrary);
 	m_id = QUuid::createUuid();
 	fillVariables();
-	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
-	assert(m_cpVSAPI);
+	if(a_pVSScriptLibrary)
+		m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
 }
 
 // END OF
@@ -273,6 +271,21 @@ QString vsedit::Job::subject() const
 		return m_shellCommand;
 	else
 		return "-";
+}
+
+// END OF
+//==============================================================================
+
+std::vector<vsedit::VariableToken> vsedit::Job::variables() const
+{
+	std::vector<vsedit::VariableToken> cutVariables;
+	for(const vsedit::VariableToken & variable : m_variables)
+	{
+		vsedit::VariableToken cutVariable =
+			{variable.token, variable.description, std::function<QString()>()};
+		cutVariables.push_back(cutVariable);
+	}
+	return cutVariables;
 }
 
 // END OF

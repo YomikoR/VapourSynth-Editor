@@ -59,7 +59,7 @@ JobsDialog::~JobsDialog()
 
 void JobsDialog::slotJobNewButtonClicked()
 {
-	int result = m_pJobEditDialog->call();
+	int result = m_pJobEditDialog->call(trUtf8("New job"));
 	if(result == QDialog::Rejected)
 		return;
 	int index = m_pJobsModel->createJob();
@@ -75,7 +75,8 @@ void JobsDialog::slotJobEditButtonClicked()
 	const vsedit::Job * cpJob = m_pJobsModel->job(index.row());
 	if(!cpJob)
 		return;
-	int result = m_pJobEditDialog->call(cpJob);
+	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
+		.arg(index.row() + 1), cpJob);
 	if(result == QDialog::Rejected)
 		return;
 	updateJob(index.row());

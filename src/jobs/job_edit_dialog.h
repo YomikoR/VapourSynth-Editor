@@ -29,7 +29,7 @@ public:
 
 public slots:
 
-	int call(const vsedit::Job * a_pJob = nullptr);
+	int call(const QString & a_title, const vsedit::Job * a_pJob = nullptr);
 
 private slots:
 

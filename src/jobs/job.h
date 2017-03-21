@@ -26,8 +26,9 @@ class Job : public QObject
 
 public:
 
-	Job(SettingsManager * a_pSettingsManager,
-		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent = nullptr);
+	Job(SettingsManager * a_pSettingsManager = nullptr,
+		VSScriptLibrary * a_pVSScriptLibrary = nullptr,
+		QObject * a_pParent = nullptr);
 	virtual ~Job();
 
 	enum class EncodingState
@@ -79,6 +80,8 @@ public:
 	virtual bool setDependsOnJobIds(const std::vector<QUuid> & a_ids);
 
 	virtual QString subject() const;
+
+	virtual std::vector<vsedit::VariableToken> variables() const;
 
 signals:
 
