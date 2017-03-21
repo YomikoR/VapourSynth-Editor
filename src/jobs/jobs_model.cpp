@@ -2,6 +2,7 @@
 
 #include "../settings/settings_manager.h"
 
+#include <QGuiApplication>
 #include <cassert>
 
 //==============================================================================
@@ -140,6 +141,30 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 					dependsList << trUtf8("Job %1").arg(index + 1);
 			}
 			return dependsList.join(", ");
+		}
+	}
+	else if(a_role == Qt::BackgroundRole)
+	{
+		switch(m_jobs[row]->state())
+		{
+		case JobState::Aborted:
+		case JobState::Failed:
+		case JobState::DependencyNotMet:
+			return QColor("#f9435e");
+			break;
+		case JobState::Aborting:
+			return QColor("#ff9ba5");
+		case JobState::Paused:
+			return QColor("#f9ed81");
+			break;
+		case JobState::Completed:
+			return QColor("#8fff87");
+			break;
+		case JobState::Running:
+			return QColor("#87cdff");
+			break;
+		default:
+			return QGuiApplication::palette().color(QPalette::Base);
 		}
 	}
 

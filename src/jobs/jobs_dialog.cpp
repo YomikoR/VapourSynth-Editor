@@ -45,6 +45,23 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotResumeButtonClicked()));
 	connect(m_ui.abortButton, SIGNAL(clicked()),
 		this, SLOT(slotAbortButtonClicked()));
+
+	int index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Aborted);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Aborting);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Completed);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::DependencyNotMet);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Failed);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Paused);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Running);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Waiting);
 }
 
 // END OF
