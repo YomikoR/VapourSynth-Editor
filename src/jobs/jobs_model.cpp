@@ -207,7 +207,7 @@ int JobsModel::createJob()
 
 bool JobsModel::deleteJob(int a_index)
 {
-	if((a_index < 0) || (a_index >= m_jobs.size()))
+	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
 		return false;
 
 	JobState protectedStates[] = {JobState::Running, JobState::Paused,
@@ -257,7 +257,9 @@ bool JobsModel::setJobType(int a_index, JobType a_type)
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setType(a_type);
+	bool result = m_jobs[a_index]->setType(a_type);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobType(int a_index, JobType a_type)
@@ -267,7 +269,9 @@ bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setScriptName(a_scriptName);
+	bool result = m_jobs[a_index]->setScriptName(a_scriptName);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobScriptName(int a_index,
@@ -279,7 +283,9 @@ bool JobsModel::setJobEncodingHeaderType(int a_index,
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setEncodingHeaderType(a_headerType);
+	bool result = m_jobs[a_index]->setEncodingHeaderType(a_headerType);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobEncodingHeaderType(int a_index,
@@ -290,7 +296,9 @@ bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setExecutablePath(a_path);
+	bool result = m_jobs[a_index]->setExecutablePath(a_path);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobExecutablePath(int a_index,
@@ -301,7 +309,9 @@ bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setArguments(a_arguments);
+	bool result = m_jobs[a_index]->setArguments(a_arguments);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobArguments(int a_index,
@@ -312,7 +322,9 @@ bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setShellCommand(a_command);
+	bool result = m_jobs[a_index]->setShellCommand(a_command);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobShellCommand(int a_index,
@@ -323,7 +335,9 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 {
 	if(!canModifyJob(a_index))
 		return false;
-	return m_jobs[a_index]->setState(a_state);
+	bool result = m_jobs[a_index]->setState(a_state);
+	notifyJobUpdated(a_index);
+	return result;
 }
 
 // END OF bool JobsModel::setJobState(int a_index, JobState a_state)
@@ -373,4 +387,14 @@ bool JobsModel::canModifyJob(int a_index)
 }
 
 // END OF bool JobsModel::canModifyJob(int a_index)
+//==============================================================================
+
+void JobsModel::notifyJobUpdated(int a_index)
+{
+	QModelIndex first = createIndex(a_index, 0);
+	QModelIndex last = createIndex(a_index, COLUMNS_NUMBER - 1);
+	emit dataChanged(first, last);
+}
+
+// END OF void JobsModel::noifyJobUpdated(int a_index)
 //==============================================================================

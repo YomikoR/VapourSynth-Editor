@@ -65,6 +65,8 @@ private:
 
 	bool canModifyJob(int a_index);
 
+	void notifyJobUpdated(int a_index);
+
 	std::vector<vsedit::Job *> m_jobs;
 
 	SettingsManager * m_pSettingsManager;

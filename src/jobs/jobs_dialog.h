@@ -35,6 +35,8 @@ private slots:
 
 private:
 
+	bool updateJob(int a_index);
+
 	Ui::JobsDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;
