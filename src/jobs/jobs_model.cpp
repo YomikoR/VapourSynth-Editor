@@ -220,6 +220,8 @@ int JobsModel::createJob()
 {
 	vsedit::Job * pJob = new vsedit::Job(m_pSettingsManager,
 		m_pVSScriptLibrary, this);
+	connect(pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
+		this, SLOT(slotLogMessage(const QString &, const QString &)));
 	int newRow = (int)m_jobs.size();
 	beginInsertRows(QModelIndex(), newRow, newRow);
 	m_jobs.push_back(pJob);
@@ -366,6 +368,25 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 }
 
 // END OF bool JobsModel::setJobState(int a_index, JobState a_state)
+//==============================================================================
+
+void JobsModel::slotLogMessage(const QString & a_message,
+	const QString & a_style)
+{
+	QString message = a_message;
+	const vsedit::Job * cpJob = qobject_cast<const vsedit::Job *>(sender());
+	if(cpJob)
+	{
+		ptrdiff_t index = indexOfJob(cpJob->id());
+		if(index >= 0)
+			message = QString("Job %1: %2").arg(index + 1).arg(a_message);
+	}
+
+	emit signalLogMessage(message, a_style);
+}
+
+// END OF void JobsModel::slotLogMessage(const QString & a_message,
+//		const QString & a_style)
 //==============================================================================
 
 ptrdiff_t JobsModel::indexOfJob(const QUuid & a_uuid) const

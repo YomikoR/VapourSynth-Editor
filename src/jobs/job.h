@@ -4,6 +4,7 @@
 #include "../settings/settings_definitions.h"
 #include "../common/chrono.h"
 #include "../common/helpers.h"
+#include "../log/vs_editor_log.h"
 #include "../vapoursynth/vs_script_processor_structures.h"
 
 #include <QObject>
@@ -89,6 +90,11 @@ public:
 signals:
 
 	void signalStateChanged(JobState a_state);
+
+	void signalProgressChanged();
+
+	void signalLogMessage(const QString & a_message,
+		const QString & a_style = LOG_STYLE_DEFAULT);
 
 protected:
 

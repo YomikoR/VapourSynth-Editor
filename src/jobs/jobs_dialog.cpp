@@ -30,6 +30,9 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
 
+	connect(m_pJobsModel,
+		SIGNAL(signalLogMessage(const QString &, const QString &)),
+		m_ui.log, SLOT(slotLogMessage(const QString &, const QString &)));
 	connect(m_ui.jobNewButton, SIGNAL(clicked()),
 		this, SLOT(slotJobNewButtonClicked()));
 	connect(m_ui.jobEditButton, SIGNAL(clicked()),

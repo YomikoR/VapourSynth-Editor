@@ -64,6 +64,15 @@ public:
 	bool setJobShellCommand(int a_index, const QString & a_command);
 	bool setJobState(int a_index, JobState a_state);
 
+signals:
+
+	void signalLogMessage(const QString & a_message,
+		const QString & a_style = LOG_STYLE_DEFAULT);
+
+private slots:
+
+	void slotLogMessage(const QString & a_message, const QString & a_style);
+
 private:
 
 	ptrdiff_t indexOfJob(const QUuid & a_uuid) const;
