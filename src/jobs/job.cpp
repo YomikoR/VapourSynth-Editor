@@ -22,7 +22,7 @@ vsedit::Job::Job(SettingsManager * a_pSettingsManager,
 	, m_encodingHeaderType(EncodingHeaderType::NoHeader)
 	, m_firstFrame(-1)
 	, m_lastFrame(-1)
-	, m_framesProcessed(-1)
+	, m_framesProcessed(0)
 	, m_lastFrameProcessed(-1)
 	, m_lastFrameRequested(-1)
 	, m_encodingState(EncodingState::Idle)
@@ -291,9 +291,21 @@ std::vector<vsedit::VariableToken> vsedit::Job::variables() const
 // END OF
 //==============================================================================
 
-int vsedit::Job::framesTotal()
+int vsedit::Job::framesProcessed() const
 {
-	return (m_lastFrame - m_firstFrame + 1);
+	if(m_type == JobType::EncodeScriptCLI)
+		return m_framesProcessed;
+	return 0;
+}
+
+// END OF
+//==============================================================================
+
+int vsedit::Job::framesTotal() const
+{
+	if(m_type == JobType::EncodeScriptCLI)
+		return (m_lastFrame - m_firstFrame + 1);
+	return 0;
 }
 
 // END OF

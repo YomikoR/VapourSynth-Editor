@@ -6,6 +6,7 @@
 class SettingsManager;
 class JobsModel;
 class JobEditDialog;
+class JobStateDelegate;
 
 class JobsDialog : public QDialog
 {
@@ -42,6 +43,7 @@ private:
 	SettingsManager * m_pSettingsManager;
 
 	JobsModel * m_pJobsModel;
+	JobStateDelegate * m_pJobStateDelegate;
 
 	JobEditDialog * m_pJobEditDialog;
 };

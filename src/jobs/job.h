@@ -83,15 +83,16 @@ public:
 
 	virtual std::vector<vsedit::VariableToken> variables() const;
 
+	virtual int framesProcessed() const;
+	virtual int framesTotal() const;
+
 signals:
 
 	void signalStateChanged(JobState a_state);
 
 protected:
 
-	int framesTotal();
-
-	void fillVariables();
+	virtual void fillVariables();
 
 	QUuid m_id;
 

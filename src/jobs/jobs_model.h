@@ -15,6 +15,13 @@ class JobsModel : public QAbstractItemModel
 
 public:
 
+	static const int NAME_COLUMN;
+	static const int TYPE_COLUMN;
+	static const int SUBJECT_COLUMN;
+	static const int STATE_COLUMN;
+	static const int DEPENDS_ON_COLUMN;
+	static const int COLUMNS_NUMBER;
+
 	JobsModel(SettingsManager * a_pSettingsManager,
 		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent = nullptr);
 	virtual ~JobsModel();

@@ -7,12 +7,12 @@
 
 //==============================================================================
 
-const int NAME_COLUMN = 0;
-const int TYPE_COLUMN = 1;
-const int SUBJECT_COLUMN = 2;
-const int STATE_COLUMN = 3;
-const int DEPENDS_ON_COLUMN = 4;
-const int COLUMNS_NUMBER = 5;
+const int JobsModel::NAME_COLUMN = 0;
+const int JobsModel::TYPE_COLUMN = 1;
+const int JobsModel::SUBJECT_COLUMN = 2;
+const int JobsModel::STATE_COLUMN = 3;
+const int JobsModel::DEPENDS_ON_COLUMN = 4;
+const int JobsModel::COLUMNS_NUMBER = 5;
 
 //==============================================================================
 
