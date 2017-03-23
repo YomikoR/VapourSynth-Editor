@@ -14,7 +14,7 @@ public:
 
 	virtual void paint(QPainter * a_pPainter,
 		const QStyleOptionViewItem & a_option,
-		const QModelIndex & a_index) const;
+		const QModelIndex & a_index) const override;
 
 protected:
 

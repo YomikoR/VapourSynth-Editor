@@ -336,6 +336,22 @@ bool JobsModel::setJobType(int a_index, JobType a_type)
 // END OF bool JobsModel::setJobType(int a_index, JobType a_type)
 //==============================================================================
 
+bool JobsModel::setJobDependsOnIds(int a_index,
+	const std::vector<QUuid> & a_ids)
+{
+	if(!checkCanModifyJobAndNotify(a_index))
+		return false;
+	bool result = m_jobs[a_index]->setDependsOnJobIds(a_ids);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
+	notifyJobUpdated(a_index);
+	return result;
+}
+
+// END OF bool JobsModel::setJobDependsOnIds(int a_index,
+//		const std::vector<QUuid> & a_ids)
+//==============================================================================
+
 bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 {
 	if(!checkCanModifyJobAndNotify(a_index))

@@ -57,6 +57,7 @@ public:
 	bool deleteJob(const QUuid & a_uuid);
 
 	bool setJobType(int a_index, JobType a_type);
+	bool setJobDependsOnIds(int a_index, const std::vector<QUuid> & a_ids);
 	bool setJobScriptName(int a_index, const QString & a_scriptName);
 	bool setJobEncodingHeaderType(int a_index, EncodingHeaderType a_headerType);
 	bool setJobExecutablePath(int a_index, const QString & a_path);

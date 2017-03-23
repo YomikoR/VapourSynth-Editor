@@ -3,6 +3,7 @@
 #include "../settings/settings_manager.h"
 #include "jobs_model.h"
 #include "job_state_delegate.h"
+#include "job_dependencies_delegate.h"
 #include "job_edit_dialog.h"
 
 #include <QMessageBox>
@@ -21,6 +22,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pJobsModel(a_pJobsModel)
 	, m_pJobStateDelegate(nullptr)
+	, m_pJobDependenciesDelegate(nullptr)
 	, m_pJobEditDialog(nullptr)
 {
 	m_ui.setupUi(this);
@@ -29,6 +31,9 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	m_pJobStateDelegate = new JobStateDelegate(this);
 	m_ui.jobsTableView->setItemDelegateForColumn(
 		JobsModel::STATE_COLUMN, m_pJobStateDelegate);
+	m_pJobDependenciesDelegate = new JobDependenciesDelegate(this);
+	m_ui.jobsTableView->setItemDelegateForColumn(
+		JobsModel::DEPENDS_ON_COLUMN, m_pJobDependenciesDelegate);
 
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
 
