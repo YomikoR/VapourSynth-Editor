@@ -57,6 +57,7 @@ bool JobStateDelegate::paintProgressBar(QPainter * a_pPainter,
 	progressBarOption.progress = cpJob->framesProcessed();
 	progressBarOption.text = vsedit::Job::stateName(state);
 	progressBarOption.textVisible = true;
+	progressBarOption.textAlignment = Qt::AlignCenter;
 
 	if(cpJob->type() == JobType::EncodeScriptCLI)
 	{
