@@ -60,14 +60,22 @@ QModelIndex JobsModel::parent(const QModelIndex & a_child) const
 Qt::ItemFlags JobsModel::flags(const QModelIndex & a_index) const
 {
 	if (!a_index.isValid())
-	{
 		return Qt::NoItemFlags;
-	}
+
+	int row = a_index.row();
+	int column = a_index.column();
+
+	if((row >= (int)m_jobs.size()) || (column >= COLUMNS_NUMBER))
+		return Qt::NoItemFlags;
 
 	Qt::ItemFlags cellFlags = Qt::NoItemFlags
 		| Qt::ItemIsEnabled
 		| Qt::ItemIsSelectable
 	;
+
+	bool modifiable = canModifyJob(row);
+	if((a_index.column() == DEPENDS_ON_COLUMN) && modifiable)
+		cellFlags |= Qt::ItemIsEditable;
 
 	return cellFlags;
 }
@@ -196,10 +204,40 @@ int JobsModel::columnCount(const QModelIndex & a_parent) const
 bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 	int a_role)
 {
-	(void)a_index;
-	(void)a_value;
 	(void)a_role;
-	return false;
+
+	if(!a_index.isValid())
+		return false;
+
+	int row = a_index.row();
+	int column = a_index.column();
+
+	if(!checkCanModifyJobAndNotify(row))
+		return false;
+
+	if((row >= (int)m_jobs.size()) || (column != DEPENDS_ON_COLUMN))
+		return false;
+
+	if(!a_value.canConvert<QVariantList>())
+		return false;
+
+	QVariantList variantList = a_value.toList();
+	std::vector<QUuid> ids;
+	for(const QVariant & variant : variantList)
+	{
+		if(!variant.canConvert<QUuid>())
+			return false;
+		QUuid id = variant.toUuid();
+		int index = indexOfJob(id);
+		if((index < 0) || (index > row))
+			return false;
+		ids.push_back(id);
+	}
+
+	m_jobs[row]->setDependsOnJobIds(ids);
+	notifyJobUpdated(row);
+
+	return true;
 }
 
 // END OF bool JobsModel::setData(const QModelIndex & a_index,
@@ -289,6 +327,8 @@ bool JobsModel::setJobType(int a_index, JobType a_type)
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setType(a_type);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -301,6 +341,8 @@ bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setScriptName(a_scriptName);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -315,6 +357,8 @@ bool JobsModel::setJobEncodingHeaderType(int a_index,
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setEncodingHeaderType(a_headerType);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -328,6 +372,8 @@ bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setExecutablePath(a_path);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -341,6 +387,8 @@ bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setArguments(a_arguments);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -354,6 +402,8 @@ bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setShellCommand(a_command);
+	if(result)
+		result = m_jobs[a_index]->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -418,7 +468,7 @@ void JobsModel::clearJobs()
 // END OF void JobsModel::clearJobs()
 //==============================================================================
 
-bool JobsModel::canModifyJob(int a_index)
+bool JobsModel::canModifyJob(int a_index) const
 {
 	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
 		return false;
@@ -436,7 +486,7 @@ bool JobsModel::canModifyJob(int a_index)
 	return true;
 }
 
-// END OF bool JobsModel::canModifyJob(int a_index)
+// END OF bool JobsModel::canModifyJob(int a_index) const
 //==============================================================================
 
 bool JobsModel::checkCanModifyJobAndNotify(int a_index)

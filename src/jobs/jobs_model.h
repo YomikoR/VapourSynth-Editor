@@ -79,7 +79,7 @@ private:
 
 	void clearJobs();
 
-	bool canModifyJob(int a_index);
+	bool canModifyJob(int a_index) const;
 	bool checkCanModifyJobAndNotify(int a_index);
 
 	void notifyJobUpdated(int a_index);
