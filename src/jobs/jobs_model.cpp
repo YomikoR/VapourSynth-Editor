@@ -74,7 +74,7 @@ Qt::ItemFlags JobsModel::flags(const QModelIndex & a_index) const
 	;
 
 	bool modifiable = canModifyJob(row);
-	if((a_index.column() == DEPENDS_ON_COLUMN) && modifiable)
+	if((a_index.column() == DEPENDS_ON_COLUMN) && modifiable && (row > 0))
 		cellFlags |= Qt::ItemIsEditable;
 
 	return cellFlags;

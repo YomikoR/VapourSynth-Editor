@@ -25,9 +25,12 @@ QWidget * JobDependenciesDelegate::createEditor(QWidget * a_pParent,
 	const QStyleOptionViewItem & a_option,
 	const QModelIndex & a_index) const
 {
+	(void)a_pParent;
 	(void)a_option;
 	(void)a_index;
-	return new QListWidget(a_pParent);
+	QListWidget * pListWidget = new QListWidget();
+	pListWidget->setWindowFlags(Qt::FramelessWindowHint);
+	return pListWidget;
 }
 
 // END OF QWidget * JobDependenciesDelegate::createEditor(QWidget * a_pParent,
@@ -107,7 +110,8 @@ void JobDependenciesDelegate::updateEditorGeometry(QWidget * a_pEditor,
 	QListWidget * pListWidget = qobject_cast<QListWidget *>(a_pEditor);
 	if(!pListWidget)
 		return;
-	pListWidget->move(a_option.rect.topLeft());
+	QPoint origin = a_option.widget->mapToGlobal(a_option.rect.topLeft());
+	pListWidget->move(origin);
 }
 
 // END OF void JobDependenciesDelegate::updateEditorGeometry(
