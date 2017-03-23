@@ -242,7 +242,11 @@ bool JobsModel::deleteJob(int a_index)
 
 	vsedit::Job * pJob = m_jobs[a_index];
 	if(vsedit::contains(protectedStates, pJob->state()))
+	{
+		emit signalLogMessage(trUtf8("Can not delete an active job."),
+			LOG_STYLE_ERROR);
 		return false;
+	}
 
 	beginRemoveRows(QModelIndex(), a_index, a_index);
 	delete pJob;
@@ -282,7 +286,7 @@ bool JobsModel::deleteJob(const QUuid & a_uuid)
 
 bool JobsModel::setJobType(int a_index, JobType a_type)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setType(a_type);
 	notifyJobUpdated(a_index);
@@ -294,7 +298,7 @@ bool JobsModel::setJobType(int a_index, JobType a_type)
 
 bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setScriptName(a_scriptName);
 	notifyJobUpdated(a_index);
@@ -308,7 +312,7 @@ bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 bool JobsModel::setJobEncodingHeaderType(int a_index,
 	EncodingHeaderType a_headerType)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setEncodingHeaderType(a_headerType);
 	notifyJobUpdated(a_index);
@@ -321,7 +325,7 @@ bool JobsModel::setJobEncodingHeaderType(int a_index,
 
 bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setExecutablePath(a_path);
 	notifyJobUpdated(a_index);
@@ -334,7 +338,7 @@ bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
 
 bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setArguments(a_arguments);
 	notifyJobUpdated(a_index);
@@ -347,7 +351,7 @@ bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
 
 bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setShellCommand(a_command);
 	notifyJobUpdated(a_index);
@@ -360,7 +364,7 @@ bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
 
 bool JobsModel::setJobState(int a_index, JobState a_state)
 {
-	if(!canModifyJob(a_index))
+	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_jobs[a_index]->setState(a_state);
 	notifyJobUpdated(a_index);
@@ -433,6 +437,20 @@ bool JobsModel::canModifyJob(int a_index)
 }
 
 // END OF bool JobsModel::canModifyJob(int a_index)
+//==============================================================================
+
+bool JobsModel::checkCanModifyJobAndNotify(int a_index)
+{
+	bool result = canModifyJob(a_index);
+	if(!result)
+	{
+		emit signalLogMessage(trUtf8("Can not modify an active job."),
+			LOG_STYLE_ERROR);
+	}
+	return result;
+}
+
+// END OF bool JobsModel::checkCanModifyJobAndNotify(int a_index)
 //==============================================================================
 
 void JobsModel::notifyJobUpdated(int a_index)

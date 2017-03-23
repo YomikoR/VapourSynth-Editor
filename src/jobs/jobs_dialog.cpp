@@ -5,6 +5,8 @@
 #include "job_state_delegate.h"
 #include "job_edit_dialog.h"
 
+#include <QMessageBox>
+
 //==============================================================================
 
 JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
@@ -32,7 +34,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 
 	connect(m_pJobsModel,
 		SIGNAL(signalLogMessage(const QString &, const QString &)),
-		m_ui.log, SLOT(slotLogMessage(const QString &, const QString &)));
+		m_ui.log, SLOT(addEntry(const QString &, const QString &)));
 	connect(m_ui.jobNewButton, SIGNAL(clicked()),
 		this, SLOT(slotJobNewButtonClicked()));
 	connect(m_ui.jobEditButton, SIGNAL(clicked()),
@@ -126,6 +128,19 @@ void JobsDialog::slotJobMoveDownButtonClicked()
 
 void JobsDialog::slotJobDeleteButtonClicked()
 {
+	QModelIndex index = m_ui.jobsTableView->currentIndex();
+	if(!index.isValid())
+		return;
+
+	QMessageBox::StandardButton result = QMessageBox::question(this,
+		trUtf8("Delete job"), trUtf8("Do you really want to delete Job %1?")
+		.arg(index.row() + 1),
+		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
+		QMessageBox::No);
+	if(result == QMessageBox::No)
+		return;
+
+	m_pJobsModel->deleteJob(index.row());
 }
 
 // END OF
@@ -133,6 +148,10 @@ void JobsDialog::slotJobDeleteButtonClicked()
 
 void JobsDialog::slotJobResetStateButtonClicked()
 {
+	QModelIndex index = m_ui.jobsTableView->currentIndex();
+	if(!index.isValid())
+		return;
+	m_pJobsModel->setJobState(index.row(), JobState::Waiting);
 }
 
 // END OF

@@ -133,16 +133,6 @@ void StyledLogView::addStyle(const QString & a_aliasName,
 //		const QString & a_title, const QString & a_originalStyleName)
 //==============================================================================
 
-void StyledLogView::addEntry(const QString & a_text, const QString & a_style)
-{
-	m_entries.push_back(LogEntry(a_text, a_style));
-	updateHtml();
-}
-
-// END OF void StyledLogView::addEntry(const QString & a_text,
-//		const QString & a_style)
-//==============================================================================
-
 void StyledLogView::startNewBlock()
 {
 	if(m_entries.empty())
@@ -234,6 +224,16 @@ bool StyledLogView::saveHtml(bool a_excludeFiltered)
 }
 
 // END OF bool StyledLogView::saveHtml(bool a_excludeFiltered)
+//==============================================================================
+
+void StyledLogView::addEntry(const QString & a_text, const QString & a_style)
+{
+	m_entries.push_back(LogEntry(a_text, a_style));
+	updateHtml();
+}
+
+// END OF void StyledLogView::addEntry(const QString & a_text,
+//		const QString & a_style)
 //==============================================================================
 
 void StyledLogView::clear()

@@ -26,9 +26,6 @@ public:
 		const QString & a_title,
 		const QString & a_originalStyleName = LOG_STYLE_DEFAULT);
 
-	virtual void addEntry(const QString & a_text,
-		const QString & a_style = LOG_STYLE_DEFAULT);
-
 	virtual void startNewBlock();
 
 	virtual qint64 millisecondsToDivideBlocks() const;
@@ -43,6 +40,9 @@ public:
 	virtual bool saveHtml(bool a_excludeFiltered = false);
 
 public slots:
+
+	virtual void addEntry(const QString & a_text,
+		const QString & a_style = LOG_STYLE_DEFAULT);
 
 	virtual void clear();
 
