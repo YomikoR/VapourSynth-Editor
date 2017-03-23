@@ -3,6 +3,8 @@
 #include "jobs_model.h"
 
 #include <QListWidget>
+#include <QTableView>
+#include <QHeaderView>
 
 //==============================================================================
 
@@ -111,6 +113,18 @@ void JobDependenciesDelegate::updateEditorGeometry(QWidget * a_pEditor,
 	if(!pListWidget)
 		return;
 	QPoint origin = a_option.widget->mapToGlobal(a_option.rect.topLeft());
+	const QTableView * cpTableView =
+		qobject_cast<const QTableView *>(a_option.widget);
+	if(cpTableView)
+	{
+		int headerWidth = 0;
+		if(cpTableView->verticalHeader()->isVisible())
+			headerWidth = cpTableView->verticalHeader()->width();
+		int headerHeight = 0;
+		if(cpTableView->horizontalHeader()->isVisible())
+			headerHeight = cpTableView->horizontalHeader()->height();
+		origin += QPoint(headerWidth, headerHeight);
+	}
 	pListWidget->move(origin);
 }
 
