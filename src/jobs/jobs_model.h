@@ -65,6 +65,8 @@ public:
 	bool setJobShellCommand(int a_index, const QString & a_command);
 	bool setJobState(int a_index, JobState a_state);
 
+	bool canModifyJob(int a_index) const;
+
 signals:
 
 	void signalLogMessage(const QString & a_message,
@@ -80,7 +82,6 @@ private:
 
 	void clearJobs();
 
-	bool canModifyJob(int a_index) const;
 	bool checkCanModifyJobAndNotify(int a_index);
 
 	void notifyJobUpdated(int a_index);

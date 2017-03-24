@@ -282,8 +282,18 @@ bool JobsModel::deleteJob(int a_index)
 	if(vsedit::contains(protectedStates, pJob->state()))
 	{
 		emit signalLogMessage(trUtf8("Can not delete an active job."),
-			LOG_STYLE_ERROR);
+			LOG_STYLE_WARNING);
 		return false;
+	}
+
+	for(const vsedit::Job * cpOtherJob : m_jobs)
+	{
+		if(vsedit::contains(cpOtherJob->dependsOnJobIds(), pJob->id()))
+		{
+			emit signalLogMessage(trUtf8("Can not delete a job while "
+				"other jobs depend on it."), LOG_STYLE_WARNING);
+			return false;
+		}
 	}
 
 	beginRemoveRows(QModelIndex(), a_index, a_index);
@@ -440,6 +450,27 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 // END OF bool JobsModel::setJobState(int a_index, JobState a_state)
 //==============================================================================
 
+bool JobsModel::canModifyJob(int a_index) const
+{
+	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
+		return false;
+
+	vsedit::Job * pJob = m_jobs[a_index];
+	assert(pJob);
+	if(!pJob)
+		return false;
+
+	JobState forbiddenStates[] = {JobState::Running, JobState::Paused,
+		JobState::Aborting};
+	if(vsedit::contains(forbiddenStates, pJob->state()))
+		return false;
+
+	return true;
+}
+
+// END OF bool JobsModel::canModifyJob(int a_index) const
+//==============================================================================
+
 void JobsModel::slotLogMessage(const QString & a_message,
 	const QString & a_style)
 {
@@ -484,34 +515,13 @@ void JobsModel::clearJobs()
 // END OF void JobsModel::clearJobs()
 //==============================================================================
 
-bool JobsModel::canModifyJob(int a_index) const
-{
-	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
-		return false;
-
-	vsedit::Job * pJob = m_jobs[a_index];
-	assert(pJob);
-	if(!pJob)
-		return false;
-
-	JobState forbiddenStates[] = {JobState::Running, JobState::Paused,
-		JobState::Aborting};
-	if(vsedit::contains(forbiddenStates, pJob->state()))
-		return false;
-
-	return true;
-}
-
-// END OF bool JobsModel::canModifyJob(int a_index) const
-//==============================================================================
-
 bool JobsModel::checkCanModifyJobAndNotify(int a_index)
 {
 	bool result = canModifyJob(a_index);
 	if(!result)
 	{
 		emit signalLogMessage(trUtf8("Can not modify an active job."),
-			LOG_STYLE_ERROR);
+			LOG_STYLE_WARNING);
 	}
 	return result;
 }
