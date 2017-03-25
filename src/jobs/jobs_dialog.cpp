@@ -77,6 +77,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	connect(m_ui.abortButton, SIGNAL(clicked()),
 		this, SLOT(slotAbortButtonClicked()));
 
+	// Test code
 	int index = m_pJobsModel->createJob();
 	m_pJobsModel->setJobState(index, JobState::Aborted);
 	index = m_pJobsModel->createJob();
@@ -92,6 +93,56 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	index = m_pJobsModel->createJob();
 	m_pJobsModel->setJobState(index, JobState::Running);
 	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobState(index, JobState::Waiting);
+
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Aborted);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Aborting);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Completed);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::DependencyNotMet);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Failed);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Paused);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Running);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunProcess);
+	m_pJobsModel->setJobState(index, JobState::Waiting);
+
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::Aborted);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::Aborting);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::Completed);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::DependencyNotMet);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::Failed);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::Paused);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
+	m_pJobsModel->setJobState(index, JobState::Running);
+	index = m_pJobsModel->createJob();
+	m_pJobsModel->setJobType(index, JobType::RunShellCommand);
 	m_pJobsModel->setJobState(index, JobState::Waiting);
 }
 
