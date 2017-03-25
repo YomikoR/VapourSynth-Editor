@@ -34,7 +34,7 @@ bool JobStateDelegate::paintProgressBar(QPainter * a_pPainter,
 	if(!cpJob)
 		return false;
 
-	if(cpJob->type() == JobType::RunShellCommand)
+	if(cpJob->type() != JobType::EncodeScriptCLI)
 		return false;
 
 	JobState state = cpJob->state();
@@ -44,26 +44,17 @@ bool JobStateDelegate::paintProgressBar(QPainter * a_pPainter,
 	if(vsedit::contains(noProgressBarSates, state))
 		return false;
 
-	JobState processNoProgressBarSates[] = {JobState::Failed,
-		JobState::Completed};
-	if((cpJob->type() == JobType::RunProcess) &&
-			vsedit::contains(processNoProgressBarSates, state))
-		return false;
-
 	QStyleOptionProgressBar progressBarOption;
 	progressBarOption.rect = a_option.rect;
 	progressBarOption.minimum = 0;
 	progressBarOption.maximum = cpJob->framesTotal();
 	progressBarOption.progress = cpJob->framesProcessed();
-	progressBarOption.text = vsedit::Job::stateName(state);
 	progressBarOption.textVisible = true;
 	progressBarOption.textAlignment = Qt::AlignCenter;
-
-	if(cpJob->type() == JobType::EncodeScriptCLI)
-	{
-		progressBarOption.text += QString(" %1 / %2")
-			.arg(cpJob->framesProcessed()).arg(cpJob->framesTotal());
-	}
+	progressBarOption.text = QString("%1 %2 / %3")
+		.arg(vsedit::Job::stateName(state))
+		.arg(cpJob->framesProcessed())
+		.arg(cpJob->framesTotal());
 
 	QApplication::style()->drawControl(QStyle::CE_ProgressBar,
 		&progressBarOption, a_pPainter);
