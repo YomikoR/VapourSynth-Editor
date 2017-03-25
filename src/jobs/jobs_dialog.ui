@@ -101,16 +101,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Depends on:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="JobDependsOnComboBox"/>
-       </item>
-       <item>
         <widget class="QPushButton" name="jobResetStateButton">
          <property name="text">
           <string>Reset state</string>
