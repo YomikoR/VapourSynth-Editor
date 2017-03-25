@@ -158,22 +158,27 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		case JobState::Aborted:
 		case JobState::Failed:
 		case JobState::DependencyNotMet:
-			return QColor("#f9435e");
+			return QColor("#ffcccc");
 			break;
 		case JobState::Aborting:
-			return QColor("#ff9ba5");
+			return QColor("#ffeeee");
 		case JobState::Paused:
-			return QColor("#f9ed81");
+			return QColor("#fffddd");
 			break;
 		case JobState::Completed:
-			return QColor("#8fff87");
+			return QColor("#ddffdd");
 			break;
 		case JobState::Running:
-			return QColor("#87cdff");
+			return QColor("#ddeeff");
 			break;
 		default:
 			return QGuiApplication::palette().color(QPalette::Base);
 		}
+	}
+	else if(a_role == Qt::TextAlignmentRole)
+	{
+		if(column == STATE_COLUMN)
+			return Qt::AlignCenter;
 	}
 
 	return QVariant();

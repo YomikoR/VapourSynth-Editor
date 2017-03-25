@@ -52,9 +52,6 @@
        <property name="horizontalScrollMode">
         <enum>QAbstractItemView::ScrollPerPixel</enum>
        </property>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
        <attribute name="verticalHeaderVisible">
         <bool>false</bool>
        </attribute>

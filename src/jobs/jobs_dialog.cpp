@@ -7,6 +7,7 @@
 #include "job_edit_dialog.h"
 
 #include <QMessageBox>
+#include <QHeaderView>
 
 //==============================================================================
 
@@ -34,6 +35,21 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	m_pJobDependenciesDelegate = new JobDependenciesDelegate(this);
 	m_ui.jobsTableView->setItemDelegateForColumn(
 		JobsModel::DEPENDS_ON_COLUMN, m_pJobDependenciesDelegate);
+
+	QHeaderView * pHorizontalHeader = m_ui.jobsTableView->horizontalHeader();
+    pHorizontalHeader->setSectionResizeMode(JobsModel::NAME_COLUMN,
+		QHeaderView::ResizeToContents);
+    pHorizontalHeader->setSectionResizeMode(JobsModel::TYPE_COLUMN,
+		QHeaderView::ResizeToContents);
+    pHorizontalHeader->setSectionResizeMode(JobsModel::SUBJECT_COLUMN,
+		QHeaderView::Interactive);
+    pHorizontalHeader->setSectionResizeMode(JobsModel::STATE_COLUMN,
+		QHeaderView::Stretch);
+    pHorizontalHeader->setSectionResizeMode(JobsModel::DEPENDS_ON_COLUMN,
+		QHeaderView::ResizeToContents);
+
+	QHeaderView * pVerticalHeader = m_ui.jobsTableView->verticalHeader();
+	pVerticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
 
