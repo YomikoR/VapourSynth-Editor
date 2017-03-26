@@ -165,6 +165,8 @@ void JobsDialog::slotJobNewButtonClicked()
 		return;
 	int index = m_pJobsModel->createJob();
 	updateJob(index);
+	m_ui.jobsTableView->selectRow(index);
+	m_ui.jobsTableView->scrollTo(m_pJobsModel->index(index, 0));
 }
 
 // END OF
