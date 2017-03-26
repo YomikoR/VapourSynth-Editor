@@ -142,6 +142,7 @@ int JobEditDialog::call(const QString & a_title, const vsedit::Job * a_pJob)
 	{
 		int index = m_ui.jobTypeComboBox->findData((int)a_pJob->type());
 		m_ui.jobTypeComboBox->setCurrentIndex(index);
+		m_ui.encodingScriptPathEdit->setText(a_pJob->scriptName());
 		m_ui.encodingPresetComboBox->clearEditText();
 		index = m_ui.encodingHeaderTypeComboBox->findData(
 			(int)a_pJob->encodingHeaderType());
@@ -155,6 +156,7 @@ int JobEditDialog::call(const QString & a_title, const vsedit::Job * a_pJob)
 	else
 	{
 		m_ui.jobTypeComboBox->setCurrentIndex(0);
+		m_ui.encodingScriptPathEdit->clear();
 		m_ui.encodingPresetComboBox->setCurrentIndex(0);
 		m_ui.processExecutablePathEdit->clear();
 		m_ui.processArgumentsTextEdit->clear();
