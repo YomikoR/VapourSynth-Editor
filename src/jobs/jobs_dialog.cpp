@@ -76,6 +76,8 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotResumeButtonClicked()));
 	connect(m_ui.abortButton, SIGNAL(clicked()),
 		this, SLOT(slotAbortButtonClicked()));
+	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
+		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
 
 	// Test code
 	int index = m_pJobsModel->createJob();
@@ -171,14 +173,7 @@ void JobsDialog::slotJobNewButtonClicked()
 void JobsDialog::slotJobEditButtonClicked()
 {
 	QModelIndex index = m_ui.jobsTableView->currentIndex();
-	const vsedit::Job * cpJob = m_pJobsModel->job(index.row());
-	if(!cpJob)
-		return;
-	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
-		.arg(index.row() + 1), cpJob);
-	if(result == QDialog::Rejected)
-		return;
-	updateJob(index.row());
+	editJob(index);
 }
 
 // END OF
@@ -260,6 +255,29 @@ void JobsDialog::slotResumeButtonClicked()
 
 void JobsDialog::slotAbortButtonClicked()
 {
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::slotJobDoubleClicked(const QModelIndex & a_index)
+{
+	editJob(a_index);
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::editJob(const QModelIndex & a_index)
+{
+	const vsedit::Job * cpJob = m_pJobsModel->job(a_index.row());
+	if(!cpJob)
+		return;
+	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
+		.arg(a_index.row() + 1), cpJob);
+	if(result == QDialog::Rejected)
+		return;
+	updateJob(a_index.row());
 }
 
 // END OF

@@ -35,7 +35,11 @@ private slots:
 	void slotResumeButtonClicked();
 	void slotAbortButtonClicked();
 
+	void slotJobDoubleClicked(const QModelIndex & a_index);
+
 private:
+
+	void editJob(const QModelIndex & a_index);
 
 	bool updateJob(int a_index);
 
