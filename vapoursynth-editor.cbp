@@ -247,6 +247,8 @@
 		<Unit filename="src/common/chrono.h" />
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
+		<Unit filename="src/common/verbose_table_view.cpp" />
+		<Unit filename="src/common/verbose_table_view.h" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.cpp" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.h" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.ui" />
@@ -360,10 +362,10 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="release-64bit-gcc">
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-64bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-32bit-gcc">
