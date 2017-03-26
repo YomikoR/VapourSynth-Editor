@@ -275,6 +275,54 @@ int JobsModel::createJob()
 // END OF int JobsModel::createJob()
 //==============================================================================
 
+bool JobsModel::moveJobUp(int a_index)
+{
+	if(a_index == 0)
+		return false;
+
+	if(vsedit::contains(m_jobs[a_index]->dependsOnJobIds(),
+		m_jobs[a_index - 1]->id()))
+		return false;
+
+	std::swap(m_jobs[a_index], m_jobs[a_index - 1]);
+	QModelIndex first = createIndex(a_index - 1, 0);
+	QModelIndex last = createIndex(a_index, COLUMNS_NUMBER - 1);
+	emit dataChanged(first, last);
+
+	first = createIndex(0, DEPENDS_ON_COLUMN);
+	last = createIndex((int)m_jobs.size() - 1, DEPENDS_ON_COLUMN);
+	emit dataChanged(first, last);
+
+	return true;
+}
+
+// END OF bool JobsModel::moveJobUp(int a_index)
+//==============================================================================
+
+bool JobsModel::moveJobDown(int a_index)
+{
+	if(a_index >= (m_jobs.size() - 1))
+		return false;
+
+	if(vsedit::contains(m_jobs[a_index + 1]->dependsOnJobIds(),
+		m_jobs[a_index]->id()))
+		return false;
+
+	std::swap(m_jobs[a_index], m_jobs[a_index + 1]);
+	QModelIndex first = createIndex(a_index, 0);
+	QModelIndex last = createIndex(a_index + 1, COLUMNS_NUMBER - 1);
+	emit dataChanged(first, last);
+
+	first = createIndex(0, DEPENDS_ON_COLUMN);
+	last = createIndex((int)m_jobs.size() - 1, DEPENDS_ON_COLUMN);
+	emit dataChanged(first, last);
+
+	return true;
+}
+
+// END OF bool JobsModel::moveJobDown(int a_index)
+//==============================================================================
+
 bool JobsModel::deleteJob(int a_index)
 {
 	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))

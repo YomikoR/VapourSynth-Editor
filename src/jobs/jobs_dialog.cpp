@@ -186,6 +186,10 @@ void JobsDialog::slotJobEditButtonClicked()
 
 void JobsDialog::slotJobMoveUpButtonClicked()
 {
+	QModelIndex index = m_ui.jobsTableView->currentIndex();
+	bool result = m_pJobsModel->moveJobUp(index.row());
+	if(result)
+		m_ui.jobsTableView->selectRow(index.row() - 1);
 }
 
 // END OF
@@ -193,6 +197,10 @@ void JobsDialog::slotJobMoveUpButtonClicked()
 
 void JobsDialog::slotJobMoveDownButtonClicked()
 {
+	QModelIndex index = m_ui.jobsTableView->currentIndex();
+	bool result = m_pJobsModel->moveJobDown(index.row());
+	if(result)
+		m_ui.jobsTableView->selectRow(index.row() + 1);
 }
 
 // END OF

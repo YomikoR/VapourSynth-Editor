@@ -52,6 +52,9 @@ public:
 
 	int createJob();
 
+	bool moveJobUp(int a_index);
+	bool moveJobDown(int a_index);
+
 	bool deleteJob(int a_index);
 	bool deleteJob(const vsedit::Job * a_pJob);
 	bool deleteJob(const QUuid & a_uuid);
