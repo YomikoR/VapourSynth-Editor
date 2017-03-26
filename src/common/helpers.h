@@ -5,6 +5,7 @@
 
 #include <QString>
 #include <QTime>
+#include <QColor>
 #include <cassert>
 #include <algorithm>
 #include <functional>
@@ -34,6 +35,8 @@ QString subsamplingString(int a_subsamplingW, int a_subsamplingH);
 QString subsamplingString(const VSFormat * a_cpFormat);
 
 QString resolvePathFromApplication(const QString & a_relativePath);
+
+QColor highlight(const QColor & a_color, int a_strength = 20);
 
 template<typename T1, typename T2, typename T3>
 	void clamp(T1& a_value, const T2& a_low, const T3& a_high)

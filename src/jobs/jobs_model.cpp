@@ -21,6 +21,7 @@ JobsModel::JobsModel(SettingsManager * a_pSettingsManager,
 	  QAbstractItemModel(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
+	, m_highlightedRow(-1)
 {
 	assert(m_pSettingsManager);
 }
@@ -153,27 +154,35 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 	}
 	else if(a_role == Qt::BackgroundRole)
 	{
+		QColor color = QGuiApplication::palette().color(QPalette::Base);
+
 		switch(m_jobs[row]->state())
 		{
 		case JobState::Aborted:
 		case JobState::Failed:
 		case JobState::DependencyNotMet:
-			return QColor("#ffcccc");
+			color = QColor("#ffcccc");
 			break;
 		case JobState::Aborting:
-			return QColor("#ffeeee");
+			color = QColor("#ffeeee");
+			break;
 		case JobState::Paused:
-			return QColor("#fffddd");
+			color = QColor("#fffddd");
 			break;
 		case JobState::Completed:
-			return QColor("#ddffdd");
+			color = QColor("#ddffdd");
 			break;
 		case JobState::Running:
-			return QColor("#ddeeff");
+			color = QColor("#ddeeff");
 			break;
 		default:
-			return QGuiApplication::palette().color(QPalette::Base);
+			break;
 		}
+
+		if(row == m_highlightedRow)
+			color = vsedit::highlight(color, 50);
+
+		return color;
 	}
 	else if(a_role == Qt::TextAlignmentRole)
 	{
@@ -541,6 +550,23 @@ void JobsModel::slotLogMessage(const QString & a_message,
 
 // END OF void JobsModel::slotLogMessage(const QString & a_message,
 //		const QString & a_style)
+//==============================================================================
+
+void JobsModel::setHighlightedRow(const QModelIndex & a_index)
+{
+	int oldHighlightedRow = m_highlightedRow;
+	m_highlightedRow = a_index.row();
+
+	QModelIndex first = createIndex(oldHighlightedRow, 0);
+	QModelIndex last = createIndex(oldHighlightedRow, COLUMNS_NUMBER - 1);
+	emit dataChanged(first, last);
+
+	first = createIndex(m_highlightedRow, 0);
+	last = createIndex(m_highlightedRow, COLUMNS_NUMBER - 1);
+	emit dataChanged(first, last);
+}
+
+// END OF void JobsModel::setHighlightedRow(const QModelIndex & a_index)
 //==============================================================================
 
 ptrdiff_t JobsModel::indexOfJob(const QUuid & a_uuid) const

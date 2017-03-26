@@ -79,6 +79,8 @@ private slots:
 
 	void slotLogMessage(const QString & a_message, const QString & a_style);
 
+	void setHighlightedRow(const QModelIndex & a_index);
+
 private:
 
 	ptrdiff_t indexOfJob(const QUuid & a_uuid) const;
@@ -93,6 +95,8 @@ private:
 
 	SettingsManager * m_pSettingsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
+
+	int m_highlightedRow;
 };
 
 #endif // JOBS_MODEL_H_INCLUDED
