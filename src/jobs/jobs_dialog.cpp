@@ -78,7 +78,8 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotAbortButtonClicked()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
 		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
-	connect(m_ui.jobsTableView, SIGNAL(pressed(const QModelIndex &)),
+	connect(m_ui.jobsTableView,
+		SIGNAL(currentIndexChanged(const QModelIndex &)),
 		m_pJobsModel, SLOT(setHighlightedRow(const QModelIndex &)));
 
 	// Test code
