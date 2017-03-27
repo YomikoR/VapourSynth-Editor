@@ -310,7 +310,7 @@ bool JobsModel::moveJobUp(int a_index)
 
 bool JobsModel::moveJobDown(int a_index)
 {
-	if(a_index >= (m_jobs.size() - 1))
+	if(a_index >= ((int)m_jobs.size() - 1))
 		return false;
 
 	if(vsedit::contains(m_jobs[a_index + 1]->dependsOnJobIds(),
