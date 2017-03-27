@@ -101,6 +101,25 @@ const char LOG_STYLE_IS_VISIBLE_KEY[] = "is_visible";
 
 //==============================================================================
 
+const char JOBS_GROUP[] = "jobs";
+
+const char JOB_TYPE_KEY[] = "type";
+const char JOB_STATE_KEY[] = "state";
+const char JOB_DEPENDS_ON_JOBS_KEY[] = "depends_on_jobs";
+const char JOB_TIME_STARTED_KEY[] = "time_started";
+const char JOB_TIME_ENDED_KEY[] = "time_ended";
+const char JOB_SCRIPT_NAME_KEY[] = "script_name";
+const char JOB_ENCODING_TYPE_KEY[] = "encoding_type";
+const char JOB_ENCODING_HEADER_TYPE_KEY[] = "encoding_header_type";
+const char JOB_EXECUTABLE_PATH_KEY[] = "executable_path";
+const char JOB_ARGUMENTS_KEY[] = "arguments";
+const char JOB_SHELL_COMMAND_KEY[] = "shell_command";
+const char JOB_FIRST_FRAME_KEY[] = "first_frame";
+const char JOB_LAST_FRAME_KEY[] = "last_frame";
+const char JOB_FRAME_PROCESSED_KEY[] = "frames_processed";
+
+//==============================================================================
+
 SettingsManager::SettingsManager(QObject* a_pParent) : QObject(a_pParent)
 {
 	QString applicationDir = QCoreApplication::applicationDirPath();
@@ -1362,3 +1381,102 @@ bool SettingsManager::setLastSnapshotExtension(const QString & a_extension)
 }
 
 //==============================================================================
+
+std::vector<JobProperties> SettingsManager::getJobs() const
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(JOBS_GROUP);
+
+	std::vector<JobProperties> jobs;
+
+	QStringList jobIdStrings = settings.childGroups();
+	for(const QString & idString : jobIdStrings)
+	{
+		settings.beginGroup(idString);
+
+		JobProperties job;
+		job.id = QUuid(idString);
+
+		job.type = (JobType)settings.value(JOB_TYPE_KEY,
+			(int)DEFAULT_JOB_TYPE).toInt();
+		job.jobState = (JobState)settings.value(JOB_STATE_KEY,
+			(int)DEFAULT_JOB_STATE).toInt();
+
+		QStringList dependencyIdStrings =
+			settings.value(JOB_DEPENDS_ON_JOBS_KEY).toStringList();
+		for(const QString & dependencyIdString : dependencyIdStrings)
+		{
+			QUuid dependencyId(dependencyIdString);
+			job.dependsOnJobIds.push_back(dependencyId);
+		}
+
+		job.timeStarted = settings.value(JOB_TIME_STARTED_KEY).toDateTime();
+		job.timeEnded = settings.value(JOB_TIME_ENDED_KEY).toDateTime();
+		job.scriptName = settings.value(JOB_SCRIPT_NAME_KEY).toString();
+
+		job.encodingType = (EncodingType)settings.value(JOB_ENCODING_TYPE_KEY,
+			(int)DEFAULT_ENCODING_TYPE).toInt();
+		job.encodingHeaderType = (EncodingHeaderType)settings.value(
+			JOB_ENCODING_HEADER_TYPE_KEY,
+			(int)DEFAULT_ENCODING_HEADER_TYPE).toInt();
+
+		job.executablePath = settings.value(JOB_EXECUTABLE_PATH_KEY).toString();
+		job.arguments = settings.value(JOB_ARGUMENTS_KEY).toString();
+		job.shellCommand = settings.value(JOB_SHELL_COMMAND_KEY).toString();
+
+		job.firstFrame = settings.value(JOB_FIRST_FRAME_KEY,
+			DEFAULT_JOB_FIRST_FRAME).toInt();
+		job.lastFrame = settings.value(JOB_LAST_FRAME_KEY,
+			DEFAULT_JOB_LAST_FRAME).toInt();
+		job.framesProcessed = settings.value(JOB_FRAME_PROCESSED_KEY,
+			DEFAULT_JOB_FRAMES_PROCESSED).toInt();
+
+		jobs.push_back(job);
+
+		settings.endGroup();
+	}
+
+	return jobs;
+}
+
+bool SettingsManager::setJobs(const std::vector<JobProperties> & a_jobs)
+{
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.remove(JOBS_GROUP);
+	settings.beginGroup(JOBS_GROUP);
+
+	for(const JobProperties & job : a_jobs)
+	{
+		settings.beginGroup(job.id.toString());
+
+		settings.setValue(JOB_TYPE_KEY, (int)job.type);
+		settings.setValue(JOB_STATE_KEY, (int)job.jobState);
+
+		QStringList dependencyIdStrings;
+		for(const QUuid & id : job.dependsOnJobIds)
+			dependencyIdStrings << id.toString();
+		settings.setValue(JOB_DEPENDS_ON_JOBS_KEY, dependencyIdStrings);
+
+		settings.setValue(JOB_TIME_STARTED_KEY, job.timeStarted);
+		settings.setValue(JOB_TIME_ENDED_KEY, job.timeEnded);
+		settings.setValue(JOB_SCRIPT_NAME_KEY, job.scriptName);
+		settings.setValue(JOB_ENCODING_TYPE_KEY, (int)job.encodingType);
+		settings.setValue(JOB_ENCODING_HEADER_TYPE_KEY,
+			(int)job.encodingHeaderType);
+		settings.setValue(JOB_EXECUTABLE_PATH_KEY, job.executablePath);
+		settings.setValue(JOB_ARGUMENTS_KEY, job.arguments);
+		settings.setValue(JOB_SHELL_COMMAND_KEY, job.shellCommand);
+		settings.setValue(JOB_FIRST_FRAME_KEY, job.firstFrame);
+		settings.setValue(JOB_LAST_FRAME_KEY, job.lastFrame);
+		settings.setValue(JOB_FRAME_PROCESSED_KEY, job.framesProcessed);
+
+		settings.endGroup();
+	}
+
+	settings.sync();
+	bool success = (QSettings::NoError == settings.status());
+	return success;
+}
+
+//==============================================================================
+

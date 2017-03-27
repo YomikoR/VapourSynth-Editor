@@ -202,6 +202,12 @@ extern const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE;
 
 extern const char DEFAULT_DROP_FILE_TEMPLATE[];
 
+extern const JobType DEFAULT_JOB_TYPE;
+extern const JobState DEFAULT_JOB_STATE;
+extern const int DEFAULT_JOB_FIRST_FRAME;
+extern const int DEFAULT_JOB_LAST_FRAME;
+extern const int DEFAULT_JOB_FRAMES_PROCESSED;
+
 //==============================================================================
 
 extern const char ACTION_ID_NEW_SCRIPT[];

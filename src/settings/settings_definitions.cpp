@@ -48,6 +48,12 @@ const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =
 
 const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'{f}\'";
 
+const JobType DEFAULT_JOB_TYPE = JobType::EncodeScriptCLI;
+const JobState DEFAULT_JOB_STATE = JobState::Waiting;
+const int DEFAULT_JOB_FIRST_FRAME = -1;
+const int DEFAULT_JOB_LAST_FRAME = -1;
+const int DEFAULT_JOB_FRAMES_PROCESSED = 0;
+
 //==============================================================================
 
 const char ACTION_ID_NEW_SCRIPT[] = "new_script";

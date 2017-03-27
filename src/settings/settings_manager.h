@@ -252,6 +252,10 @@ public:
 
 	bool setLastSnapshotExtension(const QString & a_extension);
 
+	std::vector<JobProperties> getJobs() const;
+
+	bool setJobs(const std::vector<JobProperties> & a_jobs);
+
 private:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,
