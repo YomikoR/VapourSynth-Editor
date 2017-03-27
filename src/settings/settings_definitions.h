@@ -110,7 +110,9 @@ struct JobProperties
 
 	JobProperties();
 	JobProperties(const JobProperties &) = default;
+	JobProperties(JobProperties &&) = default;
 	JobProperties & operator=(const JobProperties &) = default;
+	JobProperties & operator=(JobProperties &&) = default;
 };
 
 struct EncodingPreset
@@ -121,8 +123,7 @@ struct EncodingPreset
 	QString executablePath;
 	QString arguments;
 
-	EncodingPreset();
-	EncodingPreset(const QString & a_name);
+	EncodingPreset(const QString & a_name = QString());
 	bool operator==(const EncodingPreset & a_other) const;
 	bool operator<(const EncodingPreset & a_other) const;
 	bool isEmpty() const;
@@ -144,8 +145,8 @@ struct CodeSnippet
 	QString name;
 	QString text;
 
-	CodeSnippet();
-	CodeSnippet(const QString & a_name, const QString & a_text = QString());
+	CodeSnippet(const QString & a_name = QString(),
+		const QString & a_text = QString());
 	bool operator==(const CodeSnippet & a_other) const;
 	bool operator<(const CodeSnippet & a_other) const;
 	bool isEmpty() const;

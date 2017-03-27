@@ -136,12 +136,6 @@ JobProperties::JobProperties():
 
 //==============================================================================
 
-EncodingPreset::EncodingPreset():
-	  type(DEFAULT_ENCODING_TYPE)
-	, headerType(DEFAULT_ENCODING_HEADER_TYPE)
-{
-}
-
 EncodingPreset::EncodingPreset(const QString & a_name):
 	  name(a_name)
 	, type(DEFAULT_ENCODING_TYPE)
@@ -177,12 +171,6 @@ bool StandardAction::operator<(const StandardAction & a_other) const
 }
 
 //==============================================================================
-
-CodeSnippet::CodeSnippet() :
-	  name()
-	, text()
-{
-}
 
 CodeSnippet::CodeSnippet(const QString & a_name, const QString & a_text) :
 	  name(a_name)
