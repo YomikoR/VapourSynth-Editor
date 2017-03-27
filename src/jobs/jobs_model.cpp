@@ -270,7 +270,7 @@ const vsedit::Job * JobsModel::job(int a_index) const
 
 int JobsModel::createJob()
 {
-	vsedit::Job * pJob = new vsedit::Job(m_pSettingsManager,
+	vsedit::Job * pJob = new vsedit::Job(JobProperties(),  m_pSettingsManager,
 		m_pVSScriptLibrary, this);
 	connect(pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
 		this, SLOT(slotLogMessage(const QString &, const QString &)));

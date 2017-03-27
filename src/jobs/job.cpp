@@ -13,16 +13,12 @@
 
 //==============================================================================
 
-vsedit::Job::Job(SettingsManager * a_pSettingsManager,
-	VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent) :
+vsedit::Job::Job(const JobProperties & a_properties,
+	SettingsManager * a_pSettingsManager,
+	VSScriptLibrary * a_pVSScriptLibrary,
+	QObject * a_pParent) :
 	  QObject(a_pParent)
-	, m_type(JobType::EncodeScriptCLI)
-	, m_jobState(JobState::Waiting)
-	, m_encodingType(EncodingType::CLI)
-	, m_encodingHeaderType(EncodingHeaderType::NoHeader)
-	, m_firstFrame(-1)
-	, m_lastFrame(-1)
-	, m_framesProcessed(0)
+	, m_properties(a_properties)
 	, m_lastFrameProcessed(-1)
 	, m_lastFrameRequested(-1)
 	, m_encodingState(EncodingState::Idle)
@@ -36,7 +32,6 @@ vsedit::Job::Job(SettingsManager * a_pSettingsManager,
 	, m_pFrameHeaderWriter(nullptr)
 	, m_cachedFramesLimit(100)
 {
-	m_id = QUuid::createUuid();
 	fillVariables();
 	if(a_pVSScriptLibrary)
 		m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
@@ -110,7 +105,7 @@ void vsedit::Job::abort()
 
 QUuid vsedit::Job::id() const
 {
-	return m_id;
+	return m_properties.id;
 }
 
 // END OF
@@ -118,7 +113,7 @@ QUuid vsedit::Job::id() const
 
 bool vsedit::Job::setId(const QUuid & a_id)
 {
-	m_id = a_id;
+	m_properties.id = a_id;
 	return true;
 }
 
@@ -127,7 +122,7 @@ bool vsedit::Job::setId(const QUuid & a_id)
 
 JobType vsedit::Job::type() const
 {
-	return m_type;
+	return m_properties.type;
 }
 
 // END OF
@@ -135,7 +130,7 @@ JobType vsedit::Job::type() const
 
 bool vsedit::Job::setType(JobType a_type)
 {
-	m_type = a_type;
+	m_properties.type = a_type;
 	return true;
 }
 
@@ -144,7 +139,7 @@ bool vsedit::Job::setType(JobType a_type)
 
 QString vsedit::Job::scriptName() const
 {
-	return m_scriptName;
+	return m_properties.scriptName;
 }
 
 // END OF
@@ -152,7 +147,7 @@ QString vsedit::Job::scriptName() const
 
 bool vsedit::Job::setScriptName(const QString & a_scriptName)
 {
-	m_scriptName = a_scriptName;
+	m_properties.scriptName = a_scriptName;
 	return true;
 }
 
@@ -161,7 +156,7 @@ bool vsedit::Job::setScriptName(const QString & a_scriptName)
 
 EncodingHeaderType vsedit::Job::encodingHeaderType() const
 {
-	return m_encodingHeaderType;
+	return m_properties.encodingHeaderType;
 }
 
 // END OF
@@ -169,7 +164,7 @@ EncodingHeaderType vsedit::Job::encodingHeaderType() const
 
 bool vsedit::Job::setEncodingHeaderType(EncodingHeaderType a_headerType)
 {
-	m_encodingHeaderType = a_headerType;
+	m_properties.encodingHeaderType = a_headerType;
 	return true;
 }
 
@@ -178,7 +173,7 @@ bool vsedit::Job::setEncodingHeaderType(EncodingHeaderType a_headerType)
 
 QString vsedit::Job::executablePath() const
 {
-	return m_executablePath;
+	return m_properties.executablePath;
 }
 
 // END OF
@@ -186,7 +181,7 @@ QString vsedit::Job::executablePath() const
 
 bool vsedit::Job::setExecutablePath(const QString & a_path)
 {
-	m_executablePath = a_path;
+	m_properties.executablePath = a_path;
 	return true;
 }
 
@@ -195,7 +190,7 @@ bool vsedit::Job::setExecutablePath(const QString & a_path)
 
 QString vsedit::Job::arguments() const
 {
-	return m_arguments;
+	return m_properties.arguments;
 }
 
 // END OF
@@ -203,7 +198,7 @@ QString vsedit::Job::arguments() const
 
 bool vsedit::Job::setArguments(const QString & a_arguments)
 {
-	m_arguments = a_arguments;
+	m_properties.arguments = a_arguments;
 	return true;
 }
 
@@ -212,7 +207,7 @@ bool vsedit::Job::setArguments(const QString & a_arguments)
 
 QString vsedit::Job::shellCommand() const
 {
-	return m_shellCommand;
+	return m_properties.shellCommand;
 }
 
 // END OF
@@ -220,7 +215,7 @@ QString vsedit::Job::shellCommand() const
 
 bool vsedit::Job::setShellCommand(const QString & a_command)
 {
-	m_shellCommand = a_command;
+	m_properties.shellCommand = a_command;
 	return true;
 }
 
@@ -229,7 +224,7 @@ bool vsedit::Job::setShellCommand(const QString & a_command)
 
 JobState vsedit::Job::state() const
 {
-	return m_jobState;
+	return m_properties.jobState;
 }
 
 // END OF
@@ -237,7 +232,7 @@ JobState vsedit::Job::state() const
 
 bool vsedit::Job::setState(JobState a_state)
 {
-	m_jobState = a_state;
+	m_properties.jobState = a_state;
 	return true;
 }
 
@@ -246,7 +241,7 @@ bool vsedit::Job::setState(JobState a_state)
 
 std::vector<QUuid> vsedit::Job::dependsOnJobIds() const
 {
-	return m_dependsOnJobIds;
+	return m_properties.dependsOnJobIds;
 }
 
 // END OF
@@ -254,7 +249,7 @@ std::vector<QUuid> vsedit::Job::dependsOnJobIds() const
 
 bool vsedit::Job::setDependsOnJobIds(const std::vector<QUuid> & a_ids)
 {
-	m_dependsOnJobIds = a_ids;
+	m_properties.dependsOnJobIds = a_ids;
 	return true;
 }
 
@@ -265,23 +260,25 @@ QString vsedit::Job::subject() const
 {
 	QString subjectString;
 
-	if(m_type == JobType::EncodeScriptCLI)
+	if(m_properties.type == JobType::EncodeScriptCLI)
 	{
 		subjectString = QString("%sn%:\n\"%ep%\" %arg%");
-		subjectString = subjectString.replace("%sn%", m_scriptName);
-		subjectString = subjectString.replace("%ep%", m_executablePath);
+		subjectString = subjectString.replace("%sn%", m_properties.scriptName);
+		subjectString = subjectString.replace("%ep%",
+			m_properties.executablePath);
 		subjectString = subjectString.replace("%arg%",
-			m_arguments.simplified());
+			m_properties.arguments.simplified());
 	}
-	else if(m_type == JobType::RunProcess)
+	else if(m_properties.type == JobType::RunProcess)
 	{
 		subjectString = QString("\"%ep%\" %arg%");
-		subjectString = subjectString.replace("%ep%", m_executablePath);
+		subjectString = subjectString.replace("%ep%",
+			m_properties.executablePath);
 		subjectString = subjectString.replace("%arg%",
-			m_arguments.simplified());
+			m_properties.arguments.simplified());
 	}
-	else if(m_type == JobType::RunShellCommand)
-		subjectString = m_shellCommand.simplified();
+	else if(m_properties.type == JobType::RunShellCommand)
+		subjectString = m_properties.shellCommand.simplified();
 
 	return subjectString;
 }
@@ -306,8 +303,8 @@ std::vector<vsedit::VariableToken> vsedit::Job::variables() const
 
 int vsedit::Job::framesProcessed() const
 {
-	if(m_type == JobType::EncodeScriptCLI)
-		return m_framesProcessed;
+	if(m_properties.type == JobType::EncodeScriptCLI)
+		return m_properties.framesProcessed;
 	return 0;
 }
 
@@ -316,9 +313,27 @@ int vsedit::Job::framesProcessed() const
 
 int vsedit::Job::framesTotal() const
 {
-	if(m_type == JobType::EncodeScriptCLI)
-		return (m_lastFrame - m_firstFrame + 1);
+	if(m_properties.type == JobType::EncodeScriptCLI)
+		return (m_properties.lastFrame - m_properties.firstFrame + 1);
 	return 0;
+}
+
+// END OF
+//==============================================================================
+
+JobProperties vsedit::Job::properties() const
+{
+	return m_properties;
+}
+
+// END OF
+//==============================================================================
+
+bool vsedit::Job::setProperties(const JobProperties & a_properties)
+{
+	// TODO: sanity checks
+	m_properties = a_properties;
+	return true;
 }
 
 // END OF
@@ -375,7 +390,7 @@ void vsedit::Job::fillVariables()
 		{"{sd}", trUtf8("script directory"),
 			[&]()
 			{
-				QFileInfo scriptFile(m_scriptName);
+				QFileInfo scriptFile(m_properties.scriptName);
 				return scriptFile.canonicalPath();
 			}
 		},
@@ -383,7 +398,7 @@ void vsedit::Job::fillVariables()
 		{"{sn}", trUtf8("script name without extension"),
 			[&]()
 			{
-				QFileInfo scriptFile(m_scriptName);
+				QFileInfo scriptFile(m_properties.scriptName);
 				return scriptFile.completeBaseName();
 			}
 		},

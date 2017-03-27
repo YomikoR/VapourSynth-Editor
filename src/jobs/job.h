@@ -27,7 +27,8 @@ class Job : public QObject
 
 public:
 
-	Job(SettingsManager * a_pSettingsManager = nullptr,
+	Job(const JobProperties & a_properties = JobProperties(),
+		SettingsManager * a_pSettingsManager = nullptr,
 		VSScriptLibrary * a_pVSScriptLibrary = nullptr,
 		QObject * a_pParent = nullptr);
 	virtual ~Job();
@@ -87,6 +88,9 @@ public:
 	virtual int framesProcessed() const;
 	virtual int framesTotal() const;
 
+	virtual JobProperties properties() const;
+	virtual bool setProperties(const JobProperties & a_properties);
+
 signals:
 
 	void signalStateChanged(JobState a_state);
@@ -100,29 +104,7 @@ protected:
 
 	virtual void fillVariables();
 
-	QUuid m_id;
-
-	JobType m_type;
-	JobState m_jobState;
-
-	std::vector<QUuid> m_dependsOnJobIds;
-
-	QDateTime m_timeStarted;
-	QDateTime m_timeEnded;
-
-	QString m_scriptName;
-
-	EncodingType m_encodingType;
-	EncodingHeaderType m_encodingHeaderType;
-	QString m_executablePath;
-	QString m_arguments;
-	QString m_shellCommand;
-
-	int m_firstFrame;
-	int m_lastFrame;
-	int m_framesProcessed;
-
-	hr_time_point m_encodeStartTime;
+	JobProperties m_properties;
 
 	QProcess m_encoder;
 

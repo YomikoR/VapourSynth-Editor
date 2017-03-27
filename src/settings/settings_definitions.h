@@ -8,6 +8,7 @@
 #include <QIcon>
 #include <QKeySequence>
 #include <QStringList>
+#include <QUuid>
 
 //==============================================================================
 
@@ -87,6 +88,29 @@ enum class JobState
 	Failed,
 	DependencyNotMet,
 	Completed,
+};
+
+struct JobProperties
+{
+	QUuid id;
+	JobType type;
+	JobState jobState;
+	std::vector<QUuid> dependsOnJobIds;
+	QDateTime timeStarted;
+	QDateTime timeEnded;
+	QString scriptName;
+	EncodingType encodingType;
+	EncodingHeaderType encodingHeaderType;
+	QString executablePath;
+	QString arguments;
+	QString shellCommand;
+	int firstFrame;
+	int lastFrame;
+	int framesProcessed;
+
+	JobProperties();
+	JobProperties(const JobProperties &) = default;
+	JobProperties & operator=(const JobProperties &) = default;
 };
 
 struct EncodingPreset

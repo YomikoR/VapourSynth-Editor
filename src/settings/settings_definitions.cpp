@@ -123,6 +123,19 @@ const char COLOR_ID_TIMELINE_BOOKMARKS[] = "timeline_bookmarks";
 
 //==============================================================================
 
+JobProperties::JobProperties():
+	  id(QUuid::createUuid())
+	, type(JobType::EncodeScriptCLI)
+	, jobState(JobState::Waiting)
+	, encodingHeaderType(EncodingHeaderType::NoHeader)
+	, firstFrame(-1)
+	, lastFrame(-1)
+	, framesProcessed(0)
+{
+}
+
+//==============================================================================
+
 EncodingPreset::EncodingPreset():
 	  type(DEFAULT_ENCODING_TYPE)
 	, headerType(DEFAULT_ENCODING_HEADER_TYPE)
