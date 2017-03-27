@@ -263,14 +263,27 @@ bool vsedit::Job::setDependsOnJobIds(const std::vector<QUuid> & a_ids)
 
 QString vsedit::Job::subject() const
 {
+	QString subjectString;
+
 	if(m_type == JobType::EncodeScriptCLI)
-		return m_scriptName;
+	{
+		subjectString = QString("%sn%:\n\"%ep%\" %arg%");
+		subjectString = subjectString.replace("%sn%", m_scriptName);
+		subjectString = subjectString.replace("%ep%", m_executablePath);
+		subjectString = subjectString.replace("%arg%",
+			m_arguments.simplified());
+	}
 	else if(m_type == JobType::RunProcess)
-		return m_executablePath;
+	{
+		subjectString = QString("\"%ep%\" %arg%");
+		subjectString = subjectString.replace("%ep%", m_executablePath);
+		subjectString = subjectString.replace("%arg%",
+			m_arguments.simplified());
+	}
 	else if(m_type == JobType::RunShellCommand)
-		return m_shellCommand;
-	else
-		return "-";
+		subjectString = m_shellCommand.simplified();
+
+	return subjectString;
 }
 
 // END OF
