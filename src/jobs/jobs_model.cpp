@@ -658,7 +658,23 @@ void JobsModel::setHighlightedRow(const QModelIndex & a_index)
 // END OF void JobsModel::setHighlightedRow(const QModelIndex & a_index)
 //==============================================================================
 
-ptrdiff_t JobsModel::indexOfJob(const QUuid & a_uuid) const
+void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
+{
+	(void)a_oldState;
+	(void)a_newState;
+	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
+	if(!pJob)
+		return;
+
+	int jobIndex = indexOfJob(pJob->id());
+	notifyJobUpdated(jobIndex);
+}
+
+// END OF void JobsModel::slotJobStateChanged(JobState a_newState,
+//		JobState a_oldState)
+//==============================================================================
+
+int JobsModel::indexOfJob(const QUuid & a_uuid) const
 {
 	std::vector<vsedit::Job *>::const_iterator it =
 		std::find_if(m_jobs.cbegin(), m_jobs.cend(),
@@ -670,7 +686,7 @@ ptrdiff_t JobsModel::indexOfJob(const QUuid & a_uuid) const
 	return (it == m_jobs.cend()) ? -1 : std::distance(m_jobs.cbegin(), it);
 }
 
-// END OF ptrdiff_t JobsModel::indexOfJob(const QUuid & a_uuid) const
+// END OF int JobsModel::indexOfJob(const QUuid & a_uuid) const
 //==============================================================================
 
 void JobsModel::clearJobs()

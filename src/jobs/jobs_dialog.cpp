@@ -37,15 +37,16 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		JobsModel::DEPENDS_ON_COLUMN, m_pJobDependenciesDelegate);
 
 	QHeaderView * pHorizontalHeader = m_ui.jobsTableView->horizontalHeader();
-    pHorizontalHeader->setSectionResizeMode(JobsModel::NAME_COLUMN,
+	pHorizontalHeader->setSectionResizeMode(JobsModel::NAME_COLUMN,
 		QHeaderView::ResizeToContents);
-    pHorizontalHeader->setSectionResizeMode(JobsModel::TYPE_COLUMN,
+	pHorizontalHeader->setSectionResizeMode(JobsModel::TYPE_COLUMN,
 		QHeaderView::ResizeToContents);
-    pHorizontalHeader->setSectionResizeMode(JobsModel::SUBJECT_COLUMN,
+	pHorizontalHeader->setSectionResizeMode(JobsModel::SUBJECT_COLUMN,
 		QHeaderView::Interactive);
-    pHorizontalHeader->setSectionResizeMode(JobsModel::STATE_COLUMN,
+	pHorizontalHeader->resizeSection(JobsModel::SUBJECT_COLUMN, 500);
+	pHorizontalHeader->setSectionResizeMode(JobsModel::STATE_COLUMN,
 		QHeaderView::Stretch);
-    pHorizontalHeader->setSectionResizeMode(JobsModel::DEPENDS_ON_COLUMN,
+	pHorizontalHeader->setSectionResizeMode(JobsModel::DEPENDS_ON_COLUMN,
 		QHeaderView::ResizeToContents);
 
 	QHeaderView * pVerticalHeader = m_ui.jobsTableView->verticalHeader();

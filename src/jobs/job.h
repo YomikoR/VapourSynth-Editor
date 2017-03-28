@@ -93,7 +93,7 @@ public:
 
 signals:
 
-	void signalStateChanged(JobState a_state);
+	void signalStateChanged(JobState a_newState, JobState a_oldState);
 
 	void signalProgressChanged();
 

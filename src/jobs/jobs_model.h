@@ -88,9 +88,21 @@ private slots:
 
 	void setHighlightedRow(const QModelIndex & a_index);
 
+	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
+
 private:
 
-	ptrdiff_t indexOfJob(const QUuid & a_uuid) const;
+	enum class WantTo
+	{
+		Idle,
+		RunOne,
+		RunAll,
+		AbortOne,
+		AbortAll,
+		Pause,
+	};
+
+	int indexOfJob(const QUuid & a_uuid) const;
 
 	void clearJobs();
 
