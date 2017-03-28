@@ -70,6 +70,13 @@ public:
 
 	bool canModifyJob(int a_index) const;
 
+	bool loadJobs();
+	bool saveJobs();
+
+	bool hasActiveJobs();
+
+	void abortActiveJobs();
+
 signals:
 
 	void signalLogMessage(const QString & a_message,

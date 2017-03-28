@@ -9,6 +9,7 @@
 #include <QKeySequence>
 #include <QStringList>
 #include <QUuid>
+#include <vector>
 
 //==============================================================================
 
@@ -89,6 +90,8 @@ enum class JobState
 	DependencyNotMet,
 	Completed,
 };
+
+extern const std::vector<JobState> ACTIVE_JOB_STATES;
 
 struct JobProperties
 {

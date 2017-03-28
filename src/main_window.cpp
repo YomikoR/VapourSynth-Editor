@@ -89,6 +89,7 @@ MainWindow::MainWindow() : QMainWindow()
 	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
 
 	m_pJobsModel = new JobsModel(m_pSettingsManager, m_pVSScriptLibrary, this);
+	m_pJobsModel->loadJobs();
 
 	m_ui.scriptEdit->setPluginsList(vsPluginsList);
 	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
@@ -254,6 +255,14 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 		a_pEvent->ignore();
 		return;
 	}
+
+	if(m_pJobsModel->hasActiveJobs())
+	{
+		a_pEvent->ignore();
+		return;
+	}
+
+	m_pJobsModel->saveJobs();
 
 	destroyOrphanQObjects();
 

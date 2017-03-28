@@ -533,6 +533,95 @@ bool JobsModel::canModifyJob(int a_index) const
 // END OF bool JobsModel::canModifyJob(int a_index) const
 //==============================================================================
 
+bool JobsModel::loadJobs()
+{
+	if(hasActiveJobs())
+	{
+		emit signalLogMessage(trUtf8("Can not load jobs. "
+			"Some of current jobs are still active.", LOG_STYLE_WARNING));
+		return false;
+	}
+
+	if((!m_pSettingsManager) || (!m_pVSScriptLibrary))
+	{
+		emit signalLogMessage(trUtf8("Can not load jobs. "
+			"Model is not initialized correctly.", LOG_STYLE_ERROR));
+		return false;
+	}
+
+	beginResetModel();
+
+	m_jobs.clear();
+
+	std::vector<JobProperties> jobPropertiesList =
+		m_pSettingsManager->getJobs();
+	for(const JobProperties & properties : jobPropertiesList)
+	{
+		vsedit::Job * pJob = new vsedit::Job(properties, m_pSettingsManager,
+			m_pVSScriptLibrary);
+		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
+			pJob->setState(JobState::Aborted);
+		m_jobs.push_back(pJob);
+	}
+
+	endResetModel();
+
+	return true;
+}
+
+// END OF bool JobsModel::loadJobs()
+//==============================================================================
+
+bool JobsModel::saveJobs()
+{
+	if(!m_pSettingsManager)
+	{
+		emit signalLogMessage(trUtf8("Can not save jobs. "
+			"Model is not initialized correctly.", LOG_STYLE_ERROR));
+		return false;
+	}
+
+	std::vector<JobProperties> jobPropertiesList;
+	for(const vsedit::Job * cpJob : m_jobs)
+		jobPropertiesList.push_back(cpJob->properties());
+
+	bool result = m_pSettingsManager->setJobs(jobPropertiesList);
+
+	if(!result)
+		emit signalLogMessage(trUtf8("Failed to save jobs.", LOG_STYLE_ERROR));
+
+	return result;
+}
+
+// END OF bool JobsModel::saveJobs()
+//==============================================================================
+
+bool JobsModel::hasActiveJobs()
+{
+	for(const vsedit::Job * cpJob : m_jobs)
+	{
+		if(vsedit::contains(ACTIVE_JOB_STATES, cpJob->state()))
+			return true;
+	}
+	return false;
+}
+
+// END OF bool JobsModel::hasActiveJobs()
+//==============================================================================
+
+void JobsModel::abortActiveJobs()
+{
+	for(vsedit::Job * pJob : m_jobs)
+	{
+		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
+			pJob->abort();
+	}
+}
+
+// END OF void JobsModel::abortActiveJobs()
+//==============================================================================
+
+
 void JobsModel::slotLogMessage(const QString & a_message,
 	const QString & a_style)
 {

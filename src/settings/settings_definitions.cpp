@@ -129,6 +129,9 @@ const char COLOR_ID_TIMELINE_BOOKMARKS[] = "timeline_bookmarks";
 
 //==============================================================================
 
+const std::vector<JobState> ACTIVE_JOB_STATES =
+	{JobState::Running, JobState::Paused, JobState::Aborting};
+
 JobProperties::JobProperties():
 	  id(QUuid::createUuid())
 	, type(JobType::EncodeScriptCLI)
