@@ -103,6 +103,7 @@ const char LOG_STYLE_IS_VISIBLE_KEY[] = "is_visible";
 
 const char JOBS_GROUP[] = "jobs";
 
+const char JOB_ID_KEY[] = "id";
 const char JOB_TYPE_KEY[] = "type";
 const char JOB_STATE_KEY[] = "state";
 const char JOB_DEPENDS_ON_JOBS_KEY[] = "depends_on_jobs";
@@ -1389,13 +1390,18 @@ std::vector<JobProperties> SettingsManager::getJobs() const
 
 	std::vector<JobProperties> jobs;
 
-	QStringList jobIdStrings = settings.childGroups();
-	for(const QString & idString : jobIdStrings)
+	QStringList numbers = settings.childGroups();
+	for(const QString & number : numbers)
 	{
-		settings.beginGroup(idString);
+		settings.beginGroup(number);
 
 		JobProperties job;
-		job.id = QUuid(idString);
+
+		QString idString = settings.value(JOB_ID_KEY).toString();
+		if(idString.isEmpty())
+			job.id = QUuid::createUuid();
+		else
+			job.id = QUuid(idString);
 
 		job.type = (JobType)settings.value(JOB_TYPE_KEY,
 			(int)DEFAULT_JOB_TYPE).toInt();
@@ -1445,10 +1451,13 @@ bool SettingsManager::setJobs(const std::vector<JobProperties> & a_jobs)
 	settings.remove(JOBS_GROUP);
 	settings.beginGroup(JOBS_GROUP);
 
-	for(const JobProperties & job : a_jobs)
+	for(size_t i = 0; i < a_jobs.size(); ++i)
 	{
-		settings.beginGroup(job.id.toString());
+		const JobProperties & job = a_jobs[i];
 
+		settings.beginGroup(QString("%1").arg(i, 7, 10, QChar('0')));
+
+		settings.setValue(JOB_ID_KEY, job.id.toString());
 		settings.setValue(JOB_TYPE_KEY, (int)job.type);
 		settings.setValue(JOB_STATE_KEY, (int)job.jobState);
 
