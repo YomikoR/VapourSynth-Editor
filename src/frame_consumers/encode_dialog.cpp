@@ -54,8 +54,6 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 
 	createStatusBar();
 
-	setUpEncodingPresets();
-
 	m_ui.executableBrowseButton->setIcon(QIcon(":folder.png"));
 
 	m_ui.argumentsHelpButton->setIcon(QIcon(":information.png"));
@@ -90,6 +88,8 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotEncoderBytesWritten(qint64)));
 	connect(&m_encoder, SIGNAL(readyReadStandardError()),
 		this, SLOT(slotEncoderReadyReadStandardError()));
+
+	setUpEncodingPresets();
 }
 
 // END OF EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
