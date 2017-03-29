@@ -119,6 +119,23 @@ void vsedit::Job::pause()
 
 void vsedit::Job::abort()
 {
+	changeStateAndNotify(JobState::Aborting);
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		m_encodingState = EncodingState::Aborting;
+		cleanUpEncoding();
+		return;
+	}
+	else if(m_properties.type == JobType::RunProcess)
+	{
+		if(m_process.state() == QProcess::Running)
+		{
+			m_process.kill();
+			m_process.waitForFinished(-1);
+		}
+	}
+
+	changeStateAndNotify(JobState::Aborted);
 }
 
 // END OF
