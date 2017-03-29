@@ -82,6 +82,8 @@ signals:
 	void signalLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
 
+	void signalNoActiveJobs();
+
 private slots:
 
 	void slotLogMessage(const QString & a_message, const QString & a_style);
@@ -89,6 +91,7 @@ private slots:
 	void setHighlightedRow(const QModelIndex & a_index);
 
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
+	void slotJobProgressChanged();
 
 private:
 
@@ -99,7 +102,8 @@ private:
 		RunAll,
 		AbortOne,
 		AbortAll,
-		Pause,
+		PauseOne,
+		PauseAll,
 	};
 
 	int indexOfJob(const QUuid & a_uuid) const;
@@ -110,12 +114,18 @@ private:
 
 	void notifyJobUpdated(int a_index);
 
+	bool dependenciesMet(int a_index);
+
+	void connectJob(vsedit::Job * a_pJob);
+
 	std::vector<vsedit::Job *> m_jobs;
 
 	SettingsManager * m_pSettingsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
 
 	int m_highlightedRow;
+
+	WantTo m_wantTo;
 };
 
 #endif // JOBS_MODEL_H_INCLUDED

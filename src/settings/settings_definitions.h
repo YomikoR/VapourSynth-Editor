@@ -83,6 +83,7 @@ enum class JobState
 {
 	Waiting,
 	Running,
+	Pausing,
 	Paused,
 	Aborting,
 	Aborted,

@@ -22,6 +22,7 @@ JobsModel::JobsModel(SettingsManager * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 	, m_highlightedRow(-1)
+	, m_wantTo(WantTo::Idle)
 {
 	assert(m_pSettingsManager);
 }
@@ -166,6 +167,7 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		case JobState::Aborting:
 			color = QColor("#ffeeee");
 			break;
+		case JobState::Pausing:
 		case JobState::Paused:
 			color = QColor("#fffddd");
 			break;
@@ -272,8 +274,7 @@ int JobsModel::createJob()
 {
 	vsedit::Job * pJob = new vsedit::Job(JobProperties(),  m_pSettingsManager,
 		m_pVSScriptLibrary, this);
-	connect(pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
-		this, SLOT(slotLogMessage(const QString &, const QString &)));
+	connectJob(pJob);
 	int newRow = (int)m_jobs.size();
 	beginInsertRows(QModelIndex(), newRow, newRow);
 	m_jobs.push_back(pJob);
@@ -559,6 +560,7 @@ bool JobsModel::loadJobs()
 	{
 		vsedit::Job * pJob = new vsedit::Job(properties, m_pSettingsManager,
 			m_pVSScriptLibrary);
+		connectJob(pJob);
 		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 			pJob->setState(JobState::Aborted);
 		m_jobs.push_back(pJob);
@@ -661,7 +663,49 @@ void JobsModel::setHighlightedRow(const QModelIndex & a_index)
 void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 {
 	(void)a_oldState;
-	(void)a_newState;
+
+	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
+	if(!pJob)
+		return;
+
+	int jobIndex = indexOfJob(pJob->id());
+	notifyJobUpdated(jobIndex);
+	saveJobs();
+
+	if(m_wantTo == WantTo::RunAll)
+	{
+		if(vsedit::contains(ACTIVE_JOB_STATES, a_newState))
+			return;
+
+		// Recursion
+		if(a_newState == JobState::DependencyNotMet)
+			return;
+
+		for(int i = jobIndex + 1; i < (jobIndex + (int)m_jobs.size()); ++i)
+		{
+			int nextIndex = i % m_jobs.size();
+			vsedit::Job * pNextJob = m_jobs[nextIndex];
+			if(pNextJob->state() != JobState::Waiting)
+				continue;
+			if(!dependenciesMet(nextIndex))
+			{
+				pNextJob->setState(JobState::DependencyNotMet);
+				continue;
+			}
+			pNextJob->start();
+			return;
+		}
+
+		m_wantTo = WantTo::Idle;
+	}
+}
+
+// END OF void JobsModel::slotJobStateChanged(JobState a_newState,
+//		JobState a_oldState)
+//==============================================================================
+
+void JobsModel::slotJobProgressChanged()
+{
 	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
 	if(!pJob)
 		return;
@@ -670,8 +714,7 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	notifyJobUpdated(jobIndex);
 }
 
-// END OF void JobsModel::slotJobStateChanged(JobState a_newState,
-//		JobState a_oldState)
+// END OF void JobsModel::slotJobProgressChanged()
 //==============================================================================
 
 int JobsModel::indexOfJob(const QUuid & a_uuid) const
@@ -721,4 +764,37 @@ void JobsModel::notifyJobUpdated(int a_index)
 }
 
 // END OF void JobsModel::noifyJobUpdated(int a_index)
+//==============================================================================
+
+bool JobsModel::dependenciesMet(int a_index)
+{
+	if((a_index < 0) || (a_index >= (int)m_jobs.size()))
+		return false;
+
+	for(const QUuid & id : m_jobs[a_index]->dependsOnJobIds())
+	{
+		int dependencyIndex = indexOfJob(id);
+		if((dependencyIndex < 0) || (dependencyIndex >= (int)m_jobs.size()))
+			return false;
+		if(m_jobs[dependencyIndex]->state() != JobState::Completed)
+			return false;
+	}
+
+	return true;
+}
+
+// END OF bool JobsModel::dependenciesMet(int a_index)
+//==============================================================================
+
+void JobsModel::connectJob(vsedit::Job * a_pJob)
+{
+	connect(a_pJob, SIGNAL(signalStateChanged(JobState, JobState)),
+		this, SLOT(slotJobStateChanged(JobState, JobState)));
+	connect(a_pJob, SIGNAL(signalProgressChanged()),
+		this, SLOT(slotJobProgressChanged()));
+	connect(a_pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
+		this, SLOT(slotLogMessage(const QString &, const QString &)));
+}
+
+// END OF void JobsModel::connectJob(vsedit::Job * a_pJob)
 //==============================================================================
