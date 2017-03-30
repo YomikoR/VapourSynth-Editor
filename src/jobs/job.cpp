@@ -83,7 +83,7 @@ QString vsedit::Job::stateName(JobState a_state)
 		{JobState::Waiting, trUtf8("Waiting")},
 		{JobState::Running, trUtf8("Running")},
 		{JobState::Paused, trUtf8("Paused")},
-		{JobState::Paused, trUtf8("Pausing")},
+		{JobState::Pausing, trUtf8("Pausing")},
 		{JobState::Aborted, trUtf8("Aborted")},
 		{JobState::Aborting, trUtf8("Aborting")},
 		{JobState::Failed, trUtf8("Failed")},
@@ -99,6 +99,7 @@ QString vsedit::Job::stateName(JobState a_state)
 
 void vsedit::Job::start()
 {
+	changeStateAndNotify(JobState::Running);
 	if(m_properties.type == JobType::EncodeScriptCLI)
 		startEncodeScriptCLI();
 	else if(m_properties.type == JobType::RunProcess)
@@ -379,6 +380,57 @@ bool vsedit::Job::setProperties(const JobProperties & a_properties)
 
 void vsedit::Job::slotProcessStarted()
 {
+	if(m_encodingState == EncodingState::CheckingEncoderSanity)
+		return;
+
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		emit signalLogMessage(trUtf8("Encoder started. Beginning encoding."));
+
+		if(!m_process.isWritable())
+		{
+			m_encodingState = EncodingState::Aborting;
+			m_properties.jobState = JobState::Aborting;
+			emit signalLogMessage(trUtf8("Can not write to encoder. Aborting."),
+				LOG_STYLE_ERROR);
+			cleanUpEncoding();
+			return;
+		}
+
+		assert(m_pFrameHeaderWriter);
+		if(m_pFrameHeaderWriter->needVideoHeader())
+		{
+			QByteArray videoHeader =
+				m_pFrameHeaderWriter->videoHeader(framesTotal());
+
+			if(m_properties.encodingHeaderType == EncodingHeaderType::Y4M)
+				emit signalLogMessage(trUtf8("Y4M header: ") +
+					QString::fromLatin1(videoHeader), LOG_STYLE_DEBUG);
+
+			m_bytesToWrite = videoHeader.size();
+			if(m_bytesToWrite > 0)
+			{
+				m_bytesWritten = 0;
+				m_encodingState = EncodingState::WritingHeader;
+				qint64 bytesWritten = m_process.write(videoHeader);
+				if(bytesWritten < 0)
+				{
+					m_encodingState = EncodingState::Aborting;
+					emit signalLogMessage(
+						trUtf8("Error on writing header to encoder. Aborting."),
+						LOG_STYLE_ERROR);
+					cleanUpEncoding();
+					return;
+				}
+
+				return;
+			}
+		}
+
+		m_encodingState = EncodingState::WaitingForFrames;
+		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
+		processFramesQueue();
+	}
 }
 
 // END OF
@@ -646,6 +698,8 @@ void vsedit::Job::startEncodeScriptCLI()
 			this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
 	}
 
+	changeStateAndNotify(JobState::Running);
+
 	bool scriptProcessorInitialized = m_pVapourSynthScriptProcessor->initialize(
 		script, m_properties.scriptName);
 	if(!scriptProcessorInitialized)
@@ -663,6 +717,8 @@ void vsedit::Job::startEncodeScriptCLI()
 		m_properties.firstFrame = 0;
 	if(m_properties.lastFrame == -1)
 		m_properties.lastFrame = m_cpVideoInfo->numFrames - 1;
+
+	emit signalProgressChanged();
 
 	if(m_pFrameHeaderWriter)
 		delete m_pFrameHeaderWriter;
@@ -791,6 +847,119 @@ void vsedit::Job::clearFramesCache()
 		m_cpVSAPI->freeFrame(frame.cpPreviewFrameRef);
 	}
 	m_framesCache.clear();
+}
+
+// END OF
+//==============================================================================
+
+void vsedit::Job::processFramesQueue()
+{
+	if(m_encodingState != EncodingState::WaitingForFrames)
+		return;
+
+	if(m_framesProcessed == m_framesTotal)
+	{
+		assert(m_framesCache.empty());
+		m_encodingState = EncodingState::Finishing;
+		cleanUpEncoding();
+		return;
+	}
+
+	while((m_lastFrameRequested < m_lastFrame) &&
+		(m_framesInProcess < m_maxThreads) &&
+		(m_framesCache.size() < m_cachedFramesLimit))
+	{
+		m_pVapourSynthScriptProcessor->requestFrameAsync(
+			m_lastFrameRequested + 1);
+		m_lastFrameRequested++;
+	}
+
+	Frame frame(m_lastFrameProcessed + 1, 0, nullptr);
+	std::list<Frame>::iterator it = std::find(m_framesCache.begin(),
+		m_framesCache.end(), frame);
+	if(it == m_framesCache.end())
+		return;
+
+	frame.cpOutputFrameRef = it->cpOutputFrameRef;
+
+	// VapourSynth frames are padded so every line has aligned address.
+	// But encoder expects frames tightly packed. We pack frame lines
+	// into an intermediate buffer, because writing whole frame at once
+	// is faster than feeding it to encoder line by line.
+
+	size_t currentDataSize = 0;
+
+	assert(m_cpVideoInfo);
+	const VSFormat * cpFormat = m_cpVideoInfo->format;
+	assert(cpFormat);
+
+	if(m_pFrameHeaderWriter->needFramePrefix())
+	{
+		QByteArray framePrefix =
+			m_pFrameHeaderWriter->framePrefix(frame.cpOutputFrameRef);
+		int prefixSize = framePrefix.size();
+		if(prefixSize > 0)
+		{
+			if((size_t)prefixSize > m_framebuffer.size())
+				m_framebuffer.resize(prefixSize);
+			memcpy(m_framebuffer.data(), framePrefix.data(), prefixSize);
+			currentDataSize += prefixSize;
+		}
+	}
+
+	for(int i = 0; i < cpFormat->numPlanes; ++i)
+	{
+		const uint8_t * cpPlane =
+			m_cpVSAPI->getReadPtr(frame.cpOutputFrameRef, i);
+		int stride = m_cpVSAPI->getStride(frame.cpOutputFrameRef, i);
+		int width = m_cpVSAPI->getFrameWidth(frame.cpOutputFrameRef, i);
+		int height = m_cpVSAPI->getFrameHeight(frame.cpOutputFrameRef, i);
+		int bytes = cpFormat->bytesPerSample;
+
+		size_t planeSize = width * bytes * height;
+		size_t neededFramebufferSize = currentDataSize + planeSize;
+		if(neededFramebufferSize > m_framebuffer.size())
+			m_framebuffer.resize(neededFramebufferSize);
+		int framebufferStride = width * bytes;
+
+		vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
+			cpPlane, stride, framebufferStride, height);
+
+		currentDataSize += planeSize;
+	}
+
+	if(m_pFrameHeaderWriter->needFramePostfix())
+	{
+		QByteArray framePostfix =
+			m_pFrameHeaderWriter->framePostfix(frame.cpOutputFrameRef);
+		int postfixSize = framePostfix.size();
+		if(postfixSize > 0)
+		{
+			size_t neededFramebufferSize = currentDataSize + postfixSize;
+			if(neededFramebufferSize > m_framebuffer.size())
+				m_framebuffer.resize(neededFramebufferSize);
+			memcpy(m_framebuffer.data() + currentDataSize,
+				framePostfix.data(), postfixSize);
+			currentDataSize += postfixSize;
+		}
+	}
+
+	m_state = State::WritingFrame;
+	m_bytesToWrite = currentDataSize;
+	m_bytesWritten = 0;
+	qint64 bytesWritten =
+		m_encoder.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
+	if(bytesWritten < 0)
+	{
+		m_state = State::Aborting;
+		m_ui.feedbackTextEdit->addEntry(trUtf8("Error on writing data to "
+			"encoder. Aborting."), LOG_STYLE_ERROR);
+		stopProcessing();
+		return;
+	}
+
+	// Wait until encoder reads the frame.
+	// Then this function will be called again.
 }
 
 // END OF

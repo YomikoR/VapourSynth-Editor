@@ -137,6 +137,8 @@ protected:
 
 	virtual void clearFramesCache();
 
+	virtual void processFramesQueue();
+
 	JobProperties m_properties;
 
 	QProcess m_process;
