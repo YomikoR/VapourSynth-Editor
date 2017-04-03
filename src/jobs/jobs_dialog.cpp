@@ -172,6 +172,7 @@ void JobsDialog::slotJobResetStateButtonClicked()
 
 void JobsDialog::slotStartButtonClicked()
 {
+	m_pJobsModel->startWaitingJobs();
 }
 
 // END OF

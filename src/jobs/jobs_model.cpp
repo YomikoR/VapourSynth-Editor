@@ -611,6 +611,21 @@ bool JobsModel::hasActiveJobs()
 // END OF bool JobsModel::hasActiveJobs()
 //==============================================================================
 
+void JobsModel::startWaitingJobs()
+{
+	for(vsedit::Job * pJob : m_jobs)
+	{
+		if(pJob->state() != JobState::Waiting)
+			continue;
+		m_wantTo = WantTo::RunAll;
+		pJob->start();
+		return;
+	}
+}
+
+// END OF void JobsModel::startWaitingJobs()
+//==============================================================================
+
 void JobsModel::abortActiveJobs()
 {
 	for(vsedit::Job * pJob : m_jobs)
@@ -622,7 +637,6 @@ void JobsModel::abortActiveJobs()
 
 // END OF void JobsModel::abortActiveJobs()
 //==============================================================================
-
 
 void JobsModel::slotLogMessage(const QString & a_message,
 	const QString & a_style)

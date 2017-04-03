@@ -75,6 +75,7 @@ public:
 
 	bool hasActiveJobs();
 
+	void startWaitingJobs();
 	void abortActiveJobs();
 
 signals:
