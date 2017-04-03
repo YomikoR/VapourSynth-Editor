@@ -4,12 +4,14 @@ QT += widgets
 
 QT_VERSION_WARNING = "WARNING: Linking against Qt version lower than 5.6.1 is likely to cause CLI tools video encoding to crash due to I/O but in Qt."
 
-equals(QT_MAJOR_VERSION, 5) {
-	equals(QT_MINOR_VERSION, 6):lessThan(QT_PATCH_VERSION, 1)) {
-		message($$QT_VERSION_WARNING)
-	}
-	lessThan(QT_MINOR_VERSION, 6) {
-		message($$QT_VERSION_WARNING)
+win32 {
+	equals(QT_MAJOR_VERSION, 5) {
+		equals(QT_MINOR_VERSION, 6):lessThan(QT_PATCH_VERSION, 1)) {
+			message($$QT_VERSION_WARNING)
+		}
+		lessThan(QT_MINOR_VERSION, 6) {
+			message($$QT_VERSION_WARNING)
+		}
 	}
 }
 
