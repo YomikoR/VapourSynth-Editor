@@ -11,6 +11,7 @@
 #include <QFile>
 #include <cassert>
 #include <algorithm>
+#include <vapoursynth/VSHelper.h>
 
 //==============================================================================
 
@@ -32,6 +33,9 @@ vsedit::Job::Job(const JobProperties & a_properties,
 	, m_cpVideoInfo(nullptr)
 	, m_pFrameHeaderWriter(nullptr)
 	, m_cachedFramesLimit(100)
+	, m_framesInQueue(0)
+	, m_framesInProcess(0)
+	, m_maxThreads(0)
 {
 	fillVariables();
 	if(a_pVSScriptLibrary)
@@ -439,6 +443,44 @@ void vsedit::Job::slotProcessStarted()
 void vsedit::Job::slotProcessFinished(int a_exitCode,
 	QProcess::ExitStatus a_exitStatus)
 {
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		EncodingState workingStates[] = {EncodingState::WaitingForFrames,
+			EncodingState::WritingFrame, EncodingState::WritingHeader};
+
+		if(m_encodingState == EncodingState::CheckingEncoderSanity)
+			return;
+		else if(m_encodingState == EncodingState::Idle)
+			return;
+		else if(m_encodingState == EncodingState::Finishing)
+		{
+			emit signalLogMessage(trUtf8("Finished encoding."),
+				LOG_STYLE_POSITIVE);
+			m_encodingState = EncodingState::Idle;
+			changeStateAndNotify(JobState::Completed);
+		}
+		else if(m_encodingState == EncodingState::Aborting)
+		{
+			emit signalLogMessage(trUtf8("Aborted encoding."),
+				LOG_STYLE_WARNING);
+			m_encodingState = EncodingState::Idle;
+			if(m_properties.jobState == JobState::Aborting)
+				changeStateAndNotify(JobState::Aborted);
+			else
+				changeStateAndNotify(JobState::Failed);
+		}
+		else if(vsedit::contains(workingStates, m_encodingState))
+		{
+			QString exitStatusString = (a_exitStatus == QProcess::CrashExit) ?
+				trUtf8("crash") : trUtf8("normal exit");
+			emit signalLogMessage(trUtf8("Encoder has finished "
+				"unexpectedly.\nReason: %1; exit code: %2")
+				.arg(exitStatusString).arg(a_exitCode), LOG_STYLE_ERROR);
+			changeStateAndNotify(JobState::Failed);
+		}
+
+		cleanUpEncoding();
+	}
 }
 
 // END OF
@@ -446,6 +488,71 @@ void vsedit::Job::slotProcessFinished(int a_exitCode,
 
 void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 {
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		if(m_encodingState == EncodingState::CheckingEncoderSanity)
+			return;
+
+		if(m_encodingState == EncodingState::Idle)
+		{
+			emit signalLogMessage(trUtf8("Encoder has reported "
+				"an error while it shouldn't be running at all. Ignoring."),
+				LOG_STYLE_WARNING);
+			return;
+		}
+
+		switch(a_error)
+		{
+		case QProcess::FailedToStart:
+			emit signalLogMessage(trUtf8("Encoder has failed to start. "
+				"Aborting."), LOG_STYLE_ERROR);
+			m_encodingState = EncodingState::Aborting;
+			cleanUpEncoding();
+			changeStateAndNotify(JobState::Failed);
+			break;
+
+		case QProcess::Crashed:
+			emit signalLogMessage(trUtf8("Encoder has crashed. "
+				"Aborting."), LOG_STYLE_ERROR);
+			m_encodingState = EncodingState::EncoderCrashed;
+			cleanUpEncoding();
+			changeStateAndNotify(JobState::Failed);
+			break;
+
+		case QProcess::Timedout:
+			break;
+
+		case QProcess::WriteError:
+			if(m_encodingState == EncodingState::WritingFrame)
+			{
+				emit signalLogMessage(trUtf8("Writing to encoder "
+					"failed. Aborting."), LOG_STYLE_ERROR);
+				m_encodingState = EncodingState::Aborting;
+				cleanUpEncoding();
+				changeStateAndNotify(JobState::Failed);
+			}
+			else
+			{
+				emit signalLogMessage(trUtf8("Encoder has returned a "
+					"writing error, but we were not writing. Ignoring."),
+					LOG_STYLE_WARNING);
+			}
+			break;
+
+		case QProcess::ReadError:
+			emit signalLogMessage(trUtf8("Error on reading the "
+				"encoder feedback."), LOG_STYLE_WARNING);
+			break;
+
+		case QProcess::UnknownError:
+			emit signalLogMessage(trUtf8("Unknown error in encoder."),
+				LOG_STYLE_WARNING);
+			break;
+
+		default:
+			assert(false);
+		}
+	}
 }
 
 // END OF
@@ -453,6 +560,29 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 
 void vsedit::Job::slotProcessReadChannelFinished()
 {
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return;
+
+	if(m_encodingState == EncodingState::CheckingEncoderSanity)
+		return;
+
+	if(m_encodingState == EncodingState::Idle)
+	{
+		emit signalLogMessage(trUtf8("Encoder has suddenly stopped "
+			"accepting data while it shouldn't be running at all. Ignoring."),
+			LOG_STYLE_WARNING);
+		return;
+	}
+
+	if((m_encodingState != EncodingState::Finishing) &&
+		(m_encodingState != EncodingState::Aborting))
+	{
+		emit signalLogMessage(trUtf8("Encoder has suddenly stopped "
+			"accepting data. Aborting."), LOG_STYLE_ERROR);
+		m_encodingState = EncodingState::Aborting;
+		cleanUpEncoding();
+		changeStateAndNotify(JobState::Failed);
+	}
 }
 
 // END OF
@@ -460,6 +590,83 @@ void vsedit::Job::slotProcessReadChannelFinished()
 
 void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 {
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return;
+
+	if(m_encodingState == EncodingState::CheckingEncoderSanity)
+		return;
+
+	if(m_encodingState == EncodingState::Idle)
+	{
+		emit signalLogMessage(trUtf8("Encoder has reported written "
+			"data while it shouldn't be running at all. Ignoring."),
+			LOG_STYLE_WARNING);
+		return;
+	}
+
+	if((m_encodingState == EncodingState::Aborting) ||
+		(m_encodingState == EncodingState::Finishing))
+		return;
+
+	if((m_encodingState != EncodingState::WritingFrame) &&
+		(m_encodingState != EncodingState::WritingHeader))
+	{
+		emit signalLogMessage(trUtf8("Encoder reports successful "
+			"write, but we were not writing anything.\nData written: "
+			"%1 bytes.").arg(a_bytes), LOG_STYLE_WARNING);
+		return;
+	}
+
+	if(a_bytes <= 0)
+	{
+		emit signalLogMessage(trUtf8("Error on writing data to "
+			"encoder.\nExpected to write: %1 bytes. Data written: %2 bytes.\n"
+			"Aborting.").arg(m_bytesToWrite).arg(m_bytesWritten),
+			LOG_STYLE_ERROR);
+		m_encodingState = EncodingState::Aborting;
+		cleanUpEncoding();
+		changeStateAndNotify(JobState::Failed);
+		return;
+	}
+
+	m_bytesWritten += a_bytes;
+
+	if((m_bytesWritten + m_process.bytesToWrite()) < m_bytesToWrite)
+	{
+		emit signalLogMessage(trUtf8("Encoder has lost written "
+			"data. Aborting."), LOG_STYLE_ERROR);
+		m_encodingState = EncodingState::Aborting;
+		cleanUpEncoding();
+		changeStateAndNotify(JobState::Failed);
+		return;
+	}
+
+	if(m_bytesWritten < m_bytesToWrite)
+		return;
+
+	assert(m_cpVSAPI);
+	if(m_encodingState == EncodingState::WritingHeader)
+	{
+		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
+	}
+	else if(m_encodingState == EncodingState::WritingFrame)
+	{
+		Frame referenceFrame(m_lastFrameProcessed + 1, 0, nullptr);
+		std::list<Frame>::iterator it =
+			std::find(m_framesCache.begin(), m_framesCache.end(),
+			referenceFrame);
+		assert(it != m_framesCache.end());
+
+		m_cpVSAPI->freeFrame(it->cpOutputFrameRef);
+		m_framesCache.erase(it);
+		m_lastFrameProcessed++;
+		m_properties.framesProcessed++;
+
+		emit signalProgressChanged();
+	}
+
+	m_encodingState = EncodingState::WaitingForFrames;
+	processFramesQueue();
 }
 
 // END OF
@@ -467,6 +674,11 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 
 void vsedit::Job::slotProcessReadyReadStandardError()
 {
+	QByteArray standardError = m_process.readAllStandardError();
+	QString standardErrorText = QString::fromUtf8(standardError);
+	standardErrorText = standardErrorText.trimmed();
+	if(!standardErrorText.isEmpty())
+		emit signalLogMessage(standardErrorText);
 }
 
 // END OF
@@ -485,7 +697,9 @@ void vsedit::Job::slotWriteLogMessage(int a_messageType,
 void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 	size_t a_inProcess, size_t a_maxThreads)
 {
-
+	m_framesInQueue = a_inQueue;
+	m_framesInProcess = a_inProcess;
+	m_maxThreads = a_maxThreads;
 }
 
 // END OF
@@ -493,7 +707,8 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 
 void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 {
-
+	(void)a_bytes;
+	//TODO: Implement core framebuffer change signaling.
 }
 
 // END OF
@@ -503,7 +718,25 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 	const VSFrameRef * a_cpOutputFrameRef,
 	const VSFrameRef * a_cpPreviewFrameRef)
 {
+	(void)a_cpPreviewFrameRef;
 
+	EncodingState validStates[] = {EncodingState::WaitingForFrames,
+		EncodingState::WritingHeader, EncodingState::WritingFrame};
+	if(!vsedit::contains(validStates, m_encodingState))
+		return;
+
+	if((a_frameNumber < m_properties.firstFrame) ||
+		(a_frameNumber > m_properties.lastFrame))
+		return;
+
+	assert(m_cpVSAPI);
+	const VSFrameRef * cpFrameRef =
+		m_cpVSAPI->cloneFrameRef(a_cpOutputFrameRef);
+	Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
+	m_framesCache.push_back(newFrame);
+
+	if(m_encodingState == EncodingState::WaitingForFrames)
+		processFramesQueue();
 }
 
 // END OF
@@ -512,7 +745,18 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
 	int a_outputIndex, const QString & a_reason)
 {
+	(void)a_frameNumber;
+	(void)a_outputIndex;
+	(void)a_reason;
 
+	EncodingState validStates[] = {EncodingState::WaitingForFrames,
+		 EncodingState::WritingHeader, EncodingState::WritingFrame};
+	if(!vsedit::contains(validStates, m_encodingState))
+		return;
+
+	m_encodingState = EncodingState::Aborting;
+	cleanUpEncoding();
+	changeStateAndNotify(JobState::Failed);
 }
 
 // END OF
@@ -696,6 +940,12 @@ void vsedit::Job::startEncodeScriptCLI()
 		connect(m_pVapourSynthScriptProcessor,
 			SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
 			this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
+			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
+			this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 	}
 
 	changeStateAndNotify(JobState::Running);
@@ -857,7 +1107,7 @@ void vsedit::Job::processFramesQueue()
 	if(m_encodingState != EncodingState::WaitingForFrames)
 		return;
 
-	if(m_framesProcessed == m_framesTotal)
+	if(m_properties.framesProcessed == framesTotal())
 	{
 		assert(m_framesCache.empty());
 		m_encodingState = EncodingState::Finishing;
@@ -865,7 +1115,7 @@ void vsedit::Job::processFramesQueue()
 		return;
 	}
 
-	while((m_lastFrameRequested < m_lastFrame) &&
+	while((m_lastFrameRequested < m_properties.lastFrame) &&
 		(m_framesInProcess < m_maxThreads) &&
 		(m_framesCache.size() < m_cachedFramesLimit))
 	{
@@ -944,17 +1194,17 @@ void vsedit::Job::processFramesQueue()
 		}
 	}
 
-	m_state = State::WritingFrame;
+	m_encodingState = EncodingState::WritingFrame;
 	m_bytesToWrite = currentDataSize;
 	m_bytesWritten = 0;
 	qint64 bytesWritten =
-		m_encoder.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
+		m_process.write(m_framebuffer.data(), (qint64)m_bytesToWrite);
 	if(bytesWritten < 0)
 	{
-		m_state = State::Aborting;
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Error on writing data to "
-			"encoder. Aborting."), LOG_STYLE_ERROR);
-		stopProcessing();
+		m_encodingState = EncodingState::Aborting;
+		emit signalLogMessage(trUtf8("Error on writing data to encoder. "
+			"Aborting."), LOG_STYLE_ERROR);
+		abort();
 		return;
 	}
 

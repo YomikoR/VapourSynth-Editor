@@ -169,6 +169,10 @@ protected:
 
 	std::list<Frame> m_framesCache;
 	size_t m_cachedFramesLimit;
+
+	size_t m_framesInQueue;
+	size_t m_framesInProcess;
+	size_t m_maxThreads;
 };
 
 }
