@@ -136,9 +136,12 @@ JobProperties::JobProperties():
 	  id(QUuid::createUuid())
 	, type(JobType::EncodeScriptCLI)
 	, jobState(JobState::Waiting)
+	, encodingType(EncodingType::CLI)
 	, encodingHeaderType(EncodingHeaderType::NoHeader)
 	, firstFrame(-1)
+	, firstFrameReal(-1)
 	, lastFrame(-1)
+	, lastFrameReal(-1)
 	, framesProcessed(0)
 {
 }

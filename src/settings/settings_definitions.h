@@ -109,7 +109,9 @@ struct JobProperties
 	QString arguments;
 	QString shellCommand;
 	int firstFrame;
+	int firstFrameReal;
 	int lastFrame;
+	int lastFrameReal;
 	int framesProcessed;
 
 	JobProperties();

@@ -357,7 +357,7 @@ int vsedit::Job::framesProcessed() const
 int vsedit::Job::framesTotal() const
 {
 	if(m_properties.type == JobType::EncodeScriptCLI)
-		return (m_properties.lastFrame - m_properties.firstFrame + 1);
+		return (m_properties.lastFrameReal - m_properties.firstFrameReal + 1);
 	return 0;
 }
 
@@ -725,8 +725,8 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 	if(!vsedit::contains(validStates, m_encodingState))
 		return;
 
-	if((a_frameNumber < m_properties.firstFrame) ||
-		(a_frameNumber > m_properties.lastFrame))
+	if((a_frameNumber < m_properties.firstFrameReal) ||
+		(a_frameNumber > m_properties.lastFrameReal))
 		return;
 
 	assert(m_cpVSAPI);
@@ -893,6 +893,8 @@ void vsedit::Job::changeStateAndNotify(JobState a_state)
 
 void vsedit::Job::startEncodeScriptCLI()
 {
+	changeStateAndNotify(JobState::Running);
+
 	QString absoluteScriptPath =
 		resolvePathFromApplication(m_properties.scriptName);
 	QFile scriptFile(absoluteScriptPath);
@@ -948,8 +950,6 @@ void vsedit::Job::startEncodeScriptCLI()
 			this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 	}
 
-	changeStateAndNotify(JobState::Running);
-
 	bool scriptProcessorInitialized = m_pVapourSynthScriptProcessor->initialize(
 		script, m_properties.scriptName);
 	if(!scriptProcessorInitialized)
@@ -963,10 +963,18 @@ void vsedit::Job::startEncodeScriptCLI()
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
 	assert(m_cpVideoInfo);
 
-	if(m_properties.firstFrame == -1)
-		m_properties.firstFrame = 0;
-	if(m_properties.lastFrame == -1)
-		m_properties.lastFrame = m_cpVideoInfo->numFrames - 1;
+	m_properties.framesProcessed = 0;
+	m_properties.firstFrameReal = m_properties.firstFrame;
+	vsedit::clamp(m_properties.firstFrameReal, 0, m_cpVideoInfo->numFrames - 1);
+	m_properties.lastFrameReal = m_properties.lastFrame;
+	if((m_properties.lastFrameReal < 0) ||
+		(m_properties.lastFrameReal >= m_cpVideoInfo->numFrames))
+		m_properties.lastFrameReal = m_cpVideoInfo->numFrames - 1;
+	m_lastFrameRequested = m_properties.firstFrameReal - 1;
+	m_lastFrameProcessed = m_lastFrameRequested;
+	m_encodingState = EncodingState::Idle;
+	m_bytesToWrite = 0u;
+	m_bytesWritten = 0u;
 
 	emit signalProgressChanged();
 
@@ -1067,16 +1075,16 @@ QString vsedit::Job::decodeArguments(const QString & a_arguments) const
 
 void vsedit::Job::cleanUpEncoding()
 {
-	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
-	clearFramesCache();
-	m_framebuffer.clear();
-
 	if(m_process.state() == QProcess::Running)
 	{
 		if(m_encodingState != EncodingState::Aborting)
 			m_encodingState = EncodingState::Finishing;
 		m_process.closeWriteChannel();
 	}
+
+	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
+	clearFramesCache();
+	m_framebuffer.clear();
 
 	m_cpVideoInfo = nullptr;
 	m_pVapourSynthScriptProcessor->finalize();
@@ -1115,7 +1123,7 @@ void vsedit::Job::processFramesQueue()
 		return;
 	}
 
-	while((m_lastFrameRequested < m_properties.lastFrame) &&
+	while((m_lastFrameRequested < m_properties.lastFrameReal) &&
 		(m_framesInProcess < m_maxThreads) &&
 		(m_framesCache.size() < m_cachedFramesLimit))
 	{
@@ -1204,7 +1212,8 @@ void vsedit::Job::processFramesQueue()
 		m_encodingState = EncodingState::Aborting;
 		emit signalLogMessage(trUtf8("Error on writing data to encoder. "
 			"Aborting."), LOG_STYLE_ERROR);
-		abort();
+		cleanUpEncoding();
+		changeStateAndNotify(JobState::Failed);
 		return;
 	}
 

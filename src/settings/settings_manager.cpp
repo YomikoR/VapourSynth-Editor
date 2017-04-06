@@ -116,7 +116,9 @@ const char JOB_EXECUTABLE_PATH_KEY[] = "executable_path";
 const char JOB_ARGUMENTS_KEY[] = "arguments";
 const char JOB_SHELL_COMMAND_KEY[] = "shell_command";
 const char JOB_FIRST_FRAME_KEY[] = "first_frame";
+const char JOB_FIRST_FRAME_REAL_KEY[] = "first_frame_real";
 const char JOB_LAST_FRAME_KEY[] = "last_frame";
+const char JOB_LAST_FRAME_REAL_KEY[] = "last_frame_real";
 const char JOB_FRAME_PROCESSED_KEY[] = "frames_processed";
 
 //==============================================================================
@@ -1432,8 +1434,12 @@ std::vector<JobProperties> SettingsManager::getJobs() const
 
 		job.firstFrame = settings.value(JOB_FIRST_FRAME_KEY,
 			DEFAULT_JOB_FIRST_FRAME).toInt();
+		job.firstFrameReal = settings.value(JOB_FIRST_FRAME_REAL_KEY,
+			job.firstFrame).toInt();
 		job.lastFrame = settings.value(JOB_LAST_FRAME_KEY,
 			DEFAULT_JOB_LAST_FRAME).toInt();
+		job.lastFrameReal = settings.value(JOB_LAST_FRAME_REAL_KEY,
+			job.lastFrame).toInt();
 		job.framesProcessed = settings.value(JOB_FRAME_PROCESSED_KEY,
 			DEFAULT_JOB_FRAMES_PROCESSED).toInt();
 
@@ -1476,7 +1482,9 @@ bool SettingsManager::setJobs(const std::vector<JobProperties> & a_jobs)
 		settings.setValue(JOB_ARGUMENTS_KEY, job.arguments);
 		settings.setValue(JOB_SHELL_COMMAND_KEY, job.shellCommand);
 		settings.setValue(JOB_FIRST_FRAME_KEY, job.firstFrame);
+		settings.setValue(JOB_FIRST_FRAME_REAL_KEY, job.firstFrameReal);
 		settings.setValue(JOB_LAST_FRAME_KEY, job.lastFrame);
+		settings.setValue(JOB_LAST_FRAME_REAL_KEY, job.lastFrameReal);
 		settings.setValue(JOB_FRAME_PROCESSED_KEY, job.framesProcessed);
 
 		settings.endGroup();
