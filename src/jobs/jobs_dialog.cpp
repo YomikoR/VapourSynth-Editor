@@ -194,6 +194,7 @@ void JobsDialog::slotResumeButtonClicked()
 
 void JobsDialog::slotAbortButtonClicked()
 {
+	m_pJobsModel->abortActiveJobs();
 }
 
 // END OF
