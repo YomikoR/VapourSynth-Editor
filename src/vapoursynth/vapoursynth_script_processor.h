@@ -65,6 +65,8 @@ signals:
 
 	void signalCoreFramebufferUsedBytes(int64_t a_bytes);
 
+	void signalFinalized();
+
 private slots:
 
 	void slotReceiveFrameAndProcessQueue(
@@ -122,6 +124,8 @@ private:
 	YuvMatrixCoefficients m_yuvMatrix;
 
 	QTimer * m_pCoreFramebufferWatchTimer;
+
+	bool m_finalizing;
 };
 
 //==============================================================================

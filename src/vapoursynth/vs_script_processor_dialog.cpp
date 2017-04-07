@@ -28,6 +28,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_framesInProcess(0)
 	, m_maxThreads(0)
 	, m_wantToFinalize(false)
+	, m_wantToClose(false)
 	, m_pStatusBar(nullptr)
 	, m_pStatusBarWidget(nullptr)
 	, m_readyPixmap(":tick.png")
@@ -59,6 +60,8 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
 		this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
+	connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
+		this, SLOT(slotScriptProcessofFinalized()));
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
 			const VSFrameRef *)),
@@ -173,14 +176,6 @@ void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 
 	m_pStatusBarWidget->setQueueState(m_framesInQueue, m_framesInProcess,
 		m_maxThreads);
-
-	if(m_wantToFinalize && (m_framesInProcess == 0) && (m_framesInQueue == 0))
-	{
-		m_wantToFinalize = false;
-		QString message = trUtf8("Script processor has finished its work. "
-			"It is safe to repeat the failed action.");
-		slotWriteLogMessage(mtDebug, message);
-	}
 }
 
 // END OF void VSScriptProcessorDialog::slotFrameQueueStateChanged(
@@ -196,19 +191,40 @@ void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 //		int64_t a_bytes)
 //==============================================================================
 
+void VSScriptProcessorDialog::slotScriptProcessofFinalized()
+{
+	m_wantToFinalize = false;
+	if(m_wantToClose)
+	{
+		m_wantToClose = false;
+		close();
+	}
+}
+
+// END OF void VSScriptProcessorDialog::slotScriptProcessofFinalized()
+//==============================================================================
+
+
 void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 {
-    stopAndCleanUp();
+	if(m_wantToClose)
+		return;
 
-    bool finalized = m_pVapourSynthScriptProcessor->finalize();
+	m_wantToClose = true;
+	stopAndCleanUp();
+
+	bool finalized = m_pVapourSynthScriptProcessor->finalize();
 	if(!finalized)
 	{
 		m_wantToFinalize = true;
+		emit signalWriteLogMessage(mtWarning, trUtf8("Script processor "
+			"is busy. Dialog will close when it is finalized."));
 		a_pEvent->ignore();
 		return;
 	}
 
 	QDialog::closeEvent(a_pEvent);
+	m_wantToClose = false;
 }
 
 // END OF void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)

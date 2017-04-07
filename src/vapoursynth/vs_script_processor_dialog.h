@@ -58,6 +58,8 @@ protected slots:
 
 	virtual void slotCoreFramebufferUsedBytes(int64_t a_bytes);
 
+	virtual void slotScriptProcessofFinalized();
+
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		const VSFrameRef * a_cpOutputFrameRef,
 		const VSFrameRef * a_cpPreviewFrameRef) = 0;
@@ -98,6 +100,7 @@ protected:
 	size_t m_maxThreads;
 
 	bool m_wantToFinalize;
+	bool m_wantToClose;
 
 	QStatusBar * m_pStatusBar;
 	ScriptStatusBarWidget * m_pStatusBarWidget;

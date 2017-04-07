@@ -50,6 +50,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_cpVideoInfo(nullptr)
 	, m_cpCoreInfo(nullptr)
 	, m_pCoreFramebufferWatchTimer(nullptr)
+	, m_finalizing(false)
 {
 	assert(m_pSettingsManager);
 	assert(m_pVSScriptLibrary);
@@ -78,7 +79,7 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	const QString& a_scriptName)
 {
-	if(m_initialized)
+	if(m_initialized || m_finalizing)
 	{
 		m_error = trUtf8("Script processor is already in use.");
 		emit signalWriteLogMessage(mtCritical, m_error);
@@ -153,15 +154,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 bool VapourSynthScriptProcessor::finalize()
 {
+	m_finalizing = true;
 	bool noFrameTicketsInProcess = flushFrameTicketsQueue();
 	if(!noFrameTicketsInProcess)
-	{
-		m_error = trUtf8("Can not finalize the script processor while "
-			"there are still frames in processing. Please wait for "
-			"the processing to finish and repeat your action.");
-		emit signalWriteLogMessage(mtCritical, m_error);
 		return false;
-	}
 
 	m_pCoreFramebufferWatchTimer->stop();
 
@@ -190,6 +186,9 @@ bool VapourSynthScriptProcessor::finalize()
 	m_scriptName.clear();
 
 	m_initialized = false;
+	m_finalizing = false;
+
+	emit signalFinalized();
 
 	return true;
 }
@@ -539,6 +538,9 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 	size_t inProcess = m_frameTicketsInProcess.size();
 	if((inQueue != oldInQueue) || (oldInProcess != inProcess))
 		sendFrameQueueChangeSignal();
+
+	if(m_finalizing)
+		finalize();
 }
 
 // END OF void VapourSynthScriptProcessor::processFrameTicketsQueue()
