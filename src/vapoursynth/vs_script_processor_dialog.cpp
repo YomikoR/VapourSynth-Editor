@@ -61,7 +61,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 		SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
 		this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 	connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
-		this, SLOT(slotScriptProcessofFinalized()));
+		this, SLOT(slotScriptProcessorFinalized()));
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
 			const VSFrameRef *)),
@@ -191,7 +191,7 @@ void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 //		int64_t a_bytes)
 //==============================================================================
 
-void VSScriptProcessorDialog::slotScriptProcessofFinalized()
+void VSScriptProcessorDialog::slotScriptProcessorFinalized()
 {
 	m_wantToFinalize = false;
 	if(m_wantToClose)

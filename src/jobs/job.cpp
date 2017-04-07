@@ -468,8 +468,7 @@ void vsedit::Job::slotProcessFinished(int a_exitCode,
 		}
 
 		cleanUpEncoding();
-		if(!m_pVapourSynthScriptProcessor->isInitialized())
-			finishEncodingCLI();
+		finishEncodingCLI();
 	}
 }
 
@@ -497,16 +496,16 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 			emit signalLogMessage(trUtf8("Encoder has failed to start. "
 				"Aborting."), LOG_STYLE_ERROR);
 			m_encodingState = EncodingState::Aborting;
+			changeStateAndNotify(JobState::FailedCleanUp);
 			cleanUpEncoding();
-			changeStateAndNotify(JobState::Failed);
 			break;
 
 		case QProcess::Crashed:
 			emit signalLogMessage(trUtf8("Encoder has crashed. "
 				"Aborting."), LOG_STYLE_ERROR);
 			m_encodingState = EncodingState::EncoderCrashed;
+			changeStateAndNotify(JobState::FailedCleanUp);
 			cleanUpEncoding();
-			changeStateAndNotify(JobState::Failed);
 			break;
 
 		case QProcess::Timedout:
@@ -518,8 +517,8 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 				emit signalLogMessage(trUtf8("Writing to encoder "
 					"failed. Aborting."), LOG_STYLE_ERROR);
 				m_encodingState = EncodingState::Aborting;
+				changeStateAndNotify(JobState::FailedCleanUp);
 				cleanUpEncoding();
-				changeStateAndNotify(JobState::Failed);
 			}
 			else
 			{
@@ -570,8 +569,8 @@ void vsedit::Job::slotProcessReadChannelFinished()
 		emit signalLogMessage(trUtf8("Encoder has suddenly stopped "
 			"accepting data. Aborting."), LOG_STYLE_ERROR);
 		m_encodingState = EncodingState::Aborting;
+		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
-		changeStateAndNotify(JobState::Failed);
 	}
 }
 
@@ -614,8 +613,8 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 			"Aborting.").arg(m_bytesToWrite).arg(m_bytesWritten),
 			LOG_STYLE_ERROR);
 		m_encodingState = EncodingState::Aborting;
+		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
-		changeStateAndNotify(JobState::Failed);
 		return;
 	}
 
@@ -626,8 +625,8 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 		emit signalLogMessage(trUtf8("Encoder has lost written "
 			"data. Aborting."), LOG_STYLE_ERROR);
 		m_encodingState = EncodingState::Aborting;
+		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
-		changeStateAndNotify(JobState::Failed);
 		return;
 	}
 
@@ -754,8 +753,8 @@ void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
 		return;
 
 	m_encodingState = EncodingState::Aborting;
+	changeStateAndNotify(JobState::FailedCleanUp);
 	cleanUpEncoding();
-	changeStateAndNotify(JobState::Failed);
 }
 
 // END OF
@@ -937,7 +936,7 @@ void vsedit::Job::startEncodeScriptCLI()
 			SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
 			this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 		connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
-			this, SLOT(slotScriptProcessofFinalized()));
+			this, SLOT(slotScriptProcessorFinalized()));
 		connect(m_pVapourSynthScriptProcessor,
 			SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
 				const VSFrameRef *)),
@@ -997,8 +996,8 @@ void vsedit::Job::startEncodeScriptCLI()
 	{
 		emit signalLogMessage(trUtf8("Video is not compatible "
 			"with the chosen header."), LOG_STYLE_ERROR);
+		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
-		changeStateAndNotify(JobState::Failed);
 		return;
 	}
 
@@ -1020,8 +1019,8 @@ void vsedit::Job::startEncodeScriptCLI()
 	{
 		emit signalLogMessage(trUtf8("Encoder wouldn't start."),
 			LOG_STYLE_ERROR);
+		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
-		changeStateAndNotify(JobState::Failed);
 		return;
 	}
 
@@ -1032,8 +1031,8 @@ void vsedit::Job::startEncodeScriptCLI()
 			"like a CLI encoder. Terminating."), LOG_STYLE_ERROR);
 		m_process.kill();
 		m_process.waitForFinished(-1);
+		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
-		changeStateAndNotify(JobState::Failed);
 		return;
 	}
 
@@ -1231,7 +1230,8 @@ void vsedit::Job::processFramesQueue()
 
 void vsedit::Job::finishEncodingCLI()
 {
-	if(m_process.state() == QProcess::Running)
+	if((m_process.state() == QProcess::Running) ||
+		m_pVapourSynthScriptProcessor->isInitialized())
 		return;
 
 	if(m_encodingState == EncodingState::Finishing)

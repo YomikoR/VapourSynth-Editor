@@ -58,7 +58,7 @@ protected slots:
 
 	virtual void slotCoreFramebufferUsedBytes(int64_t a_bytes);
 
-	virtual void slotScriptProcessofFinalized();
+	virtual void slotScriptProcessorFinalized();
 
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		const VSFrameRef * a_cpOutputFrameRef,
