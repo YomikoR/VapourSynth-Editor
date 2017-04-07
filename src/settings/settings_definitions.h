@@ -87,8 +87,10 @@ enum class JobState
 	Paused,
 	Aborting,
 	Aborted,
+	FailedCleanUp,
 	Failed,
 	DependencyNotMet,
+	CompletedCleanUp,
 	Completed,
 };
 

@@ -115,6 +115,7 @@ protected slots:
 	virtual void slotFrameQueueStateChanged(size_t a_inQueue,
 		size_t a_inProcess, size_t a_maxThreads);
 	virtual void slotCoreFramebufferUsedBytes(int64_t a_bytes);
+	virtual void slotScriptProcessorFinalized();
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		const VSFrameRef * a_cpOutputFrameRef,
 		const VSFrameRef * a_cpPreviewFrameRef);
@@ -138,6 +139,8 @@ protected:
 	virtual void clearFramesCache();
 
 	virtual void processFramesQueue();
+
+	virtual void finishEncodingCLI();
 
 	JobProperties m_properties;
 

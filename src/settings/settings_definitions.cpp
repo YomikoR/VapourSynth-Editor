@@ -130,7 +130,8 @@ const char COLOR_ID_TIMELINE_BOOKMARKS[] = "timeline_bookmarks";
 //==============================================================================
 
 const std::vector<JobState> ACTIVE_JOB_STATES = {JobState::Running,
-	JobState::Pausing, JobState::Paused, JobState::Aborting};
+	JobState::Pausing, JobState::Paused, JobState::Aborting,
+	JobState::FailedCleanUp, JobState::CompletedCleanUp};
 
 JobProperties::JobProperties():
 	  id(QUuid::createUuid())
