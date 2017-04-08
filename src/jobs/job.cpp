@@ -235,7 +235,7 @@ bool vsedit::Job::setExecutablePath(const QString & a_path)
 
 QString vsedit::Job::arguments() const
 {
-	return decodeArguments(m_properties.arguments);
+	return m_properties.arguments;
 }
 
 // END OF
@@ -308,9 +308,10 @@ QString vsedit::Job::subject() const
 	if(m_properties.type == JobType::EncodeScriptCLI)
 	{
 		subjectString = QString("%sn%:\n\"%ep%\" %arg%");
-		subjectString = subjectString.replace("%sn%", m_properties.scriptName);
+		subjectString = subjectString.replace("%sn%",
+			resolvePathFromApplication(m_properties.scriptName));
 		subjectString = subjectString.replace("%ep%",
-			m_properties.executablePath);
+			resolvePathFromApplication(m_properties.executablePath));
 		subjectString = subjectString.replace("%arg%",
 			decodeArguments(m_properties.arguments));
 	}
@@ -318,7 +319,7 @@ QString vsedit::Job::subject() const
 	{
 		subjectString = QString("\"%ep%\" %arg%");
 		subjectString = subjectString.replace("%ep%",
-			m_properties.executablePath);
+			resolvePathFromApplication(m_properties.executablePath));
 		subjectString = subjectString.replace("%arg%",
 			m_properties.arguments.simplified());
 	}
@@ -762,16 +763,16 @@ void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
 
 void vsedit::Job::fillVariables()
 {
-	const char TOKEN_WIDTH[] = "{w}";
-	const char TOKEN_HEIGHT[] = "{h}";
-	const char TOKEN_FPS_NUMERATOR[] = "{fpsn}";
-	const char TOKEN_FPS_DENOMINATOR[] = "{fpsd}";
-	const char TOKEN_FPS[] = "{fps}";
-	const char TOKEN_BITDEPTH[] = "{bits}";
-	const char TOKEN_SCRIPT_DIRECTORY[] = "{sd}";
-	const char TOKEN_SCRIPT_NAME[] = "{sn}";
-	const char TOKEN_FRAMES_NUMBER[] = "{f}";
-	const char TOKEN_SUBSAMPLING[] = "{ss}";
+	static const QString TOKEN_WIDTH = "{w}";
+	static const QString TOKEN_HEIGHT = "{h}";
+	static const QString TOKEN_FPS_NUMERATOR = "{fpsn}";
+	static const QString TOKEN_FPS_DENOMINATOR = "{fpsd}";
+	static const QString TOKEN_FPS = "{fps}";
+	static const QString TOKEN_BITDEPTH = "{bits}";
+	static const QString TOKEN_SCRIPT_DIRECTORY = "{sd}";
+	static const QString TOKEN_SCRIPT_NAME = "{sn}";
+	static const QString TOKEN_FRAMES_NUMBER = "{f}";
+	static const QString TOKEN_SUBSAMPLING = "{ss}";
 
 	m_variables =
 	{
