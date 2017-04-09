@@ -471,6 +471,25 @@ void vsedit::Job::slotProcessFinished(int a_exitCode,
 		cleanUpEncoding();
 		finishEncodingCLI();
 	}
+	else if(m_properties.type == JobType::RunProcess)
+	{
+		QString message = trUtf8("Process has finished.");
+		QString logStyle = LOG_STYLE_POSITIVE;
+		JobState nextState = JobState::Completed;
+
+		if(a_exitStatus == QProcess::CrashExit)
+		{
+			message = trUtf8("Process has crashed.");
+			logStyle = LOG_STYLE_ERROR;
+			nextState = JobState::Failed;
+		}
+		else if(a_exitCode != 0)
+			logStyle = LOG_STYLE_WARNING;
+
+		emit signalLogMessage(trUtf8("%1 Exit code: %2")
+			.arg(message).arg(a_exitCode), logStyle);
+		changeStateAndNotify(nextState);
+	}
 }
 
 // END OF
@@ -541,6 +560,26 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 
 		default:
 			assert(false);
+		}
+	}
+	else if(m_properties.type == JobType::RunProcess)
+	{
+		switch(a_error)
+		{
+		case QProcess::FailedToStart:
+			emit signalLogMessage(trUtf8("Process has failed to start."),
+				LOG_STYLE_ERROR);
+			changeStateAndNotify(JobState::Failed);
+			break;
+
+		case QProcess::Crashed:
+			emit signalLogMessage(trUtf8("Process has crashed."),
+				LOG_STYLE_ERROR);
+			changeStateAndNotify(JobState::Failed);
+			break;
+
+		default:
+			break;
 		}
 	}
 }
@@ -1047,7 +1086,17 @@ void vsedit::Job::startEncodeScriptCLI()
 
 void vsedit::Job::startRunProcess()
 {
+	changeStateAndNotify(JobState::Running);
 
+	QString executable = vsedit::resolvePathFromApplication(
+		m_properties.executablePath);
+	QString commandLine = QString("\"%1\" %2").arg(executable)
+		.arg(m_properties.arguments);
+
+	emit signalLogMessage(trUtf8("Command line:"));
+	emit signalLogMessage(commandLine);
+
+	m_process.start(commandLine);
 }
 
 // END OF
