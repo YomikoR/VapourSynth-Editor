@@ -1104,7 +1104,17 @@ void vsedit::Job::startRunProcess()
 
 void vsedit::Job::startRunShellCommand()
 {
+	changeStateAndNotify(JobState::Running);
 
+	QString command = "%1";
+#ifdef Q_OS_WIN
+	command = "cmd.exe /c %1";
+#else
+	command = "/bin/sh -c %1";
+#endif
+
+	QProcess::startDetached(command.arg(m_properties.shellCommand));
+	changeStateAndNotify(JobState::Completed);
 }
 
 // END OF
