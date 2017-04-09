@@ -77,6 +77,8 @@ public:
 
 	void startWaitingJobs();
 	void abortActiveJobs();
+	void pauseActiveJobs();
+	void resumeJobs();
 
 signals:
 

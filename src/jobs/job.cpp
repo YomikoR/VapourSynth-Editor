@@ -105,13 +105,22 @@ QString vsedit::Job::stateName(JobState a_state)
 
 void vsedit::Job::start()
 {
-	changeStateAndNotify(JobState::Running);
-	if(m_properties.type == JobType::EncodeScriptCLI)
-		startEncodeScriptCLI();
-	else if(m_properties.type == JobType::RunProcess)
-		startRunProcess();
-	else if(m_properties.type == JobType::RunShellCommand)
-		startRunShellCommand();
+	if(m_properties.jobState == JobState::Waiting)
+	{
+		changeStateAndNotify(JobState::Running);
+		if(m_properties.type == JobType::EncodeScriptCLI)
+			startEncodeScriptCLI();
+		else if(m_properties.type == JobType::RunProcess)
+			startRunProcess();
+		else if(m_properties.type == JobType::RunShellCommand)
+			startRunShellCommand();
+	}
+	else if (m_properties.jobState == JobState::Paused)
+	{
+		changeStateAndNotify(JobState::Running);
+		if(m_properties.type == JobType::EncodeScriptCLI)
+			processFramesQueue();
+	}
 }
 
 // END OF
@@ -119,6 +128,7 @@ void vsedit::Job::start()
 
 void vsedit::Job::pause()
 {
+	changeStateAndNotify(JobState::Pausing);
 }
 
 // END OF
@@ -695,6 +705,13 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 	}
 
 	m_encodingState = EncodingState::WaitingForFrames;
+
+	if((m_properties.jobState == JobState::Pausing) && (m_framesInProcess == 0))
+	{
+		changeStateAndNotify(JobState::Paused);
+		return;
+	}
+
 	processFramesQueue();
 }
 
@@ -1186,6 +1203,9 @@ void vsedit::Job::processFramesQueue()
 		cleanUpEncoding();
 		return;
 	}
+
+	if(m_properties.jobState != JobState::Running)
+		return;
 
 	while((m_lastFrameRequested < m_properties.lastFrameReal) &&
 		(m_framesInProcess < m_maxThreads) &&

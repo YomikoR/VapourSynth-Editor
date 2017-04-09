@@ -630,12 +630,42 @@ void JobsModel::abortActiveJobs()
 {
 	for(vsedit::Job * pJob : m_jobs)
 	{
-		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
-			pJob->abort();
+		if(!vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
+			continue;
+		m_wantTo = WantTo::AbortAll;
+		pJob->abort();
 	}
 }
 
 // END OF void JobsModel::abortActiveJobs()
+//==============================================================================
+
+void JobsModel::pauseActiveJobs()
+{
+	for(vsedit::Job * pJob : m_jobs)
+	{
+		if(pJob->state() != JobState::Running)
+			continue;
+		m_wantTo = WantTo::PauseAll;
+		pJob->pause();
+	}
+}
+
+// END OF void JobsModel::pauseActiveJobs()
+//==============================================================================
+
+void JobsModel::resumeJobs()
+{
+	for(vsedit::Job * pJob : m_jobs)
+	{
+		if(pJob->state() != JobState::Paused)
+			continue;
+		m_wantTo = WantTo::RunAll;
+		pJob->start();
+	}
+}
+
+// END OF void JobsModel::resumeJobs()
 //==============================================================================
 
 void JobsModel::slotLogMessage(const QString & a_message,

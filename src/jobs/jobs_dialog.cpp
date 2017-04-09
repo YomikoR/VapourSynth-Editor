@@ -180,6 +180,7 @@ void JobsDialog::slotStartButtonClicked()
 
 void JobsDialog::slotPauseButtonClicked()
 {
+	m_pJobsModel->pauseActiveJobs();
 }
 
 // END OF
@@ -187,6 +188,7 @@ void JobsDialog::slotPauseButtonClicked()
 
 void JobsDialog::slotResumeButtonClicked()
 {
+	m_pJobsModel->resumeJobs();
 }
 
 // END OF
