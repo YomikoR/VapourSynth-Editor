@@ -202,6 +202,8 @@ void JobsDialog::slotAbortButtonClicked()
 
 void JobsDialog::slotJobDoubleClicked(const QModelIndex & a_index)
 {
+	if(a_index.column() == JobsModel::DEPENDS_ON_COLUMN)
+		return;
 	editJob(a_index);
 }
 
