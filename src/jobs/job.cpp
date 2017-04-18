@@ -128,7 +128,18 @@ void vsedit::Job::start()
 
 void vsedit::Job::pause()
 {
-	changeStateAndNotify(JobState::Pausing);
+	if(!vsedit::contains(ACTIVE_JOB_STATES, m_properties.jobState))
+		return;
+
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		EncodingState invalidStates[] = {EncodingState::Idle,
+			EncodingState::EncoderCrashed, EncodingState::Finishing,
+			EncodingState::Aborting};
+		if(vsedit::contains(invalidStates, m_encodingState))
+			return;
+		changeStateAndNotify(JobState::Pausing);
+	}
 }
 
 // END OF
@@ -1204,12 +1215,10 @@ void vsedit::Job::processFramesQueue()
 		return;
 	}
 
-	if(m_properties.jobState != JobState::Running)
-		return;
-
 	while((m_lastFrameRequested < m_properties.lastFrameReal) &&
 		(m_framesInProcess < m_maxThreads) &&
-		(m_framesCache.size() < m_cachedFramesLimit))
+		(m_framesCache.size() < m_cachedFramesLimit) &&
+		(m_properties.jobState == JobState::Running))
 	{
 		m_pVapourSynthScriptProcessor->requestFrameAsync(
 			m_lastFrameRequested + 1);
