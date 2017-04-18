@@ -30,7 +30,7 @@
       <number>4</number>
      </property>
      <item>
-      <widget class="VerboseTableView" name="jobsTableView">
+      <widget class="QTableView" name="jobsTableView">
        <property name="autoScroll">
         <bool>false</bool>
        </property>
@@ -173,11 +173,6 @@
    <class>VSEditorLog</class>
    <extends>QTextEdit</extends>
    <header>../../src/log/vs_editor_log.h</header>
-  </customwidget>
-  <customwidget>
-   <class>VerboseTableView</class>
-   <extends>QTableView</extends>
-   <header>../../src/common/verbose_table_view.h</header>
   </customwidget>
  </customwidgets>
  <resources>

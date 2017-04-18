@@ -8,6 +8,7 @@
 
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QItemSelectionModel>
 
 //==============================================================================
 
@@ -54,6 +55,9 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
 
+	QItemSelectionModel * pSelectionModel =
+		m_ui.jobsTableView->selectionModel();
+
 	connect(m_pJobsModel,
 		SIGNAL(signalLogMessage(const QString &, const QString &)),
 		m_ui.log, SLOT(addEntry(const QString &, const QString &)));
@@ -79,8 +83,8 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotAbortButtonClicked()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
 		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
-	connect(m_ui.jobsTableView,
-		SIGNAL(currentIndexChanged(const QModelIndex &)),
+	connect(pSelectionModel,
+		SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
 		m_pJobsModel, SLOT(setHighlightedRow(const QModelIndex &)));
 }
 
