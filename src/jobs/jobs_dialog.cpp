@@ -1,6 +1,7 @@
 #include "jobs_dialog.h"
 
 #include "../settings/settings_manager.h"
+#include "../common/highlight_item_delegate.h"
 #include "jobs_model.h"
 #include "job_state_delegate.h"
 #include "job_dependencies_delegate.h"
@@ -23,6 +24,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pJobsModel(a_pJobsModel)
+	, m_pHighlightItemDelegate(nullptr)
 	, m_pJobStateDelegate(nullptr)
 	, m_pJobDependenciesDelegate(nullptr)
 	, m_pJobEditDialog(nullptr)
@@ -30,6 +32,8 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	m_ui.setupUi(this);
 
 	m_ui.jobsTableView->setModel(m_pJobsModel);
+	m_pHighlightItemDelegate = new HighlightItemDelegate(this);
+	m_ui.jobsTableView->setItemDelegate(m_pHighlightItemDelegate);
 	m_pJobStateDelegate = new JobStateDelegate(this);
 	m_ui.jobsTableView->setItemDelegateForColumn(
 		JobsModel::STATE_COLUMN, m_pJobStateDelegate);
@@ -83,9 +87,10 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotAbortButtonClicked()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
 		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
-	connect(pSelectionModel,
-		SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-		m_pJobsModel, SLOT(setHighlightedRow(const QModelIndex &)));
+	connect(pSelectionModel, SIGNAL(selectionChanged(const QItemSelection &,
+		const QItemSelection &)),
+		m_pJobsModel, SLOT(slotSelectionChanged(const QItemSelection &,
+		const QItemSelection &)));
 }
 
 // END OF

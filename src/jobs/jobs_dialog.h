@@ -4,6 +4,7 @@
 #include <ui_jobs_dialog.h>
 
 class SettingsManager;
+class HighlightItemDelegate;
 class JobsModel;
 class JobEditDialog;
 class JobStateDelegate;
@@ -48,6 +49,7 @@ private:
 	SettingsManager * m_pSettingsManager;
 
 	JobsModel * m_pJobsModel;
+	HighlightItemDelegate * m_pHighlightItemDelegate;
 	JobStateDelegate * m_pJobStateDelegate;
 	JobDependenciesDelegate * m_pJobDependenciesDelegate;
 

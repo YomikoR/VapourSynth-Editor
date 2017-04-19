@@ -1,9 +1,9 @@
 #ifndef JOB_STATE_DELEGATE_H_INCLUDED
 #define JOB_STATE_DELEGATE_H_INCLUDED
 
-#include <QStyledItemDelegate>
+#include "../common/highlight_item_delegate.h"
 
-class JobStateDelegate : public QStyledItemDelegate
+class JobStateDelegate : public HighlightItemDelegate
 {
 	Q_OBJECT
 

@@ -9,7 +9,7 @@
 //==============================================================================
 
 JobDependenciesDelegate::JobDependenciesDelegate(QObject * a_pParent) :
-	QStyledItemDelegate(a_pParent)
+	HighlightItemDelegate(a_pParent)
 {
 }
 

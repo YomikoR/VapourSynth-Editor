@@ -4,6 +4,7 @@
 #include "job.h"
 
 #include <QAbstractItemModel>
+#include <QItemSelection>
 #include <vector>
 
 class SettingsManager;
@@ -91,7 +92,8 @@ private slots:
 
 	void slotLogMessage(const QString & a_message, const QString & a_style);
 
-	void setHighlightedRow(const QModelIndex & a_index);
+	void slotSelectionChanged(const QItemSelection & a_selected,
+		const QItemSelection & a_deselected);
 
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
 	void slotJobProgressChanged();
@@ -126,7 +128,7 @@ private:
 	SettingsManager * m_pSettingsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
 
-	int m_highlightedRow;
+	QItemSelection m_selection;
 
 	WantTo m_wantTo;
 };

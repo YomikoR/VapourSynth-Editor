@@ -21,7 +21,6 @@ JobsModel::JobsModel(SettingsManager * a_pSettingsManager,
 	  QAbstractItemModel(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
-	, m_highlightedRow(-1)
 	, m_wantTo(WantTo::Idle)
 {
 	assert(m_pSettingsManager);
@@ -180,9 +179,6 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		default:
 			break;
 		}
-
-		if(row == m_highlightedRow)
-			color = vsedit::highlight(color, 50);
 
 		return color;
 	}
@@ -687,21 +683,19 @@ void JobsModel::slotLogMessage(const QString & a_message,
 //		const QString & a_style)
 //==============================================================================
 
-void JobsModel::setHighlightedRow(const QModelIndex & a_index)
+void JobsModel::slotSelectionChanged(const QItemSelection & a_selected,
+		const QItemSelection & a_deselected)
 {
-	int oldHighlightedRow = m_highlightedRow;
-	m_highlightedRow = a_index.row();
+	m_selection = a_selected;
 
-	QModelIndex first = createIndex(oldHighlightedRow, 0);
-	QModelIndex last = createIndex(oldHighlightedRow, COLUMNS_NUMBER - 1);
-	emit dataChanged(first, last);
-
-	first = createIndex(m_highlightedRow, 0);
-	last = createIndex(m_highlightedRow, COLUMNS_NUMBER - 1);
-	emit dataChanged(first, last);
+	QModelIndexList changedIndexes = a_selected.indexes();
+	changedIndexes.append(a_deselected.indexes());
+	for(const QModelIndex & changedIndex : changedIndexes)
+		emit dataChanged(changedIndex, changedIndex);
 }
 
-// END OF void JobsModel::setHighlightedRow(const QModelIndex & a_index)
+// END OF void slotSelectionChanged(const QItemSelection & a_selected,
+//		const QItemSelection & a_deselected)
 //==============================================================================
 
 void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
