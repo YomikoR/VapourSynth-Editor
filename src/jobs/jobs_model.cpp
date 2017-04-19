@@ -609,9 +609,16 @@ bool JobsModel::hasActiveJobs()
 
 void JobsModel::startWaitingJobs()
 {
+	JobState validStates[] = {JobState::Waiting, JobState::Paused};
 	for(vsedit::Job * pJob : m_jobs)
 	{
-		if(pJob->state() != JobState::Waiting)
+		if(!vsedit::contains(validStates, pJob->state()))
+			continue;
+		int jobIndex = indexOfJob(pJob->id());
+		DependenciesState jobDependenciesState = dependenciesState(jobIndex);
+		if(jobDependenciesState == DependenciesState::Failed)
+			pJob->setState(JobState::DependencyNotMet);
+		if(jobDependenciesState != DependenciesState::Complete)
 			continue;
 		m_wantTo = WantTo::RunAll;
 		pJob->start();
@@ -710,6 +717,8 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	notifyJobUpdated(jobIndex);
 	saveJobs();
 
+	JobState validStates[] = {JobState::Waiting, JobState::Paused};
+
 	if(m_wantTo == WantTo::RunAll)
 	{
 		if(vsedit::contains(ACTIVE_JOB_STATES, a_newState))
@@ -723,13 +732,13 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 		{
 			int nextIndex = i % m_jobs.size();
 			vsedit::Job * pNextJob = m_jobs[nextIndex];
-			if(pNextJob->state() != JobState::Waiting)
+			if(!vsedit::contains(validStates, pNextJob->state()))
 				continue;
-			if(!dependenciesMet(nextIndex))
-			{
+			DependenciesState jobDependenciesState = dependenciesState(i);
+			if(jobDependenciesState == DependenciesState::Failed)
 				pNextJob->setState(JobState::DependencyNotMet);
+			if(jobDependenciesState != DependenciesState::Complete)
 				continue;
-			}
 			pNextJob->start();
 			return;
 		}
@@ -804,24 +813,34 @@ void JobsModel::notifyJobUpdated(int a_index)
 // END OF void JobsModel::noifyJobUpdated(int a_index)
 //==============================================================================
 
-bool JobsModel::dependenciesMet(int a_index)
+JobsModel::DependenciesState JobsModel::dependenciesState(int a_index)
 {
 	if((a_index < 0) || (a_index >= (int)m_jobs.size()))
-		return false;
+		return DependenciesState::Failed;
+
+	JobState failStates[] = {JobState::Aborted, JobState::Aborting,
+		JobState::DependencyNotMet, JobState::Failed, JobState::FailedCleanUp};
+
+	bool incomplete = false;
 
 	for(const QUuid & id : m_jobs[a_index]->dependsOnJobIds())
 	{
 		int dependencyIndex = indexOfJob(id);
 		if((dependencyIndex < 0) || (dependencyIndex >= (int)m_jobs.size()))
-			return false;
+			return DependenciesState::Failed;
 		if(m_jobs[dependencyIndex]->state() != JobState::Completed)
-			return false;
+			incomplete = true;
+		if(vsedit::contains(failStates, m_jobs[dependencyIndex]->state()))
+			return DependenciesState::Failed;
 	}
 
-	return true;
+	if(incomplete)
+		return DependenciesState::Incomplete;
+
+	return DependenciesState::Complete;
 }
 
-// END OF bool JobsModel::dependenciesMet(int a_index)
+// END OF JobsModel::DependenciesState JobsModel::dependenciesState(int a_index)
 //==============================================================================
 
 void JobsModel::connectJob(vsedit::Job * a_pJob)

@@ -111,6 +111,13 @@ private:
 		PauseAll,
 	};
 
+	enum class DependenciesState
+	{
+		Incomplete,
+		Complete,
+		Failed,
+	};
+
 	int indexOfJob(const QUuid & a_uuid) const;
 
 	void clearJobs();
@@ -119,7 +126,7 @@ private:
 
 	void notifyJobUpdated(int a_index);
 
-	bool dependenciesMet(int a_index);
+	DependenciesState dependenciesState(int a_index);
 
 	void connectJob(vsedit::Job * a_pJob);
 
