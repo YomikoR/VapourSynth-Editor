@@ -247,6 +247,8 @@
 		<Unit filename="src/common/chrono.h" />
 		<Unit filename="src/common/helpers.cpp" />
 		<Unit filename="src/common/helpers.h" />
+		<Unit filename="src/common/highlight_item_delegate.cpp" />
+		<Unit filename="src/common/highlight_item_delegate.h" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.cpp" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.h" />
 		<Unit filename="src/frame_consumers/benchmark_dialog.ui" />
