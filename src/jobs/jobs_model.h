@@ -79,7 +79,11 @@ public:
 	void startWaitingJobs();
 	void abortActiveJobs();
 	void pauseActiveJobs();
-	void resumeJobs();
+	void resumePausedJobs();
+	void resetSelectedJobs();
+	void deleteSelectedJobs();
+
+	void setSelection(const QItemSelection & a_selection);
 
 signals:
 
@@ -91,9 +95,6 @@ signals:
 private slots:
 
 	void slotLogMessage(const QString & a_message, const QString & a_style);
-
-	void slotSelectionChanged(const QItemSelection & a_selected,
-		const QItemSelection & a_deselected);
 
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
 	void slotJobProgressChanged();
@@ -120,6 +121,9 @@ private:
 	void connectJob(vsedit::Job * a_pJob);
 
 	void startFirstReadyJob(int a_fromIndex = 0);
+
+	std::vector<int> indexesFromSelection();
+	std::vector<QUuid> idsFromSelection();
 
 	std::vector<vsedit::Job *> m_jobs;
 

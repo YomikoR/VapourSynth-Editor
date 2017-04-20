@@ -637,7 +637,7 @@ void JobsModel::pauseActiveJobs()
 // END OF void JobsModel::pauseActiveJobs()
 //==============================================================================
 
-void JobsModel::resumeJobs()
+void JobsModel::resumePausedJobs()
 {
 	for(vsedit::Job * pJob : m_jobs)
 	{
@@ -647,7 +647,27 @@ void JobsModel::resumeJobs()
 	}
 }
 
-// END OF void JobsModel::resumeJobs()
+// END OF void JobsModel::resumePausedJobs()
+//==============================================================================
+
+void JobsModel::resetSelectedJobs()
+{
+	std::vector<int> jobIndexes = indexesFromSelection();
+	for(int jobIndex : jobIndexes)
+		setJobState(jobIndex, JobState::Waiting);
+}
+
+// END OF void JobsModel::resetSelectedJobs()
+//==============================================================================
+
+void JobsModel::deleteSelectedJobs()
+{
+	std::vector<QUuid> jobIds = idsFromSelection();
+	for(const QUuid & jobId : jobIds)
+		deleteJob(jobId);
+}
+
+// END OF void JobsModel::deleteSelectedJobs()
 //==============================================================================
 
 void JobsModel::slotLogMessage(const QString & a_message,
@@ -669,19 +689,12 @@ void JobsModel::slotLogMessage(const QString & a_message,
 //		const QString & a_style)
 //==============================================================================
 
-void JobsModel::slotSelectionChanged(const QItemSelection & a_selected,
-		const QItemSelection & a_deselected)
+void JobsModel::setSelection(const QItemSelection & a_selection)
 {
-	m_selection = a_selected;
-
-	QModelIndexList changedIndexes = a_selected.indexes();
-	changedIndexes.append(a_deselected.indexes());
-	for(const QModelIndex & changedIndex : changedIndexes)
-		emit dataChanged(changedIndex, changedIndex);
+	m_selection = a_selection;
 }
 
-// END OF void slotSelectionChanged(const QItemSelection & a_selected,
-//		const QItemSelection & a_deselected)
+// END OF void JobsModel::setSelection(const QItemSelection & a_selection)
 //==============================================================================
 
 void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
@@ -839,4 +852,31 @@ void JobsModel::startFirstReadyJob(int a_fromIndex)
 }
 
 // END OF void JobsModel::startFirstReadyJob(int a_fromIndex)
+//==============================================================================
+
+std::vector<int> JobsModel::indexesFromSelection()
+{
+	std::set<int> indexesSet;
+	QModelIndexList modelIndexList = m_selection.indexes();
+	for(const QModelIndex & jobIndex : modelIndexList)
+		indexesSet.insert(jobIndex.row());
+	std::vector<int> indexesVector;
+	std::copy(indexesSet.begin(), indexesSet.end(),
+		std::back_inserter(indexesVector));
+	return indexesVector;
+}
+
+// END OF std::vector<int> JobsModel::indexesFromSelection()
+//==============================================================================
+
+std::vector<QUuid> JobsModel::idsFromSelection()
+{
+	std::vector<int> indexesVector = indexesFromSelection();
+	std::vector<QUuid> idsVector;
+	for(int jobIndex : indexesVector)
+		idsVector.push_back(m_jobs[jobIndex]->id());
+	return idsVector;
+}
+
+// END OF std::vector<QUuid> JobsModel::idsFromSelection()
 //==============================================================================

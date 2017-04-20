@@ -89,8 +89,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
 	connect(pSelectionModel, SIGNAL(selectionChanged(const QItemSelection &,
 		const QItemSelection &)),
-		m_pJobsModel, SLOT(slotSelectionChanged(const QItemSelection &,
-		const QItemSelection &)));
+		this, SLOT(slotSelectionChanged()));
 }
 
 // END OF
@@ -150,19 +149,18 @@ void JobsDialog::slotJobMoveDownButtonClicked()
 
 void JobsDialog::slotJobDeleteButtonClicked()
 {
-	QModelIndex index = m_ui.jobsTableView->currentIndex();
-	if(!index.isValid())
+	if(!m_ui.jobsTableView->selectionModel()->hasSelection())
 		return;
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
-		trUtf8("Delete job"), trUtf8("Do you really want to delete Job %1?")
-		.arg(index.row() + 1),
+		trUtf8("Delete selected jobs"),
+		trUtf8("Do you really want to delete selected jobs?"),
 		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
 		QMessageBox::No);
 	if(result == QMessageBox::No)
 		return;
 
-	m_pJobsModel->deleteJob(index.row());
+	m_pJobsModel->deleteSelectedJobs();
 }
 
 // END OF
@@ -170,10 +168,7 @@ void JobsDialog::slotJobDeleteButtonClicked()
 
 void JobsDialog::slotJobResetStateButtonClicked()
 {
-	QModelIndex index = m_ui.jobsTableView->currentIndex();
-	if(!index.isValid())
-		return;
-	m_pJobsModel->setJobState(index.row(), JobState::Waiting);
+	m_pJobsModel->resetSelectedJobs();
 }
 
 // END OF
@@ -197,7 +192,7 @@ void JobsDialog::slotPauseButtonClicked()
 
 void JobsDialog::slotResumeButtonClicked()
 {
-	m_pJobsModel->resumeJobs();
+	m_pJobsModel->resumePausedJobs();
 }
 
 // END OF
@@ -217,6 +212,16 @@ void JobsDialog::slotJobDoubleClicked(const QModelIndex & a_index)
 	if(flags & Qt::ItemIsEditable)
 		return;
 	editJob(a_index);
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::slotSelectionChanged()
+{
+	QItemSelectionModel * pSelectionModel =
+		m_ui.jobsTableView->selectionModel();
+	m_pJobsModel->setSelection(pSelectionModel->selection());
 }
 
 // END OF

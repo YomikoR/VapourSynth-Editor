@@ -38,6 +38,8 @@ private slots:
 
 	void slotJobDoubleClicked(const QModelIndex & a_index);
 
+	void slotSelectionChanged();
+
 private:
 
 	void editJob(const QModelIndex & a_index);
