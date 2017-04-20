@@ -21,7 +21,6 @@ JobsModel::JobsModel(SettingsManager * a_pSettingsManager,
 	  QAbstractItemModel(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
-	, m_wantTo(WantTo::Idle)
 {
 	assert(m_pSettingsManager);
 }
@@ -334,11 +333,8 @@ bool JobsModel::deleteJob(int a_index)
 	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
 		return false;
 
-	JobState protectedStates[] = {JobState::Running, JobState::Paused,
-		JobState::Aborting};
-
 	vsedit::Job * pJob = m_jobs[a_index];
-	if(vsedit::contains(protectedStates, pJob->state()))
+	if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 	{
 		emit signalLogMessage(trUtf8("Can not delete an active job."),
 			LOG_STYLE_WARNING);
@@ -609,21 +605,7 @@ bool JobsModel::hasActiveJobs()
 
 void JobsModel::startWaitingJobs()
 {
-	JobState validStates[] = {JobState::Waiting, JobState::Paused};
-	for(vsedit::Job * pJob : m_jobs)
-	{
-		if(!vsedit::contains(validStates, pJob->state()))
-			continue;
-		int jobIndex = indexOfJob(pJob->id());
-		DependenciesState jobDependenciesState = dependenciesState(jobIndex);
-		if(jobDependenciesState == DependenciesState::Failed)
-			pJob->setState(JobState::DependencyNotMet);
-		if(jobDependenciesState != DependenciesState::Complete)
-			continue;
-		m_wantTo = WantTo::RunAll;
-		pJob->start();
-		return;
-	}
+	startFirstReadyJob();
 }
 
 // END OF void JobsModel::startWaitingJobs()
@@ -635,7 +617,6 @@ void JobsModel::abortActiveJobs()
 	{
 		if(!vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 			continue;
-		m_wantTo = WantTo::AbortAll;
 		pJob->abort();
 	}
 }
@@ -649,7 +630,6 @@ void JobsModel::pauseActiveJobs()
 	{
 		if(pJob->state() != JobState::Running)
 			continue;
-		m_wantTo = WantTo::PauseAll;
 		pJob->pause();
 	}
 }
@@ -663,7 +643,6 @@ void JobsModel::resumeJobs()
 	{
 		if(pJob->state() != JobState::Paused)
 			continue;
-		m_wantTo = WantTo::RunAll;
 		pJob->start();
 	}
 }
@@ -717,34 +696,14 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	notifyJobUpdated(jobIndex);
 	saveJobs();
 
-	JobState validStates[] = {JobState::Waiting, JobState::Paused};
+	if(vsedit::contains(ACTIVE_JOB_STATES, a_newState))
+		return;
 
-	if(m_wantTo == WantTo::RunAll)
-	{
-		if(vsedit::contains(ACTIVE_JOB_STATES, a_newState))
-			return;
+	// Recursion
+	if(a_newState == JobState::DependencyNotMet)
+		return;
 
-		// Recursion
-		if(a_newState == JobState::DependencyNotMet)
-			return;
-
-		for(int i = jobIndex + 1; i < (jobIndex + (int)m_jobs.size()); ++i)
-		{
-			int nextIndex = i % m_jobs.size();
-			vsedit::Job * pNextJob = m_jobs[nextIndex];
-			if(!vsedit::contains(validStates, pNextJob->state()))
-				continue;
-			DependenciesState jobDependenciesState = dependenciesState(i);
-			if(jobDependenciesState == DependenciesState::Failed)
-				pNextJob->setState(JobState::DependencyNotMet);
-			if(jobDependenciesState != DependenciesState::Complete)
-				continue;
-			pNextJob->start();
-			return;
-		}
-
-		m_wantTo = WantTo::Idle;
-	}
+	startFirstReadyJob(jobIndex + 1);
 }
 
 // END OF void JobsModel::slotJobStateChanged(JobState a_newState,
@@ -854,4 +813,30 @@ void JobsModel::connectJob(vsedit::Job * a_pJob)
 }
 
 // END OF void JobsModel::connectJob(vsedit::Job * a_pJob)
+//==============================================================================
+
+void JobsModel::startFirstReadyJob(int a_fromIndex)
+{
+	if((a_fromIndex < 0) || (a_fromIndex >= (int)m_jobs.size()))
+		return;
+
+	JobState validStates[] = {JobState::Waiting, JobState::Paused};
+
+	for(int i = a_fromIndex; i < (a_fromIndex + (int)m_jobs.size()); ++i)
+	{
+		int nextIndex = i % m_jobs.size();
+		vsedit::Job * pNextJob = m_jobs[nextIndex];
+		if(!vsedit::contains(validStates, pNextJob->state()))
+			continue;
+		DependenciesState jobDependenciesState = dependenciesState(i);
+		if(jobDependenciesState == DependenciesState::Failed)
+			pNextJob->setState(JobState::DependencyNotMet);
+		if(jobDependenciesState != DependenciesState::Complete)
+			continue;
+		pNextJob->start();
+		return;
+	}
+}
+
+// END OF void JobsModel::startFirstReadyJob(int a_fromIndex)
 //==============================================================================

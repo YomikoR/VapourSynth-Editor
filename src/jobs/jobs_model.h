@@ -100,17 +100,6 @@ private slots:
 
 private:
 
-	enum class WantTo
-	{
-		Idle,
-		RunOne,
-		RunAll,
-		AbortOne,
-		AbortAll,
-		PauseOne,
-		PauseAll,
-	};
-
 	enum class DependenciesState
 	{
 		Incomplete,
@@ -130,14 +119,14 @@ private:
 
 	void connectJob(vsedit::Job * a_pJob);
 
+	void startFirstReadyJob(int a_fromIndex = 0);
+
 	std::vector<vsedit::Job *> m_jobs;
 
 	SettingsManager * m_pSettingsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
 
 	QItemSelection m_selection;
-
-	WantTo m_wantTo;
 };
 
 #endif // JOBS_MODEL_H_INCLUDED
