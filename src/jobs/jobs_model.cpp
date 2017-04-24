@@ -699,7 +699,8 @@ void JobsModel::setSelection(const QItemSelection & a_selection)
 
 void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 {
-	(void)a_oldState;
+	if(a_oldState == a_newState)
+		return;
 
 	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
 	if(!pJob)

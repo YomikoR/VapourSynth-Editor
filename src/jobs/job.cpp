@@ -298,7 +298,7 @@ JobState vsedit::Job::state() const
 
 bool vsedit::Job::setState(JobState a_state)
 {
-	m_properties.jobState = a_state;
+	changeStateAndNotify(a_state);
 	return true;
 }
 
