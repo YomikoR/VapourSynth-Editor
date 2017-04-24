@@ -12,7 +12,10 @@ const int JobsModel::TYPE_COLUMN = 1;
 const int JobsModel::SUBJECT_COLUMN = 2;
 const int JobsModel::STATE_COLUMN = 3;
 const int JobsModel::DEPENDS_ON_COLUMN = 4;
-const int JobsModel::COLUMNS_NUMBER = 5;
+const int JobsModel::TIME_START_COLUMN = 5;
+const int JobsModel::TIME_END_COLUMN = 6;
+const int JobsModel::FPS_COLUMN = 7;
+const int JobsModel::COLUMNS_NUMBER = 8;
 
 //==============================================================================
 
@@ -104,6 +107,12 @@ QVariant JobsModel::headerData(int a_section, Qt::Orientation a_orientation,
 		return trUtf8("State");
 	case DEPENDS_ON_COLUMN:
 		return trUtf8("Depends on jobs");
+	case TIME_START_COLUMN:
+		return trUtf8("Started");
+	case TIME_END_COLUMN:
+		return trUtf8("Ended");
+	case FPS_COLUMN:
+		return trUtf8("FPS");
 	default:
 		return QVariant();
 	}
@@ -126,6 +135,8 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 	if((a_index.row() >= (int)m_jobs.size()) ||
 		(a_index.column() >= COLUMNS_NUMBER))
 		return QVariant();
+
+	const QString dateTimeFormat = "yyyy-MM-dd\nhh:mm:ss.z";
 
 	if((a_role == Qt::DisplayRole) || (a_role == Qt::ToolTipRole))
 	{
@@ -150,6 +161,20 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 			}
 			return dependsList.join(", ");
 		}
+		else if(column == TIME_START_COLUMN)
+		{
+			QDateTime timeStarted = m_jobs[row]->properties().timeStarted;
+			if(timeStarted != QDateTime())
+				return timeStarted.toString(dateTimeFormat);
+		}
+		else if(column == TIME_END_COLUMN)
+		{
+			QDateTime timeStarted = m_jobs[row]->properties().timeEnded;
+			if(timeStarted != QDateTime())
+				return timeStarted.toString(dateTimeFormat);
+		}
+		else if(column == FPS_COLUMN)
+			return QVariant();
 	}
 	else if(a_role == Qt::BackgroundRole)
 	{
@@ -183,7 +208,9 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 	}
 	else if(a_role == Qt::TextAlignmentRole)
 	{
-		if(column == STATE_COLUMN)
+		const int centeredColumns[] = {STATE_COLUMN, TIME_START_COLUMN,
+			TIME_END_COLUMN};
+		if(vsedit::contains(centeredColumns, column))
 			return Qt::AlignCenter;
 	}
 

@@ -53,6 +53,12 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		QHeaderView::Stretch);
 	pHorizontalHeader->setSectionResizeMode(JobsModel::DEPENDS_ON_COLUMN,
 		QHeaderView::ResizeToContents);
+	pHorizontalHeader->setSectionResizeMode(JobsModel::TIME_START_COLUMN,
+		QHeaderView::ResizeToContents);
+	pHorizontalHeader->setSectionResizeMode(JobsModel::TIME_END_COLUMN,
+		QHeaderView::ResizeToContents);
+	pHorizontalHeader->setSectionResizeMode(JobsModel::FPS_COLUMN,
+		QHeaderView::ResizeToContents);
 
 	QHeaderView * pVerticalHeader = m_ui.jobsTableView->verticalHeader();
 	pVerticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);

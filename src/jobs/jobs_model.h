@@ -21,6 +21,9 @@ public:
 	static const int SUBJECT_COLUMN;
 	static const int STATE_COLUMN;
 	static const int DEPENDS_ON_COLUMN;
+	static const int TIME_START_COLUMN;
+	static const int TIME_END_COLUMN;
+	static const int FPS_COLUMN;
 	static const int COLUMNS_NUMBER;
 
 	JobsModel(SettingsManager * a_pSettingsManager,
