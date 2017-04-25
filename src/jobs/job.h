@@ -87,6 +87,7 @@ public:
 
 	virtual int framesProcessed() const;
 	virtual int framesTotal() const;
+	virtual double fps() const;
 
 	virtual JobProperties properties() const;
 	virtual bool setProperties(const JobProperties & a_properties);
@@ -176,6 +177,9 @@ protected:
 	size_t m_framesInQueue;
 	size_t m_framesInProcess;
 	size_t m_maxThreads;
+
+	hr_time_point m_encodeRangeStartTime;
+	double m_memorizedEncodingTime;
 };
 
 }

@@ -36,6 +36,7 @@ vsedit::Job::Job(const JobProperties & a_properties,
 	, m_framesInQueue(0)
 	, m_framesInProcess(0)
 	, m_maxThreads(0)
+	, m_memorizedEncodingTime(0.0)
 {
 	fillVariables();
 	if(a_pVSScriptLibrary)
@@ -388,6 +389,30 @@ int vsedit::Job::framesTotal() const
 // END OF
 //==============================================================================
 
+double vsedit::Job::fps() const
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return 0.0;
+
+	double totalTime = m_memorizedEncodingTime;
+
+	const JobState activeEncodingStates[] = {JobState::Running,
+		JobState::Pausing};
+	if(vsedit::contains(activeEncodingStates, m_properties.jobState))
+	{
+		hr_time_point now = hr_clock::now();
+		double currentRangeTime =
+			duration_to_double(now - m_encodeRangeStartTime);
+		totalTime += currentRangeTime;
+	}
+
+	double fps = (double)m_properties.framesProcessed / totalTime;
+	return fps;
+}
+
+// END OF
+//==============================================================================
+
 JobProperties vsedit::Job::properties() const
 {
 	return m_properties;
@@ -719,6 +744,10 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 
 	if((m_properties.jobState == JobState::Pausing) && (m_framesInProcess == 0))
 	{
+		hr_time_point now = hr_clock::now();
+		double currentRangeTime =
+			duration_to_double(now - m_encodeRangeStartTime);
+		m_memorizedEncodingTime += currentRangeTime;
 		changeStateAndNotify(JobState::Paused);
 		return;
 	}

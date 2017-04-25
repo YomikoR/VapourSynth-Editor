@@ -120,6 +120,7 @@ const char JOB_FIRST_FRAME_REAL_KEY[] = "first_frame_real";
 const char JOB_LAST_FRAME_KEY[] = "last_frame";
 const char JOB_LAST_FRAME_REAL_KEY[] = "last_frame_real";
 const char JOB_FRAME_PROCESSED_KEY[] = "frames_processed";
+const char JOB_FPS_KEY[] = "fps";
 
 //==============================================================================
 
@@ -1442,6 +1443,7 @@ std::vector<JobProperties> SettingsManager::getJobs() const
 			job.lastFrame).toInt();
 		job.framesProcessed = settings.value(JOB_FRAME_PROCESSED_KEY,
 			DEFAULT_JOB_FRAMES_PROCESSED).toInt();
+		job.fps = settings.value(JOB_FPS_KEY, DEFAULT_JOB_FPS).toDouble();
 
 		jobs.push_back(job);
 
@@ -1486,6 +1488,7 @@ bool SettingsManager::setJobs(const std::vector<JobProperties> & a_jobs)
 		settings.setValue(JOB_LAST_FRAME_KEY, job.lastFrame);
 		settings.setValue(JOB_LAST_FRAME_REAL_KEY, job.lastFrameReal);
 		settings.setValue(JOB_FRAME_PROCESSED_KEY, job.framesProcessed);
+		settings.setValue(JOB_FPS_KEY, job.fps);
 
 		settings.endGroup();
 	}

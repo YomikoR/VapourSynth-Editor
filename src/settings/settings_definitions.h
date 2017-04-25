@@ -115,6 +115,7 @@ struct JobProperties
 	int lastFrame;
 	int lastFrameReal;
 	int framesProcessed;
+	double fps;
 
 	JobProperties();
 	JobProperties(const JobProperties &) = default;
@@ -215,6 +216,7 @@ extern const JobState DEFAULT_JOB_STATE;
 extern const int DEFAULT_JOB_FIRST_FRAME;
 extern const int DEFAULT_JOB_LAST_FRAME;
 extern const int DEFAULT_JOB_FRAMES_PROCESSED;
+extern const double DEFAULT_JOB_FPS;
 
 //==============================================================================
 

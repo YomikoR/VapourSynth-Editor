@@ -53,6 +53,7 @@ const JobState DEFAULT_JOB_STATE = JobState::Waiting;
 const int DEFAULT_JOB_FIRST_FRAME = -1;
 const int DEFAULT_JOB_LAST_FRAME = -1;
 const int DEFAULT_JOB_FRAMES_PROCESSED = 0;
+const double DEFAULT_JOB_FPS = 0.0;
 
 //==============================================================================
 
@@ -144,6 +145,7 @@ JobProperties::JobProperties():
 	, lastFrame(-1)
 	, lastFrameReal(-1)
 	, framesProcessed(0)
+	, fps(0.0)
 {
 }
 

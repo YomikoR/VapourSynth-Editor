@@ -138,20 +138,24 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 
 	const QString dateTimeFormat = "yyyy-MM-dd\nhh:mm:ss.z";
 
+	vsedit::Job * pJob = m_jobs[row];
+	if(!pJob)
+		return QVariant();
+
 	if((a_role == Qt::DisplayRole) || (a_role == Qt::ToolTipRole))
 	{
 		if(column == NAME_COLUMN)
 			return trUtf8("Job %1").arg(row + 1);
 		else if(column == TYPE_COLUMN)
-			return vsedit::Job::typeName(m_jobs[row]->type());
+			return vsedit::Job::typeName(pJob->type());
 		else if(column == SUBJECT_COLUMN)
 			return m_jobs[row]->subject();
 		else if(column == STATE_COLUMN)
-			return vsedit::Job::stateName(m_jobs[row]->state());
+			return vsedit::Job::stateName(pJob->state());
 		else if(column == DEPENDS_ON_COLUMN)
 		{
 			QStringList dependsList;
-			for(const QUuid & a_uuid : m_jobs[row]->dependsOnJobIds())
+			for(const QUuid & a_uuid : pJob->dependsOnJobIds())
 			{
 				ptrdiff_t index = indexOfJob(a_uuid);
 				if(index < 0)
@@ -163,24 +167,25 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		}
 		else if(column == TIME_START_COLUMN)
 		{
-			QDateTime timeStarted = m_jobs[row]->properties().timeStarted;
+			QDateTime timeStarted = pJob->properties().timeStarted;
 			if(timeStarted != QDateTime())
 				return timeStarted.toLocalTime().toString(dateTimeFormat);
 		}
 		else if(column == TIME_END_COLUMN)
 		{
-			QDateTime timeStarted = m_jobs[row]->properties().timeEnded;
+			QDateTime timeStarted = pJob->properties().timeEnded;
 			if(timeStarted != QDateTime())
 				return timeStarted.toLocalTime().toString(dateTimeFormat);
 		}
-		else if(column == FPS_COLUMN)
-			return QVariant();
+		else if((column == FPS_COLUMN) &&
+			(pJob->properties().type == JobType::EncodeScriptCLI))
+			return pJob->fps();
 	}
 	else if(a_role == Qt::BackgroundRole)
 	{
 		QColor color = QGuiApplication::palette().color(QPalette::Base);
 
-		switch(m_jobs[row]->state())
+		switch(pJob->state())
 		{
 		case JobState::Aborted:
 		case JobState::Failed:
