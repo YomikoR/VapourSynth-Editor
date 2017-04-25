@@ -954,6 +954,21 @@ void vsedit::Job::changeStateAndNotify(JobState a_state)
 
 	JobState oldState = m_properties.jobState;
 	m_properties.jobState = a_state;
+
+	if(oldState == JobState::Waiting)
+		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
+
+	const JobState finishStates[] = {JobState::Aborted, JobState::Failed,
+		JobState::DependencyNotMet, JobState::Completed};
+	if(vsedit::contains(finishStates, a_state))
+		m_properties.timeEnded = QDateTime::currentDateTimeUtc();
+
+	if(a_state == JobState::Waiting)
+	{
+		m_properties.timeStarted = QDateTime();
+		m_properties.timeEnded = QDateTime();
+	}
+
 	emit signalStateChanged(m_properties.jobState, oldState);
 }
 

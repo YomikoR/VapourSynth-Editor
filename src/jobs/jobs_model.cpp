@@ -165,13 +165,13 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		{
 			QDateTime timeStarted = m_jobs[row]->properties().timeStarted;
 			if(timeStarted != QDateTime())
-				return timeStarted.toString(dateTimeFormat);
+				return timeStarted.toLocalTime().toString(dateTimeFormat);
 		}
 		else if(column == TIME_END_COLUMN)
 		{
 			QDateTime timeStarted = m_jobs[row]->properties().timeEnded;
 			if(timeStarted != QDateTime())
-				return timeStarted.toString(dateTimeFormat);
+				return timeStarted.toLocalTime().toString(dateTimeFormat);
 		}
 		else if(column == FPS_COLUMN)
 			return QVariant();
