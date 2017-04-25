@@ -744,6 +744,10 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	if(a_newState == JobState::DependencyNotMet)
 		return;
 
+	// State reset
+	if(a_newState == JobState::Waiting)
+		return;
+
 	startFirstReadyJob(jobIndex + 1);
 }
 
