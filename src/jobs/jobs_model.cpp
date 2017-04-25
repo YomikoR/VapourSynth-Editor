@@ -178,8 +178,9 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 				return timeStarted.toLocalTime().toString(dateTimeFormat);
 		}
 		else if((column == FPS_COLUMN) &&
-			(pJob->properties().type == JobType::EncodeScriptCLI))
-			return pJob->fps();
+			(pJob->properties().type == JobType::EncodeScriptCLI) &&
+			(pJob->properties().framesProcessed > 0))
+			return QString::number(pJob->fps(), 'f', 20);
 	}
 	else if(a_role == Qt::BackgroundRole)
 	{

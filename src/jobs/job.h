@@ -143,6 +143,10 @@ protected:
 
 	virtual void finishEncodingCLI();
 
+	virtual void memorizeEncodingTime();
+
+	virtual void updateFPS();
+
 	JobProperties m_properties;
 
 	QProcess m_process;

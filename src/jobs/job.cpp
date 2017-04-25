@@ -391,23 +391,7 @@ int vsedit::Job::framesTotal() const
 
 double vsedit::Job::fps() const
 {
-	if(m_properties.type != JobType::EncodeScriptCLI)
-		return 0.0;
-
-	double totalTime = m_memorizedEncodingTime;
-
-	const JobState activeEncodingStates[] = {JobState::Running,
-		JobState::Pausing};
-	if(vsedit::contains(activeEncodingStates, m_properties.jobState))
-	{
-		hr_time_point now = hr_clock::now();
-		double currentRangeTime =
-			duration_to_double(now - m_encodeRangeStartTime);
-		totalTime += currentRangeTime;
-	}
-
-	double fps = (double)m_properties.framesProcessed / totalTime;
-	return fps;
+	return m_properties.fps;
 }
 
 // END OF
@@ -480,6 +464,9 @@ void vsedit::Job::slotProcessStarted()
 				return;
 			}
 		}
+
+		m_memorizedEncodingTime = 0.0;
+		m_encodeRangeStartTime = hr_clock::now();
 
 		m_encodingState = EncodingState::WaitingForFrames;
 		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
@@ -736,6 +723,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 		m_framesCache.erase(it);
 		m_lastFrameProcessed++;
 		m_properties.framesProcessed++;
+		updateFPS();
 
 		emit signalProgressChanged();
 	}
@@ -744,10 +732,6 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 
 	if((m_properties.jobState == JobState::Pausing) && (m_framesInProcess == 0))
 	{
-		hr_time_point now = hr_clock::now();
-		double currentRangeTime =
-			duration_to_double(now - m_encodeRangeStartTime);
-		m_memorizedEncodingTime += currentRangeTime;
 		changeStateAndNotify(JobState::Paused);
 		return;
 	}
@@ -990,12 +974,24 @@ void vsedit::Job::changeStateAndNotify(JobState a_state)
 	const JobState finishStates[] = {JobState::Aborted, JobState::Failed,
 		JobState::DependencyNotMet, JobState::Completed};
 	if(vsedit::contains(finishStates, a_state))
+	{
 		m_properties.timeEnded = QDateTime::currentDateTimeUtc();
+		memorizeEncodingTime();
+	}
+
+	if(a_state == JobState::Paused)
+		memorizeEncodingTime();
+
+	if((oldState == JobState::Paused) && (a_state == JobState::Running))
+		m_encodeRangeStartTime = hr_clock::now();
 
 	if(a_state == JobState::Waiting)
 	{
 		m_properties.timeStarted = QDateTime();
 		m_properties.timeEnded = QDateTime();
+		m_memorizedEncodingTime = 0.0;
+		m_properties.fps = 0.0;
+		m_properties.framesProcessed = 0;
 	}
 
 	emit signalStateChanged(m_properties.jobState, oldState);
@@ -1390,6 +1386,33 @@ void vsedit::Job::finishEncodingCLI()
 		stateToSwitch.find(m_properties.jobState);
 	if(it != stateToSwitch.cend())
 		changeStateAndNotify(it->second);
+}
+
+// END OF
+//==============================================================================
+
+void vsedit::Job::memorizeEncodingTime()
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return;
+
+	hr_time_point now = hr_clock::now();
+	m_memorizedEncodingTime +=
+	duration_to_double(now - m_encodeRangeStartTime);
+}
+
+// END OF
+//==============================================================================
+
+void vsedit::Job::updateFPS()
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return;
+
+	hr_time_point now = hr_clock::now();
+	double totalTime = m_memorizedEncodingTime +
+		duration_to_double(now - m_encodeRangeStartTime);
+	m_properties.fps = (double)m_properties.framesProcessed / totalTime;
 }
 
 // END OF
