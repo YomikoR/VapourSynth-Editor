@@ -15,13 +15,7 @@
 
 JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	JobsModel * a_pJobsModel, QWidget * a_pParent) :
-	  QDialog(a_pParent, (Qt::WindowFlags)0
-		| Qt::Dialog
-		| Qt::CustomizeWindowHint
-		| Qt::WindowTitleHint
-		| Qt::WindowMinimizeButtonHint
-		| Qt::WindowMaximizeButtonHint
-		| Qt::WindowCloseButtonHint)
+	  QDialog(a_pParent, Qt::Window)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pJobsModel(a_pJobsModel)
 	, m_pHighlightItemDelegate(nullptr)
