@@ -15,8 +15,7 @@ const int JobsModel::DEPENDS_ON_COLUMN = 4;
 const int JobsModel::TIME_START_COLUMN = 5;
 const int JobsModel::TIME_END_COLUMN = 6;
 const int JobsModel::FPS_COLUMN = 7;
-const int JobsModel::ESTIMATED_TIME_COLUMN = 8;
-const int JobsModel::COLUMNS_NUMBER = 9;
+const int JobsModel::COLUMNS_NUMBER = 8;
 
 //==============================================================================
 
@@ -115,8 +114,6 @@ QVariant JobsModel::headerData(int a_section, Qt::Orientation a_orientation,
 		return trUtf8("Ended");
 	case FPS_COLUMN:
 		return trUtf8("FPS");
-	case ESTIMATED_TIME_COLUMN:
-		return trUtf8("Estimated time to finish");
 	default:
 		return QVariant();
 	}
@@ -184,13 +181,17 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		else if((column == FPS_COLUMN) &&
 			(pJob->type() == JobType::EncodeScriptCLI) &&
 			(pJob->framesProcessed() > 0))
-			return QString::number(pJob->fps(), 'f', m_fpsDisplayPrecision);
-		else if((column == ESTIMATED_TIME_COLUMN) &&
-			(pJob->type() == JobType::EncodeScriptCLI) &&
-			(pJob->framesProcessed() > 0) &&
-			(pJob->framesProcessed() < pJob->framesTotal()) &&
-			vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
-			return vsedit::timeToString(pJob->secondsToFinish());
+		{
+			QString fps = QString::number(pJob->fps(), 'f',
+				m_fpsDisplayPrecision);
+			if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()) &&
+				(pJob->framesProcessed() < pJob->framesTotal()))
+			{
+				fps += "\n";
+				fps += vsedit::timeToString(pJob->secondsToFinish());
+			}
+			return fps;
+		}
 	}
 	else if(a_role == Qt::BackgroundRole)
 	{

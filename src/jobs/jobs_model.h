@@ -24,7 +24,6 @@ public:
 	static const int TIME_START_COLUMN;
 	static const int TIME_END_COLUMN;
 	static const int FPS_COLUMN;
-	static const int ESTIMATED_TIME_COLUMN;
 	static const int COLUMNS_NUMBER;
 
 	JobsModel(SettingsManager * a_pSettingsManager,
