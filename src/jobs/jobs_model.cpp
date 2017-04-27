@@ -24,6 +24,7 @@ JobsModel::JobsModel(SettingsManager * a_pSettingsManager,
 	  QAbstractItemModel(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
+	, m_fpsDisplayPrecision(DEFAULT_FPS_DISPLAY_PRECISION)
 {
 	assert(m_pSettingsManager);
 }
@@ -180,7 +181,7 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		else if((column == FPS_COLUMN) &&
 			(pJob->properties().type == JobType::EncodeScriptCLI) &&
 			(pJob->properties().framesProcessed > 0))
-			return QString::number(pJob->fps(), 'f', 20);
+			return QString::number(pJob->fps(), 'f', m_fpsDisplayPrecision);
 	}
 	else if(a_role == Qt::BackgroundRole)
 	{

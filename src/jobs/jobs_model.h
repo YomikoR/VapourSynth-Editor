@@ -134,6 +134,8 @@ private:
 	VSScriptLibrary * m_pVSScriptLibrary;
 
 	QItemSelection m_selection;
+
+	int m_fpsDisplayPrecision;
 };
 
 #endif // JOBS_MODEL_H_INCLUDED
