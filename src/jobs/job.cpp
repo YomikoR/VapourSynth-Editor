@@ -398,6 +398,16 @@ double vsedit::Job::fps() const
 // END OF
 //==============================================================================
 
+double vsedit::Job::secondsToFinish() const
+{
+	int framesLeft = framesTotal() - framesProcessed();
+	double seconds = (double)framesLeft / m_properties.fps;
+	return seconds;
+}
+
+// END OF
+//==============================================================================
+
 JobProperties vsedit::Job::properties() const
 {
 	return m_properties;

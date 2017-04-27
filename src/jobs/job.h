@@ -88,6 +88,7 @@ public:
 	virtual int framesProcessed() const;
 	virtual int framesTotal() const;
 	virtual double fps() const;
+	virtual double secondsToFinish() const;
 
 	virtual JobProperties properties() const;
 	virtual bool setProperties(const JobProperties & a_properties);
