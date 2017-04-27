@@ -147,6 +147,8 @@ protected:
 
 	virtual void updateFPS();
 
+	virtual double currentEncodingRangeTime() const;
+
 	JobProperties m_properties;
 
 	QProcess m_process;

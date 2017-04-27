@@ -108,6 +108,7 @@ void vsedit::Job::start()
 {
 	if(m_properties.jobState == JobState::Waiting)
 	{
+		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
 		changeStateAndNotify(JobState::Running);
 		if(m_properties.type == JobType::EncodeScriptCLI)
 			startEncodeScriptCLI();
@@ -469,7 +470,6 @@ void vsedit::Job::slotProcessStarted()
 		m_encodeRangeStartTime = hr_clock::now();
 
 		m_encodingState = EncodingState::WaitingForFrames;
-		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
 		processFramesQueue();
 	}
 }
@@ -709,7 +709,8 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 	assert(m_cpVSAPI);
 	if(m_encodingState == EncodingState::WritingHeader)
 	{
-		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
+		m_memorizedEncodingTime = 0.0;
+		m_encodeRangeStartTime = hr_clock::now();
 	}
 	else if(m_encodingState == EncodingState::WritingFrame)
 	{
@@ -1249,6 +1250,8 @@ void vsedit::Job::processFramesQueue()
 	if(m_properties.framesProcessed == framesTotal())
 	{
 		assert(m_framesCache.empty());
+		memorizeEncodingTime();
+		updateFPS();
 		changeStateAndNotify(JobState::CompletedCleanUp);
 		m_encodingState = EncodingState::Finishing;
 		cleanUpEncoding();
@@ -1396,9 +1399,8 @@ void vsedit::Job::memorizeEncodingTime()
 	if(m_properties.type != JobType::EncodeScriptCLI)
 		return;
 
-	hr_time_point now = hr_clock::now();
-	m_memorizedEncodingTime +=
-	duration_to_double(now - m_encodeRangeStartTime);
+	m_memorizedEncodingTime += currentEncodingRangeTime();
+	m_encodeRangeStartTime = hr_clock::now();
 }
 
 // END OF
@@ -1409,10 +1411,24 @@ void vsedit::Job::updateFPS()
 	if(m_properties.type != JobType::EncodeScriptCLI)
 		return;
 
-	hr_time_point now = hr_clock::now();
-	double totalTime = m_memorizedEncodingTime +
-		duration_to_double(now - m_encodeRangeStartTime);
+	double totalTime = m_memorizedEncodingTime;
+	const JobState validStates[] = {JobState::Running, JobState::Pausing};
+	if(vsedit::contains(validStates, m_properties.jobState))
+		totalTime += currentEncodingRangeTime();
 	m_properties.fps = (double)m_properties.framesProcessed / totalTime;
+}
+
+// END OF
+//==============================================================================
+
+double vsedit::Job::currentEncodingRangeTime() const
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return 0.0;
+
+	hr_time_point now = hr_clock::now();
+	double rangeTime = duration_to_double(now - m_encodeRangeStartTime);
+	return rangeTime;
 }
 
 // END OF
