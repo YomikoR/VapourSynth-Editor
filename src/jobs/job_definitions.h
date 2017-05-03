@@ -6,16 +6,12 @@
 enum class JobWantTo
 {
 	Nothing,
-	Run,
 	RunNext,
-	Pause,
-	Abort,
 };
 
 struct JobTicket
 {
 	vsedit::Job * pJob;
-	JobWantTo wantTo;
 	JobWantTo whenDone;
 };
 

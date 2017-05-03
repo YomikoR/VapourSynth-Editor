@@ -316,7 +316,7 @@ int JobsModel::createJob()
 	connectJob(pJob);
 	int newRow = (int)m_tickets.size();
 	beginInsertRows(QModelIndex(), newRow, newRow);
-	JobTicket ticket = {pJob, JobWantTo::Nothing, JobWantTo::Nothing};
+	JobTicket ticket = {pJob, JobWantTo::Nothing};
 	m_tickets.push_back(ticket);
 	endInsertRows();
 	return newRow;
@@ -604,7 +604,7 @@ bool JobsModel::loadJobs()
 		connectJob(pJob);
 		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 			pJob->setState(JobState::Aborted);
-		JobTicket ticket = {pJob, JobWantTo::Nothing, JobWantTo::Nothing};
+		JobTicket ticket = {pJob, JobWantTo::Nothing};
 		m_tickets.push_back(ticket);
 	}
 
@@ -667,6 +667,7 @@ void JobsModel::abortActiveJobs()
 	{
 		if(!vsedit::contains(ACTIVE_JOB_STATES, ticket.pJob->state()))
 			continue;
+		ticket.whenDone = JobWantTo::Nothing;
 		ticket.pJob->abort();
 	}
 }
@@ -771,7 +772,10 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	if(a_newState == JobState::Waiting)
 		return;
 
-	startFirstReadyJob(jobIndex + 1);
+	if(m_tickets[jobIndex].whenDone == JobWantTo::RunNext)
+		startFirstReadyJob(jobIndex + 1);
+
+	m_tickets[jobIndex].whenDone = JobWantTo::Nothing;
 }
 
 // END OF void JobsModel::slotJobStateChanged(JobState a_newState,
@@ -903,6 +907,7 @@ void JobsModel::startFirstReadyJob(int a_fromIndex)
 			pNextJob->setState(JobState::DependencyNotMet);
 		if(jobDependenciesState != DependenciesState::Complete)
 			continue;
+		m_tickets[nextIndex].whenDone = JobWantTo::RunNext;
 		pNextJob->start();
 		return;
 	}
