@@ -69,7 +69,7 @@ Qt::ItemFlags JobsModel::flags(const QModelIndex & a_index) const
 	int row = a_index.row();
 	int column = a_index.column();
 
-	if((row >= (int)m_jobs.size()) || (column >= COLUMNS_NUMBER))
+	if((row >= (int)m_tickets.size()) || (column >= COLUMNS_NUMBER))
 		return Qt::NoItemFlags;
 
 	Qt::ItemFlags cellFlags = Qt::NoItemFlags
@@ -133,13 +133,13 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 	int row = a_index.row();
 	int column = a_index.column();
 
-	if((a_index.row() >= (int)m_jobs.size()) ||
+	if((a_index.row() >= (int)m_tickets.size()) ||
 		(a_index.column() >= COLUMNS_NUMBER))
 		return QVariant();
 
 	const QString dateTimeFormat = "yyyy-MM-dd\nhh:mm:ss.z";
 
-	vsedit::Job * pJob = m_jobs[row];
+	vsedit::Job * pJob = m_tickets[row].pJob;
 	if(!pJob)
 		return QVariant();
 
@@ -241,7 +241,7 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 int JobsModel::rowCount(const QModelIndex & a_parent) const
 {
 	(void)a_parent;
-	return (int)m_jobs.size();
+	return (int)m_tickets.size();
 }
 
 // END OF int JobsModel::rowCount(const QModelIndex & a_parent) const
@@ -270,7 +270,7 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 	if(!checkCanModifyJobAndNotify(row))
 		return false;
 
-	if((row >= (int)m_jobs.size()) || (column != DEPENDS_ON_COLUMN))
+	if((row >= (int)m_tickets.size()) || (column != DEPENDS_ON_COLUMN))
 		return false;
 
 	if(!a_value.canConvert<QVariantList>())
@@ -289,7 +289,7 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 		ids.push_back(id);
 	}
 
-	m_jobs[row]->setDependsOnJobIds(ids);
+	m_tickets[row].pJob->setDependsOnJobIds(ids);
 	notifyJobUpdated(row);
 
 	return true;
@@ -301,9 +301,9 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 
 const vsedit::Job * JobsModel::job(int a_index) const
 {
-	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
+	if((a_index < 0) || ((size_t)a_index >= m_tickets.size()))
 		return nullptr;
-	return m_jobs[a_index];
+	return m_tickets[a_index].pJob;
 }
 
 // END OF const vsedit::Job * JobsModel::job(int a_index) const
@@ -314,9 +314,10 @@ int JobsModel::createJob()
 	vsedit::Job * pJob = new vsedit::Job(JobProperties(),  m_pSettingsManager,
 		m_pVSScriptLibrary, this);
 	connectJob(pJob);
-	int newRow = (int)m_jobs.size();
+	int newRow = (int)m_tickets.size();
 	beginInsertRows(QModelIndex(), newRow, newRow);
-	m_jobs.push_back(pJob);
+	JobTicket ticket = {pJob, JobWantTo::Nothing, JobWantTo::Nothing};
+	m_tickets.push_back(ticket);
 	endInsertRows();
 	return newRow;
 }
@@ -329,17 +330,17 @@ bool JobsModel::moveJobUp(int a_index)
 	if(a_index == 0)
 		return false;
 
-	if(vsedit::contains(m_jobs[a_index]->dependsOnJobIds(),
-		m_jobs[a_index - 1]->id()))
+	if(vsedit::contains(m_tickets[a_index].pJob->dependsOnJobIds(),
+		m_tickets[a_index - 1].pJob->id()))
 		return false;
 
-	std::swap(m_jobs[a_index], m_jobs[a_index - 1]);
+	std::swap(m_tickets[a_index], m_tickets[a_index - 1]);
 	QModelIndex first = createIndex(a_index - 1, 0);
 	QModelIndex last = createIndex(a_index, COLUMNS_NUMBER - 1);
 	emit dataChanged(first, last);
 
 	first = createIndex(0, DEPENDS_ON_COLUMN);
-	last = createIndex((int)m_jobs.size() - 1, DEPENDS_ON_COLUMN);
+	last = createIndex((int)m_tickets.size() - 1, DEPENDS_ON_COLUMN);
 	emit dataChanged(first, last);
 
 	return true;
@@ -350,20 +351,20 @@ bool JobsModel::moveJobUp(int a_index)
 
 bool JobsModel::moveJobDown(int a_index)
 {
-	if(a_index >= ((int)m_jobs.size() - 1))
+	if(a_index >= ((int)m_tickets.size() - 1))
 		return false;
 
-	if(vsedit::contains(m_jobs[a_index + 1]->dependsOnJobIds(),
-		m_jobs[a_index]->id()))
+	if(vsedit::contains(m_tickets[a_index + 1].pJob->dependsOnJobIds(),
+		m_tickets[a_index].pJob->id()))
 		return false;
 
-	std::swap(m_jobs[a_index], m_jobs[a_index + 1]);
+	std::swap(m_tickets[a_index], m_tickets[a_index + 1]);
 	QModelIndex first = createIndex(a_index, 0);
 	QModelIndex last = createIndex(a_index + 1, COLUMNS_NUMBER - 1);
 	emit dataChanged(first, last);
 
 	first = createIndex(0, DEPENDS_ON_COLUMN);
-	last = createIndex((int)m_jobs.size() - 1, DEPENDS_ON_COLUMN);
+	last = createIndex((int)m_tickets.size() - 1, DEPENDS_ON_COLUMN);
 	emit dataChanged(first, last);
 
 	return true;
@@ -374,10 +375,10 @@ bool JobsModel::moveJobDown(int a_index)
 
 bool JobsModel::deleteJob(int a_index)
 {
-	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
+	if((a_index < 0) || ((size_t)a_index >= m_tickets.size()))
 		return false;
 
-	vsedit::Job * pJob = m_jobs[a_index];
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
 	if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 	{
 		emit signalLogMessage(trUtf8("Can not delete an active job."),
@@ -385,9 +386,9 @@ bool JobsModel::deleteJob(int a_index)
 		return false;
 	}
 
-	for(const vsedit::Job * cpOtherJob : m_jobs)
+	for(const JobTicket & ticket : m_tickets)
 	{
-		if(vsedit::contains(cpOtherJob->dependsOnJobIds(), pJob->id()))
+		if(vsedit::contains(ticket.pJob->dependsOnJobIds(), pJob->id()))
 		{
 			emit signalLogMessage(trUtf8("Can not delete a job while "
 				"other jobs depend on it."), LOG_STYLE_WARNING);
@@ -397,7 +398,7 @@ bool JobsModel::deleteJob(int a_index)
 
 	beginRemoveRows(QModelIndex(), a_index, a_index);
 	delete pJob;
-	m_jobs.erase(m_jobs.begin() + a_index);
+	m_tickets.erase(m_tickets.begin() + a_index);
 	endRemoveRows();
 
 	return true;
@@ -408,12 +409,16 @@ bool JobsModel::deleteJob(int a_index)
 
 bool JobsModel::deleteJob(const vsedit::Job * a_pJob)
 {
-	std::vector<vsedit::Job *>::const_iterator it =
-		std::find(m_jobs.begin(), m_jobs.end(), a_pJob);
-	if(it == m_jobs.cend())
+	std::vector<JobTicket>::const_iterator it =
+		std::find_if(m_tickets.begin(), m_tickets.end(),
+		[&](const JobTicket & a_ticket)->bool
+		{
+			return (a_ticket.pJob == a_pJob);
+		});
+	if(it == m_tickets.cend())
 		return false;
 	else
-		return deleteJob(std::distance(m_jobs.cbegin(), it));
+		return deleteJob(std::distance(m_tickets.cbegin(), it));
 }
 
 // END OF bool JobsModel::deleteJob(const vsedit::Job * a_pJob)
@@ -435,9 +440,9 @@ bool JobsModel::setJobType(int a_index, JobType a_type)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setType(a_type);
+	bool result = m_tickets[a_index].pJob->setType(a_type);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -450,9 +455,9 @@ bool JobsModel::setJobDependsOnIds(int a_index,
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setDependsOnJobIds(a_ids);
+	bool result = m_tickets[a_index].pJob->setDependsOnJobIds(a_ids);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -465,9 +470,9 @@ bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setScriptName(a_scriptName);
+	bool result = m_tickets[a_index].pJob->setScriptName(a_scriptName);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -481,9 +486,9 @@ bool JobsModel::setJobEncodingHeaderType(int a_index,
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setEncodingHeaderType(a_headerType);
+	bool result = m_tickets[a_index].pJob->setEncodingHeaderType(a_headerType);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -496,9 +501,9 @@ bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setExecutablePath(a_path);
+	bool result = m_tickets[a_index].pJob->setExecutablePath(a_path);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -511,9 +516,9 @@ bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setArguments(a_arguments);
+	bool result = m_tickets[a_index].pJob->setArguments(a_arguments);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -526,9 +531,9 @@ bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setShellCommand(a_command);
+	bool result = m_tickets[a_index].pJob->setShellCommand(a_command);
 	if(result)
-		result = m_jobs[a_index]->setState(JobState::Waiting);
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -541,7 +546,7 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_jobs[a_index]->setState(a_state);
+	bool result = m_tickets[a_index].pJob->setState(a_state);
 	notifyJobUpdated(a_index);
 	return result;
 }
@@ -551,10 +556,10 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 
 bool JobsModel::canModifyJob(int a_index) const
 {
-	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
+	if((a_index < 0) || ((size_t)a_index >= m_tickets.size()))
 		return false;
 
-	vsedit::Job * pJob = m_jobs[a_index];
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
 	assert(pJob);
 	if(!pJob)
 		return false;
@@ -588,7 +593,7 @@ bool JobsModel::loadJobs()
 
 	beginResetModel();
 
-	m_jobs.clear();
+	clearJobs();
 
 	std::vector<JobProperties> jobPropertiesList =
 		m_pSettingsManager->getJobs();
@@ -599,7 +604,8 @@ bool JobsModel::loadJobs()
 		connectJob(pJob);
 		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 			pJob->setState(JobState::Aborted);
-		m_jobs.push_back(pJob);
+		JobTicket ticket = {pJob, JobWantTo::Nothing, JobWantTo::Nothing};
+		m_tickets.push_back(ticket);
 	}
 
 	endResetModel();
@@ -620,8 +626,8 @@ bool JobsModel::saveJobs()
 	}
 
 	std::vector<JobProperties> jobPropertiesList;
-	for(const vsedit::Job * cpJob : m_jobs)
-		jobPropertiesList.push_back(cpJob->properties());
+	for(const JobTicket & ticket : m_tickets)
+		jobPropertiesList.push_back(ticket.pJob->properties());
 
 	bool result = m_pSettingsManager->setJobs(jobPropertiesList);
 
@@ -636,9 +642,9 @@ bool JobsModel::saveJobs()
 
 bool JobsModel::hasActiveJobs()
 {
-	for(const vsedit::Job * cpJob : m_jobs)
+	for(const JobTicket & ticket : m_tickets)
 	{
-		if(vsedit::contains(ACTIVE_JOB_STATES, cpJob->state()))
+		if(vsedit::contains(ACTIVE_JOB_STATES, ticket.pJob->state()))
 			return true;
 	}
 	return false;
@@ -657,11 +663,11 @@ void JobsModel::startWaitingJobs()
 
 void JobsModel::abortActiveJobs()
 {
-	for(vsedit::Job * pJob : m_jobs)
+	for(JobTicket & ticket : m_tickets)
 	{
-		if(!vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
+		if(!vsedit::contains(ACTIVE_JOB_STATES, ticket.pJob->state()))
 			continue;
-		pJob->abort();
+		ticket.pJob->abort();
 	}
 }
 
@@ -670,11 +676,11 @@ void JobsModel::abortActiveJobs()
 
 void JobsModel::pauseActiveJobs()
 {
-	for(vsedit::Job * pJob : m_jobs)
+	for(JobTicket & ticket : m_tickets)
 	{
-		if(pJob->state() != JobState::Running)
+		if(ticket.pJob->state() != JobState::Running)
 			continue;
-		pJob->pause();
+		ticket.pJob->pause();
 	}
 }
 
@@ -683,11 +689,11 @@ void JobsModel::pauseActiveJobs()
 
 void JobsModel::resumePausedJobs()
 {
-	for(vsedit::Job * pJob : m_jobs)
+	for(JobTicket & ticket : m_tickets)
 	{
-		if(pJob->state() != JobState::Paused)
+		if(ticket.pJob->state() != JobState::Paused)
 			continue;
-		pJob->start();
+		ticket.pJob->start();
 	}
 }
 
@@ -787,14 +793,15 @@ void JobsModel::slotJobProgressChanged()
 
 int JobsModel::indexOfJob(const QUuid & a_uuid) const
 {
-	std::vector<vsedit::Job *>::const_iterator it =
-		std::find_if(m_jobs.cbegin(), m_jobs.cend(),
-			[&](const vsedit::Job * la_pJob)->bool
+	std::vector<JobTicket>::const_iterator it =
+		std::find_if(m_tickets.cbegin(), m_tickets.cend(),
+			[&](const JobTicket & a_ticket)->bool
 			{
-				return (la_pJob->id() == a_uuid);
+				return (a_ticket.pJob->id() == a_uuid);
 			});
 
-	return (it == m_jobs.cend()) ? -1 : std::distance(m_jobs.cbegin(), it);
+	return (it == m_tickets.cend()) ?
+		-1 : std::distance(m_tickets.cbegin(), it);
 }
 
 // END OF int JobsModel::indexOfJob(const QUuid & a_uuid) const
@@ -802,9 +809,9 @@ int JobsModel::indexOfJob(const QUuid & a_uuid) const
 
 void JobsModel::clearJobs()
 {
-	for(vsedit::Job * pJob : m_jobs)
-		delete pJob;
-	m_jobs.clear();
+	for(JobTicket & ticket : m_tickets)
+		delete ticket.pJob;
+	m_tickets.clear();
 }
 
 // END OF void JobsModel::clearJobs()
@@ -836,7 +843,7 @@ void JobsModel::notifyJobUpdated(int a_index)
 
 JobsModel::DependenciesState JobsModel::dependenciesState(int a_index)
 {
-	if((a_index < 0) || (a_index >= (int)m_jobs.size()))
+	if((a_index < 0) || (a_index >= (int)m_tickets.size()))
 		return DependenciesState::Failed;
 
 	JobState failStates[] = {JobState::Aborted, JobState::Aborting,
@@ -844,14 +851,15 @@ JobsModel::DependenciesState JobsModel::dependenciesState(int a_index)
 
 	bool incomplete = false;
 
-	for(const QUuid & id : m_jobs[a_index]->dependsOnJobIds())
+	for(const QUuid & id : m_tickets[a_index].pJob->dependsOnJobIds())
 	{
 		int dependencyIndex = indexOfJob(id);
-		if((dependencyIndex < 0) || (dependencyIndex >= (int)m_jobs.size()))
+		if((dependencyIndex < 0) || (dependencyIndex >= (int)m_tickets.size()))
 			return DependenciesState::Failed;
-		if(m_jobs[dependencyIndex]->state() != JobState::Completed)
+		const vsedit::Job * pDependentJob = m_tickets[dependencyIndex].pJob;
+		if(pDependentJob->state() != JobState::Completed)
 			incomplete = true;
-		if(vsedit::contains(failStates, m_jobs[dependencyIndex]->state()))
+		if(vsedit::contains(failStates, pDependentJob->state()))
 			return DependenciesState::Failed;
 	}
 
@@ -879,15 +887,15 @@ void JobsModel::connectJob(vsedit::Job * a_pJob)
 
 void JobsModel::startFirstReadyJob(int a_fromIndex)
 {
-	if((a_fromIndex < 0) || (a_fromIndex >= (int)m_jobs.size()))
+	if((a_fromIndex < 0) || (a_fromIndex >= (int)m_tickets.size()))
 		return;
 
 	JobState validStates[] = {JobState::Waiting, JobState::Paused};
 
-	for(int i = a_fromIndex; i < (a_fromIndex + (int)m_jobs.size()); ++i)
+	for(int i = a_fromIndex; i < (a_fromIndex + (int)m_tickets.size()); ++i)
 	{
-		int nextIndex = i % m_jobs.size();
-		vsedit::Job * pNextJob = m_jobs[nextIndex];
+		int nextIndex = i % m_tickets.size();
+		vsedit::Job * pNextJob = m_tickets[nextIndex].pJob;
 		if(!vsedit::contains(validStates, pNextJob->state()))
 			continue;
 		DependenciesState jobDependenciesState = dependenciesState(i);
@@ -923,7 +931,7 @@ std::vector<QUuid> JobsModel::idsFromSelection()
 	std::vector<int> indexesVector = indexesFromSelection();
 	std::vector<QUuid> idsVector;
 	for(int jobIndex : indexesVector)
-		idsVector.push_back(m_jobs[jobIndex]->id());
+		idsVector.push_back(m_tickets[jobIndex].pJob->id());
 	return idsVector;
 }
 

@@ -216,6 +216,7 @@ HEADERS += ../src/frame_consumers/encode_dialog.h
 HEADERS += ../src/script_templates/drop_file_category_model.h
 HEADERS += ../src/script_templates/templates_dialog.h
 HEADERS += ../src/jobs/job.h
+HEADERS += ../src/jobs/job_definitions.h
 HEADERS += ../src/jobs/jobs_model.h
 HEADERS += ../src/jobs/job_state_delegate.h
 HEADERS += ../src/jobs/job_dependencies_delegate.h

@@ -3,6 +3,8 @@
 
 #include "job.h"
 
+#include "job_definitions.h"
+
 #include <QAbstractItemModel>
 #include <QItemSelection>
 #include <vector>
@@ -128,7 +130,7 @@ private:
 	std::vector<int> indexesFromSelection();
 	std::vector<QUuid> idsFromSelection();
 
-	std::vector<vsedit::Job *> m_jobs;
+	std::vector<JobTicket> m_tickets;
 
 	SettingsManager * m_pSettingsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
