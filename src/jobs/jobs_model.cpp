@@ -15,7 +15,8 @@ const int JobsModel::DEPENDS_ON_COLUMN = 4;
 const int JobsModel::TIME_START_COLUMN = 5;
 const int JobsModel::TIME_END_COLUMN = 6;
 const int JobsModel::FPS_COLUMN = 7;
-const int JobsModel::COLUMNS_NUMBER = 8;
+const int JobsModel::CORE_COLUMN = 8;
+const int JobsModel::COLUMNS_NUMBER = 9;
 
 //==============================================================================
 
@@ -114,6 +115,8 @@ QVariant JobsModel::headerData(int a_section, Qt::Orientation a_orientation,
 		return trUtf8("Ended");
 	case FPS_COLUMN:
 		return trUtf8("FPS");
+	case CORE_COLUMN:
+		return trUtf8("Core");
 	default:
 		return QVariant();
 	}
@@ -191,6 +194,15 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 				fps += vsedit::timeToString(pJob->secondsToFinish());
 			}
 			return fps;
+		}
+		else if((column == CORE_COLUMN) &&
+			(pJob->type() == JobType::EncodeScriptCLI) &&
+			(vsedit::contains(ACTIVE_JOB_STATES, pJob->state())))
+		{
+			QString coreInfo = trUtf8("Queue: %1:%2(%3)\nFB: %4B")
+				.arg(pJob->framesInProcess()).arg(pJob->framesInQueue())
+				.arg(pJob->maxThreads()).arg(pJob->coreFramebufferBytes());
+			return coreInfo;
 		}
 	}
 	else if(a_role == Qt::BackgroundRole)
@@ -789,10 +801,24 @@ void JobsModel::slotJobProgressChanged()
 		return;
 
 	int jobIndex = indexOfJob(pJob->id());
-	notifyJobUpdated(jobIndex);
+	notifyJobUpdated(jobIndex, STATE_COLUMN);
+	notifyJobUpdated(jobIndex, FPS_COLUMN);
 }
 
 // END OF void JobsModel::slotJobProgressChanged()
+//==============================================================================
+
+void JobsModel::slotJobCoreInfoChanged()
+{
+	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
+	if(!pJob)
+		return;
+
+	int jobIndex = indexOfJob(pJob->id());
+	notifyJobUpdated(jobIndex, CORE_COLUMN);
+}
+
+// END OF void JobsModel::slotJobCoreInfoChanged()
 //==============================================================================
 
 int JobsModel::indexOfJob(const QUuid & a_uuid) const
@@ -835,10 +861,22 @@ bool JobsModel::checkCanModifyJobAndNotify(int a_index)
 // END OF bool JobsModel::checkCanModifyJobAndNotify(int a_index)
 //==============================================================================
 
-void JobsModel::notifyJobUpdated(int a_index)
+void JobsModel::notifyJobUpdated(int a_index, int a_column)
 {
-	QModelIndex first = createIndex(a_index, 0);
-	QModelIndex last = createIndex(a_index, COLUMNS_NUMBER - 1);
+	QModelIndex first;
+	QModelIndex last;
+
+	if(a_column < 0)
+	{
+		first = createIndex(a_index, 0);
+		last = createIndex(a_index, COLUMNS_NUMBER - 1);
+	}
+	else
+	{
+		first = createIndex(a_index, a_column);
+		last = createIndex(a_index, a_column);
+	}
+
 	emit dataChanged(first, last);
 }
 
@@ -882,6 +920,8 @@ void JobsModel::connectJob(vsedit::Job * a_pJob)
 		this, SLOT(slotJobStateChanged(JobState, JobState)));
 	connect(a_pJob, SIGNAL(signalProgressChanged()),
 		this, SLOT(slotJobProgressChanged()));
+	connect(a_pJob, SIGNAL(signalCoreInfoChanged()),
+		this, SLOT(slotJobCoreInfoChanged()));
 	connect(a_pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
 		this, SLOT(slotLogMessage(const QString &, const QString &)));
 }

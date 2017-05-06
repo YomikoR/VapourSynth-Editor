@@ -408,6 +408,38 @@ double vsedit::Job::secondsToFinish() const
 // END OF
 //==============================================================================
 
+size_t vsedit::Job::framesInQueue() const
+{
+	return m_framesInQueue;
+}
+
+// END OF
+//==============================================================================
+
+size_t vsedit::Job::framesInProcess() const
+{
+	return m_framesInProcess;
+}
+
+// END OF
+//==============================================================================
+
+size_t vsedit::Job::maxThreads() const
+{
+	return m_maxThreads;
+}
+
+// END OF
+//==============================================================================
+
+int64_t vsedit::Job::coreFramebufferBytes() const
+{
+	return m_coreFramebufferBytes;
+}
+
+// END OF
+//==============================================================================
+
 JobProperties vsedit::Job::properties() const
 {
 	return m_properties;
@@ -781,6 +813,7 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 	m_framesInQueue = a_inQueue;
 	m_framesInProcess = a_inProcess;
 	m_maxThreads = a_maxThreads;
+	emit signalCoreInfoChanged();
 }
 
 // END OF
@@ -788,8 +821,8 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 
 void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 {
-	(void)a_bytes;
-	//TODO: Implement core framebuffer change signaling.
+	m_coreFramebufferBytes = a_bytes;
+	emit signalCoreInfoChanged();
 }
 
 // END OF
