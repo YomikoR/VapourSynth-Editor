@@ -48,6 +48,8 @@ private slots:
 
 	void slotSelectionChanged();
 
+	void slotSaveHeaderState();
+
 private:
 
 	void saveGeometrySettings();

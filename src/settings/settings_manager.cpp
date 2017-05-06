@@ -23,6 +23,7 @@ const char JOBS_DIALOG_GEOMETRY_KEY[] = "jobs_dialog_geometry";
 const char MAIN_WINDOW_MAXIMIZED_KEY[] = "main_window_maximized";
 const char PREVIEW_DIALOG_MAXIMIZED_KEY[] = "preview_dialog_maximized";
 const char JOBS_DIALOG_MAXIMIZED_KEY[] = "jobs_dialog_maximized";
+const char JOBS_HEADER_STATE_KEY[] = "jobs_header_state";
 const char AUTO_LOAD_LAST_SCRIPT_KEY[] = "auto_load_last_script";
 const char ZOOM_PANEL_VISIBLE_KEY[] = "zoom_panel_visible";
 const char ZOOM_MODE_KEY[] = "zoom_mode";
@@ -634,6 +635,18 @@ bool SettingsManager::getJobsDialogMaximized() const
 bool SettingsManager::setJobsDialogMaximized(bool a_jobsDialogMaximized)
 {
 	return setValue(JOBS_DIALOG_MAXIMIZED_KEY, a_jobsDialogMaximized);
+}
+
+//==============================================================================
+
+QByteArray SettingsManager::getJobsHeaderState() const
+{
+	return value(JOBS_HEADER_STATE_KEY).toByteArray();
+}
+
+bool SettingsManager::setJobsHeaderState(const QByteArray & a_headerState)
+{
+	return setValue(JOBS_HEADER_STATE_KEY, a_headerState);
 }
 
 //==============================================================================

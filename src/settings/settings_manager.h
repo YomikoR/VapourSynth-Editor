@@ -88,6 +88,10 @@ public:
 
 	bool setJobsDialogMaximized(bool a_previewDialogMaximized);
 
+	QByteArray getJobsHeaderState() const;
+
+	bool setJobsHeaderState(const QByteArray & a_headerState);
+
 	bool getAutoLoadLastScript() const;
 
 	bool setAutoLoadLastScript(bool a_autoLoadLastScript);

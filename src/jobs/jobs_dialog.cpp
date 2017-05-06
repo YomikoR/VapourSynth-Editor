@@ -36,6 +36,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		JobsModel::DEPENDS_ON_COLUMN, m_pJobDependenciesDelegate);
 
 	QHeaderView * pHorizontalHeader = m_ui.jobsTableView->horizontalHeader();
+	pHorizontalHeader->setSectionsMovable(true);
 	pHorizontalHeader->setSectionResizeMode(JobsModel::NAME_COLUMN,
 		QHeaderView::ResizeToContents);
 	pHorizontalHeader->setSectionResizeMode(JobsModel::TYPE_COLUMN,
@@ -68,6 +69,10 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	if(!newGeometry.isEmpty())
 		restoreGeometry(newGeometry);
 
+	QByteArray headerState = m_pSettingsManager->getJobsHeaderState();
+	if(!headerState.isEmpty())
+		pHorizontalHeader->restoreState(headerState);
+
 	connect(m_pJobsModel,
 		SIGNAL(signalLogMessage(const QString &, const QString &)),
 		m_ui.log, SLOT(addEntry(const QString &, const QString &)));
@@ -96,6 +101,14 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	connect(pSelectionModel, SIGNAL(selectionChanged(const QItemSelection &,
 		const QItemSelection &)),
 		this, SLOT(slotSelectionChanged()));
+	connect(pHorizontalHeader, SIGNAL(sectionResized(int, int, int)),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader, SIGNAL(sectionMoved(int, int, int)),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader, SIGNAL(sectionCountChanged(int, int)),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader, SIGNAL(geometriesChanged()),
+		this, SLOT(slotSaveHeaderState()));
 }
 
 // END OF
@@ -272,6 +285,15 @@ void JobsDialog::slotSelectionChanged()
 	QItemSelectionModel * pSelectionModel =
 		m_ui.jobsTableView->selectionModel();
 	m_pJobsModel->setSelection(pSelectionModel->selection());
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::slotSaveHeaderState()
+{
+	QHeaderView * pHeader = m_ui.jobsTableView->horizontalHeader();
+	m_pSettingsManager->setJobsHeaderState(pHeader->saveState());
 }
 
 // END OF
