@@ -9,6 +9,7 @@ class JobsModel;
 class JobEditDialog;
 class JobStateDelegate;
 class JobDependenciesDelegate;
+class QMenu;
 
 class JobsDialog : public QDialog
 {
@@ -50,6 +51,9 @@ private slots:
 
 	void slotSaveHeaderState();
 
+	void slotJobsHeaderContextMenu(const QPoint & a_point);
+	void slotShowJobsHeaderSection(bool a_show);
+
 private:
 
 	void saveGeometrySettings();
@@ -68,6 +72,8 @@ private:
 	JobDependenciesDelegate * m_pJobDependenciesDelegate;
 
 	JobEditDialog * m_pJobEditDialog;
+
+	QMenu * m_pJobsHeaderMenu;
 };
 
 #endif // JOBS_DIALOG_H_INCLUDED

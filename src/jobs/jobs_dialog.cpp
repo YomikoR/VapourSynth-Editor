@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QMenu>
 
 //==============================================================================
 
@@ -22,6 +23,7 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	, m_pJobStateDelegate(nullptr)
 	, m_pJobDependenciesDelegate(nullptr)
 	, m_pJobEditDialog(nullptr)
+	, m_pJobsHeaderMenu(nullptr)
 {
 	m_ui.setupUi(this);
 
@@ -73,6 +75,21 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	if(!headerState.isEmpty())
 		pHorizontalHeader->restoreState(headerState);
 
+	pHorizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_pJobsHeaderMenu = new QMenu(pHorizontalHeader);
+	for(int i = 0; i < m_pJobsModel->columnCount(); ++i)
+	{
+		QAction * pAction = new QAction(m_pJobsHeaderMenu);
+		pAction->setText(
+			m_pJobsModel->headerData(i, Qt::Horizontal).toString());
+		pAction->setData(i);
+		pAction->setCheckable(true);
+		pAction->setChecked(!pHorizontalHeader->isSectionHidden(i));
+		m_pJobsHeaderMenu->addAction(pAction);
+		connect(pAction, SIGNAL(toggled(bool)),
+			this, SLOT(slotShowJobsHeaderSection(bool)));
+	}
+
 	connect(m_pJobsModel,
 		SIGNAL(signalLogMessage(const QString &, const QString &)),
 		m_ui.log, SLOT(addEntry(const QString &, const QString &)));
@@ -109,6 +126,9 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotSaveHeaderState()));
 	connect(pHorizontalHeader, SIGNAL(geometriesChanged()),
 		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader,
+		SIGNAL(customContextMenuRequested(const QPoint &)),
+		this, SLOT(slotJobsHeaderContextMenu(const QPoint &)));
 }
 
 // END OF
@@ -294,6 +314,28 @@ void JobsDialog::slotSaveHeaderState()
 {
 	QHeaderView * pHeader = m_ui.jobsTableView->horizontalHeader();
 	m_pSettingsManager->setJobsHeaderState(pHeader->saveState());
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::slotJobsHeaderContextMenu(const QPoint & a_point)
+{
+	(void)a_point;
+	m_pJobsHeaderMenu->exec(QCursor::pos());
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::slotShowJobsHeaderSection(bool a_show)
+{
+	QAction * pAction = qobject_cast<QAction *>(sender());
+	if(!pAction)
+		return;
+	int section = pAction->data().toInt();
+	QHeaderView * pHeader = m_ui.jobsTableView->horizontalHeader();
+	pHeader->setSectionHidden(section, !a_show);
 }
 
 // END OF
