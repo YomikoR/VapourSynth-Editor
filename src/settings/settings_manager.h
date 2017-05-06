@@ -80,6 +80,14 @@ public:
 
 	bool setPreviewDialogMaximized(bool a_previewDialogMaximized);
 
+	QByteArray getJobsDialogGeometry() const;
+
+	bool setJobsDialogGeometry(const QByteArray & a_previewDialogGeometry);
+
+	bool getJobsDialogMaximized() const;
+
+	bool setJobsDialogMaximized(bool a_previewDialogMaximized);
+
 	bool getAutoLoadLastScript() const;
 
 	bool setAutoLoadLastScript(bool a_autoLoadLastScript);

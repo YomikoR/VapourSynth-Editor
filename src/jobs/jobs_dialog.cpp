@@ -64,6 +64,10 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	QItemSelectionModel * pSelectionModel =
 		m_ui.jobsTableView->selectionModel();
 
+	QByteArray newGeometry = m_pSettingsManager->getJobsDialogGeometry();
+	if(!newGeometry.isEmpty())
+		restoreGeometry(newGeometry);
+
 	connect(m_pJobsModel,
 		SIGNAL(signalLogMessage(const QString &, const QString &)),
 		m_ui.log, SLOT(addEntry(const QString &, const QString &)));
@@ -99,6 +103,50 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 
 JobsDialog::~JobsDialog()
 {
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::show()
+{
+	if(m_pSettingsManager->getJobsDialogMaximized())
+		showMaximized();
+	else
+		showNormal();
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::moveEvent(QMoveEvent * a_pEvent)
+{
+	QDialog::moveEvent(a_pEvent);
+	saveGeometrySettings();
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::resizeEvent(QResizeEvent * a_pEvent)
+{
+	QDialog::resizeEvent(a_pEvent);
+	saveGeometrySettings();
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::changeEvent(QEvent * a_pEvent)
+{
+	QDialog::changeEvent(a_pEvent);
+	if(a_pEvent->type() == QEvent::WindowStateChange)
+	{
+		if(isMaximized())
+			m_pSettingsManager->setJobsDialogMaximized(true);
+		else
+			m_pSettingsManager->setJobsDialogMaximized(false);
+	}
 }
 
 // END OF
@@ -224,6 +272,16 @@ void JobsDialog::slotSelectionChanged()
 	QItemSelectionModel * pSelectionModel =
 		m_ui.jobsTableView->selectionModel();
 	m_pJobsModel->setSelection(pSelectionModel->selection());
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::saveGeometrySettings()
+{
+	QApplication::processEvents();
+	if(!isMaximized())
+		m_pSettingsManager->setJobsDialogGeometry(saveGeometry());
 }
 
 // END OF

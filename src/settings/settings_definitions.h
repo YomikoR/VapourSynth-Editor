@@ -172,6 +172,7 @@ struct DropFileCategory
 
 extern const bool DEFAULT_MAIN_WINDOW_MAXIMIZED;
 extern const bool DEFAULT_PREVIEW_DIALOG_MAXIMIZED;
+extern const bool DEFAULT_JOBS_DIALOG_MAXIMIZED;
 extern const bool DEFAULT_AUTO_LOAD_LAST_SCRIPT;
 extern const bool DEFAULT_ZOOM_PANEL_VISIBLE;
 extern const ZoomMode DEFAULT_ZOOM_MODE;

@@ -23,6 +23,14 @@ public:
 
 public slots:
 
+	void show();
+
+protected:
+
+	virtual void moveEvent(QMoveEvent * a_pEvent) override;
+	virtual void resizeEvent(QResizeEvent * a_pEvent) override;
+	virtual void changeEvent(QEvent * a_pEvent) override;
+
 private slots:
 
 	void slotJobNewButtonClicked();
@@ -41,6 +49,8 @@ private slots:
 	void slotSelectionChanged();
 
 private:
+
+	void saveGeometrySettings();
 
 	void editJob(const QModelIndex & a_index);
 
