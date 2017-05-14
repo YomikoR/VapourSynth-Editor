@@ -199,9 +199,11 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 			(pJob->type() == JobType::EncodeScriptCLI) &&
 			(vsedit::contains(ACTIVE_JOB_STATES, pJob->state())))
 		{
+			QString bytes = QLocale::system()
+				.toString((qlonglong)pJob->coreFramebufferBytes());
 			QString coreInfo = trUtf8("Queue: %1:%2(%3)\nFB: %4B")
 				.arg(pJob->framesInProcess()).arg(pJob->framesInQueue())
-				.arg(pJob->maxThreads()).arg(pJob->coreFramebufferBytes());
+				.arg(pJob->maxThreads()).arg(bytes);
 			return coreInfo;
 		}
 	}
