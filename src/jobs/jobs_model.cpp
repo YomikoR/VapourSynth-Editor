@@ -559,7 +559,6 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
 	bool result = m_tickets[a_index].pJob->setState(a_state);
-	notifyJobUpdated(a_index);
 	return result;
 }
 
