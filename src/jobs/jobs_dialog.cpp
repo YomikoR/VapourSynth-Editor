@@ -385,8 +385,12 @@ void JobsDialog::slotJobsStateChanged(int a_job, int a_jobsTotal,
 	bool showJobsProgress = (!allJobsComplete) && (a_job != -1);
 	if(showJobsProgress)
 	{
-		int percent = a_progress * 100 / a_progressMax;
-		title += QString("%1% %2/%3 ").arg(percent).arg(a_job).arg(a_jobsTotal);
+		if(a_progressMax > 0)
+		{
+			int percent = a_progress * 100 / a_progressMax;
+			title += QString("%1% ").arg(percent);
+		}
+		title += QString("%1/%2 ").arg(a_job).arg(a_jobsTotal);
 	}
 
 	title += trUtf8(WINDOW_TITLE);
