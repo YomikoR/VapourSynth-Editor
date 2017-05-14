@@ -10,9 +10,9 @@ class VapourSynthPluginsManager;
 class VSScriptLibrary;
 class PreviewDialog;
 class SettingsDialog;
-class JobsModel;
 class ScriptBenchmarkDialog;
-class EncodeDialog;
+class JobsModel;
+class JobEditDialog;
 class JobsDialog;
 class TemplatesDialog;
 
@@ -120,7 +120,7 @@ private:
 	PreviewDialog * m_pPreviewDialog;
 	SettingsDialog * m_pSettingsDialog;
 	ScriptBenchmarkDialog * m_pBenchmarkDialog;
-	EncodeDialog * m_pEncodeDialog;
+	JobEditDialog * m_pJobEditDialog;
 	JobsDialog * m_pJobsDialog;
 	TemplatesDialog * m_pTemplatesDialog;
 
