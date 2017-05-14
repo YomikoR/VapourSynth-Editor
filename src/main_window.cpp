@@ -10,7 +10,6 @@
 #include "preview/preview_dialog.h"
 #include "settings/settings_dialog.h"
 #include "frame_consumers/benchmark_dialog.h"
-#include "frame_consumers/encode_dialog.h"
 #include "script_templates/templates_dialog.h"
 #include "common/helpers.h"
 
@@ -255,6 +254,8 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 
 	if(m_pJobsModel->hasActiveJobs())
 	{
+		QString message = trUtf8("There are active jobs in queue.");
+		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
 		m_pJobsDialog->show();
 		a_pEvent->ignore();
 		return;
