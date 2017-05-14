@@ -4,8 +4,8 @@
 #include "../settings/settings_manager.h"
 #include "../vapoursynth/vs_script_library.h"
 #include "../vapoursynth/vapoursynth_script_processor.h"
-#include "../frame_consumers/frame_header_writers/frame_header_writer_null.h"
-#include "../frame_consumers/frame_header_writers/frame_header_writer_y4m.h"
+#include "../frame_header_writers/frame_header_writer_null.h"
+#include "../frame_header_writers/frame_header_writer_y4m.h"
 
 #include <QFileInfo>
 #include <QFile>
