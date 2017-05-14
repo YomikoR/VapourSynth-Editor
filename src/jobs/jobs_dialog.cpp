@@ -221,7 +221,7 @@ void JobsDialog::showEvent(QShowEvent * a_pEvent)
 
 void JobsDialog::slotJobNewButtonClicked()
 {
-	int result = m_pJobEditDialog->call(trUtf8("New job"));
+	int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
 	if(result == QDialog::Rejected)
 		return;
 	int index = m_pJobsModel->createJob();
@@ -443,7 +443,7 @@ void JobsDialog::editJob(const QModelIndex & a_index)
 	if(!cpJob)
 		return;
 	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
-		.arg(a_index.row() + 1), cpJob);
+		.arg(a_index.row() + 1), cpJob->properties());
 	if(result == QDialog::Rejected)
 		return;
 	updateJob(a_index.row());
@@ -454,34 +454,8 @@ void JobsDialog::editJob(const QModelIndex & a_index)
 
 bool JobsDialog::updateJob(int a_index)
 {
-	JobType type = m_pJobEditDialog->jobType();
-	bool result = m_pJobsModel->setJobType(a_index, type);
-	if(type == JobType::EncodeScriptCLI)
-	{
-		result = result && m_pJobsModel->setJobScriptName(a_index,
-			m_pJobEditDialog->encodingScriptPath());
-		result = result && m_pJobsModel->setJobEncodingHeaderType(a_index,
-			m_pJobEditDialog->encodingHeaderType());
-		result = result && m_pJobsModel->setJobExecutablePath(a_index,
-			m_pJobEditDialog->encodingExecutablePath());
-		result = result && m_pJobsModel->setJobArguments(a_index,
-			m_pJobEditDialog->encodingArguments());
-	}
-	else if(type == JobType::RunProcess)
-	{
-		result = result && m_pJobsModel->setJobExecutablePath(a_index,
-			m_pJobEditDialog->processExecutablePath());
-		result = result && m_pJobsModel->setJobArguments(a_index,
-			m_pJobEditDialog->processArguments());
-	}
-	else if(type == JobType::RunShellCommand)
-	{
-		result = result && m_pJobsModel->setJobShellCommand(a_index,
-			m_pJobEditDialog->shellCommand());
-	}
-	else
-		assert(false);
-
+	JobProperties newProperties = m_pJobEditDialog->jobProperties();
+	bool result = m_pJobsModel->setJobProperties(a_index, newProperties);
 	return result;
 }
 

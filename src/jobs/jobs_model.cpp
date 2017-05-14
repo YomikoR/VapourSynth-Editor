@@ -565,6 +565,22 @@ bool JobsModel::setJobState(int a_index, JobState a_state)
 // END OF bool JobsModel::setJobState(int a_index, JobState a_state)
 //==============================================================================
 
+bool JobsModel::setJobProperties(int a_index,
+	const JobProperties & a_jobProperties)
+{
+	if(!checkCanModifyJobAndNotify(a_index))
+		return false;
+	bool result = m_tickets[a_index].pJob->setProperties(a_jobProperties);
+	if(result)
+		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
+	notifyJobUpdated(a_index);
+	return result;
+}
+
+// END OF bool JobsModel::setJobProperties(int a_index,
+//		const JobProperties & a_jobProperties)
+//==============================================================================
+
 bool JobsModel::canModifyJob(int a_index) const
 {
 	if((a_index < 0) || ((size_t)a_index >= m_tickets.size()))

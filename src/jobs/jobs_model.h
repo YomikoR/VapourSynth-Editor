@@ -74,6 +74,7 @@ public:
 	bool setJobArguments(int a_index, const QString & a_arguments);
 	bool setJobShellCommand(int a_index, const QString & a_command);
 	bool setJobState(int a_index, JobState a_state);
+	bool setJobProperties(int a_index, const JobProperties & a_jobProperties);
 
 	bool canModifyJob(int a_index) const;
 

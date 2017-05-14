@@ -68,106 +68,54 @@ JobEditDialog::~JobEditDialog()
 // END OF JobEditDialog::~JobEditDialog()
 //==============================================================================
 
-JobType JobEditDialog::jobType() const
+JobProperties JobEditDialog::jobProperties() const
 {
-	return (JobType)m_ui.jobTypeComboBox->currentData().toInt();
+	JobProperties newProperties;
+	newProperties.type = (JobType)m_ui.jobTypeComboBox->currentData().toInt();
+	newProperties.scriptName = m_ui.encodingScriptPathEdit->text();
+	newProperties.encodingHeaderType = (EncodingHeaderType)m_ui
+		.encodingHeaderTypeComboBox->currentData().toInt();
+	if(newProperties.type == JobType::EncodeScriptCLI)
+	{
+		newProperties.executablePath = m_ui.encodingExecutablePathEdit->text();
+		newProperties.arguments = m_ui.encodingArgumentsTextEdit->toPlainText();
+	}
+	else if(newProperties.type == JobType::RunProcess)
+	{
+		newProperties.executablePath = m_ui.processExecutablePathEdit->text();
+		newProperties.arguments = m_ui.processArgumentsTextEdit->toPlainText();
+	}
+	newProperties.shellCommand = m_ui.shellCommandTextEdit->toPlainText();
+	return newProperties;
 }
 
-// END OF JobType JobEditDialog::jobType() const
+// END OF JobProperties JobEditDialog::jobProperties() const
 //==============================================================================
 
-QString JobEditDialog::encodingScriptPath() const
-{
-	return m_ui.encodingScriptPathEdit->text();
-}
-
-// END OF QString JobEditDialog::encodingScriptPath() const
-//==============================================================================
-
-EncodingHeaderType JobEditDialog::encodingHeaderType() const
-{
-	return (EncodingHeaderType)m_ui.encodingHeaderTypeComboBox->
-		currentData().toInt();
-}
-
-// END OF EncodingHeaderType JobEditDialog::encodingHeaderType() const
-//==============================================================================
-
-QString JobEditDialog::encodingExecutablePath() const
-{
-	return m_ui.encodingExecutablePathEdit->text();
-}
-
-// END OF QString JobEditDialog::encodingExecutablePath() const
-//==============================================================================
-
-QString JobEditDialog::encodingArguments() const
-{
-	return m_ui.encodingArgumentsTextEdit->toPlainText();
-}
-
-// END OF QString JobEditDialog::encodingArguments() const
-//==============================================================================
-
-QString JobEditDialog::processExecutablePath() const
-{
-	return m_ui.processExecutablePathEdit->text();
-}
-
-// END OF QString JobEditDialog::processExecutablePath() const
-//==============================================================================
-
-QString JobEditDialog::processArguments() const
-{
-	return m_ui.processArgumentsTextEdit->toPlainText();
-}
-
-// END OF QString JobEditDialog::processArguments() const
-//==============================================================================
-
-QString JobEditDialog::shellCommand() const
-{
-	return m_ui.shellCommandTextEdit->toPlainText();
-}
-
-// END OF QString JobEditDialog::shellCommand() const
-//==============================================================================
-
-int JobEditDialog::call(const QString & a_title, const vsedit::Job * a_pJob)
+int JobEditDialog::call(const QString & a_title,
+	const JobProperties & a_jobProperties)
 {
 	setUpEncodingPresets();
 	setWindowTitle(a_title);
 
-	if(a_pJob)
-	{
-		int index = m_ui.jobTypeComboBox->findData((int)a_pJob->type());
-		m_ui.jobTypeComboBox->setCurrentIndex(index);
-		m_ui.encodingScriptPathEdit->setText(a_pJob->scriptName());
-		m_ui.encodingPresetComboBox->clearEditText();
-		index = m_ui.encodingHeaderTypeComboBox->findData(
-			(int)a_pJob->encodingHeaderType());
-		m_ui.encodingHeaderTypeComboBox->setCurrentIndex(index);
-		m_ui.encodingExecutablePathEdit->setText(a_pJob->executablePath());
-		m_ui.encodingArgumentsTextEdit->setPlainText(a_pJob->arguments());
-		m_ui.processExecutablePathEdit->setText(a_pJob->executablePath());
-		m_ui.processArgumentsTextEdit->setPlainText(a_pJob->arguments());
-		m_ui.shellCommandTextEdit->setPlainText(a_pJob->shellCommand());
-	}
-	else
-	{
-		m_ui.jobTypeComboBox->setCurrentIndex(0);
-		m_ui.encodingScriptPathEdit->clear();
-		m_ui.encodingPresetComboBox->setCurrentIndex(0);
-		m_ui.processExecutablePathEdit->clear();
-		m_ui.processArgumentsTextEdit->clear();
-		m_ui.shellCommandTextEdit->clear();
-	}
+	int index = m_ui.jobTypeComboBox->findData((int)a_jobProperties.type);
+	m_ui.jobTypeComboBox->setCurrentIndex(index);
+	m_ui.encodingScriptPathEdit->setText(a_jobProperties.scriptName);
+	m_ui.encodingPresetComboBox->clearEditText();
+	index = m_ui.encodingHeaderTypeComboBox->findData(
+		(int)a_jobProperties.encodingHeaderType);
+	m_ui.encodingHeaderTypeComboBox->setCurrentIndex(index);
+	m_ui.encodingExecutablePathEdit->setText(a_jobProperties.executablePath);
+	m_ui.encodingArgumentsTextEdit->setPlainText(a_jobProperties.arguments);
+	m_ui.processExecutablePathEdit->setText(a_jobProperties.executablePath);
+	m_ui.processArgumentsTextEdit->setPlainText(a_jobProperties.arguments);
+	m_ui.shellCommandTextEdit->setPlainText(a_jobProperties.shellCommand);
 
 	return exec();
 }
 
 // END OF int JobEditDialog::call(const QString & a_title,
-//		const vsedit::Job * a_pJob)
+//		const JobProperties & a_jobProperties)
 //==============================================================================
 
 void JobEditDialog::slotJobTypeChanged(int a_index)

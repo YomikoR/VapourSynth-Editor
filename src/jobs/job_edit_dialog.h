@@ -18,18 +18,11 @@ public:
 
 	virtual ~JobEditDialog();
 
-	JobType jobType() const;
-	QString encodingScriptPath() const;
-	EncodingHeaderType encodingHeaderType() const;
-	QString encodingExecutablePath() const;
-	QString encodingArguments() const;
-	QString processExecutablePath() const;
-	QString processArguments() const;
-	QString shellCommand() const;
+	JobProperties jobProperties() const;
 
 public slots:
 
-	int call(const QString & a_title, const vsedit::Job * a_pJob = nullptr);
+	int call(const QString & a_title, const JobProperties & a_jobProperties);
 
 private slots:
 
