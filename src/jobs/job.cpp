@@ -13,6 +13,10 @@
 #include <algorithm>
 #include <vapoursynth/VSHelper.h>
 
+#ifdef Q_OS_WIN
+	#include <windows.h>
+#endif
+
 //==============================================================================
 
 vsedit::Job::Job(const JobProperties & a_properties,
@@ -122,6 +126,17 @@ void vsedit::Job::start()
 		changeStateAndNotify(JobState::Running);
 		if(m_properties.type == JobType::EncodeScriptCLI)
 			processFramesQueue();
+		else if(m_properties.type == JobType::RunProcess)
+		{
+#ifdef Q_OS_WIN
+			BOOL result = DebugActiveProcessStop((DWORD)m_process.processId());
+			if(result)
+				changeStateAndNotify(JobState::Running);
+			else
+				emit signalLogMessage(trUtf8("Failed to resume process. "
+					"Error %1.") .arg(GetLastError()), LOG_STYLE_ERROR);
+#endif
+		}
 	}
 }
 
@@ -141,6 +156,17 @@ void vsedit::Job::pause()
 		if(vsedit::contains(invalidStates, m_encodingState))
 			return;
 		changeStateAndNotify(JobState::Pausing);
+	}
+	else if(m_properties.type == JobType::RunProcess)
+	{
+#ifdef Q_OS_WIN
+		BOOL result = DebugActiveProcess((DWORD)m_process.processId());
+		if(result)
+			changeStateAndNotify(JobState::Paused);
+		else
+			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
+				.arg(GetLastError()), LOG_STYLE_ERROR);
+#endif
 	}
 }
 
