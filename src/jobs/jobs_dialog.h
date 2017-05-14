@@ -3,6 +3,8 @@
 
 #include <ui_jobs_dialog.h>
 
+#include "../settings/settings_definitions.h"
+
 class SettingsManager;
 class HighlightItemDelegate;
 class JobsModel;
@@ -10,6 +12,11 @@ class JobEditDialog;
 class JobStateDelegate;
 class JobDependenciesDelegate;
 class QMenu;
+
+#ifdef Q_OS_WIN
+	class QWinTaskbarButton;
+	class QWinTaskbarProgress;
+#endif
 
 class JobsDialog : public QDialog
 {
@@ -31,6 +38,7 @@ protected:
 	virtual void moveEvent(QMoveEvent * a_pEvent) override;
 	virtual void resizeEvent(QResizeEvent * a_pEvent) override;
 	virtual void changeEvent(QEvent * a_pEvent) override;
+	virtual void showEvent(QShowEvent * a_pEvent) override;
 
 private slots:
 
@@ -54,7 +62,12 @@ private slots:
 	void slotJobsHeaderContextMenu(const QPoint & a_point);
 	void slotShowJobsHeaderSection(bool a_show);
 
+	void slotJobsStateChanged(int a_job, int a_jobsTotal, JobState a_state,
+		int a_progress, int a_progressMax);
+
 private:
+
+	static const char WINDOW_TITLE[];
 
 	void saveGeometrySettings();
 
@@ -74,6 +87,11 @@ private:
 	JobEditDialog * m_pJobEditDialog;
 
 	QMenu * m_pJobsHeaderMenu;
+
+#ifdef Q_OS_WIN
+	QWinTaskbarButton * m_pWinTaskbarButton;
+	QWinTaskbarProgress * m_pWinTaskbarProgress;
+#endif
 };
 
 #endif // JOBS_DIALOG_H_INCLUDED

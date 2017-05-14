@@ -771,6 +771,7 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 
 	int jobIndex = indexOfJob(pJob->id());
 	notifyJobUpdated(jobIndex);
+	notifyState(jobIndex);
 	saveJobs();
 
 	if(vsedit::contains(ACTIVE_JOB_STATES, a_newState))
@@ -803,6 +804,8 @@ void JobsModel::slotJobProgressChanged()
 	int jobIndex = indexOfJob(pJob->id());
 	notifyJobUpdated(jobIndex, STATE_COLUMN);
 	notifyJobUpdated(jobIndex, FPS_COLUMN);
+
+	notifyState(jobIndex);
 }
 
 // END OF void JobsModel::slotJobProgressChanged()
@@ -881,6 +884,27 @@ void JobsModel::notifyJobUpdated(int a_index, int a_column)
 }
 
 // END OF void JobsModel::noifyJobUpdated(int a_index)
+//==============================================================================
+
+void JobsModel::notifyState(int a_index)
+{
+	const vsedit::Job * cpJob = job(a_index);
+	if(!cpJob)
+		return;
+
+	int progress = 0;
+	int progressTotal = 0;
+	if(cpJob->type() == JobType::EncodeScriptCLI)
+	{
+		progress = cpJob->framesProcessed();
+		progressTotal = cpJob->framesTotal();
+	}
+
+	emit signalStateChanged(a_index + 1, (int)m_tickets.size(), cpJob->state(),
+		progress, progressTotal);
+}
+
+// END OF void JobsModel::notifyState(int a_index)
 //==============================================================================
 
 JobsModel::DependenciesState JobsModel::dependenciesState(int a_index)

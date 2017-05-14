@@ -12,6 +12,15 @@
 #include <QItemSelectionModel>
 #include <QMenu>
 
+#ifdef Q_OS_WIN
+	#include <QWinTaskbarButton>
+	#include <QWinTaskbarProgress>
+#endif
+
+//==============================================================================
+
+const char JobsDialog::WINDOW_TITLE[] = "VapourSynth jobs";
+
 //==============================================================================
 
 JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
@@ -24,8 +33,13 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	, m_pJobDependenciesDelegate(nullptr)
 	, m_pJobEditDialog(nullptr)
 	, m_pJobsHeaderMenu(nullptr)
+#ifdef Q_OS_WIN
+	, m_pWinTaskbarButton(nullptr)
+	, m_pWinTaskbarProgress(nullptr)
+#endif
 {
 	m_ui.setupUi(this);
+	setWindowTitle(trUtf8(WINDOW_TITLE));
 
 	m_ui.jobsTableView->setModel(m_pJobsModel);
 	m_pHighlightItemDelegate = new HighlightItemDelegate(this);
@@ -93,6 +107,9 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	connect(m_pJobsModel,
 		SIGNAL(signalLogMessage(const QString &, const QString &)),
 		m_ui.log, SLOT(addEntry(const QString &, const QString &)));
+	connect(m_pJobsModel,
+		SIGNAL(signalStateChanged(int, int, JobState, int, int)),
+		this, SLOT(slotJobsStateChanged(int, int, JobState, int, int)));
 	connect(m_ui.jobNewButton, SIGNAL(clicked()),
 		this, SLOT(slotJobNewButtonClicked()));
 	connect(m_ui.jobEditButton, SIGNAL(clicked()),
@@ -180,6 +197,23 @@ void JobsDialog::changeEvent(QEvent * a_pEvent)
 		else
 			m_pSettingsManager->setJobsDialogMaximized(false);
 	}
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::showEvent(QShowEvent * a_pEvent)
+{
+	QDialog::showEvent(a_pEvent);
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarButton)
+	{
+		m_pWinTaskbarButton = new QWinTaskbarButton(this);
+		m_pWinTaskbarButton->setWindow(windowHandle());
+		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
+	}
+#endif
 }
 
 // END OF
@@ -336,6 +370,54 @@ void JobsDialog::slotShowJobsHeaderSection(bool a_show)
 	int section = pAction->data().toInt();
 	QHeaderView * pHeader = m_ui.jobsTableView->horizontalHeader();
 	pHeader->setSectionHidden(section, !a_show);
+}
+
+// END OF
+//==============================================================================
+
+void JobsDialog::slotJobsStateChanged(int a_job, int a_jobsTotal,
+	JobState a_state, int a_progress, int a_progressMax)
+{
+	QString title;
+
+	bool allJobsComplete = ((a_state == JobState::Completed) &&
+		(a_job == a_jobsTotal));
+	bool showJobsProgress = (!allJobsComplete) && (a_job != -1);
+	if(showJobsProgress)
+	{
+		int percent = a_progress * 100 / a_progressMax;
+		title += QString("%1% %2/%3 ").arg(percent).arg(a_job).arg(a_jobsTotal);
+	}
+
+	title += trUtf8(WINDOW_TITLE);
+	setWindowTitle(title);
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarProgress)
+		return;
+
+	if(allJobsComplete || (a_state == JobState::Waiting))
+	{
+		m_pWinTaskbarProgress->hide();
+		return;
+	}
+
+	m_pWinTaskbarProgress->setMaximum(a_progressMax);
+	m_pWinTaskbarProgress->setValue(a_progress);
+	m_pWinTaskbarProgress->show();
+
+	JobState greenStates[] = {JobState::Running, JobState::Pausing,
+		JobState::Aborting, JobState::Completed, JobState::CompletedCleanUp};
+	JobState redStates[] = {JobState::Aborted, JobState::FailedCleanUp,
+		JobState::Failed, JobState::DependencyNotMet};
+
+	if(vsedit::contains(greenStates, a_state))
+		m_pWinTaskbarProgress->resume();
+	else if(a_state == JobState::Paused)
+		m_pWinTaskbarProgress->pause();
+	else if(vsedit::contains(redStates, a_state))
+		m_pWinTaskbarProgress->stop();
+#endif
 }
 
 // END OF

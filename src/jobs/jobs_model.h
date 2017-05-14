@@ -96,7 +96,8 @@ signals:
 	void signalLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
 
-	void signalNoActiveJobs();
+	void signalStateChanged(int a_job, int a_jobsTotal, JobState a_state,
+		int a_progress, int a_progressMax);
 
 private slots:
 
@@ -122,6 +123,8 @@ private:
 	bool checkCanModifyJobAndNotify(int a_index);
 
 	void notifyJobUpdated(int a_index, int a_column = -1);
+
+	void notifyState(int a_index);
 
 	DependenciesState dependenciesState(int a_index);
 
