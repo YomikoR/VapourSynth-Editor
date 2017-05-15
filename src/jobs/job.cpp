@@ -62,14 +62,16 @@ vsedit::Job::Job(const JobProperties & a_properties,
 		this, SLOT(slotProcessReadyReadStandardError()));
 }
 
-// END OF
+// END OF vsedit::Job::Job(const JobProperties & a_properties,
+//		SettingsManager * a_pSettingsManager,
+//		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent)
 //==============================================================================
 
 vsedit::Job::~Job()
 {
 }
 
-// END OF
+// END OF vsedit::Job::~Job()
 //==============================================================================
 
 QString vsedit::Job::typeName(JobType a_type)
@@ -84,7 +86,7 @@ QString vsedit::Job::typeName(JobType a_type)
 	return typeNameMap[a_type];
 }
 
-// END OF
+// END OF QString vsedit::Job::typeName(JobType a_type)
 //==============================================================================
 
 QString vsedit::Job::stateName(JobState a_state)
@@ -107,7 +109,7 @@ QString vsedit::Job::stateName(JobState a_state)
 	return stateNameMap[a_state];
 }
 
-// END OF
+// END OF QString vsedit::Job::stateName(JobState a_state)
 //==============================================================================
 
 void vsedit::Job::start()
@@ -149,7 +151,7 @@ void vsedit::Job::start()
 	}
 }
 
-// END OF
+// END OF void vsedit::Job::start()
 //==============================================================================
 
 void vsedit::Job::pause()
@@ -186,7 +188,7 @@ void vsedit::Job::pause()
 	}
 }
 
-// END OF
+// END OF void vsedit::Job::pause()
 //==============================================================================
 
 void vsedit::Job::abort()
@@ -210,7 +212,7 @@ void vsedit::Job::abort()
 	changeStateAndNotify(JobState::Aborted);
 }
 
-// END OF
+// END OF void vsedit::Job::abort()
 //==============================================================================
 
 QUuid vsedit::Job::id() const
@@ -218,7 +220,7 @@ QUuid vsedit::Job::id() const
 	return m_properties.id;
 }
 
-// END OF
+// END OF QUuid vsedit::Job::id() const
 //==============================================================================
 
 bool vsedit::Job::setId(const QUuid & a_id)
@@ -227,7 +229,7 @@ bool vsedit::Job::setId(const QUuid & a_id)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setId(const QUuid & a_id)
 //==============================================================================
 
 JobType vsedit::Job::type() const
@@ -235,7 +237,7 @@ JobType vsedit::Job::type() const
 	return m_properties.type;
 }
 
-// END OF
+// END OF JobType vsedit::Job::type() const
 //==============================================================================
 
 bool vsedit::Job::setType(JobType a_type)
@@ -244,7 +246,7 @@ bool vsedit::Job::setType(JobType a_type)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setType(JobType a_type)
 //==============================================================================
 
 QString vsedit::Job::scriptName() const
@@ -252,7 +254,7 @@ QString vsedit::Job::scriptName() const
 	return m_properties.scriptName;
 }
 
-// END OF
+// END OF QString vsedit::Job::scriptName() const
 //==============================================================================
 
 bool vsedit::Job::setScriptName(const QString & a_scriptName)
@@ -261,7 +263,7 @@ bool vsedit::Job::setScriptName(const QString & a_scriptName)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setScriptName(const QString & a_scriptName)
 //==============================================================================
 
 EncodingHeaderType vsedit::Job::encodingHeaderType() const
@@ -269,7 +271,7 @@ EncodingHeaderType vsedit::Job::encodingHeaderType() const
 	return m_properties.encodingHeaderType;
 }
 
-// END OF
+// END OF EncodingHeaderType vsedit::Job::encodingHeaderType() const
 //==============================================================================
 
 bool vsedit::Job::setEncodingHeaderType(EncodingHeaderType a_headerType)
@@ -278,7 +280,8 @@ bool vsedit::Job::setEncodingHeaderType(EncodingHeaderType a_headerType)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setEncodingHeaderType(
+//		EncodingHeaderType a_headerType)
 //==============================================================================
 
 QString vsedit::Job::executablePath() const
@@ -286,7 +289,7 @@ QString vsedit::Job::executablePath() const
 	return m_properties.executablePath;
 }
 
-// END OF
+// END OF QString vsedit::Job::executablePath() const
 //==============================================================================
 
 bool vsedit::Job::setExecutablePath(const QString & a_path)
@@ -295,7 +298,7 @@ bool vsedit::Job::setExecutablePath(const QString & a_path)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setExecutablePath(const QString & a_path)
 //==============================================================================
 
 QString vsedit::Job::arguments() const
@@ -303,7 +306,7 @@ QString vsedit::Job::arguments() const
 	return m_properties.arguments;
 }
 
-// END OF
+// END OF QString vsedit::Job::arguments() const
 //==============================================================================
 
 bool vsedit::Job::setArguments(const QString & a_arguments)
@@ -312,7 +315,7 @@ bool vsedit::Job::setArguments(const QString & a_arguments)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setArguments(const QString & a_arguments)
 //==============================================================================
 
 QString vsedit::Job::shellCommand() const
@@ -320,7 +323,7 @@ QString vsedit::Job::shellCommand() const
 	return m_properties.shellCommand;
 }
 
-// END OF
+// END OF QString vsedit::Job::shellCommand() const
 //==============================================================================
 
 bool vsedit::Job::setShellCommand(const QString & a_command)
@@ -329,7 +332,7 @@ bool vsedit::Job::setShellCommand(const QString & a_command)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setShellCommand(const QString & a_command)
 //==============================================================================
 
 JobState vsedit::Job::state() const
@@ -337,7 +340,7 @@ JobState vsedit::Job::state() const
 	return m_properties.jobState;
 }
 
-// END OF
+// END OF JobState vsedit::Job::state() const
 //==============================================================================
 
 bool vsedit::Job::setState(JobState a_state)
@@ -346,7 +349,7 @@ bool vsedit::Job::setState(JobState a_state)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setState(JobState a_state)
 //==============================================================================
 
 std::vector<QUuid> vsedit::Job::dependsOnJobIds() const
@@ -354,7 +357,7 @@ std::vector<QUuid> vsedit::Job::dependsOnJobIds() const
 	return m_properties.dependsOnJobIds;
 }
 
-// END OF
+// END OF std::vector<QUuid> vsedit::Job::dependsOnJobIds() const
 //==============================================================================
 
 bool vsedit::Job::setDependsOnJobIds(const std::vector<QUuid> & a_ids)
@@ -363,7 +366,7 @@ bool vsedit::Job::setDependsOnJobIds(const std::vector<QUuid> & a_ids)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setDependsOnJobIds(const std::vector<QUuid> & a_ids)
 //==============================================================================
 
 QString vsedit::Job::subject() const
@@ -394,7 +397,7 @@ QString vsedit::Job::subject() const
 	return subjectString;
 }
 
-// END OF
+// END OF QString vsedit::Job::subject() const
 //==============================================================================
 
 std::vector<vsedit::VariableToken> vsedit::Job::variables() const
@@ -409,7 +412,7 @@ std::vector<vsedit::VariableToken> vsedit::Job::variables() const
 	return cutVariables;
 }
 
-// END OF
+// END OF std::vector<vsedit::VariableToken> vsedit::Job::variables() const
 //==============================================================================
 
 int vsedit::Job::framesProcessed() const
@@ -419,7 +422,7 @@ int vsedit::Job::framesProcessed() const
 	return 0;
 }
 
-// END OF
+// END OF int vsedit::Job::framesProcessed() const
 //==============================================================================
 
 int vsedit::Job::framesTotal() const
@@ -429,7 +432,7 @@ int vsedit::Job::framesTotal() const
 	return 0;
 }
 
-// END OF
+// END OF int vsedit::Job::framesTotal() const
 //==============================================================================
 
 double vsedit::Job::fps() const
@@ -437,7 +440,7 @@ double vsedit::Job::fps() const
 	return m_properties.fps;
 }
 
-// END OF
+// END OF double vsedit::Job::fps() const
 //==============================================================================
 
 double vsedit::Job::secondsToFinish() const
@@ -447,7 +450,7 @@ double vsedit::Job::secondsToFinish() const
 	return seconds;
 }
 
-// END OF
+// END OF double vsedit::Job::secondsToFinish() const
 //==============================================================================
 
 size_t vsedit::Job::framesInQueue() const
@@ -455,7 +458,7 @@ size_t vsedit::Job::framesInQueue() const
 	return m_framesInQueue;
 }
 
-// END OF
+// END OF size_t vsedit::Job::framesInQueue() const
 //==============================================================================
 
 size_t vsedit::Job::framesInProcess() const
@@ -463,7 +466,7 @@ size_t vsedit::Job::framesInProcess() const
 	return m_framesInProcess;
 }
 
-// END OF
+// END OF size_t vsedit::Job::framesInProcess() const
 //==============================================================================
 
 size_t vsedit::Job::maxThreads() const
@@ -471,7 +474,7 @@ size_t vsedit::Job::maxThreads() const
 	return m_maxThreads;
 }
 
-// END OF
+// END OF size_t vsedit::Job::maxThreads() const
 //==============================================================================
 
 int64_t vsedit::Job::coreFramebufferBytes() const
@@ -479,7 +482,7 @@ int64_t vsedit::Job::coreFramebufferBytes() const
 	return m_coreFramebufferBytes;
 }
 
-// END OF
+// END OF int64_t vsedit::Job::coreFramebufferBytes() const
 //==============================================================================
 
 JobProperties vsedit::Job::properties() const
@@ -487,7 +490,7 @@ JobProperties vsedit::Job::properties() const
 	return m_properties;
 }
 
-// END OF
+// END OF JobProperties vsedit::Job::properties() const
 //==============================================================================
 
 bool vsedit::Job::setProperties(const JobProperties & a_properties)
@@ -497,7 +500,7 @@ bool vsedit::Job::setProperties(const JobProperties & a_properties)
 	return true;
 }
 
-// END OF
+// END OF bool vsedit::Job::setProperties(const JobProperties & a_properties)
 //==============================================================================
 
 void vsedit::Job::slotProcessStarted()
@@ -558,7 +561,7 @@ void vsedit::Job::slotProcessStarted()
 	}
 }
 
-// END OF
+// END OF void vsedit::Job::slotProcessStarted()
 //==============================================================================
 
 void vsedit::Job::slotProcessFinished(int a_exitCode,
@@ -609,7 +612,8 @@ void vsedit::Job::slotProcessFinished(int a_exitCode,
 	}
 }
 
-// END OF
+// END OF void vsedit::Job::slotProcessFinished(int a_exitCode,
+//		QProcess::ExitStatus a_exitStatus)
 //==============================================================================
 
 void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
@@ -701,7 +705,7 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 	}
 }
 
-// END OF
+// END OF void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 //==============================================================================
 
 void vsedit::Job::slotProcessReadChannelFinished()
@@ -731,7 +735,7 @@ void vsedit::Job::slotProcessReadChannelFinished()
 	}
 }
 
-// END OF
+// END OF void vsedit::Job::slotProcessReadChannelFinished()
 //==============================================================================
 
 void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
@@ -824,7 +828,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 	processFramesQueue();
 }
 
-// END OF
+// END OF void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 //==============================================================================
 
 void vsedit::Job::slotProcessReadyReadStandardError()
@@ -836,7 +840,7 @@ void vsedit::Job::slotProcessReadyReadStandardError()
 		emit signalLogMessage(standardErrorText);
 }
 
-// END OF
+// END OF void vsedit::Job::slotProcessReadyReadStandardError()
 //==============================================================================
 
 void vsedit::Job::slotWriteLogMessage(int a_messageType,
@@ -846,7 +850,8 @@ void vsedit::Job::slotWriteLogMessage(int a_messageType,
 	emit signalLogMessage(a_message, style);
 }
 
-// END OF
+// END OF void vsedit::Job::slotWriteLogMessage(int a_messageType,
+//		const QString & a_message)
 //==============================================================================
 
 void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
@@ -858,7 +863,8 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 	emit signalCoreInfoChanged();
 }
 
-// END OF
+// END OF void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
+//		size_t a_inProcess, size_t a_maxThreads)
 //==============================================================================
 
 void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
@@ -867,7 +873,7 @@ void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 	emit signalCoreInfoChanged();
 }
 
-// END OF
+// END OF void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 //==============================================================================
 
 void vsedit::Job::slotScriptProcessorFinalized()
@@ -876,7 +882,7 @@ void vsedit::Job::slotScriptProcessorFinalized()
 	finishEncodingCLI();
 }
 
-// END OF
+// END OF void vsedit::Job::slotScriptProcessorFinalized()
 //==============================================================================
 
 void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
@@ -904,7 +910,9 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		processFramesQueue();
 }
 
-// END OF
+// END OF void vsedit::Job::slotReceiveFrame(int a_frameNumber,
+//		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
+//		const VSFrameRef * a_cpPreviewFrameRef)
 //==============================================================================
 
 void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
@@ -924,7 +932,8 @@ void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
 	cleanUpEncoding();
 }
 
-// END OF
+// END OF void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
+//		int a_outputIndex, const QString & a_reason)
 //==============================================================================
 
 void vsedit::Job::fillVariables()
@@ -1043,7 +1052,7 @@ void vsedit::Job::fillVariables()
 		});
 }
 
-// END OF
+// END OF void vsedit::Job::fillVariables()
 //==============================================================================
 
 void vsedit::Job::changeStateAndNotify(JobState a_state)
@@ -1083,7 +1092,7 @@ void vsedit::Job::changeStateAndNotify(JobState a_state)
 	emit signalStateChanged(m_properties.jobState, oldState);
 }
 
-// END OF
+// END OF void vsedit::Job::changeStateAndNotify(JobState a_state)
 //==============================================================================
 
 void vsedit::Job::startEncodeScriptCLI()
@@ -1235,7 +1244,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	m_process.start(commandLine);
 }
 
-// END OF
+// END OF void vsedit::Job::startEncodeScriptCLI()
 //==============================================================================
 
 void vsedit::Job::startRunProcess()
@@ -1253,7 +1262,7 @@ void vsedit::Job::startRunProcess()
 	m_process.start(commandLine);
 }
 
-// END OF
+// END OF void vsedit::Job::startRunProcess()
 //==============================================================================
 
 void vsedit::Job::startRunShellCommand()
@@ -1271,7 +1280,7 @@ void vsedit::Job::startRunShellCommand()
 	changeStateAndNotify(JobState::Completed);
 }
 
-// END OF
+// END OF void vsedit::Job::startRunShellCommand()
 //==============================================================================
 
 QString vsedit::Job::decodeArguments(const QString & a_arguments) const
@@ -1287,7 +1296,8 @@ QString vsedit::Job::decodeArguments(const QString & a_arguments) const
 	return decodedString;
 }
 
-// END OF
+// END OF QString vsedit::Job::decodeArguments(
+//		const QString & a_arguments) const
 //==============================================================================
 
 void vsedit::Job::cleanUpEncoding()
@@ -1307,7 +1317,7 @@ void vsedit::Job::cleanUpEncoding()
 	m_pVapourSynthScriptProcessor->finalize();
 }
 
-// END OF
+// END OF void vsedit::Job::cleanUpEncoding()
 //==============================================================================
 
 void vsedit::Job::clearFramesCache()
@@ -1324,7 +1334,7 @@ void vsedit::Job::clearFramesCache()
 	m_framesCache.clear();
 }
 
-// END OF
+// END OF void vsedit::Job::clearFramesCache()
 //==============================================================================
 
 void vsedit::Job::processFramesQueue()
@@ -1442,7 +1452,7 @@ void vsedit::Job::processFramesQueue()
 	// Then this function will be called again.
 }
 
-// END OF
+// END OF void vsedit::Job::processFramesQueue()
 //==============================================================================
 
 void vsedit::Job::finishEncodingCLI()
@@ -1476,7 +1486,7 @@ void vsedit::Job::finishEncodingCLI()
 		changeStateAndNotify(it->second);
 }
 
-// END OF
+// END OF void vsedit::Job::finishEncodingCLI()
 //==============================================================================
 
 void vsedit::Job::memorizeEncodingTime()
@@ -1488,7 +1498,7 @@ void vsedit::Job::memorizeEncodingTime()
 	m_encodeRangeStartTime = hr_clock::now();
 }
 
-// END OF
+// END OF void vsedit::Job::memorizeEncodingTime()
 //==============================================================================
 
 void vsedit::Job::updateFPS()
@@ -1503,7 +1513,7 @@ void vsedit::Job::updateFPS()
 	m_properties.fps = (double)m_properties.framesProcessed / totalTime;
 }
 
-// END OF
+// END OF void vsedit::Job::updateFPS()
 //==============================================================================
 
 double vsedit::Job::currentEncodingRangeTime() const
@@ -1516,5 +1526,5 @@ double vsedit::Job::currentEncodingRangeTime() const
 	return rangeTime;
 }
 
-// END OF
+// END OF double vsedit::Job::currentEncodingRangeTime() const
 //==============================================================================

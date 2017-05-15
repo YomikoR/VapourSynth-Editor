@@ -151,14 +151,16 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotJobsHeaderContextMenu(const QPoint &)));
 }
 
-// END OF
+// END OF JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
+//		JobsModel * a_pJobsModel, VSScriptLibrary * a_pVSScriptLibrary,
+//		QWidget * a_pParent)
 //==============================================================================
 
 JobsDialog::~JobsDialog()
 {
 }
 
-// END OF
+// END OF JobsDialog::~JobsDialog()
 //==============================================================================
 
 void JobsDialog::show()
@@ -169,7 +171,7 @@ void JobsDialog::show()
 		showNormal();
 }
 
-// END OF
+// END OF void JobsDialog::show()
 //==============================================================================
 
 void JobsDialog::moveEvent(QMoveEvent * a_pEvent)
@@ -178,7 +180,7 @@ void JobsDialog::moveEvent(QMoveEvent * a_pEvent)
 	saveGeometrySettings();
 }
 
-// END OF
+// END OF void JobsDialog::moveEvent(QMoveEvent * a_pEvent)
 //==============================================================================
 
 void JobsDialog::resizeEvent(QResizeEvent * a_pEvent)
@@ -187,7 +189,7 @@ void JobsDialog::resizeEvent(QResizeEvent * a_pEvent)
 	saveGeometrySettings();
 }
 
-// END OF
+// END OF void JobsDialog::resizeEvent(QResizeEvent * a_pEvent)
 //==============================================================================
 
 void JobsDialog::changeEvent(QEvent * a_pEvent)
@@ -202,7 +204,7 @@ void JobsDialog::changeEvent(QEvent * a_pEvent)
 	}
 }
 
-// END OF
+// END OF void JobsDialog::changeEvent(QEvent * a_pEvent)
 //==============================================================================
 
 void JobsDialog::showEvent(QShowEvent * a_pEvent)
@@ -219,7 +221,7 @@ void JobsDialog::showEvent(QShowEvent * a_pEvent)
 #endif
 }
 
-// END OF
+// END OF void JobsDialog::showEvent(QShowEvent * a_pEvent)
 //==============================================================================
 
 void JobsDialog::slotJobNewButtonClicked()
@@ -233,7 +235,7 @@ void JobsDialog::slotJobNewButtonClicked()
 	m_ui.jobsTableView->scrollTo(m_pJobsModel->index(index, 0));
 }
 
-// END OF
+// END OF void JobsDialog::slotJobNewButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotJobEditButtonClicked()
@@ -242,7 +244,7 @@ void JobsDialog::slotJobEditButtonClicked()
 	editJob(index);
 }
 
-// END OF
+// END OF void JobsDialog::slotJobEditButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotJobMoveUpButtonClicked()
@@ -253,7 +255,7 @@ void JobsDialog::slotJobMoveUpButtonClicked()
 		m_ui.jobsTableView->selectRow(index.row() - 1);
 }
 
-// END OF
+// END OF void JobsDialog::slotJobMoveUpButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotJobMoveDownButtonClicked()
@@ -264,7 +266,7 @@ void JobsDialog::slotJobMoveDownButtonClicked()
 		m_ui.jobsTableView->selectRow(index.row() + 1);
 }
 
-// END OF
+// END OF void JobsDialog::slotJobMoveDownButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotJobDeleteButtonClicked()
@@ -283,7 +285,7 @@ void JobsDialog::slotJobDeleteButtonClicked()
 	m_pJobsModel->deleteSelectedJobs();
 }
 
-// END OF
+// END OF void JobsDialog::slotJobDeleteButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotJobResetStateButtonClicked()
@@ -291,7 +293,7 @@ void JobsDialog::slotJobResetStateButtonClicked()
 	m_pJobsModel->resetSelectedJobs();
 }
 
-// END OF
+// END OF void JobsDialog::slotJobResetStateButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotStartButtonClicked()
@@ -299,7 +301,7 @@ void JobsDialog::slotStartButtonClicked()
 	m_pJobsModel->startWaitingJobs();
 }
 
-// END OF
+// END OF void JobsDialog::slotStartButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotPauseButtonClicked()
@@ -307,7 +309,7 @@ void JobsDialog::slotPauseButtonClicked()
 	m_pJobsModel->pauseActiveJobs();
 }
 
-// END OF
+// END OF void JobsDialog::slotPauseButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotResumeButtonClicked()
@@ -315,7 +317,7 @@ void JobsDialog::slotResumeButtonClicked()
 	m_pJobsModel->resumePausedJobs();
 }
 
-// END OF
+// END OF void JobsDialog::slotResumeButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotAbortButtonClicked()
@@ -323,7 +325,7 @@ void JobsDialog::slotAbortButtonClicked()
 	m_pJobsModel->abortActiveJobs();
 }
 
-// END OF
+// END OF void JobsDialog::slotAbortButtonClicked()
 //==============================================================================
 
 void JobsDialog::slotJobDoubleClicked(const QModelIndex & a_index)
@@ -334,7 +336,7 @@ void JobsDialog::slotJobDoubleClicked(const QModelIndex & a_index)
 	editJob(a_index);
 }
 
-// END OF
+// END OF void JobsDialog::slotJobDoubleClicked(const QModelIndex & a_index)
 //==============================================================================
 
 void JobsDialog::slotSelectionChanged()
@@ -344,7 +346,7 @@ void JobsDialog::slotSelectionChanged()
 	m_pJobsModel->setSelection(pSelectionModel->selection());
 }
 
-// END OF
+// END OF void JobsDialog::slotSelectionChanged()
 //==============================================================================
 
 void JobsDialog::slotSaveHeaderState()
@@ -353,7 +355,7 @@ void JobsDialog::slotSaveHeaderState()
 	m_pSettingsManager->setJobsHeaderState(pHeader->saveState());
 }
 
-// END OF
+// END OF void JobsDialog::slotSaveHeaderState()
 //==============================================================================
 
 void JobsDialog::slotJobsHeaderContextMenu(const QPoint & a_point)
@@ -362,7 +364,7 @@ void JobsDialog::slotJobsHeaderContextMenu(const QPoint & a_point)
 	m_pJobsHeaderMenu->exec(QCursor::pos());
 }
 
-// END OF
+// END OF void JobsDialog::slotJobsHeaderContextMenu(const QPoint & a_point)
 //==============================================================================
 
 void JobsDialog::slotShowJobsHeaderSection(bool a_show)
@@ -375,7 +377,7 @@ void JobsDialog::slotShowJobsHeaderSection(bool a_show)
 	pHeader->setSectionHidden(section, !a_show);
 }
 
-// END OF
+// END OF void JobsDialog::slotShowJobsHeaderSection(bool a_show)
 //==============================================================================
 
 void JobsDialog::slotJobsStateChanged(int a_job, int a_jobsTotal,
@@ -427,7 +429,8 @@ void JobsDialog::slotJobsStateChanged(int a_job, int a_jobsTotal,
 #endif
 }
 
-// END OF
+// END OF void JobsDialog::slotJobsStateChanged(int a_job, int a_jobsTotal,
+//		JobState a_state, int a_progress, int a_progressMax)
 //==============================================================================
 
 void JobsDialog::saveGeometrySettings()
@@ -437,7 +440,7 @@ void JobsDialog::saveGeometrySettings()
 		m_pSettingsManager->setJobsDialogGeometry(saveGeometry());
 }
 
-// END OF
+// END OF void JobsDialog::saveGeometrySettings()
 //==============================================================================
 
 void JobsDialog::editJob(const QModelIndex & a_index)
@@ -452,7 +455,7 @@ void JobsDialog::editJob(const QModelIndex & a_index)
 	updateJob(a_index.row());
 }
 
-// END OF
+// END OF void JobsDialog::editJob(const QModelIndex & a_index)
 //==============================================================================
 
 bool JobsDialog::updateJob(int a_index)
@@ -462,5 +465,5 @@ bool JobsDialog::updateJob(int a_index)
 	return result;
 }
 
-// END OF
+// END OF bool JobsDialog::updateJob(int a_index)
 //==============================================================================
