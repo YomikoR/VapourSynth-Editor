@@ -6,7 +6,6 @@
 #include "../settings/settings_definitions.h"
 
 class SettingsManager;
-class HighlightItemDelegate;
 class JobsModel;
 class JobEditDialog;
 class JobStateDelegate;
@@ -82,7 +81,6 @@ private:
 
 	JobsModel * m_pJobsModel;
 	VSScriptLibrary * m_pVSScriptLibrary;
-	HighlightItemDelegate * m_pHighlightItemDelegate;
 	JobStateDelegate * m_pJobStateDelegate;
 	JobDependenciesDelegate * m_pJobDependenciesDelegate;
 

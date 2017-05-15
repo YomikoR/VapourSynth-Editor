@@ -177,7 +177,6 @@ FORMS += ../src/main_window.ui
 HEADERS += ../src/common/helpers.h
 HEADERS += ../src/common/aligned_vector.h
 HEADERS += ../src/common/chrono.h
-HEADERS += ../src/common/highlight_item_delegate.h
 HEADERS += ../src/settings/settings_definitions.h
 HEADERS += ../src/settings/settings_manager.h
 HEADERS += ../src/settings/actions_hotkey_edit_model.h
@@ -223,7 +222,6 @@ HEADERS += ../src/jobs/jobs_dialog.h
 HEADERS += ../src/main_window.h
 
 SOURCES += ../src/common/helpers.cpp
-SOURCES += ../src/common/highlight_item_delegate.cpp
 SOURCES += ../src/settings/settings_definitions.cpp
 SOURCES += ../src/settings/settings_manager.cpp
 SOURCES += ../src/settings/actions_hotkey_edit_model.cpp

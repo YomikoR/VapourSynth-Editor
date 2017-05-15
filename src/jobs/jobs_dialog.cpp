@@ -1,7 +1,6 @@
 #include "jobs_dialog.h"
 
 #include "../settings/settings_manager.h"
-#include "../common/highlight_item_delegate.h"
 #include "jobs_model.h"
 #include "job_state_delegate.h"
 #include "job_dependencies_delegate.h"
@@ -30,7 +29,6 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pJobsModel(a_pJobsModel)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
-	, m_pHighlightItemDelegate(nullptr)
 	, m_pJobStateDelegate(nullptr)
 	, m_pJobDependenciesDelegate(nullptr)
 	, m_pJobEditDialog(nullptr)
@@ -44,8 +42,6 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	setWindowTitle(trUtf8(WINDOW_TITLE));
 
 	m_ui.jobsTableView->setModel(m_pJobsModel);
-	m_pHighlightItemDelegate = new HighlightItemDelegate(this);
-	m_ui.jobsTableView->setItemDelegate(m_pHighlightItemDelegate);
 	m_pJobStateDelegate = new JobStateDelegate(this);
 	m_ui.jobsTableView->setItemDelegateForColumn(
 		JobsModel::STATE_COLUMN, m_pJobStateDelegate);

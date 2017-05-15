@@ -787,7 +787,7 @@ void JobsModel::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 		return;
 
 	int jobIndex = indexOfJob(pJob->id());
-	notifyJobUpdated(jobIndex);
+	notifyJobUpdated(jobIndex, STATE_COLUMN);
 	notifyState(jobIndex);
 	saveJobs();
 

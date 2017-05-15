@@ -5,7 +5,7 @@
 #include <QApplication>
 
 JobStateDelegate::JobStateDelegate(QObject * a_pParent) :
-	HighlightItemDelegate(a_pParent)
+	QStyledItemDelegate(a_pParent)
 {
 }
 
@@ -18,7 +18,7 @@ void JobStateDelegate::paint(QPainter * a_pPainter,
 {
 	bool painted = paintProgressBar(a_pPainter, a_option, a_index);
 	if(!painted)
-		HighlightItemDelegate::paint(a_pPainter, a_option, a_index);
+		QStyledItemDelegate::paint(a_pPainter, a_option, a_index);
 }
 
 bool JobStateDelegate::paintProgressBar(QPainter * a_pPainter,
