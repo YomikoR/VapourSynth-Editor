@@ -917,7 +917,11 @@ void JobsModel::notifyState(int a_index)
 		progressTotal = cpJob->framesTotal();
 	}
 
-	emit signalStateChanged(a_index + 1, (int)m_tickets.size(), cpJob->state(),
+	int jobNumber = a_index + 1;
+	if(!hasActiveJobs())
+		jobNumber = -1;
+
+	emit signalStateChanged(jobNumber, (int)m_tickets.size(), cpJob->state(),
 		progress, progressTotal);
 }
 
