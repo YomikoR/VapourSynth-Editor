@@ -207,36 +207,6 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 			return coreInfo;
 		}
 	}
-	else if(a_role == Qt::BackgroundRole)
-	{
-		QColor color = QGuiApplication::palette().color(QPalette::Base);
-
-		switch(pJob->state())
-		{
-		case JobState::Aborted:
-		case JobState::Failed:
-		case JobState::DependencyNotMet:
-			color = QColor("#ffcccc");
-			break;
-		case JobState::Aborting:
-			color = QColor("#ffeeee");
-			break;
-		case JobState::Pausing:
-		case JobState::Paused:
-			color = QColor("#fffddd");
-			break;
-		case JobState::Completed:
-			color = QColor("#ddffdd");
-			break;
-		case JobState::Running:
-			color = QColor("#ddeeff");
-			break;
-		default:
-			break;
-		}
-
-		return color;
-	}
 	else if(a_role == Qt::TextAlignmentRole)
 	{
 		const int centeredColumns[] = {STATE_COLUMN, TIME_START_COLUMN,

@@ -2,7 +2,8 @@
 
 #include "jobs_model.h"
 
-#include <QApplication>
+#include <QPainter>
+#include <cassert>
 
 JobStateDelegate::JobStateDelegate(QObject * a_pParent) :
 	QStyledItemDelegate(a_pParent)
@@ -16,48 +17,80 @@ JobStateDelegate::~JobStateDelegate()
 void JobStateDelegate::paint(QPainter * a_pPainter,
 	const QStyleOptionViewItem & a_option, const QModelIndex & a_index) const
 {
-	bool painted = paintProgressBar(a_pPainter, a_option, a_index);
-	if(!painted)
-		QStyledItemDelegate::paint(a_pPainter, a_option, a_index);
-}
-
-bool JobStateDelegate::paintProgressBar(QPainter * a_pPainter,
-	const QStyleOptionViewItem & a_option,
-	const QModelIndex & a_index) const
-{
+	a_pPainter->save();
 	const JobsModel * cpModel =
 		qobject_cast<const JobsModel *>(a_index.model());
-	if((!cpModel) || (a_index.column() != JobsModel::STATE_COLUMN))
-		return false;
-
+	assert(cpModel);
+	assert(a_index.column() == JobsModel::STATE_COLUMN);
 	const vsedit::Job * cpJob = cpModel->job(a_index.row());
-	if(!cpJob)
-		return false;
-
-	if(cpJob->type() != JobType::EncodeScriptCLI)
-		return false;
-
+	assert(cpJob);
 	JobState state = cpJob->state();
+	QColor cellColor = jobStateColor(state, a_option);
 
-	JobState noProgressBarSates[] = {JobState::Waiting,
+	JobState noProgressBarStates[] = {JobState::Waiting,
 		JobState::DependencyNotMet};
-	if(vsedit::contains(noProgressBarSates, state))
-		return false;
+	bool drawProgress = (cpJob->type() == JobType::EncodeScriptCLI) &&
+		(!vsedit::contains(noProgressBarStates, state));
 
-	QStyleOptionProgressBar progressBarOption;
-	progressBarOption.rect = a_option.rect;
-	progressBarOption.minimum = 0;
-	progressBarOption.maximum = cpJob->framesTotal();
-	progressBarOption.progress = cpJob->framesProcessed();
-	progressBarOption.textVisible = true;
-	progressBarOption.textAlignment = Qt::AlignCenter;
-	progressBarOption.text = QString("%1 %2 / %3")
-		.arg(vsedit::Job::stateName(state))
-		.arg(cpJob->framesProcessed())
-		.arg(cpJob->framesTotal());
+	a_pPainter->setPen(cellColor);
+	a_pPainter->setBrush(cellColor);
 
-	QApplication::style()->drawControl(QStyle::CE_ProgressBar,
-		&progressBarOption, a_pPainter);
+	QRect innerRect = a_option.rect;
+	innerRect.setWidth(a_option.rect.width() - 1);
+	innerRect.setHeight(a_option.rect.height() - 1);
 
-	return true;
+	if(drawProgress)
+	{
+		int progressWidth = cpJob->framesProcessed() * innerRect.width() /
+			cpJob->framesTotal();
+		QRect progressRect = innerRect;
+		progressRect.setWidth(progressWidth);
+		a_pPainter->drawRect(progressRect);
+		QRect blankRect = innerRect;
+		blankRect.setWidth(innerRect.width() - progressWidth);
+		blankRect.translate(progressWidth, 0);
+		a_pPainter->setBrush(a_option.palette.color(QPalette::Base));
+		a_pPainter->drawRect(blankRect);
+	}
+	else
+		a_pPainter->drawRect(innerRect);
+
+	QString stateText = cpModel->data(a_index).toString();
+	if(drawProgress)
+	{
+		stateText += QString(" %1 / %2").arg(cpJob->framesProcessed())
+			.arg(cpJob->framesTotal());
+	}
+
+	a_pPainter->setPen(a_option.palette.color(QPalette::Text));
+	a_pPainter->setFont(a_option.font);
+	a_pPainter->drawText(innerRect, Qt::AlignCenter | Qt::TextWordWrap,
+		stateText);
+
+	a_pPainter->restore();
+}
+
+QColor JobStateDelegate::jobStateColor(JobState a_state,
+	const QStyleOptionViewItem & a_option) const
+{
+	switch(a_state)
+	{
+	case JobState::Aborted:
+	case JobState::Failed:
+	case JobState::DependencyNotMet:
+		return QColor("#ffcccc");
+	case JobState::Aborting:
+	case JobState::FailedCleanUp:
+		return QColor("#ffeeee");
+	case JobState::Pausing:
+	case JobState::Paused:
+		return QColor("#fffddd");
+	case JobState::CompletedCleanUp:
+	case JobState::Completed:
+		return QColor("#ddffdd");
+	case JobState::Running:
+		return QColor("#ddeeff");
+	default:
+		return a_option.palette.color(QPalette::Base);
+	}
 }
