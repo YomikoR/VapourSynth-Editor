@@ -1,3 +1,10 @@
+r16:
+-Jobs queue with dependencies tracking.
+-Adjustable jobs table.
+-Pausable CLI encoding jobs.
+-Pausable process run jobs.
+-Shell command execute jobs.
+
 r15:
 -BUGFIX: crash on colour picking while refreshing preview.
 -BUGFIX: random junk instead of black frame on preview refresh.
