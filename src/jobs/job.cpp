@@ -15,6 +15,8 @@
 
 #ifdef Q_OS_WIN
 	#include <windows.h>
+#else
+	#include <signal.h>
 #endif
 
 //==============================================================================
@@ -135,6 +137,13 @@ void vsedit::Job::start()
 			else
 				emit signalLogMessage(trUtf8("Failed to resume process. "
 					"Error %1.") .arg(GetLastError()), LOG_STYLE_ERROR);
+#else
+			int error = kill((pid_t)m_process.processId(), SIGCONT);
+			if(!error)
+				changeStateAndNotify(JobState::Running);
+			else
+				emit signalLogMessage(trUtf8("Failed to resume process. "
+					"Error %1.") .arg(error), LOG_STYLE_ERROR);
 #endif
 		}
 	}
@@ -166,6 +175,13 @@ void vsedit::Job::pause()
 		else
 			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
 				.arg(GetLastError()), LOG_STYLE_ERROR);
+#else
+		int error = kill((pid_t)m_process.processId(), SIGSTOP);
+		if(!error)
+			changeStateAndNotify(JobState::Paused);
+		else
+			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
+				.arg(error), LOG_STYLE_ERROR);
 #endif
 	}
 }
