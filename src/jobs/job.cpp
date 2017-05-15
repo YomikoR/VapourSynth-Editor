@@ -1164,7 +1164,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	m_properties.firstFrameReal = m_properties.firstFrame;
 	vsedit::clamp(m_properties.firstFrameReal, 0, m_cpVideoInfo->numFrames - 1);
 	m_properties.lastFrameReal = m_properties.lastFrame;
-	if((m_properties.lastFrameReal < 0) ||
+	if((m_properties.lastFrameReal < m_properties.firstFrameReal) ||
 		(m_properties.lastFrameReal >= m_cpVideoInfo->numFrames))
 		m_properties.lastFrameReal = m_cpVideoInfo->numFrames - 1;
 	m_lastFrameRequested = m_properties.firstFrameReal - 1;

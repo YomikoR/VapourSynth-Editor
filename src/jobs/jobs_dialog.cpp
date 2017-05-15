@@ -24,10 +24,12 @@ const char JobsDialog::WINDOW_TITLE[] = "VapourSynth jobs";
 //==============================================================================
 
 JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
-	JobsModel * a_pJobsModel, QWidget * a_pParent) :
+	JobsModel * a_pJobsModel, VSScriptLibrary * a_pVSScriptLibrary,
+	QWidget * a_pParent) :
 	  QDialog(a_pParent, Qt::Window)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pJobsModel(a_pJobsModel)
+	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 	, m_pHighlightItemDelegate(nullptr)
 	, m_pJobStateDelegate(nullptr)
 	, m_pJobDependenciesDelegate(nullptr)
@@ -76,7 +78,8 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 	QHeaderView * pVerticalHeader = m_ui.jobsTableView->verticalHeader();
 	pVerticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
+	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,
+		m_pVSScriptLibrary, this);
 
 	QItemSelectionModel * pSelectionModel =
 		m_ui.jobsTableView->selectionModel();

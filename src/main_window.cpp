@@ -130,8 +130,10 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
-	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager, this);
-	m_pJobsDialog = new JobsDialog(m_pSettingsManager, m_pJobsModel);
+	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,
+		m_pVSScriptLibrary, this);
+	m_pJobsDialog = new JobsDialog(m_pSettingsManager, m_pJobsModel,
+		m_pVSScriptLibrary);
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);

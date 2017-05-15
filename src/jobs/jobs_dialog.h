@@ -12,6 +12,7 @@ class JobEditDialog;
 class JobStateDelegate;
 class JobDependenciesDelegate;
 class QMenu;
+class VSScriptLibrary;
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
@@ -25,7 +26,7 @@ class JobsDialog : public QDialog
 public:
 
 	JobsDialog(SettingsManager * a_pSettingsManager, JobsModel * a_pJobsModel,
-		QWidget * a_pParent = nullptr);
+		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr);
 
 	virtual ~JobsDialog();
 
@@ -80,6 +81,7 @@ private:
 	SettingsManager * m_pSettingsManager;
 
 	JobsModel * m_pJobsModel;
+	VSScriptLibrary * m_pVSScriptLibrary;
 	HighlightItemDelegate * m_pHighlightItemDelegate;
 	JobStateDelegate * m_pJobStateDelegate;
 	JobDependenciesDelegate * m_pJobDependenciesDelegate;

@@ -1,16 +1,20 @@
 #include "job_edit_dialog.h"
 
 #include "../settings/settings_manager.h"
+#include "../vapoursynth/vapoursynth_script_processor.h"
+#include "../common/helpers.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QFile>
 #include <map>
 #include <cassert>
+#include <limits>
 
 //==============================================================================
 
 JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
-	QWidget * a_pParent) :
+	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
 	  QDialog(a_pParent, (Qt::WindowFlags)0
 		| Qt::Dialog
 		| Qt::CustomizeWindowHint
@@ -19,6 +23,7 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 		| Qt::WindowMaximizeButtonHint
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
+	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 {
 	m_ui.setupUi(this);
 
@@ -34,6 +39,9 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 		(int)EncodingHeaderType::NoHeader);
 	m_ui.encodingHeaderTypeComboBox->addItem(trUtf8("Y4M"),
 		(int)EncodingHeaderType::Y4M);
+
+	m_ui.encodingFirstFrameSpinBox->setMaximum(std::numeric_limits<int>::max());
+	m_ui.encodingLastFrameSpinBox->setMaximum(std::numeric_limits<int>::max());
 
 	setUpEncodingPresets();
 
@@ -51,6 +59,8 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotEncodingExecutableBrowseButtonClicked()));
 	connect(m_ui.encodingArgumentsHelpButton, SIGNAL(clicked()),
 		this, SLOT(slotEncodingArgumentsHelpButtonClicked()));
+	connect(m_ui.encodingFramesFromVideoButton, SIGNAL(clicked()),
+		this, SLOT(slotEncodingFramesFromVideoButtonClicked()));
 	connect(m_ui.processExecutableBrowseButton, SIGNAL(clicked()),
 		this, SLOT(slotProcessExecutableBrowseButtonClicked()));
 	connect(m_ui.jobSaveButton, SIGNAL(clicked()), this, SLOT(accept()));
@@ -86,6 +96,8 @@ JobProperties JobEditDialog::jobProperties() const
 		newProperties.arguments = m_ui.processArgumentsTextEdit->toPlainText();
 	}
 	newProperties.shellCommand = m_ui.shellCommandTextEdit->toPlainText();
+	newProperties.firstFrame = m_ui.encodingFirstFrameSpinBox->value();
+	newProperties.lastFrame = m_ui.encodingLastFrameSpinBox->value();
 	return newProperties;
 }
 
@@ -110,6 +122,9 @@ int JobEditDialog::call(const QString & a_title,
 	m_ui.processExecutablePathEdit->setText(a_jobProperties.executablePath);
 	m_ui.processArgumentsTextEdit->setPlainText(a_jobProperties.arguments);
 	m_ui.shellCommandTextEdit->setPlainText(a_jobProperties.shellCommand);
+
+	m_ui.encodingFirstFrameSpinBox->setValue(a_jobProperties.firstFrame);
+	m_ui.encodingLastFrameSpinBox->setValue(a_jobProperties.lastFrame);
 
 	return exec();
 }
@@ -307,6 +322,33 @@ void JobEditDialog::slotEncodingExecutableBrowseButtonClicked()
 }
 
 // END OF void JobEditDialog::slotEncodingExecutableBrowseButtonClicked()
+//==============================================================================
+
+void JobEditDialog::slotEncodingFramesFromVideoButtonClicked()
+{
+	QString scriptName = m_ui.encodingScriptPathEdit->text();
+	QString absoluteScriptPath =
+		vsedit::resolvePathFromApplication(scriptName);
+	QFile scriptFile(absoluteScriptPath);
+	bool opened = scriptFile.open(QIODevice::ReadOnly);
+	if(!opened)
+		return;
+
+	QString script = QString::fromUtf8(scriptFile.readAll());
+	scriptFile.close();
+
+	VapourSynthScriptProcessor processor(m_pSettingsManager,
+		m_pVSScriptLibrary);
+	bool initialized = processor.initialize(script, scriptName);
+	if(!initialized)
+		return;
+
+	const VSVideoInfo * cpVideoInfo = processor.videoInfo();
+	m_ui.encodingFirstFrameSpinBox->setValue(0);
+	m_ui.encodingLastFrameSpinBox->setValue(cpVideoInfo->numFrames - 1);
+}
+
+// END OF void JobEditDialog::slotEncodingFramesFromVideoButtonClicked()
 //==============================================================================
 
 void JobEditDialog::slotEncodingArgumentsHelpButtonClicked()

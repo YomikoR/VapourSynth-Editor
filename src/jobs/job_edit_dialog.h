@@ -6,6 +6,7 @@
 #include "job.h"
 
 class SettingsManager;
+class VSScriptLibrary;
 
 class JobEditDialog : public QDialog
 {
@@ -14,7 +15,7 @@ class JobEditDialog : public QDialog
 public:
 
 	JobEditDialog(SettingsManager * a_pSettingsManager,
-		QWidget * a_pParent = nullptr);
+		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr);
 
 	virtual ~JobEditDialog();
 
@@ -32,6 +33,7 @@ private slots:
 	void slotEncodingPresetSaveButtonClicked();
 	void slotEncodingPresetDeleteButton();
 	void slotEncodingExecutableBrowseButtonClicked();
+	void slotEncodingFramesFromVideoButtonClicked();
 	void slotEncodingArgumentsHelpButtonClicked();
 	void slotProcessExecutableBrowseButtonClicked();
 
@@ -45,6 +47,7 @@ private:
 	Ui::JobEditDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;
+	VSScriptLibrary * m_pVSScriptLibrary;
 
 	std::vector<EncodingPreset> m_encodingPresets;
 };
