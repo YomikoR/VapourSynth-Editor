@@ -1,6 +1,5 @@
 - functions autocompletion refinement
 - python error parsing and script line highlighting
-- encoding jobs queue with conditions
 - multiple output nodes comparison
 - reference and documentation
 - raw avi writing
