@@ -1,4 +1,5 @@
 r16:
+-BUGFIX: Default hotkey forced when trying to save an empty hotkey.
 -Jobs queue with dependencies tracking.
 -Adjustable jobs table.
 -Pausable CLI encoding jobs.

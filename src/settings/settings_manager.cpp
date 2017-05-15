@@ -394,10 +394,13 @@ QKeySequence SettingsManager::getDefaultHotkey(const QString & a_actionID) const
 
 QKeySequence SettingsManager::getHotkey(const QString & a_actionID) const
 {
+	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
+	settings.beginGroup(HOTKEYS_GROUP);
+	if(!settings.contains(a_actionID))
+		return getDefaultHotkey(a_actionID);
+
 	QKeySequence hotkey =
-		valueInGroup(HOTKEYS_GROUP, a_actionID).value<QKeySequence>();
-	if(hotkey.isEmpty())
-		hotkey = getDefaultHotkey(a_actionID);
+		settings.value(a_actionID).value<QKeySequence>();
 	return hotkey;
 }
 
