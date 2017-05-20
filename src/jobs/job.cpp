@@ -860,20 +860,10 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 	m_framesInQueue = a_inQueue;
 	m_framesInProcess = a_inProcess;
 	m_maxThreads = a_maxThreads;
-	emit signalCoreInfoChanged();
 }
 
 // END OF void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 //		size_t a_inProcess, size_t a_maxThreads)
-//==============================================================================
-
-void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
-{
-	m_coreFramebufferBytes = a_bytes;
-	emit signalCoreInfoChanged();
-}
-
-// END OF void vsedit::Job::slotCoreFramebufferUsedBytes(int64_t a_bytes)
 //==============================================================================
 
 void vsedit::Job::slotScriptProcessorFinalized()
@@ -1151,9 +1141,6 @@ void vsedit::Job::startEncodeScriptCLI()
 		connect(m_pVapourSynthScriptProcessor,
 			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
-			this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 	}
 
 	bool scriptProcessorInitialized = m_pVapourSynthScriptProcessor->initialize(

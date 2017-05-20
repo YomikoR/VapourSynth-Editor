@@ -26,8 +26,6 @@ public slots:
 	virtual void setQueueState(size_t a_inQueue, size_t a_inProcess,
 		size_t a_maxThreads);
 
-	virtual void setCoreFramebufferUsedBytes(int64_t a_bytes);
-
 	virtual void setVideoInfo(const VSVideoInfo * a_cpVideoInfo);
 
 protected:

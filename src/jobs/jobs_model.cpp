@@ -15,8 +15,7 @@ const int JobsModel::DEPENDS_ON_COLUMN = 4;
 const int JobsModel::TIME_START_COLUMN = 5;
 const int JobsModel::TIME_END_COLUMN = 6;
 const int JobsModel::FPS_COLUMN = 7;
-const int JobsModel::CORE_COLUMN = 8;
-const int JobsModel::COLUMNS_NUMBER = 9;
+const int JobsModel::COLUMNS_NUMBER = 8;
 
 //==============================================================================
 
@@ -115,8 +114,6 @@ QVariant JobsModel::headerData(int a_section, Qt::Orientation a_orientation,
 		return trUtf8("Ended");
 	case FPS_COLUMN:
 		return trUtf8("FPS");
-	case CORE_COLUMN:
-		return trUtf8("Core");
 	default:
 		return QVariant();
 	}
@@ -194,17 +191,6 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 				fps += vsedit::timeToString(pJob->secondsToFinish());
 			}
 			return fps;
-		}
-		else if((column == CORE_COLUMN) &&
-			(pJob->type() == JobType::EncodeScriptCLI) &&
-			(vsedit::contains(ACTIVE_JOB_STATES, pJob->state())))
-		{
-			QString bytes = QLocale::system()
-				.toString((qlonglong)pJob->coreFramebufferBytes());
-			QString coreInfo = trUtf8("Queue: %1:%2(%3)\nFB: %4B")
-				.arg(pJob->framesInProcess()).arg(pJob->framesInQueue())
-				.arg(pJob->maxThreads()).arg(bytes);
-			return coreInfo;
 		}
 	}
 	else if(a_role == Qt::TextAlignmentRole)
@@ -424,10 +410,16 @@ bool JobsModel::setJobType(int a_index, JobType a_type)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setType(a_type);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setType(a_type);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index);
+
 	return result;
 }
 
@@ -439,10 +431,16 @@ bool JobsModel::setJobDependsOnIds(int a_index,
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setDependsOnJobIds(a_ids);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setDependsOnJobIds(a_ids);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index, DEPENDS_ON_COLUMN);
+
 	return result;
 }
 
@@ -454,10 +452,16 @@ bool JobsModel::setJobScriptName(int a_index, const QString & a_scriptName)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setScriptName(a_scriptName);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setScriptName(a_scriptName);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index, SUBJECT_COLUMN);
+
 	return result;
 }
 
@@ -470,10 +474,16 @@ bool JobsModel::setJobEncodingHeaderType(int a_index,
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setEncodingHeaderType(a_headerType);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setEncodingHeaderType(a_headerType);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index, SUBJECT_COLUMN);
+
 	return result;
 }
 
@@ -485,10 +495,16 @@ bool JobsModel::setJobExecutablePath(int a_index, const QString & a_path)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setExecutablePath(a_path);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setExecutablePath(a_path);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index, SUBJECT_COLUMN);
+
 	return result;
 }
 
@@ -500,10 +516,16 @@ bool JobsModel::setJobArguments(int a_index, const QString & a_arguments)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setArguments(a_arguments);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setArguments(a_arguments);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index, SUBJECT_COLUMN);
+
 	return result;
 }
 
@@ -515,10 +537,16 @@ bool JobsModel::setJobShellCommand(int a_index, const QString & a_command)
 {
 	if(!checkCanModifyJobAndNotify(a_index))
 		return false;
-	bool result = m_tickets[a_index].pJob->setShellCommand(a_command);
-	if(result)
-		result = m_tickets[a_index].pJob->setState(JobState::Waiting);
-	notifyJobUpdated(a_index);
+	vsedit::Job * pJob = m_tickets[a_index].pJob;
+	bool result = pJob->setShellCommand(a_command);
+	if(!result)
+		return false;
+
+	if(pJob->state() != JobState::Waiting)
+		result = pJob->setState(JobState::Waiting);
+	else
+		notifyJobUpdated(a_index, SUBJECT_COLUMN);
+
 	return result;
 }
 
@@ -796,19 +824,6 @@ void JobsModel::slotJobProgressChanged()
 }
 
 // END OF void JobsModel::slotJobProgressChanged()
-//==============================================================================
-
-void JobsModel::slotJobCoreInfoChanged()
-{
-	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
-	if(!pJob)
-		return;
-
-	int jobIndex = indexOfJob(pJob->id());
-	notifyJobUpdated(jobIndex, CORE_COLUMN);
-}
-
-// END OF void JobsModel::slotJobCoreInfoChanged()
 //==============================================================================
 
 int JobsModel::indexOfJob(const QUuid & a_uuid) const

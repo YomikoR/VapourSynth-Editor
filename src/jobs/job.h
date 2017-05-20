@@ -104,8 +104,6 @@ signals:
 
 	void signalProgressChanged();
 
-	void signalCoreInfoChanged();
-
 	void signalLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
 
@@ -123,7 +121,6 @@ protected slots:
 		const QString & a_message);
 	virtual void slotFrameQueueStateChanged(size_t a_inQueue,
 		size_t a_inProcess, size_t a_maxThreads);
-	virtual void slotCoreFramebufferUsedBytes(int64_t a_bytes);
 	virtual void slotScriptProcessorFinalized();
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		const VSFrameRef * a_cpOutputFrameRef,

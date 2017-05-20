@@ -51,25 +51,6 @@ JobsDialog::JobsDialog(SettingsManager * a_pSettingsManager,
 
 	QHeaderView * pHorizontalHeader = m_ui.jobsTableView->horizontalHeader();
 	pHorizontalHeader->setSectionsMovable(true);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::NAME_COLUMN,
-		QHeaderView::ResizeToContents);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::TYPE_COLUMN,
-		QHeaderView::ResizeToContents);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::SUBJECT_COLUMN,
-		QHeaderView::Interactive);
-	pHorizontalHeader->resizeSection(JobsModel::SUBJECT_COLUMN, 500);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::STATE_COLUMN,
-		QHeaderView::Stretch);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::DEPENDS_ON_COLUMN,
-		QHeaderView::ResizeToContents);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::TIME_START_COLUMN,
-		QHeaderView::ResizeToContents);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::TIME_END_COLUMN,
-		QHeaderView::ResizeToContents);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::FPS_COLUMN,
-		QHeaderView::ResizeToContents);
-	pHorizontalHeader->setSectionResizeMode(JobsModel::CORE_COLUMN,
-		QHeaderView::ResizeToContents);
 
 	QHeaderView * pVerticalHeader = m_ui.jobsTableView->verticalHeader();
 	pVerticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);

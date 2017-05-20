@@ -17,12 +17,10 @@ ScriptStatusBarWidget::ScriptStatusBarWidget(QWidget * a_pParent) :
 	m_ui.colorPickerIconLabel->setPixmap(QPixmap(":color_picker.png"));
 	m_ui.colorPickerLabel->clear();
 	m_ui.scriptProcessorQueueLabel->clear();
-	m_ui.coreFramebufferLabel->clear();
 	m_ui.videoInfoLabel->clear();
 
 	m_ui.scriptProcessorQueueIconLabel->setPixmap(m_readyPixmap);
 	setQueueState(0, 0, 0);
-	setCoreFramebufferUsedBytes(0);
 }
 
 // END OF ScriptStatusBarWidget::ScriptStatusBarWidget(QWidget * a_pParent)
@@ -75,18 +73,6 @@ void ScriptStatusBarWidget::setQueueState(size_t a_inQueue, size_t a_inProcess,
 
 // END OF void ScriptStatusBarWidget::setQueueState(size_t a_inQueue,
 //		size_t a_inProcess, size_t a_maxThreads)
-//==============================================================================
-
-void ScriptStatusBarWidget::setCoreFramebufferUsedBytes(int64_t a_bytes)
-{
-	QString number = QLocale::system().toString((qlonglong)a_bytes);
-
-	m_ui.coreFramebufferLabel->setText(
-		trUtf8("Core framebuffer: %1 B").arg(number));
-}
-
-// END OF void ScriptStatusBarWidget::setCoreFramebufferUsedBytes(
-//		int64_t a_bytes)
 //==============================================================================
 
 void ScriptStatusBarWidget::setVideoInfo(const VSVideoInfo * a_cpVideoInfo)

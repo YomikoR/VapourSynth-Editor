@@ -57,9 +57,6 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
-	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
-		this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 	connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
 		this, SLOT(slotScriptProcessorFinalized()));
 	connect(m_pVapourSynthScriptProcessor,
@@ -180,15 +177,6 @@ void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 
 // END OF void VSScriptProcessorDialog::slotFrameQueueStateChanged(
 //		size_t a_inQueue, size_t a_inProcess, size_t a_maxThreads)
-//==============================================================================
-
-void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(int64_t a_bytes)
-{
-	m_pStatusBarWidget->setCoreFramebufferUsedBytes(a_bytes);
-}
-
-// END OF void VSScriptProcessorDialog::slotCoreFramebufferUsedBytes(
-//		int64_t a_bytes)
 //==============================================================================
 
 void VSScriptProcessorDialog::slotScriptProcessorFinalized()

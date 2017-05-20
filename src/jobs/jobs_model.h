@@ -26,7 +26,6 @@ public:
 	static const int TIME_START_COLUMN;
 	static const int TIME_END_COLUMN;
 	static const int FPS_COLUMN;
-	static const int CORE_COLUMN;
 	static const int COLUMNS_NUMBER;
 
 	JobsModel(SettingsManager * a_pSettingsManager,
@@ -106,7 +105,6 @@ private slots:
 
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
 	void slotJobProgressChanged();
-	void slotJobCoreInfoChanged();
 
 private:
 
