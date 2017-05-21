@@ -512,6 +512,35 @@ void ScriptEditor::slotMoveTextBlockUp()
 
 void ScriptEditor::slotMoveTextBlockDown()
 {
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock firstBlock = pDocument->findBlock(cursor.selectionStart());
+	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
+	int lastBlockNumber = lastBlock.blockNumber();
+
+	if((lastBlockNumber + 1) == pDocument->blockCount())
+		return;
+
+	cursor.beginEditBlock();
+
+	QTextBlock block = lastBlock.next();
+	QString blockText = block.text();
+	if((block.blockNumber() + 1) == pDocument->blockCount())
+	{
+		cursor.setPosition(lastBlock.position() + lastBlock.length() - 1);
+		cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+	}
+	else
+	{
+		cursor.setPosition(block.position());
+		cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+	}
+	cursor.removeSelectedText();
+
+	cursor.setPosition(firstBlock.position());
+	cursor.insertText(blockText + QString("\n"));
+
+	cursor.endEditBlock();
 }
 
 // END OF void ScriptEditor::slotMoveTextBlockDown()
