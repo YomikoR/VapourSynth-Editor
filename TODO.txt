@@ -1,3 +1,4 @@
+- jobs server
 - functions autocompletion refinement
 - python error parsing and script line highlighting
 - multiple output nodes comparison

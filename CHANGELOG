@@ -7,6 +7,9 @@ r16:
 -Pausable process run jobs.
 -Shell command execute jobs.
 -Removed framebuffer monitoring.
+-Move text block up action.
+-Move text block down action.
+-Toggle comment action.
 
 r15:
 -BUGFIX: crash on colour picking while refreshing preview.
