@@ -520,7 +520,7 @@ void ScriptEditor::slotToggleComment()
 		cursor.setPosition(position);
 		cursor.setPosition(std::min(position + tokenLength,
 			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
-		if((cursor.selectedText() == token) && allCommented)
+		if(allCommented)
 			cursor.removeSelectedText();
 		else if(cursor.selectedText() != token)
 		{
