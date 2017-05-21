@@ -505,6 +505,18 @@ void ScriptEditor::slotMoveTextBlockUp()
 	}
 
 	cursor.endEditBlock();
+
+	// Workaround for weird behavior when selection is snapped to the end
+	// of the document
+	cursor = textCursor();
+	if(cursor.selectionEnd() < pDocument->lastBlock().position())
+		return;
+	lastBlockNumber--;
+	lastBlock = pDocument->findBlockByNumber(lastBlockNumber);
+	cursor.setPosition(cursor.selectionStart());
+	cursor.setPosition(lastBlock.position() + lastBlock.length() - 1,
+		QTextCursor::KeepAnchor);
+	setTextCursor(cursor);
 }
 
 // END OF void ScriptEditor::slotMoveTextBlockUp()
