@@ -11,6 +11,7 @@ r16:
 -Move text block down action.
 -Toggle comment action.
 -Fixed VS API version requested for internal plugins polling.
+-Larger settings dialog to remove the warning.
 
 r15:
 -BUGFIX: crash on colour picking while refreshing preview.
