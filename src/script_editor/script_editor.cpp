@@ -474,6 +474,37 @@ void ScriptEditor::slotInsertTextAtNewLine(const QString & a_text)
 
 void ScriptEditor::slotMoveTextBlockUp()
 {
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock firstBlock = pDocument->findBlock(cursor.selectionStart());
+	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
+	int firstBlockNumber = firstBlock.blockNumber();
+	int lastBlockNumber = lastBlock.blockNumber();
+
+	if(firstBlockNumber == 0)
+		return;
+
+	cursor.beginEditBlock();
+
+	QTextBlock block = pDocument->findBlockByNumber(firstBlockNumber - 1);
+	QString blockText = block.text();
+	cursor.setPosition(block.position());
+	cursor.setPosition(firstBlock.position(), QTextCursor::KeepAnchor);
+	cursor.removeSelectedText();
+
+	block = pDocument->findBlockByNumber(lastBlockNumber);
+	if(block.blockNumber() == lastBlockNumber)
+	{
+		cursor.setPosition(block.position());
+		cursor.insertText(blockText + QString("\n"));
+	}
+	else
+	{
+		cursor.movePosition(QTextCursor::End);
+		cursor.insertText(QString("\n") + blockText);
+	}
+
+	cursor.endEditBlock();
 }
 
 // END OF void ScriptEditor::slotMoveTextBlockUp()
@@ -528,6 +559,7 @@ void ScriptEditor::slotToggleComment()
 			cursor.insertText(token);
 		}
 	}
+
 	cursor.endEditBlock();
 }
 
