@@ -6,6 +6,7 @@ r16:
 -Pausable CLI encoding jobs.
 -Pausable process run jobs.
 -Shell command execute jobs.
+-Removed framebuffer monitoring.
 
 r15:
 -BUGFIX: crash on colour picking while refreshing preview.
