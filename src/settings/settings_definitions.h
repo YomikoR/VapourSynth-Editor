@@ -264,6 +264,9 @@ extern const char ACTION_ID_TIMELINE_UNBOOKMARK_CURRENT_FRAME[];
 extern const char ACTION_ID_TIMELINE_GO_TO_PREVIOUS_BOOKMARK[];
 extern const char ACTION_ID_TIMELINE_GO_TO_NEXT_BOOKMARK[];
 extern const char ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT[];
+extern const char ACTION_ID_MOVE_TEXT_BLOCK_UP[];
+extern const char ACTION_ID_MOVE_TEXT_BLOCK_DOWN[];
+extern const char ACTION_ID_TOGGLE_COMMENT[];
 
 //==============================================================================
 

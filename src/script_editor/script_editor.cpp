@@ -57,6 +57,9 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_pActionUncommentSelection(nullptr)
 	, m_pActionReplaceTabWithSpaces(nullptr)
 	, m_pActionAutocomplete(nullptr)
+	, m_pActionMoveTextBlockUp(nullptr)
+	, m_pActionMoveTextBlockDown(nullptr)
+	, m_pActionToggleComment(nullptr)
 	, m_pContextMenu(nullptr)
 {
 	m_pSideBox = new QWidget(this);
@@ -187,7 +190,9 @@ void ScriptEditor::setSettingsManager(SettingsManager * a_pSettingsManager)
 std::vector<QAction *> ScriptEditor::actionsForMenu() const
 {
 	return {m_pActionDuplicateSelection, m_pActionCommentSelection,
-		m_pActionUncommentSelection, m_pActionReplaceTabWithSpaces};
+		m_pActionUncommentSelection, m_pActionReplaceTabWithSpaces,
+		m_pActionMoveTextBlockUp, m_pActionMoveTextBlockDown,
+		m_pActionToggleComment};
 }
 
 // END OF std::vector<QAction *> ScriptEditor::actionsForMenu() const
@@ -465,6 +470,68 @@ void ScriptEditor::slotInsertTextAtNewLine(const QString & a_text)
 }
 
 // END OF void ScriptEditor::slotInsertTextAtNewLine(const QString & a_text)
+//==============================================================================
+
+void ScriptEditor::slotMoveTextBlockUp()
+{
+}
+
+// END OF void ScriptEditor::slotMoveTextBlockUp()
+//==============================================================================
+
+void ScriptEditor::slotMoveTextBlockDown()
+{
+}
+
+// END OF void ScriptEditor::slotMoveTextBlockDown()
+//==============================================================================
+
+void ScriptEditor::slotToggleComment()
+{
+	QTextCursor cursor = textCursor();
+	QTextDocument * pDocument = document();
+	QTextBlock firstBlock = pDocument->findBlock(cursor.selectionStart());
+	QTextBlock lastBlock = pDocument->findBlock(cursor.selectionEnd());
+	int firstBlockNumber = firstBlock.blockNumber();
+	int lastBlockNumber = lastBlock.blockNumber();
+	QString token(COMMENT_TOKEN);
+	int tokenLength = token.length();
+	bool allCommented = true;
+	cursor.beginEditBlock();
+
+	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
+	{
+		QTextBlock block = pDocument->findBlockByNumber(i);
+		int position = block.position();
+		cursor.setPosition(position);
+		cursor.setPosition(std::min(position + tokenLength,
+			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
+		if(cursor.selectedText() != token)
+		{
+			allCommented = false;
+			break;
+		}
+	}
+
+	for(int i = firstBlockNumber; i <= lastBlockNumber; ++i)
+	{
+		QTextBlock block = pDocument->findBlockByNumber(i);
+		int position = block.position();
+		cursor.setPosition(position);
+		cursor.setPosition(std::min(position + tokenLength,
+			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
+		if((cursor.selectedText() == token) && allCommented)
+			cursor.removeSelectedText();
+		else if(cursor.selectedText() != token)
+		{
+			cursor.setPosition(position);
+			cursor.insertText(token);
+		}
+	}
+	cursor.endEditBlock();
+}
+
+// END OF void ScriptEditor::slotToggleComment()
 //==============================================================================
 
 bool ScriptEditor::eventFilter(QObject * a_pObject, QEvent * a_pEvent)
@@ -759,6 +826,12 @@ void ScriptEditor::createActionsAndMenus()
 			SLOT(slotReplaceTabWithSpaces())},
 		{&m_pActionAutocomplete, ACTION_ID_AUTOCOMPLETE,
 			SLOT(slotComplete())},
+		{&m_pActionMoveTextBlockUp, ACTION_ID_MOVE_TEXT_BLOCK_UP,
+			SLOT(slotMoveTextBlockUp())},
+		{&m_pActionMoveTextBlockDown, ACTION_ID_MOVE_TEXT_BLOCK_DOWN,
+			SLOT(slotMoveTextBlockDown())},
+		{&m_pActionToggleComment, ACTION_ID_TOGGLE_COMMENT,
+			SLOT(slotToggleComment())},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)

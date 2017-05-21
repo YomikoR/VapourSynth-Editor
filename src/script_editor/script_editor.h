@@ -77,6 +77,12 @@ public slots:
 
 	void slotInsertTextAtNewLine(const QString & a_text);
 
+	void slotMoveTextBlockUp();
+
+	void slotMoveTextBlockDown();
+
+	void slotToggleComment();
+
 signals:
 
 	void signalScriptFileDropped(const QString & a_filePath, bool * a_pHandled);
@@ -167,6 +173,9 @@ private:
 	QAction * m_pActionUncommentSelection;
 	QAction * m_pActionReplaceTabWithSpaces;
 	QAction * m_pActionAutocomplete;
+	QAction * m_pActionMoveTextBlockUp;
+	QAction * m_pActionMoveTextBlockDown;
+	QAction * m_pActionToggleComment;
 
 	std::vector<QAction *> m_settableActionsList;
 

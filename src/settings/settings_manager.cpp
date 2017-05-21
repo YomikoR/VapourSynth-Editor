@@ -351,6 +351,12 @@ void SettingsManager::initializeStandardActions()
 		{ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT,
 			trUtf8("Paste shown frame number into script"), QIcon(),
 			QKeySequence()},
+		{ACTION_ID_MOVE_TEXT_BLOCK_UP, trUtf8("Move text block up"), QIcon(),
+			QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Up)},
+		{ACTION_ID_MOVE_TEXT_BLOCK_DOWN, trUtf8("Move text block down"),
+			QIcon(), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Down)},
+		{ACTION_ID_TOGGLE_COMMENT, trUtf8("Toggle comment"),
+			QIcon(), QKeySequence(Qt::CTRL + Qt::Key_Slash)},
 	};
 }
 
