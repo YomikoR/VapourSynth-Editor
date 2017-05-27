@@ -2,5 +2,7 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="vapoursynth-editor">
 		<Project filename="vsedit/vapoursynth-editor.cbp" />
+		<Project filename="vsedit-job-server/vsedit-job-server.cbp" />
+		<Project filename="vsedit-job-server-watcher/vsedit-job-server-watcher.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
