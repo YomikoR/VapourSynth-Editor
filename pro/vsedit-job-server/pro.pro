@@ -85,6 +85,8 @@ macx {
 	INCLUDEPATH += /usr/local/include
 }
 
+E = $$escape_expand(\n\t)
+
 win32 {
 	INCLUDEPATH += 'C:/Program Files (x86)/VapourSynth/sdk/include/'
 
