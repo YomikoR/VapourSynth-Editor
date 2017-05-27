@@ -19,17 +19,20 @@ HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")
 ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
 
+PROJECT_DIRECTORY = ..
+COMMON_DIRECTORY = ..
+
 CONFIG(debug, debug|release) {
 
 	contains(QMAKE_COMPILER, gcc) {
 		if($$ARCHITECTURE_64_BIT) {
-			DESTDIR = ../build/debug-64bit-gcc
+			DESTDIR = $${COMMON_DIRECTORY}/build/debug-64bit-gcc
 			TARGET = vsedit-debug-64bit-gcc
-			OBJECTS_DIR = ../generated/obj-debug-64bit-gcc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-debug-64bit-gcc
 		} else {
-			DESTDIR = ../build/debug-32bit-gcc
+			DESTDIR = $${COMMON_DIRECTORY}/build/debug-32bit-gcc
 			TARGET = vsedit-debug-32bit-gcc
-			OBJECTS_DIR = ../generated/obj-debug-32bit-gcc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-debug-32bit-gcc
 		}
 
 		QMAKE_CXXFLAGS += -O0
@@ -39,13 +42,13 @@ CONFIG(debug, debug|release) {
 
 	contains(QMAKE_COMPILER, msvc) {
 		if($$ARCHITECTURE_64_BIT) {
-			DESTDIR = ../build/debug-64bit-msvc
+			DESTDIR = $${COMMON_DIRECTORY}/build/debug-64bit-msvc
 			TARGET = vsedit-debug-64bit-msvc
-			OBJECTS_DIR = ../generated/obj-debug-64bit-msvc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-debug-64bit-msvc
 		} else {
-			DESTDIR = ../build/debug-32bit-msvc
+			DESTDIR = $${COMMON_DIRECTORY}/build/debug-32bit-msvc
 			TARGET = vsedit-debug-32bit-msvc
-			OBJECTS_DIR = ../generated/obj-debug-32bit-msvc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-debug-32bit-msvc
 		}
 	}
 
@@ -53,13 +56,13 @@ CONFIG(debug, debug|release) {
 
 	contains(QMAKE_COMPILER, gcc) {
 		if($$ARCHITECTURE_64_BIT) {
-			DESTDIR = ../build/release-64bit-gcc
+			DESTDIR = $${COMMON_DIRECTORY}/build/release-64bit-gcc
 			TARGET = vsedit
-			OBJECTS_DIR = ../generated/obj-release-64bit-gcc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-release-64bit-gcc
 		} else {
-			DESTDIR = ../build/release-32bit-gcc
+			DESTDIR = $${COMMON_DIRECTORY}/build/release-32bit-gcc
 			TARGET = vsedit-32bit
-			OBJECTS_DIR = ../generated/obj-release-32bit-gcc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-release-32bit-gcc
 		}
 
 		QMAKE_CXXFLAGS += -O2
@@ -69,13 +72,13 @@ CONFIG(debug, debug|release) {
 
 	contains(QMAKE_COMPILER, msvc) {
 		if($$ARCHITECTURE_64_BIT) {
-			DESTDIR = ../build/release-64bit-msvc
+			DESTDIR = $${COMMON_DIRECTORY}/build/release-64bit-msvc
 			TARGET = vsedit
-			OBJECTS_DIR = ../generated/obj-release-64bit-msvc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-release-64bit-msvc
 		} else {
-			DESTDIR = ../build/release-32bit-msvc
+			DESTDIR = $${COMMON_DIRECTORY}/build/release-32bit-msvc
 			TARGET = vsedit-32bit
-			OBJECTS_DIR = ../generated/obj-release-32bit-msvc
+			OBJECTS_DIR = $${PROJECT_DIRECTORY}/generated/obj-release-32bit-msvc
 		}
 	}
 
@@ -84,20 +87,26 @@ CONFIG(debug, debug|release) {
 }
 
 S = $${DIR_SEPARATOR}
+
 D = $$DESTDIR
 D = $$replace(D, $$escape_expand(\\), $$S)
 D = $$replace(D, /, $$S)
+
+SC = $${COMMON_DIRECTORY}/
+SC = $$replace(SC, $$escape_expand(\\), $$S)
+SC = $$replace(SC, /, $$S)
+
 E = $$escape_expand(\n\t)
 
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.ico $${D}$${S}vsedit.ico $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}resources$${S}vsedit.svg $${D}$${S}vsedit.svg $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}README $${D}$${S}README $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}LICENSE $${D}$${S}LICENSE $${E}
-QMAKE_POST_LINK += $${QMAKE_COPY} ..$${S}CHANGELOG $${D}$${S}CHANGELOG $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}resources$${S}vsedit.ico $${D}$${S}vsedit.ico $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}resources$${S}vsedit.svg $${D}$${S}vsedit.svg $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}README $${D}$${S}README $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}LICENSE $${D}$${S}LICENSE $${E}
+QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}CHANGELOG $${D}$${S}CHANGELOG $${E}
 
 macx {
 	INCLUDEPATH += /usr/local/include
-	ICON = ../resources/vsedit.icns
+	ICON = $${COMMON_DIRECTORY}/resources/vsedit.icns
 }
 
 win32 {
@@ -145,7 +154,7 @@ TEMPLATE = app
 VER_MAJ = 16
 VERSION = $$VER_MAJ
 
-RC_ICONS = ../resources/vsedit.ico
+RC_ICONS = $${COMMON_DIRECTORY}/resources/vsedit.ico
 QMAKE_TARGET_PRODUCT = 'VapourSynth Editor'
 QMAKE_TARGET_COMPANY = 'Aleksey [Mystery Keeper] Lyashin'
 QMAKE_TARGET_COPYRIGHT = $$QMAKE_TARGET_COMPANY
@@ -153,117 +162,117 @@ QMAKE_TARGET_DESCRIPTION = 'VapourSynth script editor'
 
 #SUBDIRS
 
-MOC_DIR = ../generated/moc
-UI_DIR = ../generated/ui
-RCC_DIR = ../generated/rcc
+MOC_DIR = $${PROJECT_DIRECTORY}/generated/moc
+UI_DIR = $${PROJECT_DIRECTORY}/generated/ui
+RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 
 #DEFINES
 
 #TRANSLATIONS
 
-RESOURCES = ../resources/resources.qrc
+RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit.qrc
 
-FORMS += ../src/settings/settings_dialog.ui
-FORMS += ../src/log/styled_log_view_settings_dialog.ui
-FORMS += ../src/script_status_bar_widget/script_status_bar_widget.ui
-FORMS += ../src/preview/preview_advanced_settings_dialog.ui
-FORMS += ../src/preview/preview_dialog.ui
-FORMS += ../src/frame_consumers/benchmark_dialog.ui
-FORMS += ../src/script_templates/templates_dialog.ui
-FORMS += ../src/jobs/job_edit_dialog.ui
-FORMS += ../src/jobs/jobs_dialog.ui
-FORMS += ../src/main_window.ui
+FORMS += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/log/styled_log_view_settings_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/script_status_bar_widget/script_status_bar_widget.ui
+FORMS += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/script_templates/templates_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/jobs/jobs_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/main_window.ui
 
-HEADERS += ../src/common/helpers.h
-HEADERS += ../src/common/aligned_vector.h
-HEADERS += ../src/common/chrono.h
-HEADERS += ../src/settings/settings_definitions.h
-HEADERS += ../src/settings/settings_manager.h
-HEADERS += ../src/settings/actions_hotkey_edit_model.h
-HEADERS += ../src/settings/clearable_key_sequence_editor.h
-HEADERS += ../src/settings/item_delegate_for_hotkey.h
-HEADERS += ../src/settings/theme_elements_model.h
-HEADERS += ../src/settings/settings_dialog.h
-HEADERS += ../src/log/styled_log_view_structures.h
-HEADERS += ../src/log/log_styles_model.h
-HEADERS += ../src/log/styled_log_view_settings_dialog.h
-HEADERS += ../src/log/styled_log_view.h
-HEADERS += ../src/log/vs_editor_log.h
-HEADERS += ../src/script_status_bar_widget/script_status_bar_widget.h
-HEADERS += ../src/preview/scroll_navigator.h
-HEADERS += ../src/preview/preview_area.h
-HEADERS += ../src/preview/timeline_slider.h
-HEADERS += ../src/preview/preview_advanced_settings_dialog.h
-HEADERS += ../src/preview/preview_dialog.h
-HEADERS += ../src/script_editor/number_matcher.h
-HEADERS += ../src/script_editor/syntax_highlighter.h
-HEADERS += ../src/script_editor/script_completer_model.h
-HEADERS += ../src/script_editor/script_completer.h
-HEADERS += ../src/script_editor/script_editor.h
-HEADERS += ../src/vapoursynth/vs_plugin_data.h
-HEADERS += ../src/vapoursynth/vapoursynth_plugins_manager.h
-HEADERS += ../src/vapoursynth/vs_script_library.h
-HEADERS += ../src/vapoursynth/vs_script_processor_structures.h
-HEADERS += ../src/vapoursynth/vapoursynth_script_processor.h
-HEADERS += ../src/vapoursynth/vs_script_processor_dialog.h
-HEADERS += ../src/frame_consumers/benchmark_dialog.h
-HEADERS += ../src/frame_header_writers/frame_header_writer.h
-HEADERS += ../src/frame_header_writers/frame_header_writer_null.h
-HEADERS += ../src/frame_header_writers/frame_header_writer_y4m.h
-HEADERS += ../src/script_templates/drop_file_category_model.h
-HEADERS += ../src/script_templates/templates_dialog.h
-HEADERS += ../src/jobs/job.h
-HEADERS += ../src/jobs/job_definitions.h
-HEADERS += ../src/jobs/jobs_model.h
-HEADERS += ../src/jobs/job_state_delegate.h
-HEADERS += ../src/jobs/job_dependencies_delegate.h
-HEADERS += ../src/jobs/job_edit_dialog.h
-HEADERS += ../src/jobs/jobs_dialog.h
-HEADERS += ../src/main_window.h
+HEADERS += $${PROJECT_DIRECTORY}/src/common/helpers.h
+HEADERS += $${PROJECT_DIRECTORY}/src/common/aligned_vector.h
+HEADERS += $${PROJECT_DIRECTORY}/src/common/chrono.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/settings_definitions.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/settings_manager.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/clearable_key_sequence_editor.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/item_delegate_for_hotkey.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/theme_elements_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/log/styled_log_view_structures.h
+HEADERS += $${PROJECT_DIRECTORY}/src/log/log_styles_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/log/styled_log_view_settings_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/log/styled_log_view.h
+HEADERS += $${PROJECT_DIRECTORY}/src/log/vs_editor_log.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_status_bar_widget/script_status_bar_widget.h
+HEADERS += $${PROJECT_DIRECTORY}/src/preview/scroll_navigator.h
+HEADERS += $${PROJECT_DIRECTORY}/src/preview/preview_area.h
+HEADERS += $${PROJECT_DIRECTORY}/src/preview/timeline_slider.h
+HEADERS += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/number_matcher.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/syntax_highlighter.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_completer_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_completer.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_editor.h
+HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_plugin_data.h
+HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_plugins_manager.h
+HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_library.h
+HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_structures.h
+HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_script_processor.h
+HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_null.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_templates/drop_file_category_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_templates/templates_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_definitions.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/main_window.h
 
-SOURCES += ../src/common/helpers.cpp
-SOURCES += ../src/settings/settings_definitions.cpp
-SOURCES += ../src/settings/settings_manager.cpp
-SOURCES += ../src/settings/actions_hotkey_edit_model.cpp
-SOURCES += ../src/settings/clearable_key_sequence_editor.cpp
-SOURCES += ../src/settings/item_delegate_for_hotkey.cpp
-SOURCES += ../src/settings/theme_elements_model.cpp
-SOURCES += ../src/settings/settings_dialog.cpp
-SOURCES += ../src/log/styled_log_view_structures.cpp
-SOURCES += ../src/log/log_styles_model.cpp
-SOURCES += ../src/log/styled_log_view_settings_dialog.cpp
-SOURCES += ../src/log/styled_log_view.cpp
-SOURCES += ../src/log/vs_editor_log.cpp
-SOURCES += ../src/script_status_bar_widget/script_status_bar_widget.cpp
-SOURCES += ../src/preview/scroll_navigator.cpp
-SOURCES += ../src/preview/preview_area.cpp
-SOURCES += ../src/preview/timeline_slider.cpp
-SOURCES += ../src/preview/preview_advanced_settings_dialog.cpp
-SOURCES += ../src/preview/preview_dialog.cpp
-SOURCES += ../src/script_editor/number_matcher.cpp
-SOURCES += ../src/script_editor/syntax_highlighter.cpp
-SOURCES += ../src/script_editor/script_completer_model.cpp
-SOURCES += ../src/script_editor/script_completer.cpp
-SOURCES += ../src/script_editor/script_editor.cpp
-SOURCES += ../src/vapoursynth/vs_plugin_data.cpp
-SOURCES += ../src/vapoursynth/vapoursynth_plugins_manager.cpp
-SOURCES += ../src/vapoursynth/vs_script_library.cpp
-SOURCES += ../src/vapoursynth/vs_script_processor_structures.cpp
-SOURCES += ../src/vapoursynth/vapoursynth_script_processor.cpp
-SOURCES += ../src/vapoursynth/vs_script_processor_dialog.cpp
-SOURCES += ../src/frame_consumers/benchmark_dialog.cpp
-SOURCES += ../src/frame_header_writers/frame_header_writer.cpp
-SOURCES += ../src/frame_header_writers/frame_header_writer_null.cpp
-SOURCES += ../src/frame_header_writers/frame_header_writer_y4m.cpp
-SOURCES += ../src/script_templates/drop_file_category_model.cpp
-SOURCES += ../src/script_templates/templates_dialog.cpp
-SOURCES += ../src/jobs/job.cpp
-SOURCES += ../src/jobs/jobs_model.cpp
-SOURCES += ../src/jobs/job_state_delegate.cpp
-SOURCES += ../src/jobs/job_dependencies_delegate.cpp
-SOURCES += ../src/jobs/job_edit_dialog.cpp
-SOURCES += ../src/jobs/jobs_dialog.cpp
-SOURCES += ../src/main_window.cpp
-SOURCES += ../src/main.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/common/helpers.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/settings_definitions.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/settings_manager.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/clearable_key_sequence_editor.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/item_delegate_for_hotkey.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/theme_elements_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/log/styled_log_view_structures.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/log/log_styles_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/log/styled_log_view_settings_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/log/styled_log_view.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/log/vs_editor_log.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_status_bar_widget/script_status_bar_widget.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/preview/scroll_navigator.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_area.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/preview/timeline_slider.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/number_matcher.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/syntax_highlighter.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/script_completer_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/script_completer.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/script_editor.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_plugin_data.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_plugins_manager.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_library.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_structures.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_script_processor.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_null.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_templates/drop_file_category_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/script_templates/templates_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/main_window.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 
-include(local_quirks.pri)
+include($${COMMON_DIRECTORY}/pro/local_quirks.pri)
