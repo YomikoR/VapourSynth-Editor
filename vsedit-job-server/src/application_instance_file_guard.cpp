@@ -36,7 +36,7 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 			return false;
 	}
 
-	QString filePath = m_tempDir + a_fileName;
+	QString filePath = m_tempDir + "/" + a_fileName;
 
 	if(QFile::exists(filePath))
 	{
