@@ -4,7 +4,7 @@
 	<Project>
 		<Option title="vapoursynth-editor" />
 		<Option makefile_is_custom="1" />
-		<Option execution_dir="./pro/" />
+		<Option execution_dir="../pro/vsedit" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<MakeCommands>
@@ -17,7 +17,7 @@
 		</MakeCommands>
 		<Build>
 			<Target title="debug-64bit-gcc">
-				<Option output="build/debug-64bit-gcc/vsedit-debug-64bit-gcc" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/debug-64bit-gcc/vsedit-debug-64bit-gcc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -41,7 +41,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="release-64bit-gcc">
-				<Option output="build/release-64bit-gcc/vsedit" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/release-64bit-gcc/vsedit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -68,7 +68,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="debug-32bit-gcc">
-				<Option output="build/debug-32bit-gcc/vsedit-debug-32bit-gcc" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/debug-32bit-gcc/vsedit-debug-32bit-gcc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="mingw_32bit" />
@@ -92,7 +92,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="release-32bit-gcc">
-				<Option output="build/release-32bit-gcc/vsedit-32bit" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/release-32bit-gcc/vsedit-32bit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="mingw_32bit" />
@@ -119,7 +119,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="debug-64bit-msvc">
-				<Option output="build/debug-64bit-msvc/vsedit-debug-64bit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/debug-64bit-msvc/vsedit-debug-64bit-msvc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="ms_visual_c_14_-_2015_community_64bit" />
@@ -143,7 +143,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="release-64bit-msvc">
-				<Option output="build/release-64bit-msvc/vsedit" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/release-64bit-msvc/vsedit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="ms_visual_c_14_-_2015_community_64bit" />
@@ -170,7 +170,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="debug-32bit-msvc">
-				<Option output="build/debug-32bit-msvc/vsedit-debug-32bit-msvc" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/debug-32bit-msvc/vsedit-debug-32bit-msvc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="ms_visual_c_14_-_2015_community_32bit" />
@@ -194,7 +194,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="release-32bit-msvc">
-				<Option output="build/release-32bit-msvc/vsedit-32bit" prefix_auto="1" extension_auto="1" />
+				<Option output="../build/release-32bit-msvc/vsedit-32bit" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="ms_visual_c_14_-_2015_community_32bit" />
@@ -224,11 +224,14 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="BUILDING" />
-		<Unit filename="CHANGELOG" />
-		<Unit filename="LICENSE" />
-		<Unit filename="README" />
-		<Unit filename="TODO.txt" />
+		<Unit filename="../BUILDING" />
+		<Unit filename="../CHANGELOG" />
+		<Unit filename="../LICENSE" />
+		<Unit filename="../README" />
+		<Unit filename="../TODO.txt" />
+		<Unit filename="../pro/local_quirks.pri" />
+		<Unit filename="../pro/vsedit/pro.pro" />
+		<Unit filename="../resources/vsedit.qrc" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
 		<Unit filename="generated/ui/ui_job_edit_dialog.h" />
 		<Unit filename="generated/ui/ui_jobs_dialog.h" />
@@ -239,9 +242,6 @@
 		<Unit filename="generated/ui/ui_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_styled_log_view_settings_dialog.h" />
 		<Unit filename="generated/ui/ui_templates_dialog.h" />
-		<Unit filename="pro/local_quirks.pri" />
-		<Unit filename="pro/pro.pro" />
-		<Unit filename="resources/resources.qrc" />
 		<Unit filename="src/common/aligned_vector.h" />
 		<Unit filename="src/common/chrono.h" />
 		<Unit filename="src/common/helpers.cpp" />
@@ -357,16 +357,16 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="debug-64bit-gcc">
+				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-64bit-gcc">
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-32bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

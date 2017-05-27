@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="vapoursynth-editor">
-		<Project filename="vapoursynth-editor.cbp" />
+		<Project filename="vsedit/vapoursynth-editor.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
