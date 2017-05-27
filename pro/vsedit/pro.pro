@@ -149,15 +149,12 @@ contains(QMAKE_COMPILER, gcc) {
 	CONFIG += c++11
 }
 
-TEMPLATE = app
+include($${COMMON_DIRECTORY}/pro/common.pri)
 
-VER_MAJ = 16
-VERSION = $$VER_MAJ
+TEMPLATE = app
 
 RC_ICONS = $${COMMON_DIRECTORY}/resources/vsedit.ico
 QMAKE_TARGET_PRODUCT = 'VapourSynth Editor'
-QMAKE_TARGET_COMPANY = 'Aleksey [Mystery Keeper] Lyashin'
-QMAKE_TARGET_COPYRIGHT = $$QMAKE_TARGET_COMPANY
 QMAKE_TARGET_DESCRIPTION = 'VapourSynth script editor'
 
 #SUBDIRS

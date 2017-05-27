@@ -229,6 +229,7 @@
 		<Unit filename="../LICENSE" />
 		<Unit filename="../README" />
 		<Unit filename="../TODO.txt" />
+		<Unit filename="../pro/common.pri" />
 		<Unit filename="../pro/local_quirks.pri" />
 		<Unit filename="../pro/vsedit/pro.pro" />
 		<Unit filename="../resources/vsedit.qrc" />
