@@ -1,6 +1,6 @@
 #include "timeline_slider.h"
 
-#include "../common/helpers.h"
+#include "../helpers.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>

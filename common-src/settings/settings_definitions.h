@@ -1,7 +1,7 @@
 #ifndef SETTINGS_DEFINITIONS_H_INCLUDED
 #define SETTINGS_DEFINITIONS_H_INCLUDED
 
-#include "../preview/timeline_slider.h"
+#include "../timeline_slider/timeline_slider.h"
 #include "../log/styled_log_view_structures.h"
 
 #include <QString>
@@ -9,6 +9,7 @@
 #include <QKeySequence>
 #include <QStringList>
 #include <QUuid>
+#include <QDateTime>
 #include <vector>
 
 //==============================================================================

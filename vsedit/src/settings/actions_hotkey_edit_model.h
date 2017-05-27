@@ -1,7 +1,7 @@
 #ifndef ACTIONSHOTKEYEDITMODEL_H
 #define ACTIONSHOTKEYEDITMODEL_H
 
-#include "settings_manager.h"
+#include "../../../common-src/settings/settings_manager.h"
 
 #include <QAbstractItemModel>
 

@@ -1,5 +1,6 @@
 #include "main_window.h"
-#include "log/vs_editor_log.h"
+
+#include "../../common-src/log/vs_editor_log.h"
 
 #include <QApplication>
 #include <cassert>

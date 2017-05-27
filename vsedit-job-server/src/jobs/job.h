@@ -1,11 +1,11 @@
 #ifndef JOB_H_INCLUDED
 #define JOB_H_INCLUDED
 
-#include "../settings/settings_definitions.h"
-#include "../common/chrono.h"
-#include "../common/helpers.h"
-#include "../log/vs_editor_log.h"
-#include "../vapoursynth/vs_script_processor_structures.h"
+#include "../../../common-src/settings/settings_definitions.h"
+#include "../../../common-src/chrono.h"
+#include "../../../common-src/helpers.h"
+#include "../../../common-src/log/vs_editor_log.h"
+#include "../../../common-src/vapoursynth/vs_script_processor_structures.h"
 
 #include <QObject>
 #include <QUuid>

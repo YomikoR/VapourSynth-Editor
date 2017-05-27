@@ -1,6 +1,6 @@
 #include "vapoursynth_script_processor.h"
 
-#include "../common/helpers.h"
+#include "../helpers.h"
 #include "vs_script_library.h"
 
 #include <cassert>

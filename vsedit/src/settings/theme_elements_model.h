@@ -1,11 +1,13 @@
 #ifndef THEME_ELEMENTS_MODEL_H_INCLUDED
 #define THEME_ELEMENTS_MODEL_H_INCLUDED
 
-#include "settings_manager.h"
+#include "../../../common-src/settings/settings_definitions.h"
 
 #include <QAbstractItemModel>
 #include <QIcon>
 #include <vector>
+
+class SettingsManager;
 
 enum class ThemeElementType
 {

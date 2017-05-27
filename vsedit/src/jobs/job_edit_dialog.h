@@ -3,7 +3,7 @@
 
 #include <ui_job_edit_dialog.h>
 
-#include "job.h"
+#include "../../../vsedit-job-server/src/jobs/job.h"
 
 class SettingsManager;
 class VSScriptLibrary;

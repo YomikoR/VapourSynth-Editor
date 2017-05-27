@@ -1,14 +1,14 @@
 #ifndef VAPOURSYNTHPLUGINSMANAGER_H
 #define VAPOURSYNTHPLUGINSMANAGER_H
 
-#include "../settings/settings_manager.h"
-
 #include "vs_plugin_data.h"
 
 #include <vapoursynth/VapourSynth.h>
 
 #include <QObject>
 #include <QStringList>
+
+class SettingsManager;
 
 class VapourSynthPluginsManager : public QObject
 {

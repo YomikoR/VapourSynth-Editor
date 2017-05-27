@@ -1,6 +1,7 @@
 #include "templates_dialog.h"
 
 #include "drop_file_category_model.h"
+#include "../../../common-src/settings/settings_manager.h"
 
 #include <QAction>
 #include <QMessageBox>

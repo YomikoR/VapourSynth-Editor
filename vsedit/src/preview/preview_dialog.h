@@ -4,8 +4,8 @@
 #include <ui_preview_dialog.h>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
-#include "../settings/settings_manager.h"
-#include "../common/chrono.h"
+#include "../../../common-src/settings/settings_definitions.h"
+#include "../../../common-src/chrono.h"
 
 #include <QPixmap>
 #include <QIcon>
@@ -21,6 +21,7 @@ class QMenu;
 class QActionGroup;
 class QAction;
 class QTimer;
+class SettingsManager;
 class SettingsDialog;
 class PreviewAdvancedSettingsDialog;
 

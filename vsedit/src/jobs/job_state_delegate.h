@@ -1,7 +1,7 @@
 #ifndef JOB_STATE_DELEGATE_H_INCLUDED
 #define JOB_STATE_DELEGATE_H_INCLUDED
 
-#include "../settings/settings_definitions.h"
+#include "../../../common-src/settings/settings_definitions.h"
 
 #include <QStyledItemDelegate>
 

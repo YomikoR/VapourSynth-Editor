@@ -1,6 +1,6 @@
 #include "jobs_model.h"
 
-#include "../settings/settings_manager.h"
+#include "../../../common-src/settings/settings_manager.h"
 
 #include <QGuiApplication>
 #include <cassert>

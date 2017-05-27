@@ -1,8 +1,7 @@
 #ifndef VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 #define VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 
-#include "vs_script_processor_structures.h"
-
+#include "../../../common-src/vapoursynth/vs_script_processor_structures.h"
 #include "../script_status_bar_widget/script_status_bar_widget.h"
 
 #include <QDialog>

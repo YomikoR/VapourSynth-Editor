@@ -1,6 +1,7 @@
 #include "vapoursynth_plugins_manager.h"
 
-#include "../common/helpers.h"
+#include "../../../common-src/helpers.h"
+#include "../../../common-src/settings/settings_manager.h"
 
 #include <QDir>
 #include <QLibrary>

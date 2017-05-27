@@ -1,6 +1,6 @@
 #include "jobs_dialog.h"
 
-#include "../settings/settings_manager.h"
+#include "../../../common-src/settings/settings_manager.h"
 #include "jobs_model.h"
 #include "job_state_delegate.h"
 #include "job_dependencies_delegate.h"

@@ -1,8 +1,8 @@
 #include "job_edit_dialog.h"
 
-#include "../settings/settings_manager.h"
-#include "../vapoursynth/vapoursynth_script_processor.h"
-#include "../common/helpers.h"
+#include "../../../common-src/settings/settings_manager.h"
+#include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/helpers.h"
 
 #include <QMessageBox>
 #include <QFileDialog>

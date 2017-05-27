@@ -1,6 +1,6 @@
 #include "settings_dialog.h"
 
-#include "settings_manager.h"
+#include "../../../common-src/settings/settings_manager.h"
 #include "item_delegate_for_hotkey.h"
 #include "theme_elements_model.h"
 

@@ -1,10 +1,11 @@
 #include "preview_dialog.h"
 
-#include "../common/helpers.h"
-#include "../vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/helpers.h"
+#include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/settings/settings_manager.h"
 #include "../settings/settings_dialog.h"
 #include "scroll_navigator.h"
-#include "timeline_slider.h"
+#include "../../../common-src/timeline_slider/timeline_slider.h"
 #include "preview_advanced_settings_dialog.h"
 
 #include <vapoursynth/VapourSynth.h>

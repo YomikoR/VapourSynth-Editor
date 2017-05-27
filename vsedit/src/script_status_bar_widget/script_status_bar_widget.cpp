@@ -1,6 +1,6 @@
 #include "script_status_bar_widget.h"
 
-#include "../common/helpers.h"
+#include "../../../common-src/helpers.h"
 
 #include <QLocale>
 #include <cassert>

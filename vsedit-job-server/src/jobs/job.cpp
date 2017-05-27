@@ -1,9 +1,9 @@
 #include "job.h"
 
-#include "../common/helpers.h"
-#include "../settings/settings_manager.h"
-#include "../vapoursynth/vs_script_library.h"
-#include "../vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/helpers.h"
+#include "../../../common-src/settings/settings_manager.h"
+#include "../../../common-src/vapoursynth/vs_script_library.h"
+#include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../frame_header_writers/frame_header_writer_null.h"
 #include "../frame_header_writers/frame_header_writer_y4m.h"
 

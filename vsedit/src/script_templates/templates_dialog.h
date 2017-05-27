@@ -3,11 +3,12 @@
 
 #include <ui_templates_dialog.h>
 
-#include "../settings/settings_manager.h"
+#include "../../../common-src/settings/settings_definitions.h"
 
 #include <QDialog>
 
 class DropFileCategoryModel;
+class SettingsManager;
 class QAction;
 
 class TemplatesDialog : public QDialog

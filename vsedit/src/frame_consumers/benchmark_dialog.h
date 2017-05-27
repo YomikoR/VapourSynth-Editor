@@ -4,7 +4,7 @@
 #include <ui_benchmark_dialog.h>
 
 #include "../vapoursynth/vs_script_processor_dialog.h"
-#include "../common/chrono.h"
+#include "../../../common-src/chrono.h"
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;

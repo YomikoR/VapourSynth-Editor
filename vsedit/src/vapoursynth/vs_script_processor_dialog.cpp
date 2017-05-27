@@ -1,9 +1,9 @@
 #include "vs_script_processor_dialog.h"
 
-#include "../common/helpers.h"
-#include "../settings/settings_manager.h"
-#include "vapoursynth_script_processor.h"
-#include "vs_script_library.h"
+#include "../../../common-src/helpers.h"
+#include "../../../common-src/settings/settings_manager.h"
+#include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/vapoursynth/vs_script_library.h"
 
 #include <vapoursynth/VapourSynth.h>
 

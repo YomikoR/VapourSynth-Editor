@@ -1,5 +1,7 @@
 #include "theme_elements_model.h"
 
+#include "../../../common-src/settings/settings_manager.h"
+
 //==============================================================================
 
 ThemeElementsModel::ThemeElementsModel(SettingsManager * a_pSettingsManager,
