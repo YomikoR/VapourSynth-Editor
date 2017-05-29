@@ -1,6 +1,6 @@
-#include "application_instance_file_guard.h"
 #include "web_socket_job_server.h"
 
+#include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
 
 #include <QCoreApplication>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	ApplicationInstanceFileGuard guard("vsedit_job_server_running");
 	if(!guard.isLocked())
 	{
-		qInfo("Couldn't start the server. "
+		qCritical("Couldn't start the server. "
 			"Another instance is probably already running.");
 		return 1;
 	}

@@ -1,6 +1,7 @@
 #include "main_window.h"
 
 #include "../../common-src/log/vs_editor_log.h"
+#include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 
 #include <QApplication>
 #include <cassert>
@@ -63,6 +64,14 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 int main(int argc, char *argv[])
 {
 	QApplication application(argc, argv);
+
+	ApplicationInstanceFileGuard guard("vsedit_job_server_watcher_running");
+	if(!guard.isLocked())
+	{
+		qInfo("Couldn't start the server watcher. "
+			"Another instance is probably already running.");
+		return 1;
+	}
 
 	// Make text in message box selectable
 	application.setStyleSheet(

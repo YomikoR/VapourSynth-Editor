@@ -208,12 +208,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../common-src/application_instance_file_guard/application_instance_file_guard.cpp" />
+		<Unit filename="../common-src/application_instance_file_guard/application_instance_file_guard.h" />
 		<Unit filename="../common-src/ipc_defines.h" />
 		<Unit filename="../pro/common.pri" />
 		<Unit filename="../pro/local_quirks.pri" />
 		<Unit filename="../pro/vsedit-job-server/pro.pro" />
-		<Unit filename="src/application_instance_file_guard.cpp" />
-		<Unit filename="src/application_instance_file_guard.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/web_socket_job_server.cpp" />
 		<Unit filename="src/web_socket_job_server.h" />

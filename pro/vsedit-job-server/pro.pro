@@ -143,11 +143,11 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 
 #RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit-job-server.qrc
 
+HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
 HEADERS += $${COMMON_DIRECTORY}/common_src/ipc_defines.h
-HEADERS += $${PROJECT_DIRECTORY}/src/application_instance_file_guard.h
 HEADERS += $${PROJECT_DIRECTORY}/src/web_socket_job_server.h
 
-SOURCES += $${PROJECT_DIRECTORY}/src/application_instance_file_guard.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/web_socket_job_server.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 
