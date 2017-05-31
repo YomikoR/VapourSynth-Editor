@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	bool listening = jobServer.listen(QHostAddress::Any, JOB_SERVER_PORT);
 	if(!listening)
 	{
-		qInfo("Couldn't start the server.");
+		qCritical("Couldn't start the server.");
 		return 1;
 	}
 

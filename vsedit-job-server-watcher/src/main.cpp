@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	ApplicationInstanceFileGuard guard("vsedit_job_server_watcher_running");
 	if(!guard.isLocked())
 	{
-		qInfo("Couldn't start the server watcher. "
+		qCritical("Couldn't start the server watcher. "
 			"Another instance is probably already running.");
 		return 1;
 	}
