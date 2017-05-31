@@ -57,12 +57,12 @@ MainWindow::MainWindow() : QMainWindow()
 
 	createActionsAndMenus();
 
-//	QByteArray newGeometry = m_pSettingsManager->getMainWindowGeometry();
-//	if(!newGeometry.isEmpty())
-//		restoreGeometry(newGeometry);
-//
-//	if(m_pSettingsManager->getMainWindowMaximized())
-//		showMaximized();
+	QByteArray newGeometry = m_pSettingsManager->getJobServerWatcherGeometry();
+	if(!newGeometry.isEmpty())
+		restoreGeometry(newGeometry);
+
+	if(m_pSettingsManager->getJobServerWatcherMaximized())
+		showMaximized();
 }
 
 // END OF MainWindow::MainWindow()
@@ -135,8 +135,8 @@ void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 {
 	QMainWindow::moveEvent(a_pEvent);
 	QApplication::processEvents();
-//	if(!isMaximized())
-//		m_pSettingsManager->setMainWindowGeometry(saveGeometry());
+	if(!isMaximized())
+		m_pSettingsManager->setJobServerWatcherGeometry(saveGeometry());
 }
 
 // END OF void MainWindow::moveEvent(QMoveEvent * a_pEvent)
@@ -146,8 +146,8 @@ void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
 {
 	QMainWindow::resizeEvent(a_pEvent);
 	QApplication::processEvents();
-//	if(!isMaximized())
-//		m_pSettingsManager->setMainWindowGeometry(saveGeometry());
+	if(!isMaximized())
+		m_pSettingsManager->setJobServerWatcherGeometry(saveGeometry());
 }
 
 // END OF void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
@@ -155,13 +155,13 @@ void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
 
 void MainWindow::changeEvent(QEvent * a_pEvent)
 {
-//	if(a_pEvent->type() == QEvent::WindowStateChange)
-//	{
-//		if(isMaximized())
-//			m_pSettingsManager->setMainWindowMaximized(true);
-//		else
-//			m_pSettingsManager->setMainWindowMaximized(false);
-//	}
+	if(a_pEvent->type() == QEvent::WindowStateChange)
+	{
+		if(isMaximized())
+			m_pSettingsManager->setJobServerWatcherMaximized(true);
+		else
+			m_pSettingsManager->setJobServerWatcherMaximized(false);
+	}
 	QMainWindow::changeEvent(a_pEvent);
 }
 

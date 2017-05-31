@@ -5,6 +5,7 @@
 const bool DEFAULT_MAIN_WINDOW_MAXIMIZED = false;
 const bool DEFAULT_PREVIEW_DIALOG_MAXIMIZED = false;
 const bool DEFAULT_JOBS_DIALOG_MAXIMIZED = false;
+const bool DEFAULT_JOB_SERVER_WATCHER_MAXIMIZED = false;
 const bool DEFAULT_AUTO_LOAD_LAST_SCRIPT = true;
 const bool DEFAULT_ZOOM_PANEL_VISIBLE = true;
 const ZoomMode DEFAULT_ZOOM_MODE = ZoomMode::NoZoom;

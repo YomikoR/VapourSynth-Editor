@@ -88,6 +88,14 @@ public:
 
 	bool setJobsDialogMaximized(bool a_previewDialogMaximized);
 
+	QByteArray getJobServerWatcherGeometry() const;
+
+	bool setJobServerWatcherGeometry(const QByteArray & a_geometry);
+
+	bool getJobServerWatcherMaximized() const;
+
+	bool setJobServerWatcherMaximized(bool a_maximized);
+
 	QByteArray getJobsHeaderState() const;
 
 	bool setJobsHeaderState(const QByteArray & a_headerState);
