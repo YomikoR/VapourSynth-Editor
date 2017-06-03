@@ -17,14 +17,13 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	VSWebSocketJobServer jobServer(JOB_SERVER_NAME,
-		QWebSocketServer::NonSecureMode);
+	JobServer jobServer;
 
-	application.connect(&jobServer, &VSWebSocketJobServer::finish,
+	application.connect(&jobServer, &JobServer::finish,
 		&application, &QCoreApplication::quit);
 
-	bool listening = jobServer.listen(QHostAddress::Any, JOB_SERVER_PORT);
-	if(!listening)
+	bool started = jobServer.start();
+	if(!started)
 	{
 		qCritical("Couldn't start the server.");
 		return 1;

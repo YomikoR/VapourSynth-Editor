@@ -1,17 +1,24 @@
 #ifndef WEB_SOCKET_JOB_SERVER_H_INCLUDED
 #define WEB_SOCKET_JOB_SERVER_H_INCLUDED
 
-#include <QWebSocketServer>
+#include <QObject>
+#include <list>
 
-class VSWebSocketJobServer : public QWebSocketServer
+class SettingsManagerCore;
+class JobsManager;
+class QWebSocketServer;
+class QWebSocket;
+
+class JobServer : public QObject
 {
 	Q_OBJECT
 
 public:
 
-	VSWebSocketJobServer(const QString & a_name, SslMode a_secureMode,
-		QObject * a_pParent = nullptr);
-	virtual ~VSWebSocketJobServer();
+	JobServer(QObject * a_pParent = nullptr);
+	virtual ~JobServer();
+
+	bool start();
 
 signals:
 
@@ -27,6 +34,13 @@ private slots:
 private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
+
+	SettingsManagerCore * m_pSettingsManager;
+	JobsManager * m_pJobsManager;
+	QWebSocketServer * m_pWebSocketServer;
+
+	std::list<QWebSocket *> m_clients;
+	std::list<QWebSocket *> m_subscribers;
 };
 
 #endif // WEB_SOCKET_JOB_SERVER_H_INCLUDED
