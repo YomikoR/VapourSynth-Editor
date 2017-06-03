@@ -160,7 +160,7 @@ HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_definitions.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.h
-HEADERS += $${PROJECT_DIRECTORY}/src/web_socket_job_server.h
+HEADERS += $${PROJECT_DIRECTORY}/src/job_server.h
 
 SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.cpp
@@ -176,7 +176,7 @@ SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_nu
 SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/web_socket_job_server.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/job_server.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 
 include($${COMMON_DIRECTORY}/pro/local_quirks.pri)

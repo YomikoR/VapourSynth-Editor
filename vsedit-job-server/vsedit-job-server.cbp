@@ -233,14 +233,14 @@
 		<Unit filename="src/frame_header_writers/frame_header_writer_null.h" />
 		<Unit filename="src/frame_header_writers/frame_header_writer_y4m.cpp" />
 		<Unit filename="src/frame_header_writers/frame_header_writer_y4m.h" />
+		<Unit filename="src/job_server.cpp" />
+		<Unit filename="src/job_server.h" />
 		<Unit filename="src/jobs/job.cpp" />
 		<Unit filename="src/jobs/job.h" />
 		<Unit filename="src/jobs/job_definitions.h" />
 		<Unit filename="src/jobs/jobs_manager.cpp" />
 		<Unit filename="src/jobs/jobs_manager.h" />
 		<Unit filename="src/main.cpp" />
-		<Unit filename="src/web_socket_job_server.cpp" />
-		<Unit filename="src/web_socket_job_server.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="C:\Program Files (x86)\VapourSynth\sdk\include" />

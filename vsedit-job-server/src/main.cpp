@@ -1,4 +1,4 @@
-#include "web_socket_job_server.h"
+#include "job_server.h"
 
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
