@@ -3,6 +3,7 @@
 
 #include <ui_main_window.h>
 
+#include "../../common-src/settings/settings_definitions_core.h"
 #include "../../common-src/settings/settings_definitions.h"
 
 #include <QWebSocket>

@@ -3,7 +3,7 @@
 
 #include <ui_jobs_dialog.h>
 
-#include "../../../common-src/settings/settings_definitions.h"
+#include "../../../common-src/settings/settings_definitions_core.h"
 
 class SettingsManager;
 class JobsModel;

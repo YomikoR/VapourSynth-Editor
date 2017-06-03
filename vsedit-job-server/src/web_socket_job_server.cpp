@@ -2,6 +2,8 @@
 
 #include "../../common-src/ipc_defines.h"
 
+#include <QWebSocket>
+
 //==============================================================================
 
 VSWebSocketJobServer::VSWebSocketJobServer(const QString & a_name,

@@ -35,7 +35,8 @@ void VS_CC frameReady(void * a_pUserData,
 //==============================================================================
 
 VapourSynthScriptProcessor::VapourSynthScriptProcessor(
-	SettingsManager * a_pSettingsManager, VSScriptLibrary * a_pVSScriptLibrary,
+	SettingsManagerCore * a_pSettingsManager,
+	VSScriptLibrary * a_pVSScriptLibrary,
 	QObject * a_pParent):
 	QObject(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
@@ -57,7 +58,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 }
 
 // END OF VapourSynthScriptProcessor::VapourSynthScriptProcessor(
-//		SettingsManager * a_pSettingsManager,
+//		SettingsManagerCore * a_pSettingsManager,
 //		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent)
 //==============================================================================
 

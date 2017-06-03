@@ -950,8 +950,6 @@ void JobsModel::connectJob(vsedit::Job * a_pJob)
 		this, SLOT(slotJobStateChanged(JobState, JobState)));
 	connect(a_pJob, SIGNAL(signalProgressChanged()),
 		this, SLOT(slotJobProgressChanged()));
-	connect(a_pJob, SIGNAL(signalCoreInfoChanged()),
-		this, SLOT(slotJobCoreInfoChanged()));
 	connect(a_pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
 		this, SLOT(slotLogMessage(const QString &, const QString &)));
 }

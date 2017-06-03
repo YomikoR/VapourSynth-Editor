@@ -1,10 +1,11 @@
 #ifndef JOB_H_INCLUDED
 #define JOB_H_INCLUDED
 
-#include "../../../common-src/settings/settings_definitions.h"
+#include "../../../common-src/settings/settings_definitions_core.h"
 #include "../../../common-src/chrono.h"
 #include "../../../common-src/helpers.h"
-#include "../../../common-src/log/vs_editor_log.h"
+#include "../../../common-src/log/styled_log_view_core.h"
+#include "../../../common-src/log/vs_editor_log_definitions.h"
 #include "../../../common-src/vapoursynth/vs_script_processor_structures.h"
 
 #include <QObject>
@@ -13,7 +14,7 @@
 #include <QProcess>
 #include <vector>
 
-class SettingsManager;
+class SettingsManagerCore;
 class VSScriptLibrary;
 class VapourSynthScriptProcessor;
 class FrameHeaderWriter;
@@ -28,7 +29,7 @@ class Job : public QObject
 public:
 
 	Job(const JobProperties & a_properties = JobProperties(),
-		SettingsManager * a_pSettingsManager = nullptr,
+		SettingsManagerCore * a_pSettingsManager = nullptr,
 		VSScriptLibrary * a_pVSScriptLibrary = nullptr,
 		QObject * a_pParent = nullptr);
 	virtual ~Job();
@@ -170,7 +171,7 @@ protected:
 	size_t m_bytesToWrite;
 	size_t m_bytesWritten;
 
-	SettingsManager * m_pSettingsManager;
+	SettingsManagerCore * m_pSettingsManager;
 
 	VSScriptLibrary * m_pVSScriptLibrary;
 

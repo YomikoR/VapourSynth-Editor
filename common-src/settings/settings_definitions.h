@@ -8,7 +8,6 @@
 #include <QIcon>
 #include <QKeySequence>
 #include <QStringList>
-#include <QUuid>
 #include <QDateTime>
 #include <vector>
 
@@ -27,116 +26,11 @@ enum class CropMode
 	Relative,
 };
 
-enum class ResamplingFilter : int
-{
-	Point,
-	Bilinear,
-	Bicubic,
-	Spline16,
-	Spline36,
-	Lanczos,
-};
-
-enum class YuvMatrixCoefficients : int
-{
-	m709,
-	m470BG,
-	m170M,
-	m2020_NCL,
-	m2020_CL,
-};
-
-enum class ChromaPlacement : int
-{
-	MPEG1,
-	MPEG2,
-	DV,
-};
-
 enum class PlayFPSLimitMode
 {
 	FromVideo,
 	NoLimit,
 	Custom,
-};
-
-enum class EncodingType
-{
-	CLI,
-	Raw,
-	VfW,
-};
-
-enum class EncodingHeaderType
-{
-	NoHeader,
-	Y4M,
-};
-
-enum class JobType
-{
-	EncodeScriptCLI,
-	RunProcess,
-	RunShellCommand,
-};
-
-enum class JobState
-{
-	Waiting,
-	Running,
-	Pausing,
-	Paused,
-	Aborting,
-	Aborted,
-	FailedCleanUp,
-	Failed,
-	DependencyNotMet,
-	CompletedCleanUp,
-	Completed,
-};
-
-extern const std::vector<JobState> ACTIVE_JOB_STATES;
-
-struct JobProperties
-{
-	QUuid id;
-	JobType type;
-	JobState jobState;
-	std::vector<QUuid> dependsOnJobIds;
-	QDateTime timeStarted;
-	QDateTime timeEnded;
-	QString scriptName;
-	EncodingType encodingType;
-	EncodingHeaderType encodingHeaderType;
-	QString executablePath;
-	QString arguments;
-	QString shellCommand;
-	int firstFrame;
-	int firstFrameReal;
-	int lastFrame;
-	int lastFrameReal;
-	int framesProcessed;
-	double fps;
-
-	JobProperties();
-	JobProperties(const JobProperties &) = default;
-	JobProperties(JobProperties &&) = default;
-	JobProperties & operator=(const JobProperties &) = default;
-	JobProperties & operator=(JobProperties &&) = default;
-};
-
-struct EncodingPreset
-{
-	QString name;
-	EncodingType type;
-	EncodingHeaderType headerType;
-	QString executablePath;
-	QString arguments;
-
-	EncodingPreset(const QString & a_name = QString());
-	bool operator==(const EncodingPreset & a_other) const;
-	bool operator<(const EncodingPreset & a_other) const;
-	bool isEmpty() const;
 };
 
 struct StandardAction
@@ -188,12 +82,6 @@ extern const QStringList DEFAULT_DOCUMENTATION_PATHS;
 extern const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION;
 extern const double DEFAULT_TIME_STEP;
 extern const TimeLineSlider::DisplayMode DEFAULT_TIMELINE_MODE;
-extern const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER;
-extern const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS;
-extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;
-extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_B;
-extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_C;
-extern const int DEFAULT_LANCZOS_FILTER_TAPS;
 extern const bool DEFAULT_COLOR_PICKER_VISIBLE;
 extern const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE;
 extern const double DEFAULT_PLAY_FPS_LIMIT;
@@ -207,20 +95,8 @@ extern const bool DEFAULT_TIMELINE_PANEL_VISIBLE;
 extern const bool DEFAULT_ALWAYS_KEEP_CURRENT_FRAME;
 extern const QString DEFAULT_LAST_SNAPSHOT_EXTENSION;
 extern const int DEFAULT_FPS_DISPLAY_PRECISION;
-
 extern const double DEFAULT_TIMELINE_LABELS_HEIGHT;
-
-extern const EncodingType DEFAULT_ENCODING_TYPE;
-extern const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE;
-
 extern const char DEFAULT_DROP_FILE_TEMPLATE[];
-
-extern const JobType DEFAULT_JOB_TYPE;
-extern const JobState DEFAULT_JOB_STATE;
-extern const int DEFAULT_JOB_FIRST_FRAME;
-extern const int DEFAULT_JOB_LAST_FRAME;
-extern const int DEFAULT_JOB_FRAMES_PROCESSED;
-extern const double DEFAULT_JOB_FPS;
 
 //==============================================================================
 

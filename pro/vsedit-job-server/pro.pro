@@ -143,11 +143,39 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 
 #RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit-job-server.qrc
 
+HEADERS += $${COMMON_DIRECTORY}/common-src/helpers.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/chrono.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_core.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log_definitions.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
-HEADERS += $${COMMON_DIRECTORY}/common_src/ipc_defines.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/ipc_defines.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_null.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_definitions.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.h
 HEADERS += $${PROJECT_DIRECTORY}/src/web_socket_job_server.h
 
+SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_core.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log_definitions.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_null.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/web_socket_job_server.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 

@@ -2,7 +2,7 @@
 #define VAPOURSYNTHSCRIPTPROCESSOR_H
 
 #include "vs_script_processor_structures.h"
-#include "../settings/settings_manager.h"
+#include "../settings/settings_manager_core.h"
 
 #include <QObject>
 #include <deque>
@@ -19,7 +19,7 @@ class VapourSynthScriptProcessor : public QObject
 
 public:
 
-	VapourSynthScriptProcessor(SettingsManager * a_pSettingsManager,
+	VapourSynthScriptProcessor(SettingsManagerCore * a_pSettingsManager,
 		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent = nullptr);
 
 	virtual ~VapourSynthScriptProcessor();
@@ -90,7 +90,7 @@ private:
 
 	void printFrameProps(const VSFrameRef * a_cpFrame);
 
-	SettingsManager * m_pSettingsManager;
+	SettingsManagerCore * m_pSettingsManager;
 
 	VSScriptLibrary * m_pVSScriptLibrary;
 

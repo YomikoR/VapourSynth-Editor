@@ -1,7 +1,7 @@
 #include "job.h"
 
 #include "../../../common-src/helpers.h"
-#include "../../../common-src/settings/settings_manager.h"
+#include "../../../common-src/settings/settings_manager_core.h"
 #include "../../../common-src/vapoursynth/vs_script_library.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../frame_header_writers/frame_header_writer_null.h"
@@ -22,7 +22,7 @@
 //==============================================================================
 
 vsedit::Job::Job(const JobProperties & a_properties,
-	SettingsManager * a_pSettingsManager,
+	SettingsManagerCore * a_pSettingsManager,
 	VSScriptLibrary * a_pVSScriptLibrary,
 	QObject * a_pParent) :
 	  QObject(a_pParent)
@@ -63,7 +63,7 @@ vsedit::Job::Job(const JobProperties & a_properties,
 }
 
 // END OF vsedit::Job::Job(const JobProperties & a_properties,
-//		SettingsManager * a_pSettingsManager,
+//		SettingsManagerCore * a_pSettingsManager,
 //		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent)
 //==============================================================================
 

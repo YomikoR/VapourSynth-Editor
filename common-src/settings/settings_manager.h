@@ -1,30 +1,22 @@
 #ifndef SETTINGSMANAGER_H
 #define SETTINGSMANAGER_H
 
+#include "settings_manager_core.h"
 #include "settings_definitions.h"
 
-#include <QObject>
-#include <QVariant>
 #include <QByteArray>
 #include <QTextCharFormat>
 #include <QColor>
 #include <QAction>
-#include <vector>
 
 //==============================================================================
 
-class SettingsManager : public QObject
+class SettingsManager : public SettingsManagerCore
 {
 public:
 
 	SettingsManager(QObject * a_pParent);
 	virtual ~SettingsManager();
-
-	//----------------------------------------------------------------------
-
-	bool getPortableMode() const;
-
-	bool setPortableMode(bool a_portableMod);
 
 	//----------------------------------------------------------------------
 
@@ -140,14 +132,6 @@ public:
 
 	bool setMaxRecentFilesNumber(unsigned int a_maxRecentFilesNumber);
 
-	QStringList getVapourSynthLibraryPaths() const;
-
-	bool setVapourSynthLibraryPaths(const QStringList & a_pathsList);
-
-	QStringList getVapourSynthPluginsPaths() const;
-
-	bool setVapourSynthPluginsPaths(const QStringList & a_pathsList);
-
 	QStringList getVapourSynthDocumentationPaths() const;
 
 	bool setVapourSynthDocumentationPaths(const QStringList & a_pathsList);
@@ -164,30 +148,6 @@ public:
 
 	bool setTimeStep(double a_timeStep);
 
-	ResamplingFilter getChromaResamplingFilter() const;
-
-	bool setChromaResamplingFilter(ResamplingFilter a_filter);
-
-	YuvMatrixCoefficients getYuvMatrixCoefficients() const;
-
-	bool setYuvMatrixCoefficients(YuvMatrixCoefficients a_matrix);
-
-	ChromaPlacement getChromaPlacement() const;
-
-	bool setChromaPlacement(ChromaPlacement a_placement);
-
-	double getBicubicFilterParameterB() const;
-
-	bool setBicubicFilterParameterB(double a_parameterB);
-
-	double getBicubicFilterParameterC() const;
-
-	bool setBicubicFilterParameterC(double a_parameterC);
-
-	int getLanczosFilterTaps() const;
-
-	bool setLanczosFilterTaps(int a_taps);
-
 	bool getColorPickerVisible() const;
 
 	bool setColorPickerVisible(bool a_colorPickerVisible);
@@ -199,14 +159,6 @@ public:
 	double getPlayFPSLimit() const;
 
 	bool setPlayFPSLimit(double a_limit);
-
-	std::vector<EncodingPreset> getAllEncodingPresets() const;
-
-	EncodingPreset getEncodingPreset(const QString & a_name) const;
-
-	bool saveEncodingPreset(const EncodingPreset & a_preset);
-
-	bool deleteEncodingPreset(const QString & a_name);
 
 	bool getUseSpacesAsTab() const;
 
@@ -272,28 +224,9 @@ public:
 
 	bool setLastSnapshotExtension(const QString & a_extension);
 
-	std::vector<JobProperties> getJobs() const;
-
-	bool setJobs(const std::vector<JobProperties> & a_jobs);
-
 private:
 
-	QVariant valueInGroup(const QString & a_group, const QString & a_key,
-		const QVariant & a_defaultValue = QVariant()) const;
-
-	bool setValueInGroup(const QString & a_group, const QString & a_key,
-		const QVariant & a_value);
-
-	bool deleteValueInGroup(const QString & a_group, const QString & a_key);
-
-	QVariant value(const QString & a_key, const QVariant & a_defaultValue =
-		QVariant()) const;
-
-	bool setValue(const QString & a_key, const QVariant & a_value);
-
 	void initializeStandardActions();
-
-	QString m_settingsFilePath;
 
 	std::vector<StandardAction> m_standardActions;
 };

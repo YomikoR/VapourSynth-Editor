@@ -1,15 +1,12 @@
 #ifndef STYLED_LOG_VIEW_STRUCTURES_H_INCLUDED
 #define STYLED_LOG_VIEW_STRUCTURES_H_INCLUDED
 
+#include "styled_log_view_core.h"
+
 #include <QString>
 #include <QColor>
 #include <QTextCharFormat>
 #include <QDateTime>
-
-//==============================================================================
-
-extern const char LOG_STYLE_DEFAULT[];
-extern const char LOG_STYLE_TITLE_DEFAULT[];
 
 //==============================================================================
 

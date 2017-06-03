@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QLibrary>
 
-class SettingsManager;
+class SettingsManagerCore;
 
 //==============================================================================
 
@@ -29,7 +29,7 @@ class VSScriptLibrary : public QObject
 
 public:
 
-	VSScriptLibrary(SettingsManager * a_pSettingsManager,
+	VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 		QObject * a_pParent = nullptr);
 
 	virtual ~VSScriptLibrary();
@@ -68,7 +68,7 @@ private:
 	friend void VS_CC vsMessageHandler(int a_msgType,
 		const char * a_message, void * a_pUserData);
 
-	SettingsManager * m_pSettingsManager;
+	SettingsManagerCore * m_pSettingsManager;
 
 	QLibrary m_vsScriptLibrary;
 

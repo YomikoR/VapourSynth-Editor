@@ -1,6 +1,6 @@
 #include "vs_script_library.h"
 
-#include "../settings/settings_manager.h"
+#include "../settings/settings_manager_core.h"
 #include "../helpers.h"
 
 #include <QSettings>
@@ -21,7 +21,7 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 //		void * a_pUserData)
 //==============================================================================
 
-VSScriptLibrary::VSScriptLibrary(SettingsManager * a_pSettingsManager,
+VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	QObject * a_pParent):
 	QObject(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
@@ -33,8 +33,8 @@ VSScriptLibrary::VSScriptLibrary(SettingsManager * a_pSettingsManager,
 	assert(m_pSettingsManager);
 }
 
-// END OF VSScriptLibrary::VSScriptLibrary(SettingsManager * a_pSettingsManager,
-//		QObject * a_pParent)
+// END OF VSScriptLibrary::VSScriptLibrary(
+//		SettingsManagerCore * a_pSettingsManager, QObject * a_pParent)
 //==============================================================================
 
 VSScriptLibrary::~VSScriptLibrary()

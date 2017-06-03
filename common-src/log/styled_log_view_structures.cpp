@@ -5,11 +5,6 @@
 
 //==============================================================================
 
-const char LOG_STYLE_DEFAULT[] = "default";
-const char LOG_STYLE_TITLE_DEFAULT[] = "Common message";
-
-//==============================================================================
-
 TextBlockStyle::TextBlockStyle(const QString & a_name, const QString & a_title):
 	  name(a_name)
 	, title(a_title)
