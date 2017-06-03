@@ -3,10 +3,8 @@
 
 #include "styled_log_view_core.h"
 
-#include <QString>
 #include <QColor>
 #include <QTextCharFormat>
-#include <QDateTime>
 
 //==============================================================================
 
@@ -27,24 +25,6 @@ struct TextBlockStyle
 		const QColor & a_backgroundColor, const QColor & a_textColor);
 	TextBlockStyle(const QString & a_aliasName, const QString & a_title,
 		const QString & a_originalStyleName);
-};
-
-//==============================================================================
-
-struct LogEntry
-{
-	bool isDivider;
-	QDateTime time;
-	QString text;
-	QString style;
-
-	LogEntry(bool a_isDivider = false, const QString & a_text = QString(),
-		const QString & a_style = LOG_STYLE_DEFAULT);
-
-	LogEntry(const QString & a_text, const QString & a_style =
-		LOG_STYLE_DEFAULT);
-
-	static LogEntry divider();
 };
 
 //==============================================================================

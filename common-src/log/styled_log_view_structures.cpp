@@ -63,35 +63,3 @@ TextBlockStyle::TextBlockStyle(const QString & a_aliasName,
 // END OF TextBlockStyle::TextBlockStyle(const QString & a_aliasName,
 //		const QString & a_title, const QString & a_originalStyleName)
 //==============================================================================
-
-LogEntry::LogEntry(bool a_isDivider, const QString & a_text,
-	const QString & a_style) :
-	  isDivider(a_isDivider)
-	, time(QDateTime::currentDateTime())
-	, text(a_text)
-	, style(a_style)
-{
-}
-
-// END OF LogEntry::LogEntry(bool a_isDivider, const QString & a_text,
-//		const QString & a_style)
-//==============================================================================
-
-LogEntry::LogEntry(const QString & a_text, const QString & a_style) :
-	  isDivider(false)
-	, time(QDateTime::currentDateTime())
-	, text(a_text)
-	, style(a_style)
-{
-}
-
-// END OF LogEntry::LogEntry(const QString & a_text, const QString & a_style)
-//==============================================================================
-
-LogEntry LogEntry::divider()
-{
-	return LogEntry(true, QString(), QString());
-}
-
-// END OF LogEntry LogEntry::divider()
-//==============================================================================
