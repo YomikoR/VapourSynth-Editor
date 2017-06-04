@@ -74,44 +74,6 @@ vsedit::Job::~Job()
 // END OF vsedit::Job::~Job()
 //==============================================================================
 
-QString vsedit::Job::typeName(JobType a_type)
-{
-	static std::map<JobType, QString> typeNameMap =
-	{
-		{JobType::EncodeScriptCLI, trUtf8("CLI encoding")},
-		{JobType::RunProcess, trUtf8("Process run")},
-		{JobType::RunShellCommand, trUtf8("Shell command")},
-	};
-
-	return typeNameMap[a_type];
-}
-
-// END OF QString vsedit::Job::typeName(JobType a_type)
-//==============================================================================
-
-QString vsedit::Job::stateName(JobState a_state)
-{
-	static std::map<JobState, QString> stateNameMap =
-	{
-		{JobState::Waiting, trUtf8("Waiting")},
-		{JobState::Running, trUtf8("Running")},
-		{JobState::Paused, trUtf8("Paused")},
-		{JobState::Pausing, trUtf8("Pausing")},
-		{JobState::Aborted, trUtf8("Aborted")},
-		{JobState::Aborting, trUtf8("Aborting")},
-		{JobState::FailedCleanUp, trUtf8("Failed. Cleaning up.")},
-		{JobState::Failed, trUtf8("Failed")},
-		{JobState::DependencyNotMet, trUtf8("Dependency not met")},
-		{JobState::CompletedCleanUp, trUtf8("Completing")},
-		{JobState::Completed, trUtf8("Completed")},
-	};
-
-	return stateNameMap[a_state];
-}
-
-// END OF QString vsedit::Job::stateName(JobState a_state)
-//==============================================================================
-
 void vsedit::Job::start()
 {
 	if(m_properties.jobState == JobState::Waiting)

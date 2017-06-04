@@ -97,6 +97,12 @@ struct JobProperties
 	JobProperties(JobProperties &&) = default;
 	JobProperties & operator=(const JobProperties &) = default;
 	JobProperties & operator=(JobProperties &&) = default;
+
+	static QString typeName(JobType a_type);
+	static QString stateName(JobState a_state);
+
+	QString subject() const;
+	int framesTotal() const;
 };
 
 struct EncodingPreset

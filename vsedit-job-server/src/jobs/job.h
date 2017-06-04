@@ -47,10 +47,6 @@ public:
 		Aborting,
 	};
 
-	static QString typeName(JobType a_type);
-
-	static QString stateName(JobState a_state);
-
 	virtual void start();
 	virtual void pause();
 	virtual void abort();

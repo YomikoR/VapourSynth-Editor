@@ -149,6 +149,7 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit-job-server-watcher.qrc
 
 FORMS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/main_window.ui
 
 HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
@@ -165,8 +166,16 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log_definitions.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.h
+HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.h
 HEADERS += $${PROJECT_DIRECTORY}/src/main_window.h
 
+SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions.cpp
@@ -179,6 +188,13 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.c
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/styled_log_view.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log_definitions.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main_window.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 
