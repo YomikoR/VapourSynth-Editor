@@ -247,6 +247,9 @@
 				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtCore" />
 				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtGui" />
 				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtWidgets" />
+				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtNetwork" />
+				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtWebSockets" />
+				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtWinExtras" />
 			</code_completion>
 			<envvars />
 			<debugger>

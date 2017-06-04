@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
 	pMainWindow = new MainWindow();
 	qInstallMessageHandler(handleQtMessage);
-	pMainWindow->show();
+	pMainWindow->showAndConnect();
 	int exitCode = application.exec();
 	delete pMainWindow;
 	return exitCode;

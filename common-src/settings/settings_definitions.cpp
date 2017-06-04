@@ -36,6 +36,7 @@ const QString DEFAULT_LAST_SNAPSHOT_EXTENSION = "png";
 const int DEFAULT_FPS_DISPLAY_PRECISION = 3;
 const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'{f}\'";
+const int DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS = 5;
 
 //==============================================================================
 

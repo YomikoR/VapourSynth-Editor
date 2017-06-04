@@ -33,6 +33,8 @@ public:
 
 	virtual ~MainWindow();
 
+	void showAndConnect();
+
 public slots:
 
 	void slotWriteLogMessage(int a_messageType, const QString & a_message);
@@ -102,6 +104,9 @@ private:
 //	QMenu * m_pJobsHeaderMenu;
 
 	QWebSocket * m_pServerSocket;
+
+	int m_connectionAttempts;
+	int m_maxConnectionAttempts;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

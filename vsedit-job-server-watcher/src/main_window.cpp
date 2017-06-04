@@ -2,6 +2,7 @@
 
 #include "../../common-src/helpers.h"
 #include "../../common-src/ipc_defines.h"
+#include "../../common-src/settings/settings_definitions.h"
 #include "../../common-src/settings/settings_manager.h"
 
 #include <QCoreApplication>
@@ -23,11 +24,22 @@
 #include <QDesktopServices>
 #include <QWebSocket>
 
+#ifdef Q_OS_WIN
+	#include <QWinTaskbarButton>
+	#include <QWinTaskbarProgress>
+#endif
+
 //==============================================================================
 
 MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsManager(nullptr)
 	, m_pServerSocket(nullptr)
+	, m_connectionAttempts(0)
+	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
+#ifdef Q_OS_WIN
+	, m_pWinTaskbarButton(nullptr)
+	, m_pWinTaskbarProgress(nullptr)
+#endif
 {
 	m_ui.setupUi(this);
 
@@ -70,10 +82,24 @@ MainWindow::MainWindow() : QMainWindow()
 
 MainWindow::~MainWindow()
 {
+	m_pServerSocket->close(QWebSocketProtocol::CloseCodeNormal,
+		trUtf8("Closing watcher."));
 	qInstallMessageHandler(0);
 }
 
 // END OF MainWindow::~MainWindow()
+//==============================================================================
+
+void MainWindow::showAndConnect()
+{
+	show();
+	if(m_pServerSocket->state() == QAbstractSocket::ConnectedState)
+		return;
+
+	m_pServerSocket->open(QString("ws://127.0.0.1:%1").arg(JOB_SERVER_PORT));
+}
+
+// END OF MainWindow::showAndConnect()
 //==============================================================================
 
 void MainWindow::slotWriteLogMessage(int a_messageType,
@@ -170,11 +196,7 @@ void MainWindow::changeEvent(QEvent * a_pEvent)
 
 void MainWindow::slotJobNewButtonClicked()
 {
-	if(m_pServerSocket->state() == QAbstractSocket::ConnectedState)
-		m_pServerSocket->sendTextMessage(MSG_GET_JOBS_INFO);
-	else
-		m_pServerSocket->open(QString("ws://127.0.0.1:%1")
-			.arg(JOB_SERVER_PORT));
+
 }
 
 // END OF void MainWindow::slotJobNewButtonClicked()
@@ -304,7 +326,10 @@ void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 
 void MainWindow::slotServerConnected()
 {
+	m_connectionAttempts = 0;
 	m_pServerSocket->sendTextMessage(MSG_GET_JOBS_INFO);
+	m_pServerSocket->sendTextMessage(MSG_GET_LOG);
+	m_pServerSocket->sendTextMessage(MSG_SUBSCRIBE);
 }
 
 // END OF void MainWindow::slotServerConnected()
@@ -312,7 +337,7 @@ void MainWindow::slotServerConnected()
 
 void MainWindow::slotServerDisconnected()
 {
-
+	m_ui.logView->addEntry(trUtf8("Disconnected from server"));
 }
 
 // END OF void MainWindow::slotServerDisconnected()
@@ -338,6 +363,23 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 {
 	m_ui.logView->addEntry(m_pServerSocket->errorString(), LOG_STYLE_ERROR);
+
+	if(m_pServerSocket->state() != QAbstractSocket::ConnectedState)
+	{
+		if(m_connectionAttempts < m_maxConnectionAttempts)
+		{
+			m_ui.logView->addEntry(trUtf8("Could not connect to server. "
+				"Trying again."), LOG_STYLE_ERROR);
+			m_connectionAttempts++;
+			m_pServerSocket->open(QString("ws://127.0.0.1:%1")
+				.arg(JOB_SERVER_PORT));
+		}
+		else
+		{
+			m_ui.logView->addEntry(trUtf8("Could not connect to server."),
+				LOG_STYLE_ERROR);
+		}
+	}
 }
 
 // END OF void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
