@@ -1,9 +1,15 @@
 #include "main_window.h"
 
+#include "jobs/jobs_model.h"
+#include "jobs/job_state_delegate.h"
+#include "jobs/job_dependencies_delegate.h"
+#include "jobs/job_edit_dialog.h"
+
 #include "../../common-src/helpers.h"
 #include "../../common-src/ipc_defines.h"
 #include "../../common-src/settings/settings_definitions.h"
 #include "../../common-src/settings/settings_manager.h"
+#include "../../common-src/vapoursynth/vs_script_library.h"
 
 #include <QCoreApplication>
 #include <QMenu>
@@ -23,6 +29,9 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QWebSocket>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonValue>
 
 #ifdef Q_OS_WIN
 	#include <QWinTaskbarButton>
@@ -31,8 +40,17 @@
 
 //==============================================================================
 
+const char MainWindow::WINDOW_TITLE[] = "VapourSynth jobs server watcher";
+
+//==============================================================================
+
 MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsManager(nullptr)
+	, m_pJobsModel(nullptr)
+	, m_pJobStateDelegate(nullptr)
+	, m_pJobDependenciesDelegate(nullptr)
+	, m_pVSScriptLibrary(nullptr)
+	, m_pJobEditDialog(nullptr)
 	, m_pServerSocket(nullptr)
 	, m_connectionAttempts(0)
 	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
@@ -42,10 +60,29 @@ MainWindow::MainWindow() : QMainWindow()
 #endif
 {
 	m_ui.setupUi(this);
+	setWindowTitle(trUtf8(WINDOW_TITLE));
 
 	setWindowIcon(QIcon(":vsedit.ico"));
 
 	m_pSettingsManager = new SettingsManager(this);
+	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
+	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,
+		m_pVSScriptLibrary, this);
+
+	m_pJobsModel = new JobsModel(m_pSettingsManager, this);
+	m_ui.jobsTableView->setModel(m_pJobsModel);
+	m_pJobStateDelegate = new JobStateDelegate(this);
+	m_ui.jobsTableView->setItemDelegateForColumn(
+		JobsModel::STATE_COLUMN, m_pJobStateDelegate);
+	m_pJobDependenciesDelegate = new JobDependenciesDelegate(this);
+	m_ui.jobsTableView->setItemDelegateForColumn(
+		JobsModel::DEPENDS_ON_COLUMN, m_pJobDependenciesDelegate);
+
+	QHeaderView * pHorizontalHeader = m_ui.jobsTableView->horizontalHeader();
+	pHorizontalHeader->setSectionsMovable(true);
+
+	QHeaderView * pVerticalHeader = m_ui.jobsTableView->verticalHeader();
+	pVerticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	m_ui.logView->setName("job_server_watcher_main_log");
 	m_ui.logView->setSettingsManager(m_pSettingsManager);
@@ -53,6 +90,63 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pServerSocket = new QWebSocket(QString(),
 		QWebSocketProtocol::VersionLatest, this);
+
+	QByteArray newGeometry = m_pSettingsManager->getJobServerWatcherGeometry();
+	if(!newGeometry.isEmpty())
+		restoreGeometry(newGeometry);
+
+	QByteArray headerState = m_pSettingsManager->getJobsHeaderState();
+	if(!headerState.isEmpty())
+		pHorizontalHeader->restoreState(headerState);
+
+	pHorizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);
+	m_pJobsHeaderMenu = new QMenu(pHorizontalHeader);
+	for(int i = 0; i < m_pJobsModel->columnCount(); ++i)
+	{
+		QAction * pAction = new QAction(m_pJobsHeaderMenu);
+		pAction->setText(
+			m_pJobsModel->headerData(i, Qt::Horizontal).toString());
+		pAction->setData(i);
+		pAction->setCheckable(true);
+		pAction->setChecked(!pHorizontalHeader->isSectionHidden(i));
+		m_pJobsHeaderMenu->addAction(pAction);
+		connect(pAction, SIGNAL(toggled(bool)),
+			this, SLOT(slotShowJobsHeaderSection(bool)));
+	}
+
+	connect(m_ui.jobNewButton, SIGNAL(clicked()),
+		this, SLOT(slotJobNewButtonClicked()));
+	connect(m_ui.jobEditButton, SIGNAL(clicked()),
+		this, SLOT(slotJobEditButtonClicked()));
+	connect(m_ui.jobMoveUpButton, SIGNAL(clicked()),
+		this, SLOT(slotJobMoveUpButtonClicked()));
+	connect(m_ui.jobMoveDownButton, SIGNAL(clicked()),
+		this, SLOT(slotJobMoveDownButtonClicked()));
+	connect(m_ui.jobDeleteButton, SIGNAL(clicked()),
+		this, SLOT(slotJobDeleteButtonClicked()));
+	connect(m_ui.jobResetStateButton, SIGNAL(clicked()),
+		this, SLOT(slotJobResetStateButtonClicked()));
+	connect(m_ui.startButton, SIGNAL(clicked()),
+		this, SLOT(slotStartButtonClicked()));
+	connect(m_ui.pauseButton, SIGNAL(clicked()),
+		this, SLOT(slotPauseButtonClicked()));
+	connect(m_ui.resumeButton, SIGNAL(clicked()),
+		this, SLOT(slotResumeButtonClicked()));
+	connect(m_ui.abortButton, SIGNAL(clicked()),
+		this, SLOT(slotAbortButtonClicked()));
+	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
+		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
+	connect(pHorizontalHeader, SIGNAL(sectionResized(int, int, int)),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader, SIGNAL(sectionMoved(int, int, int)),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader, SIGNAL(sectionCountChanged(int, int)),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader, SIGNAL(geometriesChanged()),
+		this, SLOT(slotSaveHeaderState()));
+	connect(pHorizontalHeader,
+		SIGNAL(customContextMenuRequested(const QPoint &)),
+		this, SLOT(slotJobsHeaderContextMenu(const QPoint &)));
 	connect(m_pServerSocket, &QWebSocket::connected,
 		this, &MainWindow::slotServerConnected);
 	connect(m_pServerSocket, &QWebSocket::disconnected,
@@ -64,17 +158,7 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_pServerSocket, SIGNAL(error(QAbstractSocket::SocketError)),
 		this, SLOT(slotServerError(QAbstractSocket::SocketError)));
 
-	connect(m_ui.jobNewButton, SIGNAL(clicked()),
-		this, SLOT(slotJobNewButtonClicked()));
-
 	createActionsAndMenus();
-
-	QByteArray newGeometry = m_pSettingsManager->getJobServerWatcherGeometry();
-	if(!newGeometry.isEmpty())
-		restoreGeometry(newGeometry);
-
-	if(m_pSettingsManager->getJobServerWatcherMaximized())
-		showMaximized();
 }
 
 // END OF MainWindow::MainWindow()
@@ -100,6 +184,17 @@ void MainWindow::showAndConnect()
 }
 
 // END OF MainWindow::showAndConnect()
+//==============================================================================
+
+void MainWindow::show()
+{
+	if(m_pSettingsManager->getJobServerWatcherMaximized())
+		showMaximized();
+	else
+		showNormal();
+}
+
+// END OF MainWindow::show()
 //==============================================================================
 
 void MainWindow::slotWriteLogMessage(int a_messageType,
@@ -160,9 +255,7 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 {
 	QMainWindow::moveEvent(a_pEvent);
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setJobServerWatcherGeometry(saveGeometry());
+	saveGeometrySettings();
 }
 
 // END OF void MainWindow::moveEvent(QMoveEvent * a_pEvent)
@@ -171,9 +264,7 @@ void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
 {
 	QMainWindow::resizeEvent(a_pEvent);
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setJobServerWatcherGeometry(saveGeometry());
+	saveGeometrySettings();
 }
 
 // END OF void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
@@ -292,7 +383,8 @@ void MainWindow::slotSelectionChanged()
 
 void MainWindow::slotSaveHeaderState()
 {
-
+	QHeaderView * pHeader = m_ui.jobsTableView->horizontalHeader();
+	m_pSettingsManager->setJobsHeaderState(pHeader->saveState());
 }
 
 // END OF void MainWindow::slotSaveHeaderState()
@@ -300,7 +392,8 @@ void MainWindow::slotSaveHeaderState()
 
 void MainWindow::slotJobsHeaderContextMenu(const QPoint & a_point)
 {
-
+	(void)a_point;
+	m_pJobsHeaderMenu->exec(QCursor::pos());
 }
 
 // END OF void MainWindow::slotJobsHeaderContextMenu(const QPoint & a_point)
@@ -308,7 +401,12 @@ void MainWindow::slotJobsHeaderContextMenu(const QPoint & a_point)
 
 void MainWindow::slotShowJobsHeaderSection(bool a_show)
 {
-
+	QAction * pAction = qobject_cast<QAction *>(sender());
+	if(!pAction)
+		return;
+	int section = pAction->data().toInt();
+	QHeaderView * pHeader = m_ui.jobsTableView->horizontalHeader();
+	pHeader->setSectionHidden(section, !a_show);
 }
 
 // END OF void MainWindow::slotShowJobsHeaderSection(bool a_show)
@@ -354,6 +452,21 @@ void MainWindow::slotBinaryMessageReceived(const QByteArray & a_message)
 
 void MainWindow::slotTextMessageReceived(const QString & a_message)
 {
+	QString command;
+	QString message = a_message;
+	int spaceIndex = a_message.indexOf(' ');
+	if(spaceIndex >= 0)
+	{
+		command = a_message.left(spaceIndex);
+		message.remove(0, spaceIndex + 1);
+	}
+
+	if(command == QString(SMSG_JOBS_INFO))
+	{
+		processSMsgJobInfo(message);
+		return;
+	}
+
 	m_ui.logView->addEntry(a_message, LOG_STYLE_DEFAULT);
 }
 
@@ -395,7 +508,9 @@ void MainWindow::createActionsAndMenus()
 
 void MainWindow::saveGeometrySettings()
 {
-
+	QApplication::processEvents();
+	if(!isMaximized())
+		m_pSettingsManager->setJobServerWatcherGeometry(saveGeometry());
 }
 
 // END OF void MainWindow::saveGeometrySettings()
@@ -415,4 +530,85 @@ bool MainWindow::updateJob(int a_index)
 }
 
 // END OF bool MainWindow::updateJob(int a_index)
+//==============================================================================
+
+void MainWindow::processSMsgJobInfo(const QString & a_message)
+{
+	if(a_message.isEmpty())
+		return;
+
+	QJsonDocument doc = QJsonDocument::fromJson(a_message.toUtf8());
+	if(!doc.isArray())
+		return;
+
+	std::vector<JobProperties> propertiesVector;
+
+	for(const QJsonValue & value : doc.array())
+	{
+		if(!value.isObject())
+			continue;
+		JobProperties properties = jobPropertiesFromJson(value.toObject());
+		propertiesVector.push_back(properties);
+	}
+
+	m_pJobsModel->setJobs(propertiesVector);
+}
+
+// END OF void MainWindow::processSMsgJobInfo(const QString & a_message)
+//==============================================================================
+
+JobProperties MainWindow::jobPropertiesFromJson(const QJsonObject & a_object)
+{
+	JobProperties properties;
+	if(a_object.contains("id"))
+		properties.id = QUuid(a_object["id"].toString());
+	if(a_object.contains("type"))
+		properties.type = (JobType)a_object["type"].toInt();
+	if(a_object.contains("jobState"))
+		properties.jobState = (JobState)a_object["jobState"].toInt();
+	if(a_object.contains("dependsOnJobIds"))
+	{
+		if(a_object["dependsOnJobIds"].isArray())
+		{
+			for(const QJsonValue & value :
+				a_object["dependsOnJobIds"].toArray())
+				properties.dependsOnJobIds.push_back(QUuid(value.toString()));
+		}
+	}
+	if(a_object.contains("timeStarted"))
+		properties.timeStarted = QDateTime::fromMSecsSinceEpoch(
+			a_object["timeStarted"].toVariant().toLongLong());
+	if(a_object.contains("timeEnded"))
+		properties.timeEnded = QDateTime::fromMSecsSinceEpoch(
+			a_object["timeEnded"].toVariant().toLongLong());
+		properties.scriptName = a_object["scriptName"].toString();
+	if(a_object.contains("encodingType"))
+		properties.encodingType =
+			(EncodingType)a_object["encodingType"].toInt();
+	if(a_object.contains("encodingHeaderType"))
+		properties.encodingHeaderType =
+			(EncodingHeaderType)a_object["encodingHeaderType"].toInt();
+	if(a_object.contains("executablePath"))
+		properties.executablePath = a_object["executablePath"].toString();
+	if(a_object.contains("arguments"))
+		properties.arguments = a_object["arguments"].toString();
+	if(a_object.contains("shellCommand"))
+		properties.shellCommand = a_object["shellCommand"].toString();
+	if(a_object.contains("firstFrame"))
+		properties.firstFrame = a_object["firstFrame"].toInt();
+	if(a_object.contains("firstFrameReal"))
+		properties.firstFrameReal = a_object["firstFrameReal"].toInt();
+	if(a_object.contains("lastFrame"))
+		properties.lastFrame = a_object["lastFrame"].toInt();
+	if(a_object.contains("lastFrameReal"))
+		properties.lastFrameReal= a_object["lastFrameReal"].toInt();
+	if(a_object.contains("framesProcessed"))
+		properties.framesProcessed = a_object["framesProcessed"].toInt();
+	if(a_object.contains("fps"))
+		properties.fps = a_object["fps"].toDouble();
+	return properties;
+}
+
+// END OF JobProperties MainWindow::jobPropertiesFromJson(
+//		const QJsonObject & a_object)
 //==============================================================================

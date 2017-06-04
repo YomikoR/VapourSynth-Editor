@@ -10,9 +10,6 @@
     <height>756</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>VapourSynth Editor</string>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
@@ -31,7 +28,26 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTableView" name="jobsTableView"/>
+     <widget class="QTableView" name="jobsTableView">
+      <property name="autoScroll">
+       <bool>false</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <attribute name="horizontalHeaderHighlightSections">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+     </widget>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">

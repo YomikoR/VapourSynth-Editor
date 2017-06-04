@@ -91,10 +91,12 @@ QString JobProperties::subject() const
 	{
 		subjectString = QString("\"%ep%\" %arg%");
 		subjectString = subjectString.replace("%ep%", executablePath);
-		subjectString = subjectString.replace("%arg%", arguments.simplified());
+		subjectString = subjectString.replace("%arg%", arguments);
 	}
 	else if(type == JobType::RunShellCommand)
-		subjectString = shellCommand.simplified();
+		subjectString = shellCommand;
+
+	subjectString = subjectString.simplified();
 
 	return subjectString;
 }

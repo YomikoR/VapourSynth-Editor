@@ -7,6 +7,7 @@
 #include "../../common-src/settings/settings_definitions.h"
 
 #include <QWebSocket>
+#include <QJsonObject>
 
 class SettingsManager;
 class JobsModel;
@@ -37,6 +38,7 @@ public:
 
 public slots:
 
+	void show();
 	void slotWriteLogMessage(int a_messageType, const QString & a_message);
 	void slotWriteLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
@@ -88,20 +90,24 @@ private:
 
 	bool updateJob(int a_index);
 
+	void processSMsgJobInfo(const QString & a_message);
+
+	JobProperties jobPropertiesFromJson(const QJsonObject & a_object);
+
 	static const char WINDOW_TITLE[];
 
 	Ui::MainWindow m_ui;
 
 	SettingsManager * m_pSettingsManager;
 
-//	JobsModel * m_pJobsModel;
-//	VSScriptLibrary * m_pVSScriptLibrary;
-//	JobStateDelegate * m_pJobStateDelegate;
-//	JobDependenciesDelegate * m_pJobDependenciesDelegate;
-//
-//	JobEditDialog * m_pJobEditDialog;
-//
-//	QMenu * m_pJobsHeaderMenu;
+	JobsModel * m_pJobsModel;
+	JobStateDelegate * m_pJobStateDelegate;
+	JobDependenciesDelegate * m_pJobDependenciesDelegate;
+
+	VSScriptLibrary * m_pVSScriptLibrary;
+	JobEditDialog * m_pJobEditDialog;
+
+	QMenu * m_pJobsHeaderMenu;
 
 	QWebSocket * m_pServerSocket;
 

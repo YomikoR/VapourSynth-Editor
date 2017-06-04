@@ -263,6 +263,25 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 //		const QVariant & a_value, int a_role)
 //==============================================================================
 
+std::vector<JobProperties> JobsModel::jobs() const
+{
+	return m_jobs;
+}
+
+// END OF std::vector<JobProperties> JobsModel::jobs() const
+//==============================================================================
+
+bool JobsModel::setJobs(const std::vector<JobProperties> & a_jobs)
+{
+	beginResetModel();
+	m_jobs = a_jobs;
+	endResetModel();
+	return true;
+}
+
+// END OF bool JobsModel::setJobs(const std::vector<JobProperties> & a_jobs)
+//==============================================================================
+
 JobProperties JobsModel::jobProperties(int a_index) const
 {
 	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
