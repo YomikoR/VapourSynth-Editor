@@ -32,6 +32,17 @@ JobsManager::~JobsManager()
 // END OF
 //==============================================================================
 
+std::vector<JobProperties> JobsManager::jobsProperties() const
+{
+	std::vector<JobProperties> properties;
+	for(const JobTicket & ticket : m_tickets)
+		properties.push_back(ticket.pJob->properties());
+	return properties;
+}
+
+// END OF
+//==============================================================================
+
 int JobsManager::createJob(const JobProperties & a_jobProperties)
 {
 	vsedit::Job * pJob = new vsedit::Job(a_jobProperties,  m_pSettingsManager,

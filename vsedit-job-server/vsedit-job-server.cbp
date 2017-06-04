@@ -214,6 +214,8 @@
 		<Unit filename="../common-src/helpers.cpp" />
 		<Unit filename="../common-src/helpers.h" />
 		<Unit filename="../common-src/ipc_defines.h" />
+		<Unit filename="../common-src/log/styled_log_view_core.cpp" />
+		<Unit filename="../common-src/log/styled_log_view_core.h" />
 		<Unit filename="../common-src/settings/settings_definitions_core.cpp" />
 		<Unit filename="../common-src/settings/settings_definitions_core.h" />
 		<Unit filename="../common-src/settings/settings_manager_core.cpp" />

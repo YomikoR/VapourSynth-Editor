@@ -21,6 +21,8 @@ public:
 		QObject * a_pParent = nullptr);
 	virtual ~JobsManager();
 
+	std::vector<JobProperties> jobsProperties() const;
+
 	int createJob(const JobProperties & a_jobProperties = JobProperties());
 
 	bool moveJobUp(const QUuid & a_uuid);

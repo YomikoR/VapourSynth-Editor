@@ -1,8 +1,11 @@
 #ifndef WEB_SOCKET_JOB_SERVER_H_INCLUDED
 #define WEB_SOCKET_JOB_SERVER_H_INCLUDED
 
+#include "../../common-src/log/styled_log_view_core.h"
+
 #include <QObject>
 #include <list>
+#include <vector>
 
 class SettingsManagerCore;
 class JobsManager;
@@ -35,9 +38,13 @@ private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
 
+	QString jobsInfoMessage();
+
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;
 	QWebSocketServer * m_pWebSocketServer;
+
+	std::vector<LogEntry> m_logEntries;
 
 	std::list<QWebSocket *> m_clients;
 	std::list<QWebSocket *> m_subscribers;

@@ -6,6 +6,9 @@
 
 #include <QWebSocketServer>
 #include <QWebSocket>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <cassert>
 
 //==============================================================================
@@ -16,7 +19,10 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 	, m_pWebSocketServer(nullptr)
 {
 	m_pSettingsManager = new SettingsManagerCore(this);
+
 	m_pJobsManager = new JobsManager(m_pSettingsManager, this);
+	m_pJobsManager->loadJobs();
+
 	m_pWebSocketServer = new QWebSocketServer(JOB_SERVER_NAME,
 		QWebSocketServer::NonSecureMode, this);
 	connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
@@ -100,7 +106,7 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 	if(a_message == QString(MSG_GET_JOBS_INFO))
 	{
-		a_pClient->sendTextMessage("Here is your info!");
+		a_pClient->sendTextMessage(jobsInfoMessage());
 		return;
 	}
 
@@ -133,6 +139,45 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 	a_pClient->sendTextMessage(QString("Received an unknown command: %1")
 		.arg(a_message));
+}
+
+//==============================================================================
+
+QString JobServer::jobsInfoMessage()
+{
+	QJsonArray jsJobs;
+	for(const JobProperties & properties : m_pJobsManager->jobsProperties())
+	{
+		QJsonObject jsJob;
+		jsJob["id"] = properties.id.toString();
+		jsJob["type"] = (int)properties.type;
+		jsJob["jobState"] = (int)properties.jobState;
+
+		QJsonArray jsDependencies;
+		for(const QUuid & id : properties.dependsOnJobIds)
+			jsDependencies.push_back(QJsonValue(id.toString()));
+		jsJob["dependsOnJobIds"] = jsDependencies;
+
+		jsJob["timeStarted"] = properties.timeStarted.toMSecsSinceEpoch();
+		jsJob["timeEnded"] = properties.timeEnded.toMSecsSinceEpoch();
+		jsJob["scriptName"] = properties.scriptName;
+		jsJob["encodingType"] = (int)properties.encodingType;
+		jsJob["encodingHeaderType"] = (int)properties.encodingHeaderType;
+		jsJob["executablePath"] = properties.executablePath;
+		jsJob["arguments"] = properties.arguments;
+		jsJob["shellCommand"] = properties.shellCommand;
+		jsJob["firstFrame"] = properties.firstFrame;
+		jsJob["firstFrameReal"] = properties.firstFrameReal;
+		jsJob["lastFrame"] = properties.lastFrame;
+		jsJob["lastFrameReal"] = properties.lastFrameReal;
+		jsJob["framesProcessed"] = properties.framesProcessed;
+		jsJob["fps"] = properties.fps;
+
+		jsJobs.push_back(jsJob);
+	}
+	QString jobsJson = QString::fromUtf8(QJsonDocument(jsJobs).toJson());
+	QString message = QString("%1 %2").arg(SMSG_JOBS_INFO).arg(jobsJson);
+	return message;
 }
 
 //==============================================================================
