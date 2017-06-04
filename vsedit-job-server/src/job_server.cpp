@@ -1,6 +1,5 @@
 #include "job_server.h"
 
-#include "../../common-src/settings/settings_manager_core.h"
 #include "../../common-src/ipc_defines.h"
 #include "jobs/jobs_manager.h"
 
@@ -8,7 +7,6 @@
 #include <QWebSocket>
 #include <QJsonDocument>
 #include <QJsonArray>
-#include <QJsonObject>
 #include <cassert>
 
 //==============================================================================
@@ -143,38 +141,43 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 //==============================================================================
 
-QString JobServer::jobsInfoMessage()
+QJsonObject JobServer::jobPropertiesToJson(const JobProperties & a_properties)
+	const
+{
+	QJsonObject jsJob;
+	jsJob["id"] = a_properties.id.toString();
+	jsJob["type"] = (int)a_properties.type;
+	jsJob["jobState"] = (int)a_properties.jobState;
+
+	QJsonArray jsDependencies;
+	for(const QUuid & id : a_properties.dependsOnJobIds)
+		jsDependencies.push_back(QJsonValue(id.toString()));
+	jsJob["dependsOnJobIds"] = jsDependencies;
+
+	jsJob["timeStarted"] = a_properties.timeStarted.toMSecsSinceEpoch();
+	jsJob["timeEnded"] = a_properties.timeEnded.toMSecsSinceEpoch();
+	jsJob["scriptName"] = a_properties.scriptName;
+	jsJob["encodingType"] = (int)a_properties.encodingType;
+	jsJob["encodingHeaderType"] = (int)a_properties.encodingHeaderType;
+	jsJob["executablePath"] = a_properties.executablePath;
+	jsJob["arguments"] = a_properties.arguments;
+	jsJob["shellCommand"] = a_properties.shellCommand;
+	jsJob["firstFrame"] = a_properties.firstFrame;
+	jsJob["firstFrameReal"] = a_properties.firstFrameReal;
+	jsJob["lastFrame"] = a_properties.lastFrame;
+	jsJob["lastFrameReal"] = a_properties.lastFrameReal;
+	jsJob["framesProcessed"] = a_properties.framesProcessed;
+	jsJob["fps"] = a_properties.fps;
+	return jsJob;
+}
+
+//==============================================================================
+
+QString JobServer::jobsInfoMessage() const
 {
 	QJsonArray jsJobs;
 	for(const JobProperties & properties : m_pJobsManager->jobsProperties())
-	{
-		QJsonObject jsJob;
-		jsJob["id"] = properties.id.toString();
-		jsJob["type"] = (int)properties.type;
-		jsJob["jobState"] = (int)properties.jobState;
-
-		QJsonArray jsDependencies;
-		for(const QUuid & id : properties.dependsOnJobIds)
-			jsDependencies.push_back(QJsonValue(id.toString()));
-		jsJob["dependsOnJobIds"] = jsDependencies;
-
-		jsJob["timeStarted"] = properties.timeStarted.toMSecsSinceEpoch();
-		jsJob["timeEnded"] = properties.timeEnded.toMSecsSinceEpoch();
-		jsJob["scriptName"] = properties.scriptName;
-		jsJob["encodingType"] = (int)properties.encodingType;
-		jsJob["encodingHeaderType"] = (int)properties.encodingHeaderType;
-		jsJob["executablePath"] = properties.executablePath;
-		jsJob["arguments"] = properties.arguments;
-		jsJob["shellCommand"] = properties.shellCommand;
-		jsJob["firstFrame"] = properties.firstFrame;
-		jsJob["firstFrameReal"] = properties.firstFrameReal;
-		jsJob["lastFrame"] = properties.lastFrame;
-		jsJob["lastFrameReal"] = properties.lastFrameReal;
-		jsJob["framesProcessed"] = properties.framesProcessed;
-		jsJob["fps"] = properties.fps;
-
-		jsJobs.push_back(jsJob);
-	}
+		jsJobs.push_back(jobPropertiesToJson(properties));
 	QString jobsJson = QString::fromUtf8(QJsonDocument(jsJobs).toJson());
 	QString message = QString("%1 %2").arg(SMSG_JOBS_INFO).arg(jobsJson);
 	return message;

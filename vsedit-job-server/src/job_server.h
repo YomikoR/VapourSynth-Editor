@@ -1,9 +1,11 @@
 #ifndef WEB_SOCKET_JOB_SERVER_H_INCLUDED
 #define WEB_SOCKET_JOB_SERVER_H_INCLUDED
 
+#include "../../common-src/settings/settings_manager_core.h"
 #include "../../common-src/log/styled_log_view_core.h"
 
 #include <QObject>
+#include <QJsonObject>
 #include <list>
 #include <vector>
 
@@ -38,7 +40,8 @@ private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
 
-	QString jobsInfoMessage();
+	QJsonObject jobPropertiesToJson(const JobProperties & a_properties) const;
+	QString jobsInfoMessage() const;
 
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;
