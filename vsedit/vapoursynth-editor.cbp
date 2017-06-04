@@ -235,6 +235,8 @@
 		<Unit filename="../common-src/helpers.h" />
 		<Unit filename="../common-src/helpers_gui.cpp" />
 		<Unit filename="../common-src/helpers_gui.h" />
+		<Unit filename="../common-src/jobs/job_variables.cpp" />
+		<Unit filename="../common-src/jobs/job_variables.h" />
 		<Unit filename="../common-src/log/log_styles_model.cpp" />
 		<Unit filename="../common-src/log/log_styles_model.h" />
 		<Unit filename="../common-src/log/styled_log_view.cpp" />
@@ -359,16 +361,16 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="debug-32bit-gcc">
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-64bit-gcc">
+				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

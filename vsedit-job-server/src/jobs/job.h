@@ -7,6 +7,7 @@
 #include "../../../common-src/log/styled_log_view_core.h"
 #include "../../../common-src/log/vs_editor_log_definitions.h"
 #include "../../../common-src/vapoursynth/vs_script_processor_structures.h"
+#include "../../../common-src/jobs/job_variables.h"
 
 #include <QObject>
 #include <QUuid>
@@ -22,7 +23,7 @@ class FrameHeaderWriter;
 namespace vsedit
 {
 
-class Job : public QObject
+class Job : public QObject, public JobVariables
 {
 	Q_OBJECT
 
@@ -80,8 +81,6 @@ public:
 
 	virtual QString subject() const;
 
-	virtual std::vector<vsedit::VariableToken> variables() const;
-
 	virtual int framesProcessed() const;
 	virtual int framesTotal() const;
 	virtual double fps() const;
@@ -127,7 +126,7 @@ protected slots:
 
 protected:
 
-	virtual void fillVariables();
+	virtual void fillVariables() override;
 
 	virtual void changeStateAndNotify(JobState a_state);
 
@@ -159,8 +158,6 @@ protected:
 
 	int m_lastFrameProcessed;
 	int m_lastFrameRequested;
-
-	std::vector<vsedit::VariableToken> m_variables;
 
 	EncodingState m_encodingState;
 

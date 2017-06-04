@@ -148,11 +148,11 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 		if(column == NAME_COLUMN)
 			return trUtf8("Job %1").arg(row + 1);
 		else if(column == TYPE_COLUMN)
-			return vsedit::Job::typeName(pJob->type());
+			return JobProperties::typeName(pJob->type());
 		else if(column == SUBJECT_COLUMN)
 			return pJob->subject();
 		else if(column == STATE_COLUMN)
-			return vsedit::Job::stateName(pJob->state());
+			return JobProperties::stateName(pJob->state());
 		else if(column == DEPENDS_ON_COLUMN)
 		{
 			QStringList dependsList;

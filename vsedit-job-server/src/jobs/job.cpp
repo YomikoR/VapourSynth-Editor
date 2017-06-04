@@ -6,6 +6,7 @@
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../frame_header_writers/frame_header_writer_null.h"
 #include "../frame_header_writers/frame_header_writer_y4m.h"
+#include "../../../common-src/jobs/job_variables.h"
 
 #include <QFileInfo>
 #include <QFile>
@@ -26,6 +27,7 @@ vsedit::Job::Job(const JobProperties & a_properties,
 	VSScriptLibrary * a_pVSScriptLibrary,
 	QObject * a_pParent) :
 	  QObject(a_pParent)
+	, JobVariables()
 	, m_properties(a_properties)
 	, m_lastFrameProcessed(-1)
 	, m_lastFrameRequested(-1)
@@ -360,21 +362,6 @@ QString vsedit::Job::subject() const
 }
 
 // END OF QString vsedit::Job::subject() const
-//==============================================================================
-
-std::vector<vsedit::VariableToken> vsedit::Job::variables() const
-{
-	std::vector<vsedit::VariableToken> cutVariables;
-	for(const vsedit::VariableToken & variable : m_variables)
-	{
-		vsedit::VariableToken cutVariable =
-			{variable.token, variable.description, std::function<QString()>()};
-		cutVariables.push_back(cutVariable);
-	}
-	return cutVariables;
-}
-
-// END OF std::vector<vsedit::VariableToken> vsedit::Job::variables() const
 //==============================================================================
 
 int vsedit::Job::framesProcessed() const
@@ -890,20 +877,17 @@ void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
 
 void vsedit::Job::fillVariables()
 {
-	static const QString TOKEN_WIDTH = "{w}";
-	static const QString TOKEN_HEIGHT = "{h}";
-	static const QString TOKEN_FPS_NUMERATOR = "{fpsn}";
-	static const QString TOKEN_FPS_DENOMINATOR = "{fpsd}";
-	static const QString TOKEN_FPS = "{fps}";
-	static const QString TOKEN_BITDEPTH = "{bits}";
-	static const QString TOKEN_SCRIPT_DIRECTORY = "{sd}";
-	static const QString TOKEN_SCRIPT_NAME = "{sn}";
-	static const QString TOKEN_FRAMES_NUMBER = "{f}";
-	static const QString TOKEN_SUBSAMPLING = "{ss}";
+	JobVariables::fillVariables();
 
-	m_variables =
+	struct JobVariableEvaluator
 	{
-		{TOKEN_WIDTH, trUtf8("video width"),
+		QString token;
+		std::function<QString()> evaluate;
+	};
+
+	JobVariableEvaluator evaluators[] =
+	{
+		{TOKEN_WIDTH,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -912,7 +896,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_HEIGHT, trUtf8("video height"),
+		{TOKEN_HEIGHT,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -921,7 +905,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_FPS_NUMERATOR, trUtf8("video framerate numerator"),
+		{TOKEN_FPS_NUMERATOR,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -930,7 +914,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_FPS_DENOMINATOR, trUtf8("video framerate denominator"),
+		{TOKEN_FPS_DENOMINATOR,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -939,7 +923,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_FPS, trUtf8("video framerate as fraction"),
+		{TOKEN_FPS,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -950,7 +934,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_BITDEPTH, trUtf8("video colour bitdepth"),
+		{TOKEN_BITDEPTH,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -959,7 +943,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_SCRIPT_DIRECTORY, trUtf8("script directory"),
+		{TOKEN_SCRIPT_DIRECTORY,
 			[&]() -> QString
 			{
 				QFileInfo scriptFile(m_properties.scriptName);
@@ -967,7 +951,7 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_SCRIPT_NAME, trUtf8("script name without extension"),
+		{TOKEN_SCRIPT_NAME,
 			[&]() -> QString
 			{
 				QFileInfo scriptFile(m_properties.scriptName);
@@ -975,14 +959,14 @@ void vsedit::Job::fillVariables()
 			}
 		},
 
-		{TOKEN_FRAMES_NUMBER, trUtf8("total frames number"),
+		{TOKEN_FRAMES_NUMBER,
 			[&]() -> QString
 			{
 				return QString::number(framesTotal());
 			}
 		},
 
-		{TOKEN_SUBSAMPLING, trUtf8("subsampling string (like 420)"),
+		{TOKEN_SUBSAMPLING,
 			[&]() -> QString
 			{
 				if(!m_cpVideoInfo)
@@ -996,12 +980,16 @@ void vsedit::Job::fillVariables()
 		},
 	};
 
-	std::sort(m_variables.begin(), m_variables.end(),
-		[&](const vsedit::VariableToken & a_first,
-			const vsedit::VariableToken & a_second) -> bool
-		{
-			return (a_first.token.length() > a_second.token.length());
-		});
+	for(JobVariableEvaluator & evaluator : evaluators)
+	{
+		std::vector<vsedit::VariableToken>::iterator it =
+			std::find_if(m_variables.begin(), m_variables.end(),
+				[&](const vsedit::VariableToken & a_variable) -> bool
+				{
+					return (a_variable.token == evaluator.token);
+				});
+		it->evaluate = evaluator.evaluate;
+	}
 }
 
 // END OF void vsedit::Job::fillVariables()

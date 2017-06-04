@@ -2,6 +2,7 @@
 
 #include "../../../common-src/settings/settings_manager.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/jobs/job_variables.h"
 #include "../../../common-src/helpers.h"
 
 #include <QMessageBox>
@@ -353,9 +354,9 @@ void JobEditDialog::slotEncodingFramesFromVideoButtonClicked()
 
 void JobEditDialog::slotEncodingArgumentsHelpButtonClicked()
 {
-	vsedit::Job job;
+	JobVariables variables;
 	QString argumentsHelpString = trUtf8("Use following placeholders:");
-	for(const vsedit::VariableToken & variable : job.variables())
+	for(const vsedit::VariableToken & variable : variables.variables())
 	{
 		argumentsHelpString += QString("\n%1 - %2")
 			.arg(variable.token).arg(variable.description);
