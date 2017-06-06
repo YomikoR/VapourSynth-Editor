@@ -44,7 +44,7 @@ private slots:
 	void slotJobStateChanged(const QUuid & a_jobID, JobState a_state);
 	void slotJobProgressChanged(const QUuid & a_jobID, int a_progress);
 	void slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
-	void slotJobsDeleted(const std::vector<QUuid> a_ids);
+	void slotJobsDeleted(const std::vector<QUuid> & a_ids);
 
 private:
 
@@ -57,6 +57,9 @@ private:
 		const QJsonArray & a_jsonArray) const;
 	QString jsonMessage(const QString & a_command,
 		const QJsonDocument & a_jsonDocument) const;
+
+	void broadcastMessage(const QString & a_message,
+		bool a_includeNonSubscribers = false);
 
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;

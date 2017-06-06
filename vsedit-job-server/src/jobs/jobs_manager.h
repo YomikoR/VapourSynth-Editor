@@ -53,7 +53,7 @@ signals:
 	void signalJobStateChanged(const QUuid & a_jobID, JobState a_state);
 	void signalJobProgressChanged(const QUuid & a_jobID, int a_progress);
 	void signalJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
-	void signalJobsDeleted(const std::vector<QUuid> a_ids);
+	void signalJobsDeleted(const std::vector<QUuid> & a_ids);
 
 private slots:
 

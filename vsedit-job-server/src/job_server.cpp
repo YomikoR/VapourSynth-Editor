@@ -112,42 +112,63 @@ void JobServer::slotSocketDisconnected()
 void JobServer::slotLogMessage(const QString & a_message,
 	const QString & a_style)
 {
+	LogEntry entry(a_message, a_style);
+	m_logEntries.push_back(entry);
+	broadcastMessage(jsonMessage(SMSG_LOG_MESSAGE, entry.toJson()));
 }
 
 //==============================================================================
 
 void JobServer::slotJobCreated(const JobProperties & a_properties)
 {
+	broadcastMessage(jsonMessage(SMSG_JOB_CREATED, a_properties.toJson()));
 }
 
 //==============================================================================
 
 void JobServer::slotJobChanged(const JobProperties & a_properties)
 {
+	broadcastMessage(jsonMessage(SMSG_JOB_UPDATE, a_properties.toJson()));
 }
 
 //==============================================================================
 
 void JobServer::slotJobStateChanged(const QUuid & a_jobID, JobState a_state)
 {
+	QJsonObject jsJob;
+	jsJob[JP_ID] = a_jobID.toString();
+	jsJob[JP_JOB_STATE] = (int)a_state;
+	broadcastMessage(jsonMessage(SMSG_JOB_STATE_UPDATE, jsJob));
 }
 
 //==============================================================================
 
 void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress)
 {
+	QJsonObject jsJob;
+	jsJob[JP_ID] = a_jobID.toString();
+	jsJob[JP_FRAMES_PROCESSED] = a_progress;
+	broadcastMessage(jsonMessage(SMSG_JOB_PROGRESS_UPDATE, jsJob));
 }
 
 //==============================================================================
 
 void JobServer::slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2)
 {
+	QJsonObject jsSwap;
+	jsSwap[JOBS_SWAPPED_ID1] = a_jobID1.toString();
+	jsSwap[JOBS_SWAPPED_ID2] = a_jobID2.toString();
+	broadcastMessage(jsonMessage(SMSG_JOBS_SWAPPED, jsSwap));
 }
 
 //==============================================================================
 
-void JobServer::slotJobsDeleted(const std::vector<QUuid> a_ids)
+void JobServer::slotJobsDeleted(const std::vector<QUuid> & a_ids)
 {
+	QJsonArray jsIdsArray;
+	for(const QUuid & id : a_ids)
+		jsIdsArray.push_back(id.toString());
+	broadcastMessage(jsonMessage(SMSG_JOBS_DELETED, jsIdsArray));
 }
 
 //==============================================================================
@@ -167,8 +188,7 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 	{
 		if(local)
 		{
-			for(QWebSocket * pClient : m_clients)
-				pClient->sendTextMessage("Closing server.");
+			broadcastMessage(SMSG_CLOSING_SERVER, true);
 			emit finish();
 		}
 		else
@@ -229,6 +249,17 @@ QString JobServer::jsonMessage(const QString & a_command,
 	QString jobsJson = QString::fromUtf8(a_jsonDocument.toJson());
 	QString message = QString("%1 %2").arg(a_command).arg(jobsJson);
 	return message;
+}
+
+//==============================================================================
+
+void JobServer::broadcastMessage(const QString & a_message,
+	bool a_includeNonSubscribers)
+{
+	std::list<QWebSocket *> & clients =
+		a_includeNonSubscribers ? m_clients : m_subscribers;
+	for(QWebSocket * pClient : clients)
+		pClient->sendTextMessage(a_message);
 }
 
 //==============================================================================
