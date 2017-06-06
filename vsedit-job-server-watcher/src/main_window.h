@@ -92,8 +92,6 @@ private:
 
 	void processSMsgJobInfo(const QString & a_message);
 
-	JobProperties jobPropertiesFromJson(const QJsonObject & a_object);
-
 	static const char WINDOW_TITLE[];
 
 	Ui::MainWindow m_ui;

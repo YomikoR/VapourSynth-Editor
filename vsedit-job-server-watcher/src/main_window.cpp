@@ -547,7 +547,7 @@ void MainWindow::processSMsgJobInfo(const QString & a_message)
 	{
 		if(!value.isObject())
 			continue;
-		JobProperties properties = jobPropertiesFromJson(value.toObject());
+		JobProperties properties = JobProperties::fromJson(value.toObject());
 		propertiesVector.push_back(properties);
 	}
 
@@ -555,60 +555,4 @@ void MainWindow::processSMsgJobInfo(const QString & a_message)
 }
 
 // END OF void MainWindow::processSMsgJobInfo(const QString & a_message)
-//==============================================================================
-
-JobProperties MainWindow::jobPropertiesFromJson(const QJsonObject & a_object)
-{
-	JobProperties properties;
-	if(a_object.contains("id"))
-		properties.id = QUuid(a_object["id"].toString());
-	if(a_object.contains("type"))
-		properties.type = (JobType)a_object["type"].toInt();
-	if(a_object.contains("jobState"))
-		properties.jobState = (JobState)a_object["jobState"].toInt();
-	if(a_object.contains("dependsOnJobIds"))
-	{
-		if(a_object["dependsOnJobIds"].isArray())
-		{
-			for(const QJsonValue & value :
-				a_object["dependsOnJobIds"].toArray())
-				properties.dependsOnJobIds.push_back(QUuid(value.toString()));
-		}
-	}
-	if(a_object.contains("timeStarted"))
-		properties.timeStarted = QDateTime::fromMSecsSinceEpoch(
-			a_object["timeStarted"].toVariant().toLongLong());
-	if(a_object.contains("timeEnded"))
-		properties.timeEnded = QDateTime::fromMSecsSinceEpoch(
-			a_object["timeEnded"].toVariant().toLongLong());
-		properties.scriptName = a_object["scriptName"].toString();
-	if(a_object.contains("encodingType"))
-		properties.encodingType =
-			(EncodingType)a_object["encodingType"].toInt();
-	if(a_object.contains("encodingHeaderType"))
-		properties.encodingHeaderType =
-			(EncodingHeaderType)a_object["encodingHeaderType"].toInt();
-	if(a_object.contains("executablePath"))
-		properties.executablePath = a_object["executablePath"].toString();
-	if(a_object.contains("arguments"))
-		properties.arguments = a_object["arguments"].toString();
-	if(a_object.contains("shellCommand"))
-		properties.shellCommand = a_object["shellCommand"].toString();
-	if(a_object.contains("firstFrame"))
-		properties.firstFrame = a_object["firstFrame"].toInt();
-	if(a_object.contains("firstFrameReal"))
-		properties.firstFrameReal = a_object["firstFrameReal"].toInt();
-	if(a_object.contains("lastFrame"))
-		properties.lastFrame = a_object["lastFrame"].toInt();
-	if(a_object.contains("lastFrameReal"))
-		properties.lastFrameReal= a_object["lastFrameReal"].toInt();
-	if(a_object.contains("framesProcessed"))
-		properties.framesProcessed = a_object["framesProcessed"].toInt();
-	if(a_object.contains("fps"))
-		properties.fps = a_object["fps"].toDouble();
-	return properties;
-}
-
-// END OF JobProperties MainWindow::jobPropertiesFromJson(
-//		const QJsonObject & a_object)
 //==============================================================================

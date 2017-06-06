@@ -4,6 +4,7 @@
 #include <QString>
 #include <QDateTime>
 #include <QUuid>
+#include <QJsonObject>
 #include <vector>
 
 //==============================================================================
@@ -103,6 +104,9 @@ struct JobProperties
 
 	QString subject() const;
 	int framesTotal() const;
+
+	QJsonObject toJson() const;
+	static JobProperties fromJson(const QJsonObject & a_object);
 };
 
 struct EncodingPreset

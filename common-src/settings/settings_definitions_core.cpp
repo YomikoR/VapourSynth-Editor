@@ -1,6 +1,8 @@
 #include "settings_definitions_core.h"
 
 #include <QObject>
+#include <QJsonArray>
+#include <QVariant>
 #include <map>
 
 //==============================================================================
@@ -104,6 +106,107 @@ QString JobProperties::subject() const
 int JobProperties::framesTotal() const
 {
 	return lastFrameReal - firstFrameReal + 1;
+}
+
+const char JP_ID[] = "id";
+const char JP_TYPE[] = "type";
+const char JP_JOB_STATE[] = "jobState";
+const char JP_DEPENDS_ON_JOB_IDS[] = "dependsOnJobIds";
+const char JP_TIME_STARTED[] = "timeStarted";
+const char JP_TIME_ENDED[] = "timeEnded";
+const char JP_SCRIPT_NAME[] = "scriptName";
+const char JP_ENCODING_TYPE[] = "encodingType";
+const char JP_ENCODING_HEADER_TYPE[] = "encodingHeaderType";
+const char JP_EXECUTABLE_PATH[] = "executablePath";
+const char JP_ARGUMENTS[] = "arguments";
+const char JP_SHELL_COMMAND[] = "shellCommand";
+const char JP_FIRST_FRAME[] = "firstFrame";
+const char JP_FIRST_FRAME_REAL[] = "firstFrameReal";
+const char JP_LAST_FRAME[] = "lastFrame";
+const char JP_LAST_FRAME_REAL[] = "lastFrameReal";
+const char JP_FRAMES_PROCESSED[] = "framesProcessed";
+const char JP_FPS[] = "fps";
+
+QJsonObject JobProperties::toJson() const
+{
+	QJsonObject jsJob;
+	jsJob[JP_ID] = id.toString();
+	jsJob[JP_TYPE] = (int)type;
+	jsJob[JP_JOB_STATE] = (int)jobState;
+
+	QJsonArray jsDependencies;
+	for(const QUuid & id : dependsOnJobIds)
+		jsDependencies.push_back(QJsonValue(id.toString()));
+	jsJob[JP_DEPENDS_ON_JOB_IDS] = jsDependencies;
+
+	jsJob[JP_TIME_STARTED] = timeStarted.toMSecsSinceEpoch();
+	jsJob[JP_TIME_ENDED] = timeEnded.toMSecsSinceEpoch();
+	jsJob[JP_SCRIPT_NAME] = scriptName;
+	jsJob[JP_ENCODING_TYPE] = (int)encodingType;
+	jsJob[JP_ENCODING_HEADER_TYPE] = (int)encodingHeaderType;
+	jsJob[JP_EXECUTABLE_PATH] = executablePath;
+	jsJob[JP_ARGUMENTS] = arguments;
+	jsJob[JP_SHELL_COMMAND] = shellCommand;
+	jsJob[JP_FIRST_FRAME] = firstFrame;
+	jsJob[JP_FIRST_FRAME_REAL] = firstFrameReal;
+	jsJob[JP_LAST_FRAME] = lastFrame;
+	jsJob[JP_LAST_FRAME_REAL] = lastFrameReal;
+	jsJob[JP_FRAMES_PROCESSED] = framesProcessed;
+	jsJob[JP_FPS] = fps;
+	return jsJob;
+}
+
+JobProperties JobProperties::fromJson(const QJsonObject & a_object)
+{
+	JobProperties properties;
+	if(a_object.contains(JP_ID))
+		properties.id = QUuid(a_object[JP_ID].toString());
+	if(a_object.contains(JP_TYPE))
+		properties.type = (JobType)a_object[JP_TYPE].toInt();
+	if(a_object.contains(JP_JOB_STATE))
+		properties.jobState = (JobState)a_object[JP_JOB_STATE].toInt();
+	if(a_object.contains(JP_DEPENDS_ON_JOB_IDS))
+	{
+		if(a_object[JP_DEPENDS_ON_JOB_IDS].isArray())
+		{
+			for(const QJsonValue & value :
+				a_object[JP_DEPENDS_ON_JOB_IDS].toArray())
+				properties.dependsOnJobIds.push_back(QUuid(value.toString()));
+		}
+	}
+	if(a_object.contains(JP_TIME_STARTED))
+		properties.timeStarted = QDateTime::fromMSecsSinceEpoch(
+			a_object[JP_TIME_STARTED].toVariant().toLongLong());
+	if(a_object.contains(JP_TIME_ENDED))
+		properties.timeEnded = QDateTime::fromMSecsSinceEpoch(
+			a_object[JP_TIME_ENDED].toVariant().toLongLong());
+	if(a_object.contains(JP_SCRIPT_NAME))
+		properties.scriptName = a_object[JP_SCRIPT_NAME].toString();
+	if(a_object.contains(JP_ENCODING_TYPE))
+		properties.encodingType =
+			(EncodingType)a_object[JP_ENCODING_TYPE].toInt();
+	if(a_object.contains(JP_ENCODING_HEADER_TYPE))
+		properties.encodingHeaderType =
+			(EncodingHeaderType)a_object[JP_ENCODING_HEADER_TYPE].toInt();
+	if(a_object.contains(JP_EXECUTABLE_PATH))
+		properties.executablePath = a_object[JP_EXECUTABLE_PATH].toString();
+	if(a_object.contains(JP_ARGUMENTS))
+		properties.arguments = a_object[JP_ARGUMENTS].toString();
+	if(a_object.contains(JP_SHELL_COMMAND))
+		properties.shellCommand = a_object[JP_SHELL_COMMAND].toString();
+	if(a_object.contains(JP_FIRST_FRAME))
+		properties.firstFrame = a_object[JP_FIRST_FRAME].toInt();
+	if(a_object.contains(JP_FIRST_FRAME_REAL))
+		properties.firstFrameReal = a_object[JP_FIRST_FRAME_REAL].toInt();
+	if(a_object.contains(JP_LAST_FRAME))
+		properties.lastFrame = a_object[JP_LAST_FRAME].toInt();
+	if(a_object.contains(JP_LAST_FRAME_REAL))
+		properties.lastFrameReal= a_object[JP_LAST_FRAME_REAL].toInt();
+	if(a_object.contains(JP_FRAMES_PROCESSED))
+		properties.framesProcessed = a_object[JP_FRAMES_PROCESSED].toInt();
+	if(a_object.contains(JP_FPS))
+		properties.fps = a_object[JP_FPS].toDouble();
+	return properties;
 }
 
 //==============================================================================

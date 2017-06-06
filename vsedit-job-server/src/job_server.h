@@ -39,8 +39,6 @@ private slots:
 private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
-
-	QJsonObject jobPropertiesToJson(const JobProperties & a_properties) const;
 	QString jobsInfoMessage() const;
 
 	SettingsManagerCore * m_pSettingsManager;
