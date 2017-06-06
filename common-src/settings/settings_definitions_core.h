@@ -72,6 +72,25 @@ enum class JobState
 
 extern const std::vector<JobState> ACTIVE_JOB_STATES;
 
+extern const char JP_ID[];
+extern const char JP_TYPE[];
+extern const char JP_JOB_STATE[];
+extern const char JP_DEPENDS_ON_JOB_IDS[];
+extern const char JP_TIME_STARTED[];
+extern const char JP_TIME_ENDED[];
+extern const char JP_SCRIPT_NAME[];
+extern const char JP_ENCODING_TYPE[];
+extern const char JP_ENCODING_HEADER_TYPE[];
+extern const char JP_EXECUTABLE_PATH[];
+extern const char JP_ARGUMENTS[];
+extern const char JP_SHELL_COMMAND[];
+extern const char JP_FIRST_FRAME[];
+extern const char JP_FIRST_FRAME_REAL[];
+extern const char JP_LAST_FRAME[];
+extern const char JP_LAST_FRAME_REAL[];
+extern const char JP_FRAMES_PROCESSED[];
+extern const char JP_FPS[];
+
 struct JobProperties
 {
 	QUuid id;

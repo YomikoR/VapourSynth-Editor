@@ -3,11 +3,17 @@
 
 #include <QString>
 #include <QDateTime>
+#include <QJsonObject>
 
 //==============================================================================
 
 extern const char LOG_STYLE_DEFAULT[];
 extern const char LOG_STYLE_TITLE_DEFAULT[];
+
+extern const char LE_IS_DIVIDER[];
+extern const char LE_TIME[];
+extern const char LE_TEXT[];
+extern const char LE_STYLE[];
 
 //==============================================================================
 
@@ -25,6 +31,9 @@ struct LogEntry
 		LOG_STYLE_DEFAULT);
 
 	static LogEntry divider();
+
+	QJsonObject toJson() const;
+	static LogEntry fromJson(const QJsonObject & a_object);
 };
 
 //==============================================================================
