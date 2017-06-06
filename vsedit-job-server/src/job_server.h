@@ -5,7 +5,9 @@
 #include "../../common-src/log/styled_log_view_core.h"
 
 #include <QObject>
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <list>
 #include <vector>
 
@@ -36,10 +38,25 @@ private slots:
 	void slotTextMessageReceived(const QString & a_message);
 	void slotSocketDisconnected();
 
+	void slotLogMessage(const QString & a_message, const QString & a_style);
+	void slotJobCreated(const JobProperties & a_properties);
+	void slotJobChanged(const JobProperties & a_properties);
+	void slotJobStateChanged(const QUuid & a_jobID, JobState a_state);
+	void slotJobProgressChanged(const QUuid & a_jobID, int a_progress);
+	void slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
+	void slotJobsDeleted(const std::vector<QUuid> a_ids);
+
 private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
 	QString jobsInfoMessage() const;
+
+	QString jsonMessage(const QString & a_command,
+		const QJsonObject & a_jsonObject) const;
+	QString jsonMessage(const QString & a_command,
+		const QJsonArray & a_jsonArray) const;
+	QString jsonMessage(const QString & a_command,
+		const QJsonDocument & a_jsonDocument) const;
 
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;

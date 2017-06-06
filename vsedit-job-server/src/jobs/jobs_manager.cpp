@@ -51,6 +51,7 @@ int JobsManager::createJob(const JobProperties & a_jobProperties)
 	JobTicket ticket = {pJob, JobWantTo::Nothing};
 	m_tickets.push_back(ticket);
 	int newRow = (int)m_tickets.size();
+	emit signalJobCreated(a_jobProperties);
 	return newRow;
 }
 

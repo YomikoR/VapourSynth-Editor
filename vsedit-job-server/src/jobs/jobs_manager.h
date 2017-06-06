@@ -48,6 +48,7 @@ signals:
 
 	void signalLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
+	void signalJobCreated(const JobProperties & a_properties);
 	void signalJobChanged(const JobProperties & a_properties);
 	void signalJobStateChanged(const QUuid & a_jobID, JobState a_state);
 	void signalJobProgressChanged(const QUuid & a_jobID, int a_progress);

@@ -14,8 +14,13 @@ static const char MSG_CLOSE_SERVER[] = "CS";
 // Server messages
 static const char SMSG_JOBS_INFO[] = "JI";
 static const char SMSG_COMPLETE_LOG[] = "LOG";
-static const char SMSG_JOB_UPDATE[] = "JU";
 static const char SMSG_LOG_MESSAGE[] = "LM";
+static const char SMSG_JOB_CREATED[] = "JC";
+static const char SMSG_JOB_DELETED[] = "JD";
+static const char SMSG_JOB_UPDATE[] = "JU";
+static const char SMSG_JOB_STATE_UPDATE[] = "JSU";
+static const char SMSG_JOB_PROGRESS_UPDATE[] = "JPU";
+static const char SMSG_JOBS_SWAPPED[] = "JSW";
 static const char SMSG_REFUSE[] = "RF";
 
 #endif // IPC_DEFINES_H_INCLUDED

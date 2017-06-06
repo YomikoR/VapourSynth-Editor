@@ -5,8 +5,6 @@
 
 #include <QWebSocketServer>
 #include <QWebSocket>
-#include <QJsonDocument>
-#include <QJsonArray>
 #include <cassert>
 
 //==============================================================================
@@ -20,6 +18,20 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 
 	m_pJobsManager = new JobsManager(m_pSettingsManager, this);
 	m_pJobsManager->loadJobs();
+	connect(m_pJobsManager, &JobsManager::signalLogMessage,
+		this, &JobServer::slotLogMessage);
+	connect(m_pJobsManager, &JobsManager::signalJobCreated,
+		this, &JobServer::slotJobCreated);
+	connect(m_pJobsManager, &JobsManager::signalJobChanged,
+		this, &JobServer::slotJobChanged);
+	connect(m_pJobsManager, &JobsManager::signalJobStateChanged,
+		this, &JobServer::slotJobStateChanged);
+	connect(m_pJobsManager, &JobsManager::signalJobProgressChanged,
+		this, &JobServer::slotJobProgressChanged);
+	connect(m_pJobsManager, &JobsManager::signalJobsSwapped,
+		this, &JobServer::slotJobsSwapped);
+	connect(m_pJobsManager, &JobsManager::signalJobsDeleted,
+		this, &JobServer::slotJobsDeleted);
 
 	m_pWebSocketServer = new QWebSocketServer(JOB_SERVER_NAME,
 		QWebSocketServer::NonSecureMode, this);
@@ -97,6 +109,49 @@ void JobServer::slotSocketDisconnected()
 
 //==============================================================================
 
+void JobServer::slotLogMessage(const QString & a_message,
+	const QString & a_style)
+{
+}
+
+//==============================================================================
+
+void JobServer::slotJobCreated(const JobProperties & a_properties)
+{
+}
+
+//==============================================================================
+
+void JobServer::slotJobChanged(const JobProperties & a_properties)
+{
+}
+
+//==============================================================================
+
+void JobServer::slotJobStateChanged(const QUuid & a_jobID, JobState a_state)
+{
+}
+
+//==============================================================================
+
+void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress)
+{
+}
+
+//==============================================================================
+
+void JobServer::slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2)
+{
+}
+
+//==============================================================================
+
+void JobServer::slotJobsDeleted(const std::vector<QUuid> a_ids)
+{
+}
+
+//==============================================================================
+
 void JobServer::processMessage(QWebSocket * a_pClient,
 	const QString & a_message)
 {
@@ -146,8 +201,33 @@ QString JobServer::jobsInfoMessage() const
 	QJsonArray jsJobs;
 	for(const JobProperties & properties : m_pJobsManager->jobsProperties())
 		jsJobs.push_back(properties.toJson());
-	QString jobsJson = QString::fromUtf8(QJsonDocument(jsJobs).toJson());
-	QString message = QString("%1 %2").arg(SMSG_JOBS_INFO).arg(jobsJson);
+	QString message = jsonMessage(SMSG_JOBS_INFO, jsJobs);
+	return message;
+}
+
+//==============================================================================
+
+QString JobServer::jsonMessage(const QString & a_command,
+	const QJsonObject & a_jsonObject) const
+{
+	return jsonMessage(a_command, QJsonDocument(a_jsonObject));
+}
+
+//==============================================================================
+
+QString JobServer::jsonMessage(const QString & a_command,
+	const QJsonArray & a_jsonArray) const
+{
+	return jsonMessage(a_command, QJsonDocument(a_jsonArray));
+}
+
+//==============================================================================
+
+QString JobServer::jsonMessage(const QString & a_command,
+	const QJsonDocument & a_jsonDocument) const
+{
+	QString jobsJson = QString::fromUtf8(a_jsonDocument.toJson());
+	QString message = QString("%1 %2").arg(a_command).arg(jobsJson);
 	return message;
 }
 
