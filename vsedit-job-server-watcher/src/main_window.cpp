@@ -367,7 +367,7 @@ void MainWindow::slotAbortButtonClicked()
 
 void MainWindow::slotJobDoubleClicked(const QModelIndex & a_index)
 {
-
+	(void)a_index;
 }
 
 // END OF void MainWindow::slotJobDoubleClicked(const QModelIndex & a_index)
@@ -415,7 +415,11 @@ void MainWindow::slotShowJobsHeaderSection(bool a_show)
 void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 	JobState a_state, int a_progress, int a_progressMax)
 {
-
+	(void)a_job;
+	(void)a_jobsTotal;
+	(void)a_state;
+	(void)a_progress;
+	(void)a_progressMax;
 }
 
 // END OF void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
@@ -475,6 +479,8 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 {
+	(void)a_error;
+
 	m_ui.logView->addEntry(m_pServerSocket->errorString(), LOG_STYLE_ERROR);
 
 	if(m_pServerSocket->state() != QAbstractSocket::ConnectedState)
@@ -518,7 +524,7 @@ void MainWindow::saveGeometrySettings()
 
 void MainWindow::editJob(const QModelIndex & a_index)
 {
-
+	(void)a_index;
 }
 
 // END OF void MainWindow::editJob(const QModelIndex & a_index)
@@ -526,6 +532,7 @@ void MainWindow::editJob(const QModelIndex & a_index)
 
 bool MainWindow::updateJob(int a_index)
 {
+	(void)a_index;
 	return false;
 }
 
