@@ -11,6 +11,17 @@ static const char MSG_SUBSCRIBE[] = "SS";
 static const char MSG_UNSUBSCRIBE[] = "USS";
 static const char MSG_CLOSE_SERVER[] = "CS";
 
+static const char MSG_CREATE_JOB[] = "CJ";
+static const char MSG_CHANGE_JOB[] = "CHJ";
+static const char MSG_SWAP_JOBS[] = "SJ";
+static const char MSG_RESET_JOBS[] = "RJ";
+static const char MSG_DELETE_JOBS[] = "DJ";
+
+static const char MSG_START_ALL_WAITING_JOBS[] = "SAWJ";
+static const char MSG_PAUSE_ACTIVE_JOBS[] = "PACJ";
+static const char MSG_RESUME_PAUSED_JOBS[] = "RPJ";
+static const char MSG_ABORT_ACTIVE_JOBS[] = "AACJ";
+
 // Server messages
 static const char SMSG_JOBS_INFO[] = "JI";
 static const char SMSG_COMPLETE_LOG[] = "LOG";
