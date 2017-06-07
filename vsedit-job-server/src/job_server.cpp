@@ -199,6 +199,8 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		return;
 	}
 
+	QJsonDocument jsArguments = QJsonDocument::fromJson(arguments.toUtf8());
+
 	if(command == QString(MSG_GET_JOBS_INFO))
 	{
 		a_pClient->sendTextMessage(jobsInfoMessage());
@@ -229,6 +231,76 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 	{
 		broadcastMessage(SMSG_CLOSING_SERVER, true);
 		emit finish();
+		return;
+	}
+
+	if(command == QString(MSG_CREATE_JOB))
+	{
+		JobProperties properties =
+			JobProperties::fromJson(jsArguments.object());
+		m_pJobsManager->createJob(properties);
+		return;
+	}
+
+	if(command == QString(MSG_CHANGE_JOB))
+	{
+		JobProperties properties =
+			JobProperties::fromJson(jsArguments.object());
+		m_pJobsManager->changeJob(properties);
+		return;
+	}
+
+	if(command == QString(MSG_SWAP_JOBS))
+	{
+		QJsonArray jsIDs = jsArguments.array();
+		if(jsIDs.count() != 2)
+			return;
+		m_pJobsManager->swapJobs(QUuid(jsIDs[0].toString()),
+			QUuid(jsIDs[1].toString()));
+		return;
+	}
+
+	if(command == QString(MSG_RESET_JOBS))
+	{
+		QJsonArray jsIDs = jsArguments.array();
+		std::vector<QUuid> ids;
+		for(int i = 0; i < jsIDs.count(); ++i)
+			ids << QUuid(jsIDs[i].toString());
+		m_pJobsManager->resetJobs(ids);
+		return;
+	}
+
+	if(command == QString(MSG_DELETE_JOBS))
+	{
+		QJsonArray jsIDs = jsArguments.array();
+		std::vector<QUuid> ids;
+		for(int i = 0; i < jsIDs.count(); ++i)
+			ids << QUuid(jsIDs[i].toString());
+		m_pJobsManager->deleteJobs(ids);
+		return;
+	}
+
+	if(command == QString(MSG_START_ALL_WAITING_JOBS))
+	{
+		m_pJobsManager->startWaitingJobs();
+		return;
+	}
+
+	if(command == QString(MSG_PAUSE_ACTIVE_JOBS))
+	{
+		m_pJobsManager->pauseActiveJobs();
+		return;
+	}
+
+	if(command == QString(MSG_RESUME_PAUSED_JOBS))
+	{
+		m_pJobsManager->resumePausedJobs();
+		return;
+	}
+
+	if(command == QString(MSG_ABORT_ACTIVE_JOBS))
+	{
+		m_pJobsManager->abortActiveJobs();
 		return;
 	}
 

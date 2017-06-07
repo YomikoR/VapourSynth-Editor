@@ -103,14 +103,13 @@ bool JobsManager::setJobState(const QUuid & a_uuid, JobState a_state)
 // END OF
 //==============================================================================
 
-bool JobsManager::setJobProperties(const QUuid & a_uuid,
-	const JobProperties & a_jobProperties)
+bool JobsManager::changeJob(const JobProperties & a_jobProperties)
 {
-	int index = indexOfJob(a_uuid);
+	int index = indexOfJob(a_jobProperties.id);
 	if(!checkCanModifyJobAndNotify(index))
 		return false;
 	vsedit::Job * pJob = m_tickets[index].pJob;
-	bool result =pJob ->setProperties(a_jobProperties);
+	bool result = pJob->setProperties(a_jobProperties);
 	if(result)
 		result = pJob->setState(JobState::Waiting);
 	emit signalJobChanged(pJob->properties());

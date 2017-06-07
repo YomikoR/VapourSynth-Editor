@@ -28,8 +28,7 @@ public:
 	bool swapJobs(const QUuid & a_jobID1, const QUuid & a_jobID2);
 
 	bool setJobState(const QUuid & a_uuid, JobState a_state);
-	bool setJobProperties(const QUuid & a_uuid,
-		const JobProperties & a_jobProperties);
+	bool changeJob(const JobProperties & a_jobProperties);
 
 	bool loadJobs();
 	bool saveJobs();
