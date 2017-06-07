@@ -25,8 +25,7 @@ public:
 
 	int createJob(const JobProperties & a_jobProperties = JobProperties());
 
-	bool moveJobUp(const QUuid & a_uuid);
-	bool moveJobDown(const QUuid & a_uuid);
+	bool swapJobs(const QUuid & a_jobID1, const QUuid & a_jobID2);
 
 	bool setJobState(const QUuid & a_uuid, JobState a_state);
 	bool setJobProperties(const QUuid & a_uuid,

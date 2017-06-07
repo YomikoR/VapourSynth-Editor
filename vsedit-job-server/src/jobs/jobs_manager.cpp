@@ -58,47 +58,33 @@ int JobsManager::createJob(const JobProperties & a_jobProperties)
 // END OF
 //==============================================================================
 
-bool JobsManager::moveJobUp(const QUuid & a_uuid)
+bool JobsManager::swapJobs(const QUuid & a_jobID1, const QUuid & a_jobID2)
 {
-	int index = indexOfJob(a_uuid);
-
-	if(index <= 0)
+	int lowerIndex = indexOfJob(a_jobID1);
+	if(lowerIndex < 0)
 		return false;
-
-	if(vsedit::contains(m_tickets[index].pJob->dependsOnJobIds(),
-		m_tickets[index - 1].pJob->id()))
+	int higherIndex = indexOfJob(a_jobID2);
+	if(higherIndex < 0)
 		return false;
+	if(higherIndex < lowerIndex)
+		std::swap(lowerIndex, higherIndex);
 
-	std::swap(m_tickets[index], m_tickets[index - 1]);
+	for(int i = lowerIndex; i < higherIndex; ++i)
+	{
+		if(vsedit::contains(m_tickets[higherIndex].pJob->dependsOnJobIds(),
+			m_tickets[i].pJob->id()))
+			return false;
+	}
 
-	emit signalJobsSwapped(m_tickets[index].pJob->id(),
-		m_tickets[index - 1].pJob->id());
+	for(int i = lowerIndex + 1; i < higherIndex; ++i)
+	{
+		if(vsedit::contains(m_tickets[i].pJob->dependsOnJobIds(),
+			m_tickets[lowerIndex].pJob->id()))
+			return false;
+	}
 
-	return true;
-}
-
-// END OF
-//==============================================================================
-
-bool JobsManager::moveJobDown(const QUuid & a_uuid)
-{
-	int index = indexOfJob(a_uuid);
-
-	if(index <0)
-		return false;
-
-	if(index >= ((int)m_tickets.size() - 1))
-		return false;
-
-	if(vsedit::contains(m_tickets[index + 1].pJob->dependsOnJobIds(),
-		m_tickets[index].pJob->id()))
-		return false;
-
-	std::swap(m_tickets[index], m_tickets[index + 1]);
-
-	emit signalJobsSwapped(m_tickets[index].pJob->id(),
-		m_tickets[index + 1].pJob->id());
-
+	std::swap(m_tickets[lowerIndex], m_tickets[higherIndex]);
+	emit signalJobsSwapped(a_jobID1, a_jobID2);
 	return true;
 }
 
