@@ -178,32 +178,61 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 {
 	bool local = a_pClient->peerAddress().isLoopback();
 
-	if(a_message == QString(MSG_GET_JOBS_INFO))
+	QString command = a_message;
+	QString arguments;
+	int spaceIndex = a_message.indexOf(' ');
+	if(spaceIndex >= 0)
+	{
+		command = a_message.left(spaceIndex);
+		arguments = a_message.mid(spaceIndex + 1);
+	}
+
+	QString localOnlyCommands[] = {MSG_CLOSE_SERVER, MSG_CREATE_JOB,
+		MSG_CHANGE_JOB, MSG_SWAP_JOBS, MSG_RESET_JOBS, MSG_DELETE_JOBS,
+		MSG_START_ALL_WAITING_JOBS, MSG_PAUSE_ACTIVE_JOBS,
+		MSG_RESUME_PAUSED_JOBS, MSG_ABORT_ACTIVE_JOBS};
+
+	if(vsedit::contains(localOnlyCommands, command) && (!local))
+	{
+		a_pClient->sendTextMessage("You're naughty! This command can not "
+			"be executed remotely.");
+		return;
+	}
+
+	if(command == QString(MSG_GET_JOBS_INFO))
 	{
 		a_pClient->sendTextMessage(jobsInfoMessage());
 		return;
 	}
 
-	if(a_message == QString(MSG_CLOSE_SERVER))
+	if(command == QString(MSG_GET_LOG))
 	{
-		if(local)
-		{
-			broadcastMessage(SMSG_CLOSING_SERVER, true);
-			emit finish();
-		}
-		else
-			a_pClient->sendTextMessage("Can not close server remotely.");
+		a_pClient->sendTextMessage(completeLogMessage());
 		return;
 	}
 
-	if(a_message == QString(MSG_SUBSCRIBE))
+	if(command == QString(MSG_SUBSCRIBE))
 	{
 		m_subscribers.push_back(a_pClient);
 		a_pClient->sendTextMessage("Subscribed to jobs updates.");
 		return;
 	}
 
-	if(a_message == QString(MSG_UNSUBSCRIBE))
+	if(command == QString(MSG_UNSUBSCRIBE))
+	{
+		m_subscribers.remove(a_pClient);
+		a_pClient->sendTextMessage("Unsubscribed from jobs updates.");
+		return;
+	}
+
+	if(command == QString(MSG_CLOSE_SERVER))
+	{
+		broadcastMessage(SMSG_CLOSING_SERVER, true);
+		emit finish();
+		return;
+	}
+
+	if(command == QString(MSG_UNSUBSCRIBE))
 	{
 		m_subscribers.remove(a_pClient);
 		a_pClient->sendTextMessage("Unsubscribed from jobs updates.");
@@ -222,6 +251,17 @@ QString JobServer::jobsInfoMessage() const
 	for(const JobProperties & properties : m_pJobsManager->jobsProperties())
 		jsJobs.push_back(properties.toJson());
 	QString message = jsonMessage(SMSG_JOBS_INFO, jsJobs);
+	return message;
+}
+
+//==============================================================================
+
+QString JobServer::completeLogMessage() const
+{
+	QJsonArray jsEntries;
+	for(const LogEntry & entry : m_logEntries)
+		jsEntries.push_back(entry.toJson());
+	QString message = jsonMessage(SMSG_COMPLETE_LOG, jsEntries);
 	return message;
 }
 

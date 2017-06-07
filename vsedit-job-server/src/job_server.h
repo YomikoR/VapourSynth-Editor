@@ -50,6 +50,7 @@ private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
 	QString jobsInfoMessage() const;
+	QString completeLogMessage() const;
 
 	QString jsonMessage(const QString & a_command,
 		const QJsonObject & a_jsonObject) const;
