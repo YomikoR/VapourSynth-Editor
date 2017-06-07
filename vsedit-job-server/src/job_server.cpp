@@ -143,11 +143,13 @@ void JobServer::slotJobStateChanged(const QUuid & a_jobID, JobState a_state)
 
 //==============================================================================
 
-void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress)
+void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress,
+	double a_fps)
 {
 	QJsonObject jsJob;
 	jsJob[JP_ID] = a_jobID.toString();
 	jsJob[JP_FRAMES_PROCESSED] = a_progress;
+	jsJob[JP_FPS] = a_fps;
 	broadcastMessage(jsonMessage(SMSG_JOB_PROGRESS_UPDATE, jsJob));
 }
 

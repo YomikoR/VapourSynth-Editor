@@ -344,10 +344,9 @@ bool JobsModel::deleteJobs(std::vector<QUuid> a_ids)
 // END OF bool JobsModel::deleteJobs(std::vector<QUuid> a_ids)
 //==============================================================================
 
-bool JobsModel::setJobProperties(const QUuid & a_id,
-	const JobProperties & a_jobProperties)
+bool JobsModel::updateJobProperties(const JobProperties & a_jobProperties)
 {
-	int index = indexOfJob(a_id);
+	int index = indexOfJob(a_jobProperties.id);
 	if(index < 0)
 		return false;
 	m_jobs[index] = a_jobProperties;
@@ -355,7 +354,7 @@ bool JobsModel::setJobProperties(const QUuid & a_id,
 	return true;
 }
 
-// END OF bool JobsModel::setJobProperties(const QUuid & a_id,
+// END OF bool JobsModel::updateJobProperties(
 //		const JobProperties & a_jobProperties)
 //==============================================================================
 
@@ -371,6 +370,16 @@ bool JobsModel::setJobDependsOnIds(const QUuid & a_id,
 }
 
 // END OF bool JobsModel::setJobDependsOnIds(const QUuid & a_id,
+//		const std::vector<QUuid> & a_ids)
+//==============================================================================
+
+void JobsModel::requestJobDependsOnIds(const QUuid & a_id,
+	const std::vector<QUuid> & a_ids)
+{
+	emit signalSetDependencies(a_id, a_ids);
+}
+
+// END OF void JobsModel::requestJobDependsOnIds(const QUuid & a_id,
 //		const std::vector<QUuid> & a_ids)
 //==============================================================================
 

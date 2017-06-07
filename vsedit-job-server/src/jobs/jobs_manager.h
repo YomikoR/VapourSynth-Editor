@@ -49,7 +49,8 @@ signals:
 	void signalJobCreated(const JobProperties & a_properties);
 	void signalJobChanged(const JobProperties & a_properties);
 	void signalJobStateChanged(const QUuid & a_jobID, JobState a_state);
-	void signalJobProgressChanged(const QUuid & a_jobID, int a_progress);
+	void signalJobProgressChanged(const QUuid & a_jobID, int a_progress,
+		double a_fps);
 	void signalJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
 	void signalJobsDeleted(const std::vector<QUuid> & a_ids);
 

@@ -100,7 +100,7 @@ void JobDependenciesDelegate::setModelData(QWidget * a_pEditor,
 		dependencyIds.push_back(id);
 	}
 
-	pModel->setJobDependsOnIds(properties.id, dependencyIds);
+	pModel->requestJobDependsOnIds(properties.id, dependencyIds);
 }
 
 // END OF void JobDependenciesDelegate::setModelData(QWidget * a_pEditor,

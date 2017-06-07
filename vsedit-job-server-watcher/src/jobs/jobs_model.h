@@ -63,9 +63,10 @@ public:
 
 	bool deleteJobs(std::vector<QUuid> a_ids);
 
-	bool setJobProperties(const QUuid & a_id,
-		const JobProperties & a_jobProperties);
+	bool updateJobProperties(const JobProperties & a_jobProperties);
 	bool setJobDependsOnIds(const QUuid & a_id,
+		const std::vector<QUuid> & a_ids);
+	void requestJobDependsOnIds(const QUuid & a_id,
 		const std::vector<QUuid> & a_ids);
 	bool setJobProgress(const QUuid & a_id, int a_progress, double a_fps);
 	bool setJobState(const QUuid & a_id, JobState a_state);

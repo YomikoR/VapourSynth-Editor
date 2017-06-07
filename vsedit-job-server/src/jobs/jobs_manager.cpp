@@ -353,7 +353,8 @@ void JobsManager::slotJobProgressChanged()
 	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
 	if(!pJob)
 		return;
-	emit signalJobProgressChanged(pJob->id(), pJob->framesProcessed());
+	emit signalJobProgressChanged(pJob->id(), pJob->framesProcessed(),
+		pJob->fps());
 }
 
 // END OF

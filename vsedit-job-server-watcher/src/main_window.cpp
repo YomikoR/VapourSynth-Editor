@@ -335,7 +335,7 @@ void MainWindow::slotJobResetStateButtonClicked()
 
 void MainWindow::slotStartButtonClicked()
 {
-
+	m_pServerSocket->sendTextMessage(MSG_START_ALL_WAITING_JOBS);
 }
 
 // END OF void MainWindow::slotStartButtonClicked()
@@ -343,7 +343,7 @@ void MainWindow::slotStartButtonClicked()
 
 void MainWindow::slotPauseButtonClicked()
 {
-
+	m_pServerSocket->sendTextMessage(MSG_PAUSE_ACTIVE_JOBS);
 }
 
 // END OF void MainWindow::slotPauseButtonClicked()
@@ -351,7 +351,7 @@ void MainWindow::slotPauseButtonClicked()
 
 void MainWindow::slotResumeButtonClicked()
 {
-
+	m_pServerSocket->sendTextMessage(MSG_RESUME_PAUSED_JOBS);
 }
 
 // END OF void MainWindow::slotResumeButtonClicked()
@@ -359,7 +359,7 @@ void MainWindow::slotResumeButtonClicked()
 
 void MainWindow::slotAbortButtonClicked()
 {
-
+	m_pServerSocket->sendTextMessage(MSG_ABORT_ACTIVE_JOBS);
 }
 
 // END OF void MainWindow::slotAbortButtonClicked()
@@ -456,18 +456,107 @@ void MainWindow::slotBinaryMessageReceived(const QByteArray & a_message)
 
 void MainWindow::slotTextMessageReceived(const QString & a_message)
 {
-	QString command;
-	QString message = a_message;
+	QString command = a_message;
+	QString arguments;
 	int spaceIndex = a_message.indexOf(' ');
 	if(spaceIndex >= 0)
 	{
 		command = a_message.left(spaceIndex);
-		message.remove(0, spaceIndex + 1);
+		arguments = a_message.mid(spaceIndex + 1);
 	}
+
+	QJsonDocument jsArguments = QJsonDocument::fromJson(arguments.toUtf8());
 
 	if(command == QString(SMSG_JOBS_INFO))
 	{
-		processSMsgJobInfo(message);
+		processSMsgJobInfo(arguments);
+		return;
+	}
+
+	if(command == QString(SMSG_COMPLETE_LOG))
+	{
+		return;
+	}
+
+	if(command == QString(SMSG_LOG_MESSAGE))
+	{
+		return;
+	}
+
+	if(command == QString(SMSG_JOB_CREATED))
+	{
+		QJsonObject jsJobProperties = jsArguments.object();
+		m_pJobsModel->createJob(JobProperties::fromJson(jsJobProperties));
+		return;
+	}
+
+	if(command == QString(SMSG_JOB_UPDATE))
+	{
+		QJsonObject jsJobProperties = jsArguments.object();
+		JobProperties properties = JobProperties::fromJson(jsJobProperties);
+		m_pJobsModel->updateJobProperties(properties);
+		return;
+	}
+
+	if(command == QString(SMSG_JOB_STATE_UPDATE))
+	{
+		QJsonObject jsJob = jsArguments.object();
+		if(!jsJob.contains(JP_ID))
+			return;
+		QUuid id(jsJob[JP_ID].toString());
+		if(!jsJob.contains(JP_JOB_STATE))
+			return;
+		JobState state = (JobState)jsJob[JP_JOB_STATE].toInt();
+		m_pJobsModel->setJobState(id, state);
+		return;
+	}
+
+	if(command == QString(SMSG_JOB_PROGRESS_UPDATE))
+	{
+		QJsonObject jsJob = jsArguments.object();
+		if(!jsJob.contains(JP_ID))
+			return;
+		QUuid id(jsJob[JP_ID].toString());
+		if(!jsJob.contains(JP_FRAMES_PROCESSED))
+			return;
+		int progress = jsJob[JP_FRAMES_PROCESSED].toInt();
+		if(!jsJob.contains(JP_FPS))
+			return;
+		double fps = jsJob[JP_FPS].toDouble();
+		m_pJobsModel->setJobProgress(id, progress, fps);
+		return;
+	}
+
+	if(command == QString(SMSG_JOBS_SWAPPED))
+	{
+		QJsonObject jsSwap = jsArguments.object();
+		if(!jsSwap.contains(JOBS_SWAPPED_ID1))
+			return;
+		QUuid id1(jsSwap[JOBS_SWAPPED_ID1].toString());
+		if(!jsSwap.contains(JOBS_SWAPPED_ID2))
+			return;
+		QUuid id2(jsSwap[JOBS_SWAPPED_ID2].toString());
+		m_pJobsModel->swapJobs(id1, id2);
+		return;
+	}
+
+	if(command == QString(SMSG_JOBS_DELETED))
+	{
+		QJsonArray jsIds = jsArguments.array();
+		std::vector<QUuid> ids;
+		for(int i = 0; i < jsIds.count(); ++i)
+			ids.push_back(QUuid(jsIds[i].toString()));
+		m_pJobsModel->deleteJobs(ids);
+		return;
+	}
+
+	if(command == QString(SMSG_REFUSE))
+	{
+		return;
+	}
+
+	if(command == QString(SMSG_CLOSING_SERVER))
+	{
 		return;
 	}
 
