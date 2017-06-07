@@ -10,7 +10,7 @@ class JobVariables
 {
 public:
 
-	JobVariables::JobVariables();
+	JobVariables();
 
 	virtual std::vector<vsedit::VariableToken> variables() const;
 

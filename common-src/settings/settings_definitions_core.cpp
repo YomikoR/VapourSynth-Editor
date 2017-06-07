@@ -135,8 +135,8 @@ QJsonObject JobProperties::toJson() const
 	jsJob[JP_JOB_STATE] = (int)jobState;
 
 	QJsonArray jsDependencies;
-	for(const QUuid & id : dependsOnJobIds)
-		jsDependencies.push_back(QJsonValue(id.toString()));
+	for(const QUuid & dependencyId : dependsOnJobIds)
+		jsDependencies.push_back(QJsonValue(dependencyId.toString()));
 	jsJob[JP_DEPENDS_ON_JOB_IDS] = jsDependencies;
 
 	jsJob[JP_TIME_STARTED] = timeStarted.toMSecsSinceEpoch();
