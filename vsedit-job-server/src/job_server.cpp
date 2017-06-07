@@ -265,7 +265,7 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		QJsonArray jsIDs = jsArguments.array();
 		std::vector<QUuid> ids;
 		for(int i = 0; i < jsIDs.count(); ++i)
-			ids << QUuid(jsIDs[i].toString());
+			ids.push_back(QUuid(jsIDs[i].toString()));
 		m_pJobsManager->resetJobs(ids);
 		return;
 	}
@@ -275,7 +275,7 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		QJsonArray jsIDs = jsArguments.array();
 		std::vector<QUuid> ids;
 		for(int i = 0; i < jsIDs.count(); ++i)
-			ids << QUuid(jsIDs[i].toString());
+			ids.push_back(QUuid(jsIDs[i].toString()));
 		m_pJobsManager->deleteJobs(ids);
 		return;
 	}
@@ -301,13 +301,6 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 	if(command == QString(MSG_ABORT_ACTIVE_JOBS))
 	{
 		m_pJobsManager->abortActiveJobs();
-		return;
-	}
-
-	if(command == QString(MSG_UNSUBSCRIBE))
-	{
-		m_subscribers.remove(a_pClient);
-		a_pClient->sendTextMessage("Unsubscribed from jobs updates.");
 		return;
 	}
 
