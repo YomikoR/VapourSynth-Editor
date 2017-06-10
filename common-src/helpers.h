@@ -5,6 +5,9 @@
 
 #include <QString>
 #include <QTime>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <cassert>
 #include <algorithm>
 #include <functional>
@@ -34,6 +37,13 @@ QString subsamplingString(int a_subsamplingW, int a_subsamplingH);
 QString subsamplingString(const VSFormat * a_cpFormat);
 
 QString resolvePathFromApplication(const QString & a_relativePath);
+
+QString jsonMessage(const QString & a_command,
+	const QJsonObject & a_jsonObject);
+QString jsonMessage(const QString & a_command,
+	const QJsonArray & a_jsonArray);
+QString jsonMessage(const QString & a_command,
+	const QJsonDocument & a_jsonDocument);
 
 template<typename T1, typename T2, typename T3>
 	void clamp(T1& a_value, const T2& a_low, const T3& a_high)

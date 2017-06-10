@@ -80,6 +80,9 @@ private slots:
 	void slotTextMessageReceived(const QString & a_message);
 	void slotServerError(QAbstractSocket::SocketError a_error);
 
+	void slotStartLocalServer();
+	void slotShutdownServer();
+
 private:
 
 	void createActionsAndMenus();
@@ -87,8 +90,6 @@ private:
 	void saveGeometrySettings();
 
 	void editJob(const QModelIndex & a_index);
-
-	bool updateJob(int a_index);
 
 	void processSMsgJobInfo(const QString & a_message);
 

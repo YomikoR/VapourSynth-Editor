@@ -187,6 +187,38 @@ QString vsedit::resolvePathFromApplication(const QString & a_relativePath)
 //		const QString & a_relativePath)
 //==============================================================================
 
+QString vsedit::jsonMessage(const QString & a_command,
+	const QJsonObject & a_jsonObject)
+{
+	return vsedit::jsonMessage(a_command, QJsonDocument(a_jsonObject));
+}
+
+// END OF QString vsedit::jsonMessage(const QString & a_command,
+//		const QJsonObject & a_jsonObject)
+//==============================================================================
+
+QString vsedit::jsonMessage(const QString & a_command,
+	const QJsonArray & a_jsonArray)
+{
+	return vsedit::jsonMessage(a_command, QJsonDocument(a_jsonArray));
+}
+
+// END OF QString vsedit::jsonMessage(const QString & a_command,
+//		const QJsonArray & a_jsonArray)
+//==============================================================================
+
+QString vsedit::jsonMessage(const QString & a_command,
+	const QJsonDocument & a_jsonDocument)
+{
+	QString jobsJson = QString::fromUtf8(a_jsonDocument.toJson());
+	QString message = QString("%1 %2").arg(a_command).arg(jobsJson);
+	return message;
+}
+
+// END OF QString vsedit::jsonMessage(const QString & a_command,
+//		const QJsonDocument & a_jsonDocument)
+//==============================================================================
+
 vsedit::FP32 vsedit::halfToSingle(vsedit::FP16 a_half)
 {
 	FP32 o = { 0 };

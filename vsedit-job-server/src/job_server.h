@@ -53,13 +53,6 @@ private:
 	QString jobsInfoMessage() const;
 	QString completeLogMessage() const;
 
-	QString jsonMessage(const QString & a_command,
-		const QJsonObject & a_jsonObject) const;
-	QString jsonMessage(const QString & a_command,
-		const QJsonArray & a_jsonArray) const;
-	QString jsonMessage(const QString & a_command,
-		const QJsonDocument & a_jsonDocument) const;
-
 	void broadcastMessage(const QString & a_message,
 		bool a_includeNonSubscribers = false);
 

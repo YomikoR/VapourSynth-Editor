@@ -32,6 +32,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QProcess>
 
 #ifdef Q_OS_WIN
 	#include <QWinTaskbarButton>
@@ -134,6 +135,10 @@ MainWindow::MainWindow() : QMainWindow()
 		this, SLOT(slotResumeButtonClicked()));
 	connect(m_ui.abortButton, SIGNAL(clicked()),
 		this, SLOT(slotAbortButtonClicked()));
+	connect(m_ui.startServerButton, SIGNAL(clicked()),
+		this, SLOT(slotStartLocalServer()));
+	connect(m_ui.shutdownServerButton, SIGNAL(clicked()),
+		this, SLOT(slotShutdownServer()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
 		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
 	connect(pHorizontalHeader, SIGNAL(sectionResized(int, int, int)),
@@ -287,7 +292,12 @@ void MainWindow::changeEvent(QEvent * a_pEvent)
 
 void MainWindow::slotJobNewButtonClicked()
 {
-
+	int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
+	if(result == QDialog::Rejected)
+		return;
+	JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
+    m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CREATE_JOB,
+		newJobProperties.toJson()));
 }
 
 // END OF void MainWindow::slotJobNewButtonClicked()
@@ -295,7 +305,25 @@ void MainWindow::slotJobNewButtonClicked()
 
 void MainWindow::slotJobEditButtonClicked()
 {
-
+	QItemSelectionModel * pSelectionModel =
+		m_ui.jobsTableView->selectionModel();
+	QModelIndexList selection = pSelectionModel->selectedRows();
+	if(selection.isEmpty())
+		return;
+	JobProperties properties = m_pJobsModel->jobProperties(selection[0].row());
+	if(vsedit::contains(ACTIVE_JOB_STATES, properties.jobState))
+	{
+		m_ui.logView->addEntry(trUtf8("Can not edit active job."),
+			LOG_STYLE_WARNING);
+		return;
+	}
+	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
+		.arg(selection[0].row() + 1), properties);
+	if(result == QDialog::Rejected)
+		return;
+	properties = m_pJobEditDialog->jobProperties();
+    m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
+		properties.toJson()));
 }
 
 // END OF void MainWindow::slotJobEditButtonClicked()
@@ -571,26 +599,34 @@ void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 	(void)a_error;
 
 	m_ui.logView->addEntry(m_pServerSocket->errorString(), LOG_STYLE_ERROR);
-
-	if(m_pServerSocket->state() != QAbstractSocket::ConnectedState)
-	{
-		if(m_connectionAttempts < m_maxConnectionAttempts)
-		{
-			m_ui.logView->addEntry(trUtf8("Could not connect to server. "
-				"Trying again."), LOG_STYLE_ERROR);
-			m_connectionAttempts++;
-			m_pServerSocket->open(QString("ws://127.0.0.1:%1")
-				.arg(JOB_SERVER_PORT));
-		}
-		else
-		{
-			m_ui.logView->addEntry(trUtf8("Could not connect to server."),
-				LOG_STYLE_ERROR);
-		}
-	}
 }
 
 // END OF void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
+//==============================================================================
+
+void MainWindow::slotStartLocalServer()
+{
+	bool started = QProcess::startDetached("vsedit-job-server");
+	if(!started)
+	{
+		m_ui.logView->addEntry(trUtf8("Could not start server."),
+			LOG_STYLE_ERROR);
+		return;
+	}
+	m_pServerSocket->open(QString("ws://127.0.0.1:%1").arg(JOB_SERVER_PORT));
+}
+
+// END OF void MainWindow::slotStartLocalServer()
+//==============================================================================
+
+void MainWindow::slotShutdownServer()
+{
+	if(m_pServerSocket->state() != QAbstractSocket::ConnectedState)
+		return;
+	m_pServerSocket->sendTextMessage(MSG_CLOSE_SERVER);
+}
+
+// END OF void MainWindow::slotShutdownServer()
 //==============================================================================
 
 void MainWindow::createActionsAndMenus()
@@ -617,15 +653,6 @@ void MainWindow::editJob(const QModelIndex & a_index)
 }
 
 // END OF void MainWindow::editJob(const QModelIndex & a_index)
-//==============================================================================
-
-bool MainWindow::updateJob(int a_index)
-{
-	(void)a_index;
-	return false;
-}
-
-// END OF bool MainWindow::updateJob(int a_index)
 //==============================================================================
 
 void MainWindow::processSMsgJobInfo(const QString & a_message)
