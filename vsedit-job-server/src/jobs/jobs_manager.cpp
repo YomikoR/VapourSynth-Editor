@@ -370,9 +370,7 @@ bool JobsManager::canModifyJob(int a_index) const
 	if(!pJob)
 		return false;
 
-	JobState forbiddenStates[] = {JobState::Running, JobState::Paused,
-		JobState::Aborting};
-	if(vsedit::contains(forbiddenStates, pJob->state()))
+	if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 		return false;
 
 	return true;

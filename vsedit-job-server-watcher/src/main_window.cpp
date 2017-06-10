@@ -418,6 +418,8 @@ void MainWindow::slotAbortButtonClicked()
 
 void MainWindow::slotJobDoubleClicked(const QModelIndex & a_index)
 {
+	if(a_index.column() == JobsModel::DEPENDS_ON_COLUMN)
+		return;
 	editJob(a_index);
 }
 
@@ -694,7 +696,9 @@ void MainWindow::editJob(const QModelIndex & a_index)
 		.arg(a_index.row() + 1), properties);
 	if(result == QDialog::Rejected)
 		return;
+	QUuid id = properties.id;
 	properties = m_pJobEditDialog->jobProperties();
+	properties.id = id;
     m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
 		properties.toJson()));
 }
