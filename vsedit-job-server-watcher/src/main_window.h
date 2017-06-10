@@ -93,6 +93,8 @@ private:
 
 	void processSMsgJobInfo(const QString & a_message);
 
+	std::vector<int> selectedIndexes();
+
 	static const char WINDOW_TITLE[];
 
 	Ui::MainWindow m_ui;

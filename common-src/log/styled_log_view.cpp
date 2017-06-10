@@ -236,6 +236,15 @@ void StyledLogView::addEntry(const QString & a_text, const QString & a_style)
 //		const QString & a_style)
 //==============================================================================
 
+void StyledLogView::addEntry(const LogEntry & a_entry)
+{
+	m_entries.push_back(a_entry);
+	updateHtml();
+}
+
+// END OF void void StyledLogView::addEntry(const LogEntry & a_entry)
+//==============================================================================
+
 void StyledLogView::clear()
 {
 	m_entries.clear();

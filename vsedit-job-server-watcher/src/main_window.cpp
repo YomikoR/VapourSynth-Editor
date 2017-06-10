@@ -296,8 +296,8 @@ void MainWindow::slotJobNewButtonClicked()
 	if(result == QDialog::Rejected)
 		return;
 	JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
-    m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CREATE_JOB,
-		newJobProperties.toJson()));
+    m_pServerSocket->sendTextMessage(
+		vsedit::jsonMessage(MSG_CREATE_JOB, newJobProperties.toJson()));
 }
 
 // END OF void MainWindow::slotJobNewButtonClicked()
@@ -308,22 +308,9 @@ void MainWindow::slotJobEditButtonClicked()
 	QItemSelectionModel * pSelectionModel =
 		m_ui.jobsTableView->selectionModel();
 	QModelIndexList selection = pSelectionModel->selectedRows();
-	if(selection.isEmpty())
+	if(selection.size() != 1)
 		return;
-	JobProperties properties = m_pJobsModel->jobProperties(selection[0].row());
-	if(vsedit::contains(ACTIVE_JOB_STATES, properties.jobState))
-	{
-		m_ui.logView->addEntry(trUtf8("Can not edit active job."),
-			LOG_STYLE_WARNING);
-		return;
-	}
-	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
-		.arg(selection[0].row() + 1), properties);
-	if(result == QDialog::Rejected)
-		return;
-	properties = m_pJobEditDialog->jobProperties();
-    m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
-		properties.toJson()));
+	editJob(selection[0]);
 }
 
 // END OF void MainWindow::slotJobEditButtonClicked()
@@ -331,7 +318,18 @@ void MainWindow::slotJobEditButtonClicked()
 
 void MainWindow::slotJobMoveUpButtonClicked()
 {
-
+	std::vector<int> selection = selectedIndexes();
+	if(selection.size() != 1)
+		return;
+	if(selection[0] == 0)
+		return;
+	QString id1 = m_pJobsModel->jobProperties(selection[0] - 1).id.toString();
+	QString id2 = m_pJobsModel->jobProperties(selection[0]).id.toString();
+	QJsonObject jsSwap;
+	jsSwap[JOBS_SWAPPED_ID1] = id1;
+	jsSwap[JOBS_SWAPPED_ID2] = id2;
+	m_pServerSocket->sendTextMessage(
+		vsedit::jsonMessage(MSG_SWAP_JOBS, jsSwap));
 }
 
 // END OF void MainWindow::slotJobMoveUpButtonClicked()
@@ -339,7 +337,18 @@ void MainWindow::slotJobMoveUpButtonClicked()
 
 void MainWindow::slotJobMoveDownButtonClicked()
 {
-
+	std::vector<int> selection = selectedIndexes();
+	if(selection.size() != 1)
+		return;
+	if(selection[0] >= (int)m_pJobsModel->jobs().size())
+		return;
+	QString id1 = m_pJobsModel->jobProperties(selection[0]).id.toString();
+	QString id2 = m_pJobsModel->jobProperties(selection[0] + 1).id.toString();
+	QJsonObject jsSwap;
+	jsSwap[JOBS_SWAPPED_ID1] = id1;
+	jsSwap[JOBS_SWAPPED_ID2] = id2;
+	m_pServerSocket->sendTextMessage(
+		vsedit::jsonMessage(MSG_SWAP_JOBS, jsSwap));
 }
 
 // END OF void MainWindow::slotJobMoveDownButtonClicked()
@@ -347,7 +356,14 @@ void MainWindow::slotJobMoveDownButtonClicked()
 
 void MainWindow::slotJobDeleteButtonClicked()
 {
-
+	std::vector<int> selection = selectedIndexes();
+	if(selection.empty())
+		return;
+	QJsonArray jsIds;
+	for(int index : selection)
+		jsIds << m_pJobsModel->jobProperties(index).id.toString();
+	m_pServerSocket->sendTextMessage(
+		vsedit::jsonMessage(MSG_DELETE_JOBS, jsIds));
 }
 
 // END OF void MainWindow::slotJobDeleteButtonClicked()
@@ -355,7 +371,14 @@ void MainWindow::slotJobDeleteButtonClicked()
 
 void MainWindow::slotJobResetStateButtonClicked()
 {
-
+	std::vector<int> selection = selectedIndexes();
+	if(selection.empty())
+		return;
+	QJsonArray jsIds;
+	for(int index : selection)
+		jsIds << m_pJobsModel->jobProperties(index).id.toString();
+	m_pServerSocket->sendTextMessage(
+		vsedit::jsonMessage(MSG_RESET_JOBS, jsIds));
 }
 
 // END OF void MainWindow::slotJobResetStateButtonClicked()
@@ -395,7 +418,7 @@ void MainWindow::slotAbortButtonClicked()
 
 void MainWindow::slotJobDoubleClicked(const QModelIndex & a_index)
 {
-	(void)a_index;
+	editJob(a_index);
 }
 
 // END OF void MainWindow::slotJobDoubleClicked(const QModelIndex & a_index)
@@ -484,6 +507,8 @@ void MainWindow::slotBinaryMessageReceived(const QByteArray & a_message)
 
 void MainWindow::slotTextMessageReceived(const QString & a_message)
 {
+	m_ui.logView->addEntry(a_message, LOG_STYLE_DEFAULT);
+
 	QString command = a_message;
 	QString arguments;
 	int spaceIndex = a_message.indexOf(' ');
@@ -503,11 +528,19 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 	if(command == QString(SMSG_COMPLETE_LOG))
 	{
+		QJsonArray jsEntries = jsArguments.array();
+		for(int i = 0; i < jsEntries.size(); ++i)
+		{
+			LogEntry entry = LogEntry::fromJson(jsEntries[i].toObject());
+			m_ui.logView->addEntry(entry);
+		}
 		return;
 	}
 
 	if(command == QString(SMSG_LOG_MESSAGE))
 	{
+		LogEntry entry = LogEntry::fromJson(jsArguments.object());
+		m_ui.logView->addEntry(entry);
 		return;
 	}
 
@@ -585,6 +618,8 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 	if(command == QString(SMSG_CLOSING_SERVER))
 	{
+		m_ui.logView->addEntry(trUtf8("Server is shutting down."),
+			LOG_STYLE_DEFAULT);
 		return;
 	}
 
@@ -597,7 +632,6 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 {
 	(void)a_error;
-
 	m_ui.logView->addEntry(m_pServerSocket->errorString(), LOG_STYLE_ERROR);
 }
 
@@ -649,7 +683,20 @@ void MainWindow::saveGeometrySettings()
 
 void MainWindow::editJob(const QModelIndex & a_index)
 {
-	(void)a_index;
+	JobProperties properties = m_pJobsModel->jobProperties(a_index.row());
+	if(vsedit::contains(ACTIVE_JOB_STATES, properties.jobState))
+	{
+		m_ui.logView->addEntry(trUtf8("Can not edit active job."),
+			LOG_STYLE_WARNING);
+		return;
+	}
+	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
+		.arg(a_index.row() + 1), properties);
+	if(result == QDialog::Rejected)
+		return;
+	properties = m_pJobEditDialog->jobProperties();
+    m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
+		properties.toJson()));
 }
 
 // END OF void MainWindow::editJob(const QModelIndex & a_index)
@@ -678,4 +725,18 @@ void MainWindow::processSMsgJobInfo(const QString & a_message)
 }
 
 // END OF void MainWindow::processSMsgJobInfo(const QString & a_message)
+//==============================================================================
+
+std::vector<int> MainWindow::selectedIndexes()
+{
+	std::vector<int> indexes;
+	QItemSelectionModel * pSelectionModel =
+		m_ui.jobsTableView->selectionModel();
+	QModelIndexList selection = pSelectionModel->selectedRows();
+	for(const QModelIndex & index : selection)
+		indexes.push_back(index.row());
+	return indexes;
+}
+
+// END OF std::vector<int> MainWindow::selectedIndexes()
 //==============================================================================

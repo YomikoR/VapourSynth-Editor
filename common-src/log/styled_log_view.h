@@ -44,6 +44,8 @@ public slots:
 	virtual void addEntry(const QString & a_text,
 		const QString & a_style = LOG_STYLE_DEFAULT);
 
+	virtual void addEntry(const LogEntry & a_entry);
+
 	virtual void clear();
 
 	virtual void slotSaveHtml();
