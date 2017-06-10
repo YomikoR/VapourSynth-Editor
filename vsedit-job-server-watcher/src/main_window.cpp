@@ -323,11 +323,9 @@ void MainWindow::slotJobMoveUpButtonClicked()
 		return;
 	if(selection[0] == 0)
 		return;
-	QString id1 = m_pJobsModel->jobProperties(selection[0] - 1).id.toString();
-	QString id2 = m_pJobsModel->jobProperties(selection[0]).id.toString();
-	QJsonObject jsSwap;
-	jsSwap[JOBS_SWAPPED_ID1] = id1;
-	jsSwap[JOBS_SWAPPED_ID2] = id2;
+	QJsonArray jsSwap;
+	jsSwap << m_pJobsModel->jobProperties(selection[0] - 1).id.toString();
+	jsSwap << m_pJobsModel->jobProperties(selection[0]).id.toString();
 	m_pServerSocket->sendTextMessage(
 		vsedit::jsonMessage(MSG_SWAP_JOBS, jsSwap));
 }
@@ -342,11 +340,9 @@ void MainWindow::slotJobMoveDownButtonClicked()
 		return;
 	if(selection[0] >= (int)m_pJobsModel->jobs().size())
 		return;
-	QString id1 = m_pJobsModel->jobProperties(selection[0]).id.toString();
-	QString id2 = m_pJobsModel->jobProperties(selection[0] + 1).id.toString();
-	QJsonObject jsSwap;
-	jsSwap[JOBS_SWAPPED_ID1] = id1;
-	jsSwap[JOBS_SWAPPED_ID2] = id2;
+	QJsonArray jsSwap;
+	jsSwap << m_pJobsModel->jobProperties(selection[0]).id.toString();
+	jsSwap << m_pJobsModel->jobProperties(selection[0] + 1).id.toString();
 	m_pServerSocket->sendTextMessage(
 		vsedit::jsonMessage(MSG_SWAP_JOBS, jsSwap));
 }
@@ -592,13 +588,11 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 	if(command == QString(SMSG_JOBS_SWAPPED))
 	{
-		QJsonObject jsSwap = jsArguments.object();
-		if(!jsSwap.contains(JOBS_SWAPPED_ID1))
+		QJsonArray jsSwap = jsArguments.array();
+		if(jsSwap.size() != 2)
 			return;
-		QUuid id1(jsSwap[JOBS_SWAPPED_ID1].toString());
-		if(!jsSwap.contains(JOBS_SWAPPED_ID2))
-			return;
-		QUuid id2(jsSwap[JOBS_SWAPPED_ID2].toString());
+		QUuid id1(jsSwap[0].toString());
+		QUuid id2(jsSwap[1].toString());
 		m_pJobsModel->swapJobs(id1, id2);
 		return;
 	}

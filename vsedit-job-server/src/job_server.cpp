@@ -160,9 +160,9 @@ void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress,
 
 void JobServer::slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2)
 {
-	QJsonObject jsSwap;
-	jsSwap[JOBS_SWAPPED_ID1] = a_jobID1.toString();
-	jsSwap[JOBS_SWAPPED_ID2] = a_jobID2.toString();
+	QJsonArray jsSwap;
+	jsSwap << a_jobID1.toString();
+	jsSwap << a_jobID2.toString();
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOBS_SWAPPED, jsSwap));
 }
 

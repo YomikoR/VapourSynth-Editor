@@ -30,11 +30,7 @@ static const char SMSG_JOB_CREATED[] = "JC";
 static const char SMSG_JOB_UPDATE[] = "JU";
 static const char SMSG_JOB_STATE_UPDATE[] = "JSU";
 static const char SMSG_JOB_PROGRESS_UPDATE[] = "JPU";
-
 static const char SMSG_JOBS_SWAPPED[] = "JSW";
-static const char JOBS_SWAPPED_ID1[] = "id1";
-static const char JOBS_SWAPPED_ID2[] = "id2";
-
 static const char SMSG_JOBS_DELETED[] = "JD";
 static const char SMSG_REFUSE[] = "RF";
 static const char SMSG_CLOSING_SERVER[] = "SCS";
