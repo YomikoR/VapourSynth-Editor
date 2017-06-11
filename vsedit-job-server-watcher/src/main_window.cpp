@@ -505,8 +505,6 @@ void MainWindow::slotBinaryMessageReceived(const QByteArray & a_message)
 
 void MainWindow::slotTextMessageReceived(const QString & a_message)
 {
-	m_ui.logView->addEntry(a_message, LOG_STYLE_DEFAULT);
-
 	QString command = a_message;
 	QString arguments;
 	int spaceIndex = a_message.indexOf(' ');
