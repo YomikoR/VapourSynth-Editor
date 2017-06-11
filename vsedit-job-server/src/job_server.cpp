@@ -49,6 +49,7 @@ JobServer::~JobServer()
 	m_clients.clear();
 	m_subscribers.clear();
 	m_pWebSocketServer->close();
+	m_pJobsManager->saveJobs();
 }
 
 //==============================================================================

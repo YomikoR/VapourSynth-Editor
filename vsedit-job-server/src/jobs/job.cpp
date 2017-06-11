@@ -1119,7 +1119,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	m_bytesToWrite = 0u;
 	m_bytesWritten = 0u;
 
-	emit signalProgressChanged();
+	emit signalPropertiesChanged();
 
 	if(m_pFrameHeaderWriter)
 		delete m_pFrameHeaderWriter;

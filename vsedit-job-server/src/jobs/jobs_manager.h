@@ -60,6 +60,7 @@ private slots:
 		const QString & a_style = LOG_STYLE_DEFAULT);
 	void slotLogMessage(int a_type, const QString & a_message);
 
+	void slotJobPropertiesChanged();
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
 	void slotJobProgressChanged();
 

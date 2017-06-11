@@ -96,8 +96,8 @@ public:
 
 signals:
 
+	void signalPropertiesChanged();
 	void signalStateChanged(JobState a_newState, JobState a_oldState);
-
 	void signalProgressChanged();
 
 	void signalLogMessage(const QString & a_message,

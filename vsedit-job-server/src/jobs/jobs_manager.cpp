@@ -51,6 +51,7 @@ int JobsManager::createJob(const JobProperties & a_jobProperties)
 	JobTicket ticket = {pJob, JobWantTo::Nothing};
 	m_tickets.push_back(ticket);
 	int newRow = (int)m_tickets.size();
+	saveJobs();
 	emit signalJobCreated(a_jobProperties);
 	return newRow;
 }
@@ -84,6 +85,7 @@ bool JobsManager::swapJobs(const QUuid & a_jobID1, const QUuid & a_jobID2)
 	}
 
 	std::swap(m_tickets[lowerIndex], m_tickets[higherIndex]);
+	saveJobs();
 	emit signalJobsSwapped(a_jobID1, a_jobID2);
 	return true;
 }
@@ -97,6 +99,8 @@ bool JobsManager::setJobState(const QUuid & a_uuid, JobState a_state)
 	if(!checkCanModifyJobAndNotify(index))
 		return false;
 	bool result = m_tickets[index].pJob->setState(a_state);
+	if(result)
+		saveJobs();
 	return result;
 }
 
@@ -112,6 +116,7 @@ bool JobsManager::changeJob(const JobProperties & a_jobProperties)
 	bool result = pJob->setProperties(a_jobProperties);
 	if(result)
 		result = pJob->setState(JobState::Waiting);
+	saveJobs();
 	emit signalJobChanged(pJob->properties());
 	return result;
 }
@@ -143,9 +148,9 @@ bool JobsManager::loadJobs()
 	{
 		vsedit::Job * pJob = new vsedit::Job(properties, m_pSettingsManager,
 			m_pVSScriptLibrary);
-		connectJob(pJob);
 		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 			pJob->setState(JobState::Aborted);
+		connectJob(pJob);
 		JobTicket ticket = {pJob, JobWantTo::Nothing};
 		m_tickets.push_back(ticket);
 	}
@@ -281,6 +286,7 @@ void JobsManager::deleteJobs(const std::vector<QUuid> & a_ids)
 		m_tickets.erase(m_tickets.begin() + index);
 		deletedJobs.push_back(id);
 	}
+	saveJobs();
 	emit signalJobsDeleted(deletedJobs);
 }
 
@@ -314,6 +320,17 @@ void JobsManager::slotLogMessage(int a_type, const QString & a_message)
 // END OF
 //==============================================================================
 
+void JobsManager::slotJobPropertiesChanged()
+{
+	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
+	if(!pJob)
+		return;
+	emit signalJobChanged(pJob->properties());
+}
+
+// END OF
+//==============================================================================
+
 void JobsManager::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 {
 	if(a_oldState == a_newState)
@@ -323,8 +340,8 @@ void JobsManager::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	if(!pJob)
 		return;
 
-	emit signalJobStateChanged(pJob->id(), a_newState);
 	saveJobs();
+	emit signalJobStateChanged(pJob->id(), a_newState);
 
 	if(vsedit::contains(ACTIVE_JOB_STATES, a_newState))
 		return;
@@ -452,6 +469,8 @@ JobsManager::DependenciesState JobsManager::dependenciesState(int a_index)
 
 void JobsManager::connectJob(vsedit::Job * a_pJob)
 {
+	connect(a_pJob, SIGNAL(signalPropertiesChanged()),
+		this, SLOT(slotJobPropertiesChanged()));
 	connect(a_pJob, SIGNAL(signalStateChanged(JobState, JobState)),
 		this, SLOT(slotJobStateChanged(JobState, JobState)));
 	connect(a_pJob, SIGNAL(signalProgressChanged()),
