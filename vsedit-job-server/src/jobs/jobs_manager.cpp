@@ -377,6 +377,28 @@ void JobsManager::slotJobProgressChanged()
 // END OF
 //==============================================================================
 
+void JobsManager::slotJobStartTimeChanged()
+{
+	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
+	if(!pJob)
+		return;
+	emit signalJobStartTimeChanged(pJob->id(), pJob->properties().timeStarted);
+}
+
+// END OF
+//==============================================================================
+
+void JobsManager::slotJobEndTimeChanged()
+{
+	vsedit::Job * pJob = qobject_cast<vsedit::Job *>(sender());
+	if(!pJob)
+		return;
+	emit signalJobEndTimeChanged(pJob->id(), pJob->properties().timeEnded);
+}
+
+// END OF
+//==============================================================================
+
 bool JobsManager::canModifyJob(int a_index) const
 {
 	if((a_index < 0) || ((size_t)a_index >= m_tickets.size()))
@@ -475,6 +497,10 @@ void JobsManager::connectJob(vsedit::Job * a_pJob)
 		this, SLOT(slotJobStateChanged(JobState, JobState)));
 	connect(a_pJob, SIGNAL(signalProgressChanged()),
 		this, SLOT(slotJobProgressChanged()));
+	connect(a_pJob, SIGNAL(signalStartTimeChanged()),
+		this, SLOT(slotJobStartTimeChanged()));
+	connect(a_pJob, SIGNAL(signalEndTimeChanged()),
+		this, SLOT(slotJobEndTimeChanged()));
 	connect(a_pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
 		this, SLOT(slotLogMessage(const QString &, const QString &)));
 }

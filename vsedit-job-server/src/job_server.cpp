@@ -29,6 +29,10 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 		this, &JobServer::slotJobStateChanged);
 	connect(m_pJobsManager, &JobsManager::signalJobProgressChanged,
 		this, &JobServer::slotJobProgressChanged);
+	connect(m_pJobsManager, &JobsManager::signalJobStartTimeChanged,
+		this, &JobServer::slotJobStartTimeChanged);
+	connect(m_pJobsManager, &JobsManager::signalJobEndTimeChanged,
+		this, &JobServer::slotJobEndTimeChanged);
 	connect(m_pJobsManager, &JobsManager::signalJobsSwapped,
 		this, &JobServer::slotJobsSwapped);
 	connect(m_pJobsManager, &JobsManager::signalJobsDeleted,
@@ -155,6 +159,28 @@ void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress,
 	jsJob[JP_FRAMES_PROCESSED] = a_progress;
 	jsJob[JP_FPS] = a_fps;
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_PROGRESS_UPDATE, jsJob));
+}
+
+//==============================================================================
+
+void JobServer::slotJobStartTimeChanged(const QUuid & a_jobID,
+	const QDateTime & a_time)
+{
+	QJsonObject jsJob;
+	jsJob[JP_ID] = a_jobID.toString();
+	jsJob[JP_TIME_STARTED] = a_time.toMSecsSinceEpoch();
+	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_START_TIME_UPDATE, jsJob));
+}
+
+//==============================================================================
+
+void JobServer::slotJobEndTimeChanged(const QUuid & a_jobID,
+	const QDateTime & a_time)
+{
+	QJsonObject jsJob;
+	jsJob[JP_ID] = a_jobID.toString();
+	jsJob[JP_TIME_ENDED] = a_time.toMSecsSinceEpoch();
+	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_END_TIME_UPDATE, jsJob));
 }
 
 //==============================================================================

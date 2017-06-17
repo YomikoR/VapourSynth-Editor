@@ -412,6 +412,34 @@ bool JobsModel::setJobState(const QUuid & a_id, JobState a_state)
 // END OF bool JobsModel::setJobState(const QUuid & a_id, JobState a_state)
 //==============================================================================
 
+bool JobsModel::setJobStartTime(const QUuid & a_id, const QDateTime & a_time)
+{
+	int index = indexOfJob(a_id);
+	if(index < 0)
+		return false;
+	m_jobs[index].timeStarted = a_time;
+	notifyJobUpdated(index, TIME_START_COLUMN);
+	return true;
+}
+
+// END OF bool JobsModel::setJobStartTime(const QUuid & a_id,
+//		const QDateTime & a_time)
+//==============================================================================
+
+bool JobsModel::setJobEndTime(const QUuid & a_id, const QDateTime & a_time)
+{
+	int index = indexOfJob(a_id);
+	if(index < 0)
+		return false;
+	m_jobs[index].timeEnded = a_time;
+	notifyJobUpdated(index, TIME_END_COLUMN);
+	return true;
+}
+
+// END OF bool JobsModel::setJobEndTime(const QUuid & a_id,
+//		const QDateTime & a_time)
+//==============================================================================
+
 bool JobsModel::canModifyJob(int a_index) const
 {
 	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))

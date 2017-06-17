@@ -51,6 +51,10 @@ signals:
 	void signalJobStateChanged(const QUuid & a_jobID, JobState a_state);
 	void signalJobProgressChanged(const QUuid & a_jobID, int a_progress,
 		double a_fps);
+	void signalJobStartTimeChanged(const QUuid & a_jobID,
+		const QDateTime & a_time);
+	void signalJobEndTimeChanged(const QUuid & a_jobID,
+		const QDateTime & a_time);
 	void signalJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
 	void signalJobsDeleted(const std::vector<QUuid> & a_ids);
 
@@ -63,6 +67,8 @@ private slots:
 	void slotJobPropertiesChanged();
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
 	void slotJobProgressChanged();
+	void slotJobStartTimeChanged();
+	void slotJobEndTimeChanged();
 
 private:
 

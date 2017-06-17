@@ -70,6 +70,8 @@ public:
 		const std::vector<QUuid> & a_ids);
 	bool setJobProgress(const QUuid & a_id, int a_progress, double a_fps);
 	bool setJobState(const QUuid & a_id, JobState a_state);
+	bool setJobStartTime(const QUuid & a_id, const QDateTime & a_time);
+	bool setJobEndTime(const QUuid & a_id, const QDateTime & a_time);
 
 	bool canModifyJob(int a_index) const;
 

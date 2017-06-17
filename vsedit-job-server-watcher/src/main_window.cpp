@@ -584,6 +584,34 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 		return;
 	}
 
+	if(command == QString(SMSG_JOB_START_TIME_UPDATE))
+	{
+		QJsonObject jsJob = jsArguments.object();
+		if(!jsJob.contains(JP_ID))
+			return;
+		QUuid id(jsJob[JP_ID].toString());
+		if(!jsJob.contains(JP_TIME_STARTED))
+			return;
+		QDateTime time = QDateTime::fromMSecsSinceEpoch(
+			jsJob[JP_TIME_STARTED].toVariant().toLongLong());
+		m_pJobsModel->setJobStartTime(id, time);
+		return;
+	}
+
+	if(command == QString(SMSG_JOB_END_TIME_UPDATE))
+	{
+		QJsonObject jsJob = jsArguments.object();
+		if(!jsJob.contains(JP_ID))
+			return;
+		QUuid id(jsJob[JP_ID].toString());
+		if(!jsJob.contains(JP_TIME_ENDED))
+			return;
+		QDateTime time = QDateTime::fromMSecsSinceEpoch(
+			jsJob[JP_TIME_ENDED].toVariant().toLongLong());
+		m_pJobsModel->setJobEndTime(id, time);
+		return;
+	}
+
 	if(command == QString(SMSG_JOBS_SWAPPED))
 	{
 		QJsonArray jsSwap = jsArguments.array();

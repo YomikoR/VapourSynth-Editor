@@ -82,6 +82,7 @@ void vsedit::Job::start()
 	{
 		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
 		changeStateAndNotify(JobState::Running);
+		emit signalStartTimeChanged();
 		if(m_properties.type == JobType::EncodeScriptCLI)
 			startEncodeScriptCLI();
 		else if(m_properties.type == JobType::RunProcess)
@@ -102,14 +103,14 @@ void vsedit::Job::start()
 				changeStateAndNotify(JobState::Running);
 			else
 				emit signalLogMessage(trUtf8("Failed to resume process. "
-					"Error %1.") .arg(GetLastError()), LOG_STYLE_ERROR);
+					"Error %1.").arg(GetLastError()), LOG_STYLE_ERROR);
 #else
 			int error = kill((pid_t)m_process.processId(), SIGCONT);
 			if(!error)
 				changeStateAndNotify(JobState::Running);
 			else
 				emit signalLogMessage(trUtf8("Failed to resume process. "
-					"Error %1.") .arg(error), LOG_STYLE_ERROR);
+					"Error %1.").arg(error), LOG_STYLE_ERROR);
 #endif
 		}
 	}
@@ -424,14 +425,6 @@ size_t vsedit::Job::maxThreads() const
 }
 
 // END OF size_t vsedit::Job::maxThreads() const
-//==============================================================================
-
-int64_t vsedit::Job::coreFramebufferBytes() const
-{
-	return m_coreFramebufferBytes;
-}
-
-// END OF int64_t vsedit::Job::coreFramebufferBytes() const
 //==============================================================================
 
 JobProperties vsedit::Job::properties() const
@@ -1012,6 +1005,7 @@ void vsedit::Job::changeStateAndNotify(JobState a_state)
 	{
 		m_properties.timeEnded = QDateTime::currentDateTimeUtc();
 		memorizeEncodingTime();
+		emit signalEndTimeChanged();
 	}
 
 	if(a_state == JobState::Paused)

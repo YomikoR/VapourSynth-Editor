@@ -89,7 +89,6 @@ public:
 	virtual size_t framesInQueue() const;
 	virtual size_t framesInProcess() const;
 	virtual size_t maxThreads() const;
-	virtual int64_t coreFramebufferBytes() const;
 
 	virtual JobProperties properties() const;
 	virtual bool setProperties(const JobProperties & a_properties);
@@ -99,6 +98,8 @@ signals:
 	void signalPropertiesChanged();
 	void signalStateChanged(JobState a_newState, JobState a_oldState);
 	void signalProgressChanged();
+	void signalStartTimeChanged();
+	void signalEndTimeChanged();
 
 	void signalLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
@@ -182,8 +183,6 @@ protected:
 	size_t m_framesInQueue;
 	size_t m_framesInProcess;
 	size_t m_maxThreads;
-
-	int64_t m_coreFramebufferBytes;
 
 	hr_time_point m_encodeRangeStartTime;
 	double m_memorizedEncodingTime;

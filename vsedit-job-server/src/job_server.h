@@ -44,6 +44,10 @@ private slots:
 	void slotJobStateChanged(const QUuid & a_jobID, JobState a_state);
 	void slotJobProgressChanged(const QUuid & a_jobID, int a_progress,
 		double a_fps);
+	void slotJobStartTimeChanged(const QUuid & a_jobID,
+		const QDateTime & a_time);
+	void slotJobEndTimeChanged(const QUuid & a_jobID,
+		const QDateTime & a_time);
 	void slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
 	void slotJobsDeleted(const std::vector<QUuid> & a_ids);
 
