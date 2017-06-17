@@ -162,6 +162,13 @@ MainWindow::MainWindow() : QMainWindow()
 		this, &MainWindow::slotTextMessageReceived);
 	connect(m_pServerSocket, SIGNAL(error(QAbstractSocket::SocketError)),
 		this, SLOT(slotServerError(QAbstractSocket::SocketError)));
+	connect(m_pJobsModel, SIGNAL(signalLogMessage(const QString &,
+		const QString &)),
+		m_ui.logView, SLOT(addEntry(const QString &, const QString & a_style)));
+	connect(m_pJobsModel, &JobsModel::signalStateChanged,
+		this, &MainWindow::slotJobsStateChanged);
+	connect(m_pJobsModel, &JobsModel::signalSetDependencies,
+		this, &MainWindow::slotSetJobDependencies);
 
 	createActionsAndMenus();
 }
@@ -475,6 +482,23 @@ void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 //		JobState a_state, int a_progress, int a_progressMax)
 //==============================================================================
 
+void MainWindow::slotSetJobDependencies(const QUuid & a_id,
+	std::vector<QUuid> a_dependencies)
+{
+	QJsonObject jsJob;
+	jsJob[JP_ID] = a_id.toString();
+	QJsonArray jsDependencies;
+	for(QUuid id : a_dependencies)
+		jsDependencies << id.toString();
+	jsJob[JP_DEPENDS_ON_JOB_IDS] = jsDependencies;
+	m_pServerSocket->sendTextMessage(
+		vsedit::jsonMessage(MSG_SET_JOB_DEPENDENCIES, jsJob));
+}
+
+// END OF void MainWindow::slotSetJobDependencies(const QUuid & a_id,
+//		std::vector<QUuid> a_dependencies)
+//==============================================================================
+
 void MainWindow::slotServerConnected()
 {
 	m_connectionAttempts = 0;
@@ -609,6 +633,22 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 		QDateTime time = QDateTime::fromMSecsSinceEpoch(
 			jsJob[JP_TIME_ENDED].toVariant().toLongLong());
 		m_pJobsModel->setJobEndTime(id, time);
+		return;
+	}
+
+	if(command == QString(SMSG_JOB_DEPENDENCIES_UPDATE))
+	{
+		QJsonObject jsJob = jsArguments.object();
+		if(!jsJob.contains(JP_ID))
+			return;
+		QUuid id(jsJob[JP_ID].toString());
+		if(!jsJob.contains(JP_DEPENDS_ON_JOB_IDS))
+			return;
+		QJsonArray jsDependencies = jsJob[JP_DEPENDS_ON_JOB_IDS].toArray();
+		std::vector<QUuid> dependencies;
+		for(int i = 0; i < jsDependencies.count(); ++i)
+			dependencies.push_back(QUuid(jsDependencies[i].toString()));
+		m_pJobsModel->setJobDependsOnIds(id, dependencies);
 		return;
 	}
 

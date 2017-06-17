@@ -65,9 +65,9 @@ public:
 
 	bool updateJobProperties(const JobProperties & a_jobProperties);
 	bool setJobDependsOnIds(const QUuid & a_id,
-		const std::vector<QUuid> & a_ids);
+		const std::vector<QUuid> & a_dependencies);
 	void requestJobDependsOnIds(const QUuid & a_id,
-		const std::vector<QUuid> & a_ids);
+		const std::vector<QUuid> & a_dependencies);
 	bool setJobProgress(const QUuid & a_id, int a_progress, double a_fps);
 	bool setJobState(const QUuid & a_id, JobState a_state);
 	bool setJobStartTime(const QUuid & a_id, const QDateTime & a_time);

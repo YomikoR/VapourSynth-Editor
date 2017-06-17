@@ -93,15 +93,42 @@ bool JobsManager::swapJobs(const QUuid & a_jobID1, const QUuid & a_jobID2)
 // END OF
 //==============================================================================
 
-bool JobsManager::setJobState(const QUuid & a_uuid, JobState a_state)
+bool JobsManager::setJobState(const QUuid & a_jobID, JobState a_state)
 {
-	int index = indexOfJob(a_uuid);
+	int index = indexOfJob(a_jobID);
 	if(!checkCanModifyJobAndNotify(index))
 		return false;
 	bool result = m_tickets[index].pJob->setState(a_state);
 	if(result)
 		saveJobs();
 	return result;
+}
+
+// END OF
+//==============================================================================
+
+bool JobsManager::setJobDependsOnIds(const QUuid & a_jobID,
+	const std::vector<QUuid> & a_dependencies)
+{
+	int index = indexOfJob(a_jobID);
+	if(!checkCanModifyJobAndNotify(index))
+		return false;
+
+	for(const QUuid & id : a_dependencies)
+	{
+		int dependencyIndex = indexOfJob(id);
+		if((dependencyIndex < 0) || (dependencyIndex >= index))
+			return false;
+	}
+
+	bool result = m_tickets[index].pJob->setDependsOnJobIds(a_dependencies);
+	if(!result)
+		return false;
+
+	saveJobs();
+	emit signalJobDependenciesChanged(a_jobID, a_dependencies);
+
+	return true;
 }
 
 // END OF

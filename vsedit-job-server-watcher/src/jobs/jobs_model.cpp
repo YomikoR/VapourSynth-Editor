@@ -359,28 +359,28 @@ bool JobsModel::updateJobProperties(const JobProperties & a_jobProperties)
 //==============================================================================
 
 bool JobsModel::setJobDependsOnIds(const QUuid & a_id,
-	const std::vector<QUuid> & a_ids)
+	const std::vector<QUuid> & a_dependencies)
 {
 	int index = indexOfJob(a_id);
 	if(index < 0)
 		return false;
-	m_jobs[index].dependsOnJobIds = a_ids;
+	m_jobs[index].dependsOnJobIds = a_dependencies;
 	notifyJobUpdated(index, DEPENDS_ON_COLUMN);
 	return true;
 }
 
 // END OF bool JobsModel::setJobDependsOnIds(const QUuid & a_id,
-//		const std::vector<QUuid> & a_ids)
+//		const std::vector<QUuid> & a_dependencies)
 //==============================================================================
 
 void JobsModel::requestJobDependsOnIds(const QUuid & a_id,
-	const std::vector<QUuid> & a_ids)
+	const std::vector<QUuid> & a_dependencies)
 {
-	emit signalSetDependencies(a_id, a_ids);
+	emit signalSetDependencies(a_id, a_dependencies);
 }
 
 // END OF void JobsModel::requestJobDependsOnIds(const QUuid & a_id,
-//		const std::vector<QUuid> & a_ids)
+//		const std::vector<QUuid> & a_dependencies)
 //==============================================================================
 
 bool JobsModel::setJobProgress(const QUuid & a_id, int a_progress, double a_fps)

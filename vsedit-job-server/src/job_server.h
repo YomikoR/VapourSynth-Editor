@@ -48,6 +48,8 @@ private slots:
 		const QDateTime & a_time);
 	void slotJobEndTimeChanged(const QUuid & a_jobID,
 		const QDateTime & a_time);
+	void slotJobDependenciesChanged(const QUuid & a_jobID,
+		const std::vector<QUuid> & a_dependencies);
 	void slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
 	void slotJobsDeleted(const std::vector<QUuid> & a_ids);
 

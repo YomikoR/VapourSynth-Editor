@@ -13,6 +13,7 @@ static const char MSG_CLOSE_SERVER[] = "CS";
 
 static const char MSG_CREATE_JOB[] = "CJ";
 static const char MSG_CHANGE_JOB[] = "CHJ";
+static const char MSG_SET_JOB_DEPENDENCIES[] = "SJD";
 static const char MSG_SWAP_JOBS[] = "SJ";
 static const char MSG_RESET_JOBS[] = "RJ";
 static const char MSG_DELETE_JOBS[] = "DJ";
@@ -32,6 +33,7 @@ static const char SMSG_JOB_STATE_UPDATE[] = "JSU";
 static const char SMSG_JOB_PROGRESS_UPDATE[] = "JPU";
 static const char SMSG_JOB_START_TIME_UPDATE[] = "JSTU";
 static const char SMSG_JOB_END_TIME_UPDATE[] = "JETU";
+static const char SMSG_JOB_DEPENDENCIES_UPDATE[] = "JDU";
 static const char SMSG_JOBS_SWAPPED[] = "JSW";
 static const char SMSG_JOBS_DELETED[] = "JD";
 static const char SMSG_REFUSE[] = "RF";

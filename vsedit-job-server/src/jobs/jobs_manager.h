@@ -27,7 +27,9 @@ public:
 
 	bool swapJobs(const QUuid & a_jobID1, const QUuid & a_jobID2);
 
-	bool setJobState(const QUuid & a_uuid, JobState a_state);
+	bool setJobState(const QUuid & a_jobID, JobState a_state);
+	bool setJobDependsOnIds(const QUuid & a_jobID,
+		const std::vector<QUuid> & a_dependencies);
 	bool changeJob(const JobProperties & a_jobProperties);
 
 	bool loadJobs();
@@ -55,6 +57,8 @@ signals:
 		const QDateTime & a_time);
 	void signalJobEndTimeChanged(const QUuid & a_jobID,
 		const QDateTime & a_time);
+	void signalJobDependenciesChanged(const QUuid & a_jobID,
+		const std::vector<QUuid> & a_dependencies);
 	void signalJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2);
 	void signalJobsDeleted(const std::vector<QUuid> & a_ids);
 

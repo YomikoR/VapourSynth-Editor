@@ -33,6 +33,8 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 		this, &JobServer::slotJobStartTimeChanged);
 	connect(m_pJobsManager, &JobsManager::signalJobEndTimeChanged,
 		this, &JobServer::slotJobEndTimeChanged);
+	connect(m_pJobsManager, &JobsManager::signalJobDependenciesChanged,
+		this, &JobServer::slotJobDependenciesChanged);
 	connect(m_pJobsManager, &JobsManager::signalJobsSwapped,
 		this, &JobServer::slotJobsSwapped);
 	connect(m_pJobsManager, &JobsManager::signalJobsDeleted,
@@ -185,6 +187,20 @@ void JobServer::slotJobEndTimeChanged(const QUuid & a_jobID,
 
 //==============================================================================
 
+void JobServer::slotJobDependenciesChanged(const QUuid & a_jobID,
+		const std::vector<QUuid> & a_dependencies)
+{
+	QJsonObject jsJob;
+	jsJob[JP_ID] = a_jobID.toString();
+	QJsonArray jsDependencies;
+	for(const QUuid & id : a_dependencies)
+		jsDependencies << id.toString();
+	jsJob[JP_DEPENDS_ON_JOB_IDS] = jsDependencies;
+	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_DEPENDENCIES_UPDATE, jsJob));
+}
+
+//==============================================================================
+
 void JobServer::slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2)
 {
 	QJsonArray jsSwap;
@@ -279,6 +295,22 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		JobProperties properties =
 			JobProperties::fromJson(jsArguments.object());
 		m_pJobsManager->changeJob(properties);
+		return;
+	}
+
+	if(command == QString(MSG_SET_JOB_DEPENDENCIES))
+	{
+		QJsonObject jsJob = jsArguments.object();
+		if(!jsJob.contains(JP_ID))
+			return;
+		QUuid id(jsJob[JP_ID].toString());
+		if(!jsJob.contains(JP_DEPENDS_ON_JOB_IDS))
+			return;
+		QJsonArray jsDependencies = jsJob[JP_DEPENDS_ON_JOB_IDS].toArray();
+		std::vector<QUuid> dependencies;
+		for(int i = 0; i < jsDependencies.count(); ++i)
+			dependencies.push_back(QUuid(jsDependencies[i].toString()));
+		m_pJobsManager->setJobDependsOnIds(id, dependencies);
 		return;
 	}
 
