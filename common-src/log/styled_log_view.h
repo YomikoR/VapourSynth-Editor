@@ -14,6 +14,8 @@ class StyledLogView : public QTextEdit
 
 public:
 
+	static const size_t DEFAULT_MAX_ENTRIES_TO_SHOW;
+
 	StyledLogView(QWidget * a_pParent = nullptr);
 	virtual ~StyledLogView();
 
@@ -76,6 +78,8 @@ protected:
 	QMenu * m_pContextMenu;
 
 	StyledLogViewSettingsDialog * m_pSettingsDialog;
+
+	size_t m_maxEntriesToShow;
 };
 
 #endif // STYLED_LOG_VIEW_H_INCLUDED

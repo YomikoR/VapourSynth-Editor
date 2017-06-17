@@ -11,11 +11,16 @@
 
 //==============================================================================
 
+const size_t StyledLogView::DEFAULT_MAX_ENTRIES_TO_SHOW = 200;
+
+//==============================================================================
+
 StyledLogView::StyledLogView(QWidget * a_pParent) :
 	  QTextEdit(a_pParent)
 	, m_millisecondsToDivideBlocks(2000)
 	, m_pContextMenu(nullptr)
 	, m_pSettingsDialog(nullptr)
+	, m_maxEntriesToShow(DEFAULT_MAX_ENTRIES_TO_SHOW)
 {
 	setReadOnly(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -331,8 +336,19 @@ void StyledLogView::updateHtml()
 	QDateTime lastTime;
 	QString lastStyle;
 
-	for(const LogEntry & entry : m_entries)
+	size_t firstEntryToShow = 0;
+
+	if(m_entries.size() > m_maxEntriesToShow)
 	{
+		firstEntryToShow = m_entries.size() - m_maxEntriesToShow;
+		html += trUtf8("<tr><td align=\"center\">%1 entries not shown. "
+			"Save the log to read.</td></tr>\n").arg(firstEntryToShow);
+	}
+
+	for(size_t i = firstEntryToShow; i < m_entries.size(); ++i)
+	{
+		const LogEntry & entry = m_entries[i];
+
 		TextBlockStyle style = getStyle(entry.style);
 
 		if(!style.isVisible)
