@@ -1,4 +1,10 @@
 <!DOCTYPE RCC><RCC version="1.0">
 	<qresource>
+		<file alias="vsedit.ico">vsedit.ico</file>
+		<file alias="exit.png">door_in.png</file>
+		<file alias="settings.png">cog.png</file>
+		<file alias="folder.png">folder.png</file>
+		<file alias="information.png">information.png</file>
+		<file alias="jobs.png">sheduled_task.png</file>
 	</qresource>
 </RCC>
