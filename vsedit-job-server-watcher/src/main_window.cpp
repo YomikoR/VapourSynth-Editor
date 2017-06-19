@@ -63,8 +63,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.setupUi(this);
 	setWindowTitle(trUtf8(WINDOW_TITLE));
 
-	setWindowIcon(QIcon(":vsedit.ico"));
-
 	m_pSettingsManager = new SettingsManager(this);
 	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,

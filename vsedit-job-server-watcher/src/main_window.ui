@@ -10,6 +10,10 @@
     <height>756</height>
    </rect>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/vsedit-job-server-watcher.qrc">
+    <normaloff>:/watcher.ico</normaloff>:/watcher.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
@@ -205,7 +209,7 @@
      <x>0</x>
      <y>0</y>
      <width>1015</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -258,6 +262,8 @@
    <header>../../common-src/log/vs_editor_log.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources/vsedit-job-server-watcher.qrc"/>
+ </resources>
  <connections/>
 </ui>

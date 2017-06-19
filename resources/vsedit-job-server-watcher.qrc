@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 	<qresource>
-		<file alias="vsedit.ico">vsedit.ico</file>
+		<file alias="watcher.ico">vsedit-job-server-watcher.ico</file>
 		<file alias="exit.png">door_in.png</file>
 		<file alias="settings.png">cog.png</file>
 		<file alias="folder.png">folder.png</file>
