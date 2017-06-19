@@ -1069,9 +1069,6 @@ void vsedit::Job::startEncodeScriptCLI()
 		connect(m_pVapourSynthScriptProcessor,
 			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalCoreFramebufferUsedBytes(int64_t)),
-			this, SLOT(slotCoreFramebufferUsedBytes(int64_t)));
 		connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
 			this, SLOT(slotScriptProcessorFinalized()));
 		connect(m_pVapourSynthScriptProcessor,
