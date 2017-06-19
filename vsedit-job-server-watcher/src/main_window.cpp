@@ -702,7 +702,9 @@ void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 
 void MainWindow::slotStartLocalServer()
 {
-	bool started = QProcess::startDetached("vsedit-job-server");
+	QString serverPath = vsedit::resolvePathFromApplication(
+		"./vsedit-job-server");
+	bool started = QProcess::startDetached(serverPath);
 	if(!started)
 	{
 		m_ui.logView->addEntry(trUtf8("Could not start server."),
