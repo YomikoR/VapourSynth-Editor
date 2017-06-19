@@ -263,6 +263,17 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 //		const QVariant & a_value, int a_role)
 //==============================================================================
 
+void JobsModel::clear()
+{
+	beginRemoveRows(QModelIndex(), 0, m_jobs.size() - 1);
+	m_jobs.clear();
+	endRemoveRows();
+}
+
+// END OF void JobsModel::clear()
+//==============================================================================
+
+
 std::vector<JobProperties> JobsModel::jobs() const
 {
 	return m_jobs;

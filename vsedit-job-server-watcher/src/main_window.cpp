@@ -513,6 +513,7 @@ void MainWindow::slotServerConnected()
 void MainWindow::slotServerDisconnected()
 {
 	m_ui.logView->addEntry(trUtf8("Disconnected from server"));
+	m_pJobsModel->clear();
 }
 
 // END OF void MainWindow::slotServerDisconnected()

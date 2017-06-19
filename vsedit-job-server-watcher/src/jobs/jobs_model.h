@@ -52,6 +52,8 @@ public:
 	virtual bool setData(const QModelIndex & a_index, const QVariant & a_value,
 		int a_role = Qt::EditRole) override;
 
+	void clear();
+
 	std::vector<JobProperties> jobs() const;
 	bool setJobs(const std::vector<JobProperties> & a_jobs);
 
