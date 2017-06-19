@@ -164,7 +164,7 @@ MainWindow::MainWindow() : QMainWindow()
 		this, SLOT(slotServerError(QAbstractSocket::SocketError)));
 	connect(m_pJobsModel, SIGNAL(signalLogMessage(const QString &,
 		const QString &)),
-		m_ui.logView, SLOT(addEntry(const QString &, const QString & a_style)));
+		m_ui.logView, SLOT(addEntry(const QString &, const QString &)));
 	connect(m_pJobsModel, &JobsModel::signalStateChanged,
 		this, &MainWindow::slotJobsStateChanged);
 	connect(m_pJobsModel, &JobsModel::signalSetDependencies,
