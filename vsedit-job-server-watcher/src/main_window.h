@@ -14,15 +14,14 @@ class JobsModel;
 class JobEditDialog;
 class JobStateDelegate;
 class JobDependenciesDelegate;
-class QMenu;
 class VSScriptLibrary;
+class QMenu;
+class QSystemTrayIcon;
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
 	class QWinTaskbarProgress;
 #endif
-
-class SettingsManager;
 
 class MainWindow : public QMainWindow
 {
@@ -116,6 +115,8 @@ private:
 
 	int m_connectionAttempts;
 	int m_maxConnectionAttempts;
+
+	QSystemTrayIcon * m_pTrayIcon;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

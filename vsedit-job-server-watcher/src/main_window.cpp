@@ -33,6 +33,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QProcess>
+#include <QSystemTrayIcon>
 
 #ifdef Q_OS_WIN
 	#include <QWinTaskbarButton>
@@ -55,6 +56,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pServerSocket(nullptr)
 	, m_connectionAttempts(0)
 	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
+	, m_pTrayIcon(nullptr)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
@@ -111,6 +113,12 @@ MainWindow::MainWindow() : QMainWindow()
 		m_pJobsHeaderMenu->addAction(pAction);
 		connect(pAction, SIGNAL(toggled(bool)),
 			this, SLOT(slotShowJobsHeaderSection(bool)));
+	}
+
+	if(QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		m_pTrayIcon = new QSystemTrayIcon(QIcon(":watcher.ico"), this);
+		m_pTrayIcon->show();
 	}
 
 	connect(m_ui.jobNewButton, SIGNAL(clicked()),
