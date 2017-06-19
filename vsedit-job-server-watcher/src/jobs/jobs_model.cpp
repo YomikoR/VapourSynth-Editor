@@ -265,7 +265,7 @@ bool JobsModel::setData(const QModelIndex & a_index, const QVariant & a_value,
 
 void JobsModel::clear()
 {
-	beginRemoveRows(QModelIndex(), 0, m_jobs.size() - 1);
+	beginRemoveRows(QModelIndex(), 0, (int)m_jobs.size() - 1);
 	m_jobs.clear();
 	endRemoveRows();
 }
