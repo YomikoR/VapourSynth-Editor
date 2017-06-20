@@ -84,7 +84,20 @@ private slots:
 	void slotStartLocalServer();
 	void slotShutdownServer();
 
+	void slotConnectToLocalServer();
+
 private:
+
+	enum class ServerState
+	{
+		NotConnected,
+		ProbingLocal,
+		StartingLocal,
+		ShuttingDown,
+		Connecting,
+		Connected,
+		Disconnecting,
+	};
 
 	void createActionsAndMenus();
 
@@ -115,6 +128,8 @@ private:
 
 	int m_connectionAttempts;
 	int m_maxConnectionAttempts;
+
+	ServerState m_serverState;
 
 	QSystemTrayIcon * m_pTrayIcon;
 

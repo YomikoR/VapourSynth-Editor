@@ -34,6 +34,7 @@
 #include <QJsonValue>
 #include <QProcess>
 #include <QSystemTrayIcon>
+#include <QTimer>
 
 #ifdef Q_OS_WIN
 	#include <QWinTaskbarButton>
@@ -56,6 +57,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pServerSocket(nullptr)
 	, m_connectionAttempts(0)
 	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
+	, m_serverState(ServerState::NotConnected)
 	, m_pTrayIcon(nullptr)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
@@ -195,10 +197,11 @@ MainWindow::~MainWindow()
 void MainWindow::showAndConnect()
 {
 	show();
-	if(m_pServerSocket->state() == QAbstractSocket::ConnectedState)
+	if(m_serverState != ServerState::NotConnected)
 		return;
 
-	m_pServerSocket->open(QString("ws://127.0.0.1:%1").arg(JOB_SERVER_PORT));
+	m_serverState = ServerState::ProbingLocal;
+	slotConnectToLocalServer();
 }
 
 // END OF MainWindow::showAndConnect()
@@ -507,6 +510,7 @@ void MainWindow::slotSetJobDependencies(const QUuid & a_id,
 
 void MainWindow::slotServerConnected()
 {
+	m_serverState = ServerState::Connected;
 	m_connectionAttempts = 0;
 	m_pServerSocket->sendTextMessage(MSG_GET_JOBS_INFO);
 	m_pServerSocket->sendTextMessage(MSG_GET_LOG);
@@ -518,8 +522,52 @@ void MainWindow::slotServerConnected()
 
 void MainWindow::slotServerDisconnected()
 {
-	m_ui.logView->addEntry(trUtf8("Disconnected from server"));
-	m_pJobsModel->clear();
+	if(m_serverState == ServerState::ProbingLocal)
+	{
+		m_serverState = ServerState::StartingLocal;
+		QString serverPath = vsedit::resolvePathFromApplication(
+			"./vsedit-job-server");
+		bool started = QProcess::startDetached(serverPath);
+		if(!started)
+		{
+			m_ui.logView->addEntry(trUtf8("Could not start server."),
+				LOG_STYLE_ERROR);
+			return;
+		}
+
+		m_serverState = ServerState::Connecting;
+		QTimer::singleShot(1000, Qt::PreciseTimer, this,
+			&MainWindow::slotConnectToLocalServer);
+	}
+	else if(m_serverState == ServerState::Connecting)
+	{
+		m_connectionAttempts++;
+		if(m_connectionAttempts >= m_maxConnectionAttempts)
+		{
+			m_serverState = ServerState::NotConnected;
+			m_connectionAttempts = 0;
+			m_ui.logView->addEntry(trUtf8("Could not connect to server."),
+				LOG_STYLE_ERROR);
+			return;
+		}
+		QTimer::singleShot(500, Qt::PreciseTimer, this,
+			&MainWindow::slotConnectToLocalServer);
+	}
+	else if((m_serverState == ServerState::Disconnecting) ||
+		(m_serverState == ServerState::ShuttingDown))
+	{
+		m_serverState = ServerState::NotConnected;
+		m_ui.logView->addEntry(trUtf8("Disconnected from server"));
+		m_pJobsModel->clear();
+	}
+	else
+	{
+		m_ui.logView->addEntry(trUtf8("Disconnected from server. "
+			"Reconnecting"), LOG_STYLE_ERROR);
+		m_connectionAttempts = 0;
+		m_serverState = ServerState::Connecting;
+		slotConnectToLocalServer();
+	}
 }
 
 // END OF void MainWindow::slotServerDisconnected()
@@ -700,7 +748,8 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 {
-	(void)a_error;
+	if(a_error == QAbstractSocket::ConnectionRefusedError)
+		return; // Handled by slotServerDisconnected()
 	m_ui.logView->addEntry(m_pServerSocket->errorString(), LOG_STYLE_ERROR);
 }
 
@@ -709,16 +758,11 @@ void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 
 void MainWindow::slotStartLocalServer()
 {
-	QString serverPath = vsedit::resolvePathFromApplication(
-		"./vsedit-job-server");
-	bool started = QProcess::startDetached(serverPath);
-	if(!started)
-	{
-		m_ui.logView->addEntry(trUtf8("Could not start server."),
-			LOG_STYLE_ERROR);
+	if(m_serverState != ServerState::NotConnected)
 		return;
-	}
-	m_pServerSocket->open(QString("ws://127.0.0.1:%1").arg(JOB_SERVER_PORT));
+
+	m_serverState = ServerState::ProbingLocal;
+	slotConnectToLocalServer();
 }
 
 // END OF void MainWindow::slotStartLocalServer()
@@ -726,12 +770,23 @@ void MainWindow::slotStartLocalServer()
 
 void MainWindow::slotShutdownServer()
 {
-	if(m_pServerSocket->state() != QAbstractSocket::ConnectedState)
+	if(m_serverState != ServerState::Connected)
 		return;
+	if(!m_pServerSocket->peerAddress().isLoopback())
+		return;
+	m_serverState = ServerState::Disconnecting;
 	m_pServerSocket->sendTextMessage(MSG_CLOSE_SERVER);
 }
 
 // END OF void MainWindow::slotShutdownServer()
+//==============================================================================
+
+void MainWindow::slotConnectToLocalServer()
+{
+	m_pServerSocket->open(QString("ws://127.0.0.1:%1").arg(JOB_SERVER_PORT));
+}
+
+// END OF void MainWindow::slotConnectToLocalServer()
 //==============================================================================
 
 void MainWindow::createActionsAndMenus()
