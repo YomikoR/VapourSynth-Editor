@@ -37,5 +37,9 @@ int main(int argc, char *argv[])
 	}
 
 	int exitCode = application.exec();
+
+	if(!guard.unlock())
+		qCritical("%s", guard.error().toLocal8Bit().data());
+
 	return exitCode;
 }

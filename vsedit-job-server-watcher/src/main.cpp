@@ -81,6 +81,10 @@ int main(int argc, char *argv[])
 	qInstallMessageHandler(handleQtMessage);
 	pMainWindow->showAndConnect();
 	int exitCode = application.exec();
+
 	delete pMainWindow;
+	if(!guard.unlock())
+		qCritical("%s", guard.error().toLocal8Bit().data());
+
 	return exitCode;
 }
