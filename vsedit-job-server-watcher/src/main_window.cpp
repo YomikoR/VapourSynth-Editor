@@ -490,6 +490,7 @@ void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 	(void)a_state;
 	(void)a_progress;
 	(void)a_progressMax;
+	setUiEnabled();
 }
 
 // END OF void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
@@ -905,6 +906,40 @@ void MainWindow::setUiEnabled()
 	{
 		buttonsToEnable[m_ui.jobNewButton] = true;
 		buttonsToEnable[m_ui.shutdownServerButton] = true;
+
+		std::vector<int> l_selectedIndexes = selectedIndexes();
+
+		if(l_selectedIndexes.size() == 1)
+		{
+			JobProperties jobProperties =
+				m_pJobsModel->jobProperties(l_selectedIndexes[0]);
+			if(!vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
+			{
+				buttonsToEnable[m_ui.jobEditButton] = true;
+				if(l_selectedIndexes[0] > 0)
+					buttonsToEnable[m_ui.jobMoveUpButton] = true;
+				if(l_selectedIndexes[0] < (m_pJobsModel->rowCount() - 1))
+					buttonsToEnable[m_ui.jobMoveDownButton] = true;
+			}
+		}
+
+		bool allInactive = !l_selectedIndexes.empty();
+
+		for(size_t i = 0; i < l_selectedIndexes.size(); ++i)
+		{
+			JobProperties jobProperties =
+				m_pJobsModel->jobProperties(l_selectedIndexes[i]);
+			if(vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
+				allInactive = false;
+		}
+
+		buttonsToEnable[m_ui.jobResetStateButton] = allInactive;
+		buttonsToEnable[m_ui.jobDeleteButton] = allInactive;
+
+		buttonsToEnable[m_ui.startButton] = true;
+		buttonsToEnable[m_ui.pauseButton] = true;
+		buttonsToEnable[m_ui.resumeButton] = true;
+		buttonsToEnable[m_ui.abortButton] = true;
 	}
 
 	for(std::pair<QPushButton *, bool> buttonToEnable : buttonsToEnable)
