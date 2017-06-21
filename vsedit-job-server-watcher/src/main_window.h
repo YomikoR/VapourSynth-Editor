@@ -109,6 +109,8 @@ private:
 
 	std::vector<int> selectedIndexes();
 
+	void setUiEnabled();
+
 	static const char WINDOW_TITLE[];
 
 	Ui::MainWindow m_ui;

@@ -35,6 +35,7 @@
 #include <QProcess>
 #include <QSystemTrayIcon>
 #include <QTimer>
+#include <map>
 
 #ifdef Q_OS_WIN
 	#include <QWinTaskbarButton>
@@ -149,6 +150,9 @@ MainWindow::MainWindow() : QMainWindow()
 		this, SLOT(slotShutdownServer()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
 		this, SLOT(slotJobDoubleClicked(const QModelIndex &)));
+	connect(m_ui.jobsTableView->selectionModel(),
+		&QItemSelectionModel::selectionChanged,
+		this, &MainWindow::slotSelectionChanged);
 	connect(pHorizontalHeader, SIGNAL(sectionResized(int, int, int)),
 		this, SLOT(slotSaveHeaderState()));
 	connect(pHorizontalHeader, SIGNAL(sectionMoved(int, int, int)),
@@ -179,6 +183,7 @@ MainWindow::MainWindow() : QMainWindow()
 		this, &MainWindow::slotSetJobDependencies);
 
 	createActionsAndMenus();
+	setUiEnabled();
 }
 
 // END OF MainWindow::MainWindow()
@@ -440,7 +445,7 @@ void MainWindow::slotJobDoubleClicked(const QModelIndex & a_index)
 
 void MainWindow::slotSelectionChanged()
 {
-
+	setUiEnabled();
 }
 
 // END OF void MainWindow::slotSelectionChanged()
@@ -515,6 +520,7 @@ void MainWindow::slotServerConnected()
 	m_pServerSocket->sendTextMessage(MSG_GET_JOBS_INFO);
 	m_pServerSocket->sendTextMessage(MSG_GET_LOG);
 	m_pServerSocket->sendTextMessage(MSG_SUBSCRIBE);
+	setUiEnabled();
 }
 
 // END OF void MainWindow::slotServerConnected()
@@ -530,8 +536,10 @@ void MainWindow::slotServerDisconnected()
 		bool started = QProcess::startDetached(serverPath);
 		if(!started)
 		{
+			m_serverState = ServerState::NotConnected;
 			m_ui.logView->addEntry(trUtf8("Could not start server."),
 				LOG_STYLE_ERROR);
+			setUiEnabled();
 			return;
 		}
 
@@ -548,6 +556,7 @@ void MainWindow::slotServerDisconnected()
 			m_connectionAttempts = 0;
 			m_ui.logView->addEntry(trUtf8("Could not connect to server."),
 				LOG_STYLE_ERROR);
+			setUiEnabled();
 			return;
 		}
 		QTimer::singleShot(500, Qt::PreciseTimer, this,
@@ -568,6 +577,7 @@ void MainWindow::slotServerDisconnected()
 		m_serverState = ServerState::Connecting;
 		slotConnectToLocalServer();
 	}
+	setUiEnabled();
 }
 
 // END OF void MainWindow::slotServerDisconnected()
@@ -867,4 +877,42 @@ std::vector<int> MainWindow::selectedIndexes()
 }
 
 // END OF std::vector<int> MainWindow::selectedIndexes()
+//==============================================================================
+
+void MainWindow::setUiEnabled()
+{
+	std::map<QPushButton *, bool> buttonsToEnable;
+
+	buttonsToEnable[m_ui.jobNewButton] = false;
+	buttonsToEnable[m_ui.jobEditButton] = false;
+	buttonsToEnable[m_ui.jobMoveUpButton] = false;
+	buttonsToEnable[m_ui.jobMoveDownButton] = false;
+	buttonsToEnable[m_ui.jobDeleteButton] = false;
+	buttonsToEnable[m_ui.jobResetStateButton] = false;
+	buttonsToEnable[m_ui.startButton] = false;
+	buttonsToEnable[m_ui.pauseButton] = false;
+	buttonsToEnable[m_ui.resumeButton] = false;
+	buttonsToEnable[m_ui.abortButton] = false;
+	buttonsToEnable[m_ui.startServerButton] = false;
+	buttonsToEnable[m_ui.shutdownServerButton] = false;
+
+	if(m_serverState == ServerState::NotConnected)
+	{
+		buttonsToEnable[m_ui.startServerButton] = true;
+	}
+
+	if(m_serverState == ServerState::Connected)
+	{
+		buttonsToEnable[m_ui.jobNewButton] = true;
+		buttonsToEnable[m_ui.shutdownServerButton] = true;
+	}
+
+	for(std::pair<QPushButton *, bool> buttonToEnable : buttonsToEnable)
+	{
+		if(buttonToEnable.first->isEnabled() != buttonToEnable.second)
+			buttonToEnable.first->setEnabled(buttonToEnable.second);
+	}
+}
+
+// END OF void MainWindow::setUiEnabled()
 //==============================================================================
