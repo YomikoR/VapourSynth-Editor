@@ -403,6 +403,7 @@ bool JobsModel::setJobProgress(const QUuid & a_id, int a_progress, double a_fps)
 	m_jobs[index].fps = a_fps;
 	notifyJobUpdated(index, STATE_COLUMN);
 	notifyJobUpdated(index, FPS_COLUMN);
+	notifyState(index);
 	return true;
 }
 
@@ -417,6 +418,7 @@ bool JobsModel::setJobState(const QUuid & a_id, JobState a_state)
 		return false;
 	m_jobs[index].jobState = a_state;
 	notifyJobUpdated(index, STATE_COLUMN);
+	notifyState(index);
 	return true;
 }
 

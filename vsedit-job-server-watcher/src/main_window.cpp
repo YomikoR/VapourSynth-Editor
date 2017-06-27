@@ -485,12 +485,24 @@ void MainWindow::slotShowJobsHeaderSection(bool a_show)
 void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 	JobState a_state, int a_progress, int a_progressMax)
 {
-	(void)a_job;
-	(void)a_jobsTotal;
 	(void)a_state;
-	(void)a_progress;
-	(void)a_progressMax;
 	setUiEnabled();
+
+	QString title = WINDOW_TITLE;
+	if(a_job > -1)
+	{
+		QString progress;
+		if(a_progressMax > 0)
+			progress = QString("%1% ").arg(a_progress * 100 / a_progressMax);
+
+		title = QString("%1%2/%3 %4").arg(progress).arg(a_job)
+			.arg(a_jobsTotal).arg(WINDOW_TITLE);
+	}
+	else
+	{
+
+	}
+	setWindowTitle(title);
 }
 
 // END OF void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
