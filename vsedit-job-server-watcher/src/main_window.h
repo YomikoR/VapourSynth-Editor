@@ -44,9 +44,10 @@ public slots:
 
 protected:
 
-	void moveEvent(QMoveEvent * a_pEvent) override;
-	void resizeEvent(QResizeEvent * a_pEvent) override;
-	void changeEvent(QEvent * a_pEvent) override;
+	virtual void moveEvent(QMoveEvent * a_pEvent) override;
+	virtual void resizeEvent(QResizeEvent * a_pEvent) override;
+	virtual void changeEvent(QEvent * a_pEvent) override;
+	virtual void showEvent(QShowEvent * a_pEvent) override;
 
 private slots:
 

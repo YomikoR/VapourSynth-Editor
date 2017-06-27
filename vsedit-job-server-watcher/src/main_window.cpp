@@ -311,6 +311,23 @@ void MainWindow::changeEvent(QEvent * a_pEvent)
 // END OF void MainWindow::changeEvent(QEvent * a_pEvent)
 //==============================================================================
 
+void MainWindow::showEvent(QShowEvent * a_pEvent)
+{
+	QMainWindow::showEvent(a_pEvent);
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarButton)
+	{
+		m_pWinTaskbarButton = new QWinTaskbarButton(this);
+		m_pWinTaskbarButton->setWindow(windowHandle());
+		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
+	}
+#endif
+}
+
+// END OF void MainWindow::showEvent(QShowEvent * a_pEvent)
+//==============================================================================
+
 void MainWindow::slotJobNewButtonClicked()
 {
 	int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
@@ -503,6 +520,41 @@ void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 
 	}
 	setWindowTitle(title);
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarProgress)
+		return;
+
+	if(a_job < 0)
+	{
+		m_pWinTaskbarProgress->hide();
+		return;
+	}
+
+	if(a_progressMax == 0)
+	{
+		m_pWinTaskbarProgress->setMaximum(1);
+		m_pWinTaskbarProgress->setValue(1);
+	}
+	else
+	{
+		m_pWinTaskbarProgress->setMaximum(a_progressMax);
+		m_pWinTaskbarProgress->setValue(a_progress);
+	}
+	m_pWinTaskbarProgress->show();
+
+	JobState greenStates[] = {JobState::Running, JobState::Pausing,
+		JobState::Aborting, JobState::Completed, JobState::CompletedCleanUp};
+	JobState redStates[] = {JobState::Aborted, JobState::FailedCleanUp,
+		JobState::Failed, JobState::DependencyNotMet};
+
+	if(vsedit::contains(greenStates, a_state))
+		m_pWinTaskbarProgress->resume();
+	else if(a_state == JobState::Paused)
+		m_pWinTaskbarProgress->pause();
+	else if(vsedit::contains(redStates, a_state))
+		m_pWinTaskbarProgress->stop();
+#endif
 }
 
 // END OF void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
