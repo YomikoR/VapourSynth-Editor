@@ -87,6 +87,8 @@ private slots:
 
 	void slotConnectToLocalServer();
 
+	void slotShutdownServerAndExit();
+
 private:
 
 	enum class ServerState
@@ -137,6 +139,11 @@ private:
 	ServerState m_serverState;
 
 	QSystemTrayIcon * m_pTrayIcon;
+
+	QMenu * m_pTrayMenu;
+
+	QAction * m_pActionExit;
+	QAction * m_pActionShutdownServerAndExit;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

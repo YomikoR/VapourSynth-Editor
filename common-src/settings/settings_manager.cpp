@@ -199,6 +199,8 @@ void SettingsManager::initializeStandardActions()
 			QIcon(), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Down)},
 		{ACTION_ID_TOGGLE_COMMENT, trUtf8("Toggle comment"),
 			QIcon(), QKeySequence(Qt::CTRL + Qt::Key_Slash)},
+		{ACTION_ID_SHUTDOWN_SERVER_AND_EXIT, trUtf8("Shutdown server and exit"),
+			 QIcon(":exit.png"), QKeySequence()},
 	};
 }
 

@@ -146,6 +146,7 @@ extern const char ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT[];
 extern const char ACTION_ID_MOVE_TEXT_BLOCK_UP[];
 extern const char ACTION_ID_MOVE_TEXT_BLOCK_DOWN[];
 extern const char ACTION_ID_TOGGLE_COMMENT[];
+extern const char ACTION_ID_SHUTDOWN_SERVER_AND_EXIT[];
 
 //==============================================================================
 

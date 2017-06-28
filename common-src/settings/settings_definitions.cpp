@@ -94,6 +94,7 @@ const char ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT[] =
 const char ACTION_ID_MOVE_TEXT_BLOCK_UP[] = "move_text_block_up";
 const char ACTION_ID_MOVE_TEXT_BLOCK_DOWN[] = "move_text_block_down";
 const char ACTION_ID_TOGGLE_COMMENT[] = "toggle_comment";
+const char ACTION_ID_SHUTDOWN_SERVER_AND_EXIT[] = "shutdown_server_and_exit";
 
 //==============================================================================
 

@@ -60,6 +60,9 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
 	, m_serverState(ServerState::NotConnected)
 	, m_pTrayIcon(nullptr)
+	, m_pTrayMenu(nullptr)
+	, m_pActionExit(nullptr)
+	, m_pActionShutdownServerAndExit(nullptr)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
@@ -903,9 +906,51 @@ void MainWindow::slotConnectToLocalServer()
 // END OF void MainWindow::slotConnectToLocalServer()
 //==============================================================================
 
-void MainWindow::createActionsAndMenus()
+void MainWindow::slotShutdownServerAndExit()
 {
 
+}
+
+// END OF void MainWindow::slotShutdownServerAndExit()
+//==============================================================================
+
+
+void MainWindow::createActionsAndMenus()
+{
+	struct ActionToCreate
+	{
+		QAction ** ppAction;
+		const char * id;
+		QObject * pObjectToConnect;
+		const char * slotToConnect;
+	};
+
+	ActionToCreate actionsToCreate[] =
+	{
+		{&m_pActionExit, ACTION_ID_EXIT,
+			this, SLOT(close())},
+		{&m_pActionShutdownServerAndExit, ACTION_ID_SHUTDOWN_SERVER_AND_EXIT,
+			this, SLOT(slotShutdownServerAndExit())},
+	};
+
+	for(ActionToCreate & item : actionsToCreate)
+	{
+		QAction * pAction = m_pSettingsManager->createStandardAction(
+			item.id, this);
+		*item.ppAction = pAction;
+		//m_settableActionsList.push_back(pAction);
+		connect(pAction, SIGNAL(triggered()),
+			item.pObjectToConnect, item.slotToConnect);
+	}
+
+	if(QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		assert(m_pTrayIcon);
+		m_pTrayMenu = new QMenu(this);
+		m_pTrayMenu->addAction(m_pActionExit);
+		m_pTrayMenu->addAction(m_pActionShutdownServerAndExit);
+		m_pTrayIcon->setContextMenu(m_pTrayMenu);
+	}
 }
 
 // END OF void MainWindow::createActionsAndMenus()
