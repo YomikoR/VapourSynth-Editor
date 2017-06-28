@@ -588,13 +588,13 @@ void MainWindow::slotJobProgressChanged(int a_job, int a_progress,
 
 	if(properties.type == JobType::EncodeScriptCLI)
 	{
-		m_pWinTaskbarProgress->setMaximum(1);
-		m_pWinTaskbarProgress->setValue(1);
+		m_pWinTaskbarProgress->setMaximum(a_progressMax);
+		m_pWinTaskbarProgress->setValue(a_progress);
 	}
 	else
 	{
-		m_pWinTaskbarProgress->setMaximum(a_progressMax);
-		m_pWinTaskbarProgress->setValue(a_progress);
+		m_pWinTaskbarProgress->setMaximum(1);
+		m_pWinTaskbarProgress->setValue(1);
 	}
 #endif
 }
