@@ -403,7 +403,7 @@ bool JobsModel::setJobProgress(const QUuid & a_id, int a_progress, double a_fps)
 	m_jobs[index].fps = a_fps;
 	notifyJobUpdated(index, STATE_COLUMN);
 	notifyJobUpdated(index, FPS_COLUMN);
-	notifyState(index);
+	emit signalProgressChanged(index, a_progress, m_jobs[index].framesTotal());
 	return true;
 }
 
@@ -418,7 +418,7 @@ bool JobsModel::setJobState(const QUuid & a_id, JobState a_state)
 		return false;
 	m_jobs[index].jobState = a_state;
 	notifyJobUpdated(index, STATE_COLUMN);
-	notifyState(index);
+	emit signalStateChanged(index, a_state);
 	return true;
 }
 
@@ -474,6 +474,19 @@ bool JobsModel::hasActiveJobs()
 	for(const JobProperties & properties : m_jobs)
 	{
 		if(vsedit::contains(ACTIVE_JOB_STATES, properties.jobState))
+			return true;
+	}
+	return false;
+}
+
+// END OF bool JobsModel::hasActiveJobs()
+//==============================================================================
+
+bool JobsModel::hasWaitingJobs()
+{
+	for(const JobProperties & properties : m_jobs)
+	{
+		if(properties.jobState == JobState::Waiting)
 			return true;
 	}
 	return false;
@@ -549,28 +562,4 @@ void JobsModel::notifyJobUpdated(int a_index, int a_column)
 }
 
 // END OF void JobsModel::noifyJobUpdated(int a_index)
-//==============================================================================
-
-void JobsModel::notifyState(int a_index)
-{
-	if((a_index < 0) || ((size_t)a_index >= m_jobs.size()))
-		return;
-
-	int progress = 0;
-	int progressTotal = 0;
-	if(m_jobs[a_index].type == JobType::EncodeScriptCLI)
-	{
-		progress = m_jobs[a_index].framesProcessed;
-		progressTotal = m_jobs[a_index].framesTotal();
-	}
-
-	int jobNumber = a_index + 1;
-	if(!hasActiveJobs())
-		jobNumber = -1;
-
-	emit signalStateChanged(jobNumber, (int)m_jobs.size(),
-		m_jobs[a_index].jobState, progress, progressTotal);
-}
-
-// END OF void JobsModel::notifyState(int a_index)
 //==============================================================================

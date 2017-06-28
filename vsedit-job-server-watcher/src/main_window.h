@@ -71,8 +71,8 @@ private slots:
 	void slotJobsHeaderContextMenu(const QPoint & a_point);
 	void slotShowJobsHeaderSection(bool a_show);
 
-	void slotJobsStateChanged(int a_job, int a_jobsTotal, JobState a_state,
-		int a_progress, int a_progressMax);
+	void slotJobStateChanged(int a_job, JobState a_state);
+	void slotJobProgressChanged(int a_job, int a_progress, int a_progressMax);
 	void slotSetJobDependencies(const QUuid & a_id,
 		std::vector<QUuid> a_dependencies);
 
@@ -111,6 +111,8 @@ private:
 	std::vector<int> selectedIndexes();
 
 	void setUiEnabled();
+
+	void resetWindowTitle(int a_jobIndex);
 
 	static const char WINDOW_TITLE[];
 

@@ -121,6 +121,7 @@ MainWindow::MainWindow() : QMainWindow()
 	if(QSystemTrayIcon::isSystemTrayAvailable())
 	{
 		m_pTrayIcon = new QSystemTrayIcon(QIcon(":watcher.ico"), this);
+		m_pTrayIcon->setToolTip(WINDOW_TITLE);
 		m_pTrayIcon->show();
 	}
 
@@ -178,7 +179,9 @@ MainWindow::MainWindow() : QMainWindow()
 		const QString &)),
 		m_ui.logView, SLOT(addEntry(const QString &, const QString &)));
 	connect(m_pJobsModel, &JobsModel::signalStateChanged,
-		this, &MainWindow::slotJobsStateChanged);
+		this, &MainWindow::slotJobStateChanged);
+	connect(m_pJobsModel, &JobsModel::signalProgressChanged,
+		this, &MainWindow::slotJobProgressChanged);
 	connect(m_pJobsModel, &JobsModel::signalSetDependencies,
 		this, &MainWindow::slotSetJobDependencies);
 
@@ -499,48 +502,54 @@ void MainWindow::slotShowJobsHeaderSection(bool a_show)
 // END OF void MainWindow::slotShowJobsHeaderSection(bool a_show)
 //==============================================================================
 
-void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
-	JobState a_state, int a_progress, int a_progressMax)
+void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
 {
-	(void)a_state;
 	setUiEnabled();
+	resetWindowTitle(a_job);
 
-	QString title = WINDOW_TITLE;
-	if(a_job > -1)
+	// Tray
+	JobState finalStates[] = {JobState::Completed, JobState::Aborted,
+		JobState::Failed};
+	if(QSystemTrayIcon::isSystemTrayAvailable() &&
+		vsedit::contains(finalStates, a_state))
 	{
-		QString progress;
-		if(a_progressMax > 0)
-			progress = QString("%1% ").arg(a_progress * 100 / a_progressMax);
+		assert(m_pTrayIcon);
+		QString message;
+		QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::NoIcon;
 
-		title = QString("%1%2/%3 %4").arg(progress).arg(a_job)
-			.arg(a_jobsTotal).arg(WINDOW_TITLE);
+		if(m_pJobsModel->hasActiveJobs() || m_pJobsModel->hasWaitingJobs())
+		{
+			if(a_state == JobState::Completed)
+				message = trUtf8("Job%1 has finished successfully");
+			else if(a_state == JobState::Aborted)
+			{
+				message = trUtf8("Job%1 was aborted");
+				icon = QSystemTrayIcon::Warning;
+			}
+			else if(a_state == JobState::Failed)
+			{
+				message = trUtf8("Job%1 has failed");
+				icon = QSystemTrayIcon::Critical;
+			}
+			message = message.arg(a_job + 1);
+		}
+		else
+			message = trUtf8("All jobs are finished.");
+
+		m_pTrayIcon->showMessage(WINDOW_TITLE, message, icon);
 	}
-	else
-	{
 
-	}
-	setWindowTitle(title);
-
+	// Windows taskbar progress
 #ifdef Q_OS_WIN
 	if(!m_pWinTaskbarProgress)
 		return;
 
-	if(a_job < 0)
+	if(!m_pJobsModel->hasActiveJobs())
 	{
 		m_pWinTaskbarProgress->hide();
 		return;
 	}
 
-	if(a_progressMax == 0)
-	{
-		m_pWinTaskbarProgress->setMaximum(1);
-		m_pWinTaskbarProgress->setValue(1);
-	}
-	else
-	{
-		m_pWinTaskbarProgress->setMaximum(a_progressMax);
-		m_pWinTaskbarProgress->setValue(a_progress);
-	}
 	m_pWinTaskbarProgress->show();
 
 	JobState greenStates[] = {JobState::Running, JobState::Pausing,
@@ -557,8 +566,38 @@ void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
 #endif
 }
 
-// END OF void MainWindow::slotJobsStateChanged(int a_job, int a_jobsTotal,
-//		JobState a_state, int a_progress, int a_progressMax)
+// END OF void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
+//==============================================================================
+
+void MainWindow::slotJobProgressChanged(int a_job, int a_progress,
+	int a_progressMax)
+{
+	(void)a_progress;
+	(void)a_progressMax;
+	resetWindowTitle(a_job);
+
+	JobProperties properties = m_pJobsModel->jobProperties(a_job);
+
+	// Windows taskbar progress
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarProgress)
+		return;
+
+	if(properties.type == JobType::EncodeScriptCLI)
+	{
+		m_pWinTaskbarProgress->setMaximum(1);
+		m_pWinTaskbarProgress->setValue(1);
+	}
+	else
+	{
+		m_pWinTaskbarProgress->setMaximum(a_progressMax);
+		m_pWinTaskbarProgress->setValue(a_progress);
+	}
+#endif
+}
+
+// END OF void MainWindow::slotJobProgressChanged(int a_job, int a_progress,
+//		int a_progressMax)
 //==============================================================================
 
 void MainWindow::slotSetJobDependencies(const QUuid & a_id,
@@ -1014,4 +1053,32 @@ void MainWindow::setUiEnabled()
 }
 
 // END OF void MainWindow::setUiEnabled()
+//==============================================================================
+
+void MainWindow::resetWindowTitle(int a_jobIndex)
+{
+	QString title = WINDOW_TITLE;
+	JobProperties properties = m_pJobsModel->jobProperties(a_jobIndex);
+	if(m_pJobsModel->hasActiveJobs())
+	{
+		QString progress;
+		if(properties.type == JobType::EncodeScriptCLI)
+		{
+			progress = QString("%1% ").arg(properties.framesProcessed * 100 /
+				properties.framesTotal());
+		}
+
+		title = QString("%1%2/%3 %4").arg(progress).arg(a_jobIndex + 1)
+			.arg(m_pJobsModel->jobs().size()).arg(WINDOW_TITLE);
+	}
+	setWindowTitle(title);
+
+	if(QSystemTrayIcon::isSystemTrayAvailable())
+	{
+		assert(m_pTrayIcon);
+		m_pTrayIcon->setToolTip(title);
+	}
+}
+
+// END OF void MainWindow::resetWindowTitle(int a_jobIndex)
 //==============================================================================

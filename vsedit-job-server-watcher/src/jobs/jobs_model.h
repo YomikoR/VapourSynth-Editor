@@ -78,6 +78,7 @@ public:
 	bool canModifyJob(int a_index) const;
 
 	bool hasActiveJobs();
+	bool hasWaitingJobs();
 
 	std::vector<int> indexesFromSelection(const QItemSelection & a_selection);
 	std::vector<QUuid> idsFromSelection(const QItemSelection & a_selection);
@@ -87,8 +88,9 @@ signals:
 	void signalLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
 
-	void signalStateChanged(int a_job, int a_jobsTotal, JobState a_state,
-		int a_progress, int a_progressMax);
+	void signalStateChanged(int a_job, JobState a_state);
+
+	void signalProgressChanged(int a_job, int a_progress, int a_progressMax);
 
 	void signalSetDependencies(const QUuid & a_id,
 		std::vector<QUuid> a_dependencies);
@@ -98,8 +100,6 @@ private:
 	int indexOfJob(const QUuid & a_id) const;
 
 	void notifyJobUpdated(int a_index, int a_column = -1);
-
-	void notifyState(int a_index);
 
 	std::vector<JobProperties> m_jobs;
 
