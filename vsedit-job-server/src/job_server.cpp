@@ -51,7 +51,11 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 JobServer::~JobServer()
 {
 	for(QWebSocket * pClient : m_clients)
+	{
+		disconnect(pClient, &QWebSocket::disconnected,
+			this, &JobServer::slotSocketDisconnected);
 		delete pClient;
+	}
 	m_clients.clear();
 	m_subscribers.clear();
 	m_pWebSocketServer->close();
