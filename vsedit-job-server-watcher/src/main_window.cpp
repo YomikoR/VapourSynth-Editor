@@ -59,6 +59,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_connectionAttempts(0)
 	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
 	, m_serverState(ServerState::NotConnected)
+	, m_state(WatcherState::Running)
 	, m_pTrayIcon(nullptr)
 	, m_pTrayMenu(nullptr)
 	, m_pActionExit(nullptr)
@@ -684,7 +685,11 @@ void MainWindow::slotServerDisconnected()
 		m_serverState = ServerState::Connecting;
 		slotConnectToLocalServer();
 	}
+
 	setUiEnabled();
+
+	if(m_state == WatcherState::ClosingServerShuttingDown)
+		close();
 }
 
 // END OF void MainWindow::slotServerDisconnected()
@@ -852,12 +857,11 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 	if(command == QString(SMSG_CLOSING_SERVER))
 	{
-		m_ui.logView->addEntry(trUtf8("Server is shutting down."),
-			LOG_STYLE_DEFAULT);
+		m_ui.logView->addEntry(trUtf8("Server is shutting down."));
 		return;
 	}
 
-	m_ui.logView->addEntry(a_message, LOG_STYLE_DEFAULT);
+	m_ui.logView->addEntry(a_message);
 }
 
 // END OF void MainWindow::slotTextMessageReceived(const QString & a_message)
@@ -906,14 +910,31 @@ void MainWindow::slotConnectToLocalServer()
 // END OF void MainWindow::slotConnectToLocalServer()
 //==============================================================================
 
+void MainWindow::slotExit()
+{
+	m_state = WatcherState::ShuttingDown;
+	setUiEnabled();
+	close();
+}
+
+// END OF void MainWindow::slotExit()
+//==============================================================================
+
 void MainWindow::slotShutdownServerAndExit()
 {
-
+	if(!m_pServerSocket->peerAddress().isLoopback())
+	{
+		m_ui.logView->addEntry(
+			trUtf8("Not allowed to shut down remote server."),
+			LOG_STYLE_ERROR);
+		return;
+	}
+	m_state = WatcherState::ClosingServerShuttingDown;
+	slotShutdownServer();
 }
 
 // END OF void MainWindow::slotShutdownServerAndExit()
 //==============================================================================
-
 
 void MainWindow::createActionsAndMenus()
 {
@@ -928,7 +949,7 @@ void MainWindow::createActionsAndMenus()
 	ActionToCreate actionsToCreate[] =
 	{
 		{&m_pActionExit, ACTION_ID_EXIT,
-			this, SLOT(close())},
+			this, SLOT(slotExit())},
 		{&m_pActionShutdownServerAndExit, ACTION_ID_SHUTDOWN_SERVER_AND_EXIT,
 			this, SLOT(slotShutdownServerAndExit())},
 	};
@@ -1045,49 +1066,52 @@ void MainWindow::setUiEnabled()
 	buttonsToEnable[m_ui.startServerButton] = false;
 	buttonsToEnable[m_ui.shutdownServerButton] = false;
 
-	if(m_serverState == ServerState::NotConnected)
+	if(m_state == WatcherState::Running)
 	{
-		buttonsToEnable[m_ui.startServerButton] = true;
-	}
-
-	if(m_serverState == ServerState::Connected)
-	{
-		buttonsToEnable[m_ui.jobNewButton] = true;
-		buttonsToEnable[m_ui.shutdownServerButton] = true;
-
-		std::vector<int> l_selectedIndexes = selectedIndexes();
-
-		if(l_selectedIndexes.size() == 1)
+		if(m_serverState == ServerState::NotConnected)
 		{
-			JobProperties jobProperties =
-				m_pJobsModel->jobProperties(l_selectedIndexes[0]);
-			if(!vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
+			buttonsToEnable[m_ui.startServerButton] = true;
+		}
+
+		if(m_serverState == ServerState::Connected)
+		{
+			buttonsToEnable[m_ui.jobNewButton] = true;
+			buttonsToEnable[m_ui.shutdownServerButton] = true;
+
+			std::vector<int> l_selectedIndexes = selectedIndexes();
+
+			if(l_selectedIndexes.size() == 1)
 			{
-				buttonsToEnable[m_ui.jobEditButton] = true;
-				if(l_selectedIndexes[0] > 0)
-					buttonsToEnable[m_ui.jobMoveUpButton] = true;
-				if(l_selectedIndexes[0] < (m_pJobsModel->rowCount() - 1))
-					buttonsToEnable[m_ui.jobMoveDownButton] = true;
+				JobProperties jobProperties =
+					m_pJobsModel->jobProperties(l_selectedIndexes[0]);
+				if(!vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
+				{
+					buttonsToEnable[m_ui.jobEditButton] = true;
+					if(l_selectedIndexes[0] > 0)
+						buttonsToEnable[m_ui.jobMoveUpButton] = true;
+					if(l_selectedIndexes[0] < (m_pJobsModel->rowCount() - 1))
+						buttonsToEnable[m_ui.jobMoveDownButton] = true;
+				}
 			}
+
+			bool allInactive = !l_selectedIndexes.empty();
+
+			for(size_t i = 0; i < l_selectedIndexes.size(); ++i)
+			{
+				JobProperties jobProperties =
+					m_pJobsModel->jobProperties(l_selectedIndexes[i]);
+				if(vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
+					allInactive = false;
+			}
+
+			buttonsToEnable[m_ui.jobResetStateButton] = allInactive;
+			buttonsToEnable[m_ui.jobDeleteButton] = allInactive;
+
+			buttonsToEnable[m_ui.startButton] = true;
+			buttonsToEnable[m_ui.pauseButton] = true;
+			buttonsToEnable[m_ui.resumeButton] = true;
+			buttonsToEnable[m_ui.abortButton] = true;
 		}
-
-		bool allInactive = !l_selectedIndexes.empty();
-
-		for(size_t i = 0; i < l_selectedIndexes.size(); ++i)
-		{
-			JobProperties jobProperties =
-				m_pJobsModel->jobProperties(l_selectedIndexes[i]);
-			if(vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
-				allInactive = false;
-		}
-
-		buttonsToEnable[m_ui.jobResetStateButton] = allInactive;
-		buttonsToEnable[m_ui.jobDeleteButton] = allInactive;
-
-		buttonsToEnable[m_ui.startButton] = true;
-		buttonsToEnable[m_ui.pauseButton] = true;
-		buttonsToEnable[m_ui.resumeButton] = true;
-		buttonsToEnable[m_ui.abortButton] = true;
 	}
 
 	for(std::pair<QPushButton *, bool> buttonToEnable : buttonsToEnable)
