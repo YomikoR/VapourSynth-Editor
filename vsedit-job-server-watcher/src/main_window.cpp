@@ -966,6 +966,10 @@ void MainWindow::createActionsAndMenus()
 			item.pObjectToConnect, item.slotToConnect);
 	}
 
+	QMenu * pMainMenu = m_ui.menuBar->addMenu(trUtf8("Main"));
+	pMainMenu->addAction(m_pActionExit);
+	pMainMenu->addAction(m_pActionShutdownServerAndExit);
+
 	if(QSystemTrayIcon::isSystemTrayAvailable())
 	{
 		assert(m_pTrayIcon);
