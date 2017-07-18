@@ -246,7 +246,7 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 	if(vsedit::contains(localOnlyCommands, command) && (!local))
 	{
-		a_pClient->sendTextMessage("You're naughty! This command can not "
+		a_pClient->sendBinaryMessage("You're naughty! This command can not "
 			"be executed remotely.");
 		return;
 	}
@@ -255,27 +255,27 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 	if(command == QString(MSG_GET_JOBS_INFO))
 	{
-		a_pClient->sendTextMessage(jobsInfoMessage());
+		a_pClient->sendBinaryMessage(jobsInfoMessage().toUtf8());
 		return;
 	}
 
 	if(command == QString(MSG_GET_LOG))
 	{
-		a_pClient->sendTextMessage(completeLogMessage());
+		a_pClient->sendBinaryMessage(completeLogMessage().toUtf8());
 		return;
 	}
 
 	if(command == QString(MSG_SUBSCRIBE))
 	{
 		m_subscribers.push_back(a_pClient);
-		a_pClient->sendTextMessage("Subscribed to jobs updates.");
+		a_pClient->sendBinaryMessage("Subscribed to jobs updates.");
 		return;
 	}
 
 	if(command == QString(MSG_UNSUBSCRIBE))
 	{
 		m_subscribers.remove(a_pClient);
-		a_pClient->sendTextMessage("Unsubscribed from jobs updates.");
+		a_pClient->sendBinaryMessage("Unsubscribed from jobs updates.");
 		return;
 	}
 
@@ -372,8 +372,8 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		return;
 	}
 
-	a_pClient->sendTextMessage(QString("Received an unknown command: %1")
-		.arg(a_message));
+	a_pClient->sendBinaryMessage(QString("Received an unknown command: %1")
+		.arg(a_message).toUtf8());
 }
 
 //==============================================================================
@@ -403,10 +403,26 @@ QString JobServer::completeLogMessage() const
 void JobServer::broadcastMessage(const QString & a_message,
 	bool a_includeNonSubscribers)
 {
+	broadcastMessage(a_message.toUtf8(), a_includeNonSubscribers);
+}
+
+//==============================================================================
+
+void JobServer::broadcastMessage(const char * a_message,
+	bool a_includeNonSubscribers)
+{
+	broadcastMessage(QByteArray(a_message), a_includeNonSubscribers);
+}
+
+//==============================================================================
+
+void JobServer::broadcastMessage(const QByteArray & a_message,
+	bool a_includeNonSubscribers)
+{
 	std::list<QWebSocket *> & clients =
 		a_includeNonSubscribers ? m_clients : m_subscribers;
 	for(QWebSocket * pClient : clients)
-		pClient->sendTextMessage(a_message);
+		pClient->sendBinaryMessage(a_message);
 }
 
 //==============================================================================

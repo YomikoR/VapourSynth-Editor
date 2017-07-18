@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QByteArray>
 #include <cassert>
 #include <algorithm>
 #include <functional>
@@ -38,11 +39,11 @@ QString subsamplingString(const VSFormat * a_cpFormat);
 
 QString resolvePathFromApplication(const QString & a_relativePath);
 
-QString jsonMessage(const QString & a_command,
+QByteArray jsonMessage(const QString & a_command,
 	const QJsonObject & a_jsonObject);
-QString jsonMessage(const QString & a_command,
+QByteArray jsonMessage(const QString & a_command,
 	const QJsonArray & a_jsonArray);
-QString jsonMessage(const QString & a_command,
+QByteArray jsonMessage(const QString & a_command,
 	const QJsonDocument & a_jsonDocument);
 
 template<typename T1, typename T2, typename T3>

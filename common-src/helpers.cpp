@@ -187,35 +187,33 @@ QString vsedit::resolvePathFromApplication(const QString & a_relativePath)
 //		const QString & a_relativePath)
 //==============================================================================
 
-QString vsedit::jsonMessage(const QString & a_command,
+QByteArray vsedit::jsonMessage(const QString & a_command,
 	const QJsonObject & a_jsonObject)
 {
 	return vsedit::jsonMessage(a_command, QJsonDocument(a_jsonObject));
 }
 
-// END OF QString vsedit::jsonMessage(const QString & a_command,
+// END OF QByteArray vsedit::jsonMessage(const QString & a_command,
 //		const QJsonObject & a_jsonObject)
 //==============================================================================
 
-QString vsedit::jsonMessage(const QString & a_command,
+QByteArray vsedit::jsonMessage(const QString & a_command,
 	const QJsonArray & a_jsonArray)
 {
 	return vsedit::jsonMessage(a_command, QJsonDocument(a_jsonArray));
 }
 
-// END OF QString vsedit::jsonMessage(const QString & a_command,
+// END OF QByteArray vsedit::jsonMessage(const QString & a_command,
 //		const QJsonArray & a_jsonArray)
 //==============================================================================
 
-QString vsedit::jsonMessage(const QString & a_command,
+QByteArray vsedit::jsonMessage(const QString & a_command,
 	const QJsonDocument & a_jsonDocument)
 {
-	QString jobsJson = QString::fromUtf8(a_jsonDocument.toJson());
-	QString message = QString("%1 %2").arg(a_command).arg(jobsJson);
-	return message;
+	return a_command.toUtf8() + ' ' + a_jsonDocument.toJson();
 }
 
-// END OF QString vsedit::jsonMessage(const QString & a_command,
+// END OF QByteArray vsedit::jsonMessage(const QString & a_command,
 //		const QJsonDocument & a_jsonDocument)
 //==============================================================================
 

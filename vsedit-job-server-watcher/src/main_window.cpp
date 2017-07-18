@@ -341,7 +341,7 @@ void MainWindow::slotJobNewButtonClicked()
 	if(result == QDialog::Rejected)
 		return;
 	JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
-    m_pServerSocket->sendTextMessage(
+    m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_CREATE_JOB, newJobProperties.toJson()));
 }
 
@@ -371,7 +371,7 @@ void MainWindow::slotJobMoveUpButtonClicked()
 	QJsonArray jsSwap;
 	jsSwap << m_pJobsModel->jobProperties(selection[0] - 1).id.toString();
 	jsSwap << m_pJobsModel->jobProperties(selection[0]).id.toString();
-	m_pServerSocket->sendTextMessage(
+	m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_SWAP_JOBS, jsSwap));
 }
 
@@ -388,7 +388,7 @@ void MainWindow::slotJobMoveDownButtonClicked()
 	QJsonArray jsSwap;
 	jsSwap << m_pJobsModel->jobProperties(selection[0]).id.toString();
 	jsSwap << m_pJobsModel->jobProperties(selection[0] + 1).id.toString();
-	m_pServerSocket->sendTextMessage(
+	m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_SWAP_JOBS, jsSwap));
 }
 
@@ -403,7 +403,7 @@ void MainWindow::slotJobDeleteButtonClicked()
 	QJsonArray jsIds;
 	for(int index : selection)
 		jsIds << m_pJobsModel->jobProperties(index).id.toString();
-	m_pServerSocket->sendTextMessage(
+	m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_DELETE_JOBS, jsIds));
 }
 
@@ -418,7 +418,7 @@ void MainWindow::slotJobResetStateButtonClicked()
 	QJsonArray jsIds;
 	for(int index : selection)
 		jsIds << m_pJobsModel->jobProperties(index).id.toString();
-	m_pServerSocket->sendTextMessage(
+	m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_RESET_JOBS, jsIds));
 }
 
@@ -427,7 +427,7 @@ void MainWindow::slotJobResetStateButtonClicked()
 
 void MainWindow::slotStartButtonClicked()
 {
-	m_pServerSocket->sendTextMessage(MSG_START_ALL_WAITING_JOBS);
+	m_pServerSocket->sendBinaryMessage(MSG_START_ALL_WAITING_JOBS);
 }
 
 // END OF void MainWindow::slotStartButtonClicked()
@@ -435,7 +435,7 @@ void MainWindow::slotStartButtonClicked()
 
 void MainWindow::slotPauseButtonClicked()
 {
-	m_pServerSocket->sendTextMessage(MSG_PAUSE_ACTIVE_JOBS);
+	m_pServerSocket->sendBinaryMessage(MSG_PAUSE_ACTIVE_JOBS);
 }
 
 // END OF void MainWindow::slotPauseButtonClicked()
@@ -443,7 +443,7 @@ void MainWindow::slotPauseButtonClicked()
 
 void MainWindow::slotResumeButtonClicked()
 {
-	m_pServerSocket->sendTextMessage(MSG_RESUME_PAUSED_JOBS);
+	m_pServerSocket->sendBinaryMessage(MSG_RESUME_PAUSED_JOBS);
 }
 
 // END OF void MainWindow::slotResumeButtonClicked()
@@ -451,7 +451,7 @@ void MainWindow::slotResumeButtonClicked()
 
 void MainWindow::slotAbortButtonClicked()
 {
-	m_pServerSocket->sendTextMessage(MSG_ABORT_ACTIVE_JOBS);
+	m_pServerSocket->sendBinaryMessage(MSG_ABORT_ACTIVE_JOBS);
 }
 
 // END OF void MainWindow::slotAbortButtonClicked()
@@ -613,7 +613,7 @@ void MainWindow::slotSetJobDependencies(const QUuid & a_id,
 	for(QUuid id : a_dependencies)
 		jsDependencies << id.toString();
 	jsJob[JP_DEPENDS_ON_JOB_IDS] = jsDependencies;
-	m_pServerSocket->sendTextMessage(
+	m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_SET_JOB_DEPENDENCIES, jsJob));
 }
 
@@ -625,9 +625,9 @@ void MainWindow::slotServerConnected()
 {
 	m_serverState = ServerState::Connected;
 	m_connectionAttempts = 0;
-	m_pServerSocket->sendTextMessage(MSG_GET_JOBS_INFO);
-	m_pServerSocket->sendTextMessage(MSG_GET_LOG);
-	m_pServerSocket->sendTextMessage(MSG_SUBSCRIBE);
+	m_pServerSocket->sendBinaryMessage(MSG_GET_JOBS_INFO);
+	m_pServerSocket->sendBinaryMessage(MSG_GET_LOG);
+	m_pServerSocket->sendBinaryMessage(MSG_SUBSCRIBE);
 	setUiEnabled();
 }
 
@@ -896,7 +896,7 @@ void MainWindow::slotShutdownServer()
 	if(!m_pServerSocket->peerAddress().isLoopback())
 		return;
 	m_serverState = ServerState::Disconnecting;
-	m_pServerSocket->sendTextMessage(MSG_CLOSE_SERVER);
+	m_pServerSocket->sendBinaryMessage(MSG_CLOSE_SERVER);
 }
 
 // END OF void MainWindow::slotShutdownServer()
@@ -1003,7 +1003,7 @@ void MainWindow::editJob(const QModelIndex & a_index)
 	QUuid id = properties.id;
 	properties = m_pJobEditDialog->jobProperties();
 	properties.id = id;
-    m_pServerSocket->sendTextMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
+    m_pServerSocket->sendBinaryMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
 		properties.toJson()));
 }
 

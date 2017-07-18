@@ -61,6 +61,10 @@ private:
 
 	void broadcastMessage(const QString & a_message,
 		bool a_includeNonSubscribers = false);
+	void broadcastMessage(const char * a_message,
+		bool a_includeNonSubscribers = false);
+	void broadcastMessage(const QByteArray & a_message,
+		bool a_includeNonSubscribers = false);
 
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;
