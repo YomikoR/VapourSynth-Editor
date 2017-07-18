@@ -8,6 +8,7 @@
 
 #include <QWebSocket>
 #include <QJsonObject>
+#include <QHostAddress>
 
 class SettingsManager;
 class JobsModel;
@@ -17,6 +18,7 @@ class JobDependenciesDelegate;
 class VSScriptLibrary;
 class QMenu;
 class QSystemTrayIcon;
+class ConnectToServerDialog;
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
@@ -85,6 +87,7 @@ private slots:
 	void slotStartLocalServer();
 	void slotShutdownServer();
 
+	void slotConnectToServer();
 	void slotConnectToLocalServer();
 
 	void slotExit();
@@ -124,6 +127,8 @@ private:
 
 	void resetWindowTitle(int a_jobIndex);
 
+	void connectToServer(const QHostAddress & a_address);
+
 	static const char WINDOW_TITLE[];
 
 	Ui::MainWindow m_ui;
@@ -153,6 +158,8 @@ private:
 
 	QAction * m_pActionExit;
 	QAction * m_pActionShutdownServerAndExit;
+
+	ConnectToServerDialog * m_pConnectToServerDialog;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

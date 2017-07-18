@@ -150,6 +150,7 @@ RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit-job-server-watcher.qrc
 
 FORMS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/connect_to_server_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/main_window.ui
 
 HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
@@ -174,6 +175,7 @@ HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.h
+HEADERS += $${PROJECT_DIRECTORY}/src/connect_to_server_dialog.h
 HEADERS += $${PROJECT_DIRECTORY}/src/main_window.h
 
 SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
@@ -197,6 +199,7 @@ SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/connect_to_server_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main_window.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 

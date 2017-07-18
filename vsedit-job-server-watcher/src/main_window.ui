@@ -175,14 +175,21 @@
       <item>
        <widget class="QPushButton" name="startServerButton">
         <property name="text">
-         <string>Start Server</string>
+         <string>Start server</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="connectToServerButton">
+        <property name="text">
+         <string>Connect to server</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="shutdownServerButton">
         <property name="text">
-         <string>Shutdown Server</string>
+         <string>Shutdown server</string>
         </property>
        </widget>
       </item>
@@ -209,7 +216,7 @@
      <x>0</x>
      <y>0</y>
      <width>1015</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

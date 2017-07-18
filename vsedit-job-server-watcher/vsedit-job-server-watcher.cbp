@@ -244,9 +244,12 @@
 		<Unit filename="../pro/local_quirks.pri" />
 		<Unit filename="../pro/vsedit-job-server-watcher/pro.pro" />
 		<Unit filename="../resources/vsedit-job-server-watcher.qrc" />
+		<Unit filename="generated/ui/ui_connect_to_server_dialog.h" />
 		<Unit filename="generated/ui/ui_job_edit_dialog.h" />
 		<Unit filename="generated/ui/ui_main_window.h" />
 		<Unit filename="generated/ui/ui_styled_log_view_settings_dialog.h" />
+		<Unit filename="src/connect_to_server_dialog.cpp" />
+		<Unit filename="src/connect_to_server_dialog.h" />
 		<Unit filename="src/jobs/job_dependencies_delegate.cpp" />
 		<Unit filename="src/jobs/job_dependencies_delegate.h" />
 		<Unit filename="src/jobs/job_edit_dialog.cpp" />
@@ -273,13 +276,13 @@
 			<envvars />
 			<debugger>
 				<search_path add="src" />
-				<remote_debugging target="debug-64bit-gcc">
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="release-64bit-gcc">

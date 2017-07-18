@@ -4,6 +4,7 @@
 #include "jobs/job_state_delegate.h"
 #include "jobs/job_dependencies_delegate.h"
 #include "jobs/job_edit_dialog.h"
+#include "connect_to_server_dialog.h"
 
 #include "../../common-src/helpers.h"
 #include "../../common-src/ipc_defines.h"
@@ -64,6 +65,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pTrayMenu(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionShutdownServerAndExit(nullptr)
+	, m_pConnectToServerDialog(nullptr)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
@@ -95,6 +97,8 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.logView->setName("job_server_watcher_main_log");
 	m_ui.logView->setSettingsManager(m_pSettingsManager);
 	m_ui.logView->loadSettings();
+
+	m_pConnectToServerDialog = new ConnectToServerDialog(this);
 
 	m_pServerSocket = new QWebSocket(QString(),
 		QWebSocketProtocol::VersionLatest, this);
@@ -151,6 +155,8 @@ MainWindow::MainWindow() : QMainWindow()
 		this, SLOT(slotAbortButtonClicked()));
 	connect(m_ui.startServerButton, SIGNAL(clicked()),
 		this, SLOT(slotStartLocalServer()));
+	connect(m_ui.connectToServerButton, SIGNAL(clicked()),
+		this, SLOT(slotConnectToServer()));
 	connect(m_ui.shutdownServerButton, SIGNAL(clicked()),
 		this, SLOT(slotShutdownServer()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
@@ -904,9 +910,17 @@ void MainWindow::slotShutdownServer()
 // END OF void MainWindow::slotShutdownServer()
 //==============================================================================
 
+void MainWindow::slotConnectToServer()
+{
+	m_pConnectToServerDialog->exec();
+}
+
+// END OF void MainWindow::slotConnectToServer()
+//==============================================================================
+
 void MainWindow::slotConnectToLocalServer()
 {
-	m_pServerSocket->open(QString("ws://127.0.0.1:%1").arg(JOB_SERVER_PORT));
+	connectToServer(QHostAddress::LocalHost);
 }
 
 // END OF void MainWindow::slotConnectToLocalServer()
@@ -924,6 +938,9 @@ void MainWindow::slotExit()
 
 void MainWindow::slotShutdownServerAndExit()
 {
+	if(m_serverState != ServerState::Connected)
+		close();
+
 	if(!m_pServerSocket->peerAddress().isLoopback())
 	{
 		m_ui.logView->addEntry(
@@ -1070,6 +1087,7 @@ void MainWindow::setUiEnabled()
 	buttonsToEnable[m_ui.resumeButton] = false;
 	buttonsToEnable[m_ui.abortButton] = false;
 	buttonsToEnable[m_ui.startServerButton] = false;
+	buttonsToEnable[m_ui.connectToServerButton] = false;
 	buttonsToEnable[m_ui.shutdownServerButton] = false;
 
 	if(m_state == WatcherState::Running)
@@ -1077,6 +1095,12 @@ void MainWindow::setUiEnabled()
 		if(m_serverState == ServerState::NotConnected)
 		{
 			buttonsToEnable[m_ui.startServerButton] = true;
+		}
+
+		if((m_serverState == ServerState::NotConnected) ||
+			(m_serverState == ServerState::Connected))
+		{
+			buttonsToEnable[m_ui.connectToServerButton] = true;
 		}
 
 		if(m_serverState == ServerState::Connected)
@@ -1156,4 +1180,15 @@ void MainWindow::resetWindowTitle(int a_jobIndex)
 }
 
 // END OF void MainWindow::resetWindowTitle(int a_jobIndex)
+//==============================================================================
+
+void MainWindow::connectToServer(const QHostAddress & a_address)
+{
+	if(a_address.isNull())
+		return;
+	m_pServerSocket->open(QString("ws://%1:%2").arg(a_address.toString())
+		.arg(JOB_SERVER_PORT));
+}
+
+// END OF void MainWindow::connectToServer(const QHostAddress & a_address)
 //==============================================================================
