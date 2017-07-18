@@ -212,7 +212,8 @@ void MainWindow::showAndConnect()
 	if(m_serverState != ServerState::NotConnected)
 		return;
 
-	m_serverState = ServerState::ProbingLocal;
+	slotWriteLogMessage(trUtf8("Connecting to local server."));
+	m_serverState = ServerState::Connecting;
 	slotConnectToLocalServer();
 }
 
@@ -882,6 +883,7 @@ void MainWindow::slotStartLocalServer()
 	if(m_serverState != ServerState::NotConnected)
 		return;
 
+	slotWriteLogMessage(trUtf8("Starting local server."));
 	m_serverState = ServerState::ProbingLocal;
 	slotConnectToLocalServer();
 }
