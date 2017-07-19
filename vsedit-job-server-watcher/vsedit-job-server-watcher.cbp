@@ -272,20 +272,21 @@
 				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtNetwork" />
 				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtWebSockets" />
 				<search_path add="F:\sdk\qt-5.7.0-x64-msvc2015\5.7\msvc2015_64\include\QtWinExtras" />
+				<search_path add="generated/ui" />
 			</code_completion>
 			<envvars />
 			<debugger>
 				<search_path add="src" />
-				<remote_debugging target="release-32bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
-				<remote_debugging target="debug-32bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-64bit-gcc">
+				<remote_debugging target="debug-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>
