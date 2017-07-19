@@ -88,6 +88,7 @@ private slots:
 	void slotShutdownServer();
 
 	void slotConnectToServer();
+	void slotConnectToServer(const QHostAddress & a_address);
 	void slotConnectToLocalServer();
 
 	void slotExit();
@@ -104,6 +105,7 @@ private:
 		Connecting,
 		Connected,
 		Disconnecting,
+		SwitchingServer,
 	};
 
 	enum class WatcherState

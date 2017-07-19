@@ -98,7 +98,8 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.logView->setSettingsManager(m_pSettingsManager);
 	m_ui.logView->loadSettings();
 
-	m_pConnectToServerDialog = new ConnectToServerDialog(this);
+	m_pConnectToServerDialog =
+		new ConnectToServerDialog(m_pSettingsManager, this);
 
 	m_pServerSocket = new QWebSocket(QString(),
 		QWebSocketProtocol::VersionLatest, this);
@@ -175,6 +176,9 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(pHorizontalHeader,
 		SIGNAL(customContextMenuRequested(const QPoint &)),
 		this, SLOT(slotJobsHeaderContextMenu(const QPoint &)));
+	connect(m_pConnectToServerDialog,
+		SIGNAL(signalConnectToServer(const QHostAddress &)),
+		this, SLOT(slotConnectToServer(const QHostAddress &)));
 	connect(m_pServerSocket, &QWebSocket::connected,
 		this, &MainWindow::slotServerConnected);
 	connect(m_pServerSocket, &QWebSocket::disconnected,
@@ -677,6 +681,11 @@ void MainWindow::slotServerDisconnected()
 		QTimer::singleShot(500, Qt::PreciseTimer, this,
 			&MainWindow::slotConnectToLocalServer);
 	}
+	else if(m_serverState == ServerState::SwitchingServer)
+	{
+		m_serverState = ServerState::Connecting;
+		return;
+	}
 	else if((m_serverState == ServerState::Disconnecting) ||
 		(m_serverState == ServerState::ShuttingDown))
 	{
@@ -690,7 +699,7 @@ void MainWindow::slotServerDisconnected()
 			"Reconnecting"), LOG_STYLE_ERROR);
 		m_connectionAttempts = 0;
 		m_serverState = ServerState::Connecting;
-		slotConnectToLocalServer();
+		slotConnectToServer(m_pServerSocket->peerAddress());
 	}
 
 	setUiEnabled();
@@ -912,15 +921,39 @@ void MainWindow::slotShutdownServer()
 
 void MainWindow::slotConnectToServer()
 {
-	m_pConnectToServerDialog->exec();
+	m_pConnectToServerDialog->call(m_pServerSocket->peerAddress());
 }
 
 // END OF void MainWindow::slotConnectToServer()
 //==============================================================================
 
+void MainWindow::slotConnectToServer(const QHostAddress & a_address)
+{
+	if(a_address.isNull())
+		return;
+
+	QString address = a_address.toString();
+	if(m_serverState == ServerState::Connected)
+	{
+		m_pJobsModel->clear();
+		m_serverState = ServerState::SwitchingServer;
+	}
+	else if(m_serverState == ServerState::NotConnected)
+	{
+		m_serverState = ServerState::Connecting;
+		slotWriteLogMessage(trUtf8("Connecting to server %1.").arg(address));
+	}
+
+	m_pServerSocket->open(QString("ws://%1:%2").arg(address)
+		.arg(JOB_SERVER_PORT));
+}
+
+// END OF void MainWindow::slotConnectToServer(const QHostAddress & a_address)
+//==============================================================================
+
 void MainWindow::slotConnectToLocalServer()
 {
-	connectToServer(QHostAddress::LocalHost);
+	slotConnectToServer(QHostAddress::LocalHost);
 }
 
 // END OF void MainWindow::slotConnectToLocalServer()
@@ -1180,15 +1213,4 @@ void MainWindow::resetWindowTitle(int a_jobIndex)
 }
 
 // END OF void MainWindow::resetWindowTitle(int a_jobIndex)
-//==============================================================================
-
-void MainWindow::connectToServer(const QHostAddress & a_address)
-{
-	if(a_address.isNull())
-		return;
-	m_pServerSocket->open(QString("ws://%1:%2").arg(a_address.toString())
-		.arg(JOB_SERVER_PORT));
-}
-
-// END OF void MainWindow::connectToServer(const QHostAddress & a_address)
 //==============================================================================
