@@ -87,7 +87,9 @@ private slots:
 	void slotStartLocalServer();
 	void slotShutdownServer();
 
-	void slotConnectToServer();
+	void slotConnectToServerDialog();
+
+	void slotReconnectToServer();
 	void slotConnectToServer(const QHostAddress & a_address);
 	void slotConnectToLocalServer();
 
@@ -96,21 +98,15 @@ private slots:
 
 private:
 
-	enum class ServerState
+	enum class WatcherState
 	{
 		NotConnected,
 		ProbingLocal,
 		StartingLocal,
-		ShuttingDown,
 		Connecting,
 		Connected,
 		Disconnecting,
 		SwitchingServer,
-	};
-
-	enum class WatcherState
-	{
-		Running,
 		ShuttingDown,
 		ClosingServerShuttingDown,
 	};
@@ -129,7 +125,7 @@ private:
 
 	void resetWindowTitle(int a_jobIndex);
 
-	void connectToServer(const QHostAddress & a_address);
+	void changeState(WatcherState a_newState);
 
 	static const char WINDOW_TITLE[];
 
@@ -151,7 +147,6 @@ private:
 	int m_connectionAttempts;
 	int m_maxConnectionAttempts;
 
-	ServerState m_serverState;
 	WatcherState m_state;
 
 	QSystemTrayIcon * m_pTrayIcon;
@@ -162,6 +157,8 @@ private:
 	QAction * m_pActionShutdownServerAndExit;
 
 	ConnectToServerDialog * m_pConnectToServerDialog;
+
+	QHostAddress m_nextServerAddress;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

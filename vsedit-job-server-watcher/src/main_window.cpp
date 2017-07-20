@@ -59,13 +59,13 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pServerSocket(nullptr)
 	, m_connectionAttempts(0)
 	, m_maxConnectionAttempts(DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS)
-	, m_serverState(ServerState::NotConnected)
-	, m_state(WatcherState::Running)
+	, m_state(WatcherState::NotConnected)
 	, m_pTrayIcon(nullptr)
 	, m_pTrayMenu(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionShutdownServerAndExit(nullptr)
 	, m_pConnectToServerDialog(nullptr)
+	, m_nextServerAddress(QHostAddress::LocalHost)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
@@ -157,7 +157,7 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_ui.startServerButton, SIGNAL(clicked()),
 		this, SLOT(slotStartLocalServer()));
 	connect(m_ui.connectToServerButton, SIGNAL(clicked()),
-		this, SLOT(slotConnectToServer()));
+		this, SLOT(slotConnectToServerDialog()));
 	connect(m_ui.shutdownServerButton, SIGNAL(clicked()),
 		this, SLOT(slotShutdownServer()));
 	connect(m_ui.jobsTableView, SIGNAL(doubleClicked(const QModelIndex &)),
@@ -219,11 +219,11 @@ MainWindow::~MainWindow()
 void MainWindow::showAndConnect()
 {
 	show();
-	if(m_serverState != ServerState::NotConnected)
+	if(m_state != WatcherState::NotConnected)
 		return;
 
 	slotWriteLogMessage(trUtf8("Connecting to local server."));
-	m_serverState = ServerState::Connecting;
+	changeState(WatcherState::ProbingLocal);
 	slotConnectToLocalServer();
 }
 
@@ -634,12 +634,11 @@ void MainWindow::slotSetJobDependencies(const QUuid & a_id,
 
 void MainWindow::slotServerConnected()
 {
-	m_serverState = ServerState::Connected;
+	changeState(WatcherState::Connected);
 	m_connectionAttempts = 0;
 	m_pServerSocket->sendBinaryMessage(MSG_GET_JOBS_INFO);
 	m_pServerSocket->sendBinaryMessage(MSG_GET_LOG);
 	m_pServerSocket->sendBinaryMessage(MSG_SUBSCRIBE);
-	setUiEnabled();
 }
 
 // END OF void MainWindow::slotServerConnected()
@@ -647,64 +646,60 @@ void MainWindow::slotServerConnected()
 
 void MainWindow::slotServerDisconnected()
 {
-	if(m_serverState == ServerState::ProbingLocal)
+	m_pJobsModel->clear();
+
+	if(m_state == WatcherState::ProbingLocal)
 	{
-		m_serverState = ServerState::StartingLocal;
+		changeState(WatcherState::StartingLocal);
 		QString serverPath = vsedit::resolvePathFromApplication(
 			"./vsedit-job-server");
 		bool started = QProcess::startDetached(serverPath);
 		if(!started)
 		{
-			m_serverState = ServerState::NotConnected;
+			changeState(WatcherState::NotConnected);
 			m_ui.logView->addEntry(trUtf8("Could not start server."),
 				LOG_STYLE_ERROR);
-			setUiEnabled();
 			return;
 		}
 
-		m_serverState = ServerState::Connecting;
+		changeState(WatcherState::Connecting);
 		QTimer::singleShot(1000, Qt::PreciseTimer, this,
 			&MainWindow::slotConnectToLocalServer);
 	}
-	else if(m_serverState == ServerState::Connecting)
+	else if(m_state == WatcherState::Connecting)
 	{
 		m_connectionAttempts++;
 		if(m_connectionAttempts >= m_maxConnectionAttempts)
 		{
-			m_serverState = ServerState::NotConnected;
+			changeState(WatcherState::NotConnected);
 			m_connectionAttempts = 0;
 			m_ui.logView->addEntry(trUtf8("Could not connect to server."),
 				LOG_STYLE_ERROR);
-			setUiEnabled();
 			return;
 		}
 		QTimer::singleShot(500, Qt::PreciseTimer, this,
-			&MainWindow::slotConnectToLocalServer);
+			&MainWindow::slotReconnectToServer);
 	}
-	else if(m_serverState == ServerState::SwitchingServer)
+	else if(m_state == WatcherState::SwitchingServer)
 	{
-		m_serverState = ServerState::Connecting;
+		changeState(WatcherState::Connecting);
+		slotReconnectToServer();
 		return;
 	}
-	else if((m_serverState == ServerState::Disconnecting) ||
-		(m_serverState == ServerState::ShuttingDown))
+	else if((m_state == WatcherState::Disconnecting) ||
+		(m_state == WatcherState::ShuttingDown))
 	{
-		m_serverState = ServerState::NotConnected;
+		changeState(WatcherState::NotConnected);
 		m_ui.logView->addEntry(trUtf8("Disconnected from server"));
-		m_pJobsModel->clear();
 	}
-	else
+	else if(m_state == WatcherState::Connected)
 	{
 		m_ui.logView->addEntry(trUtf8("Disconnected from server. "
 			"Reconnecting"), LOG_STYLE_ERROR);
-		m_connectionAttempts = 0;
-		m_serverState = ServerState::Connecting;
-		slotConnectToServer(m_pServerSocket->peerAddress());
+		changeState(WatcherState::Connecting);
+		slotReconnectToServer();
 	}
-
-	setUiEnabled();
-
-	if(m_state == WatcherState::ClosingServerShuttingDown)
+	else if(m_state == WatcherState::ClosingServerShuttingDown)
 		close();
 }
 
@@ -895,11 +890,11 @@ void MainWindow::slotServerError(QAbstractSocket::SocketError a_error)
 
 void MainWindow::slotStartLocalServer()
 {
-	if(m_serverState != ServerState::NotConnected)
+	if(m_state != WatcherState::NotConnected)
 		return;
 
 	slotWriteLogMessage(trUtf8("Starting local server."));
-	m_serverState = ServerState::ProbingLocal;
+	changeState(WatcherState::ProbingLocal);
 	slotConnectToLocalServer();
 }
 
@@ -908,23 +903,31 @@ void MainWindow::slotStartLocalServer()
 
 void MainWindow::slotShutdownServer()
 {
-	if(m_serverState != ServerState::Connected)
+	if(m_state != WatcherState::Connected)
 		return;
 	if(!m_pServerSocket->peerAddress().isLoopback())
 		return;
-	m_serverState = ServerState::Disconnecting;
+	changeState(WatcherState::Disconnecting);
 	m_pServerSocket->sendBinaryMessage(MSG_CLOSE_SERVER);
 }
 
 // END OF void MainWindow::slotShutdownServer()
 //==============================================================================
 
-void MainWindow::slotConnectToServer()
+void MainWindow::slotConnectToServerDialog()
 {
 	m_pConnectToServerDialog->call(m_pServerSocket->peerAddress());
 }
 
-// END OF void MainWindow::slotConnectToServer()
+// END OF void MainWindow::slotConnectToServerDialog()
+//==============================================================================
+
+void MainWindow::slotReconnectToServer()
+{
+	slotConnectToServer(m_nextServerAddress);
+}
+
+// END OF void MainWindow::slotReconnectToServer()
 //==============================================================================
 
 void MainWindow::slotConnectToServer(const QHostAddress & a_address)
@@ -932,20 +935,30 @@ void MainWindow::slotConnectToServer(const QHostAddress & a_address)
 	if(a_address.isNull())
 		return;
 
-	QString address = a_address.toString();
-	if(m_serverState == ServerState::Connected)
-	{
-		m_pJobsModel->clear();
-		m_serverState = ServerState::SwitchingServer;
-	}
-	else if(m_serverState == ServerState::NotConnected)
-	{
-		m_serverState = ServerState::Connecting;
-		slotWriteLogMessage(trUtf8("Connecting to server %1.").arg(address));
-	}
+	m_nextServerAddress = a_address;
+	QString addressString = a_address.toString();
+	QString connectionURL = QString("ws://%1:%2").arg(addressString)
+		.arg(JOB_SERVER_PORT);
 
-	m_pServerSocket->open(QString("ws://%1:%2").arg(address)
-		.arg(JOB_SERVER_PORT));
+	if(m_state == WatcherState::Connected)
+	{
+//		if(m_nextServerAddress == m_pServerSocket->peerAddress())
+//			return;
+		changeState(WatcherState::SwitchingServer);
+		m_pServerSocket->close();
+	}
+	else if((m_state == WatcherState::NotConnected) ||
+		(m_state == WatcherState::Connecting))
+	{
+		changeState(WatcherState::Connecting);
+		slotWriteLogMessage(trUtf8("Connecting to server %1. Try %2.")
+			.arg(addressString).arg(m_connectionAttempts + 1));
+		m_pServerSocket->open(connectionURL);
+	}
+	else if(m_state == WatcherState::ProbingLocal)
+	{
+		m_pServerSocket->open(connectionURL);
+	}
 }
 
 // END OF void MainWindow::slotConnectToServer(const QHostAddress & a_address)
@@ -961,8 +974,7 @@ void MainWindow::slotConnectToLocalServer()
 
 void MainWindow::slotExit()
 {
-	m_state = WatcherState::ShuttingDown;
-	setUiEnabled();
+	changeState(WatcherState::ShuttingDown);
 	close();
 }
 
@@ -971,7 +983,7 @@ void MainWindow::slotExit()
 
 void MainWindow::slotShutdownServerAndExit()
 {
-	if(m_serverState != ServerState::Connected)
+	if(m_state != WatcherState::Connected)
 		close();
 
 	if(!m_pServerSocket->peerAddress().isLoopback())
@@ -981,8 +993,8 @@ void MainWindow::slotShutdownServerAndExit()
 			LOG_STYLE_ERROR);
 		return;
 	}
-	m_state = WatcherState::ClosingServerShuttingDown;
-	slotShutdownServer();
+	changeState(WatcherState::ClosingServerShuttingDown);
+	m_pServerSocket->sendBinaryMessage(MSG_CLOSE_SERVER);
 }
 
 // END OF void MainWindow::slotShutdownServerAndExit()
@@ -1123,58 +1135,56 @@ void MainWindow::setUiEnabled()
 	buttonsToEnable[m_ui.connectToServerButton] = false;
 	buttonsToEnable[m_ui.shutdownServerButton] = false;
 
-	if(m_state == WatcherState::Running)
+	if(m_state == WatcherState::NotConnected)
 	{
-		if(m_serverState == ServerState::NotConnected)
+		buttonsToEnable[m_ui.startServerButton] = true;
+	}
+
+	if((m_state == WatcherState::NotConnected) ||
+		(m_state == WatcherState::Connected))
+	{
+		buttonsToEnable[m_ui.connectToServerButton] = true;
+	}
+
+	if((m_state == WatcherState::Connected) &&
+		m_pServerSocket->peerAddress().isLoopback())
+	{
+		buttonsToEnable[m_ui.jobNewButton] = true;
+		buttonsToEnable[m_ui.shutdownServerButton] = true;
+
+		std::vector<int> l_selectedIndexes = selectedIndexes();
+
+		if(l_selectedIndexes.size() == 1)
 		{
-			buttonsToEnable[m_ui.startServerButton] = true;
-		}
-
-		if((m_serverState == ServerState::NotConnected) ||
-			(m_serverState == ServerState::Connected))
-		{
-			buttonsToEnable[m_ui.connectToServerButton] = true;
-		}
-
-		if(m_serverState == ServerState::Connected)
-		{
-			buttonsToEnable[m_ui.jobNewButton] = true;
-			buttonsToEnable[m_ui.shutdownServerButton] = true;
-
-			std::vector<int> l_selectedIndexes = selectedIndexes();
-
-			if(l_selectedIndexes.size() == 1)
+			JobProperties jobProperties =
+				m_pJobsModel->jobProperties(l_selectedIndexes[0]);
+			if(!vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
 			{
-				JobProperties jobProperties =
-					m_pJobsModel->jobProperties(l_selectedIndexes[0]);
-				if(!vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
-				{
-					buttonsToEnable[m_ui.jobEditButton] = true;
-					if(l_selectedIndexes[0] > 0)
-						buttonsToEnable[m_ui.jobMoveUpButton] = true;
-					if(l_selectedIndexes[0] < (m_pJobsModel->rowCount() - 1))
-						buttonsToEnable[m_ui.jobMoveDownButton] = true;
-				}
+				buttonsToEnable[m_ui.jobEditButton] = true;
+				if(l_selectedIndexes[0] > 0)
+					buttonsToEnable[m_ui.jobMoveUpButton] = true;
+				if(l_selectedIndexes[0] < (m_pJobsModel->rowCount() - 1))
+					buttonsToEnable[m_ui.jobMoveDownButton] = true;
 			}
-
-			bool allInactive = !l_selectedIndexes.empty();
-
-			for(size_t i = 0; i < l_selectedIndexes.size(); ++i)
-			{
-				JobProperties jobProperties =
-					m_pJobsModel->jobProperties(l_selectedIndexes[i]);
-				if(vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
-					allInactive = false;
-			}
-
-			buttonsToEnable[m_ui.jobResetStateButton] = allInactive;
-			buttonsToEnable[m_ui.jobDeleteButton] = allInactive;
-
-			buttonsToEnable[m_ui.startButton] = true;
-			buttonsToEnable[m_ui.pauseButton] = true;
-			buttonsToEnable[m_ui.resumeButton] = true;
-			buttonsToEnable[m_ui.abortButton] = true;
 		}
+
+		bool allInactive = !l_selectedIndexes.empty();
+
+		for(size_t i = 0; i < l_selectedIndexes.size(); ++i)
+		{
+			JobProperties jobProperties =
+				m_pJobsModel->jobProperties(l_selectedIndexes[i]);
+			if(vsedit::contains(ACTIVE_JOB_STATES, jobProperties.jobState))
+				allInactive = false;
+		}
+
+		buttonsToEnable[m_ui.jobResetStateButton] = allInactive;
+		buttonsToEnable[m_ui.jobDeleteButton] = allInactive;
+
+		buttonsToEnable[m_ui.startButton] = true;
+		buttonsToEnable[m_ui.pauseButton] = true;
+		buttonsToEnable[m_ui.resumeButton] = true;
+		buttonsToEnable[m_ui.abortButton] = true;
 	}
 
 	for(std::pair<QPushButton *, bool> buttonToEnable : buttonsToEnable)
@@ -1213,4 +1223,15 @@ void MainWindow::resetWindowTitle(int a_jobIndex)
 }
 
 // END OF void MainWindow::resetWindowTitle(int a_jobIndex)
+//==============================================================================
+
+void MainWindow::changeState(WatcherState a_newState)
+{
+	if(m_state == a_newState)
+		return;
+	m_state = a_newState;
+	setUiEnabled();
+}
+
+// END OF void MainWindow::changeState(WatcherState a_newState)
 //==============================================================================
