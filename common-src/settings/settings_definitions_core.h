@@ -158,6 +158,7 @@ extern const int DEFAULT_JOB_FIRST_FRAME;
 extern const int DEFAULT_JOB_LAST_FRAME;
 extern const int DEFAULT_JOB_FRAMES_PROCESSED;
 extern const double DEFAULT_JOB_FPS;
+extern const int DEFAULT_RECENT_JOB_SERVERS_NUMBER;
 
 //==============================================================================
 

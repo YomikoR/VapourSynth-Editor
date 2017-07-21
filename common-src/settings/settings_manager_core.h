@@ -67,6 +67,10 @@ public:
 
 	bool setJobs(const std::vector<JobProperties> & a_jobs);
 
+	QStringList getRecentJobServers() const;
+
+	bool setRecentJobServers(const QStringList & a_servers);
+
 protected:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,

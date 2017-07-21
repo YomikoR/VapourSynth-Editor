@@ -29,6 +29,8 @@ private slots:
 
 private:
 
+	void saveServersList();
+
 	Ui::ConnectToServerDialog m_ui;
 
 	SettingsManager * m_pSettingsManager;

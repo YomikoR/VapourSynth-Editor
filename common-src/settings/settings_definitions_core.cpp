@@ -24,6 +24,7 @@ const int DEFAULT_JOB_FIRST_FRAME = -1;
 const int DEFAULT_JOB_LAST_FRAME = -1;
 const int DEFAULT_JOB_FRAMES_PROCESSED = 0;
 const double DEFAULT_JOB_FPS = 0.0;
+const int DEFAULT_RECENT_JOB_SERVERS_NUMBER = 10;
 
 //==============================================================================
 

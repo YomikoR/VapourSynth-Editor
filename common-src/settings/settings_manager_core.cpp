@@ -22,6 +22,7 @@ const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
 const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
 const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
+const char RECENT_JOB_SERVERS_KEY[] = "recent_job_servers";
 
 //==============================================================================
 
@@ -493,6 +494,23 @@ bool SettingsManagerCore::setJobs(const std::vector<JobProperties> & a_jobs)
 	settings.sync();
 	bool success = (QSettings::NoError == settings.status());
 	return success;
+}
+
+//==============================================================================
+
+QStringList SettingsManagerCore::getRecentJobServers() const
+{
+	QStringList recentServers = value(RECENT_JOB_SERVERS_KEY).toStringList();
+	recentServers.removeDuplicates();
+	return recentServers.mid(0, DEFAULT_RECENT_JOB_SERVERS_NUMBER);
+}
+
+bool SettingsManagerCore::setRecentJobServers(const QStringList & a_servers)
+{
+	QStringList recentServers = a_servers;
+	recentServers.removeDuplicates();
+	recentServers = recentServers.mid(0, DEFAULT_RECENT_JOB_SERVERS_NUMBER);
+	return setValue(RECENT_JOB_SERVERS_KEY, recentServers);
 }
 
 //==============================================================================
