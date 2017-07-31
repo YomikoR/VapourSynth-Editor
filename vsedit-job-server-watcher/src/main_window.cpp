@@ -225,6 +225,12 @@ MainWindow::~MainWindow()
 {
 	m_pServerSocket->close(QWebSocketProtocol::CloseCodeNormal,
 		trUtf8("Closing watcher."));
+	for(QLocalSocket * pClient : m_taskClients)
+	{
+		disconnect(pClient, &QLocalSocket::disconnected,
+			this, &MainWindow::slotTaskClientDisconnected);
+		delete pClient;
+	}
 	qInstallMessageHandler(0);
 }
 
@@ -283,7 +289,7 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 	QString fullMessage = dateString + QString(" ") + timeString +
 		QString("\n") + caption + QString("\n") + a_message;
 
-    QString tempPath =
+	QString tempPath =
 		QStandardPaths::writableLocation(QStandardPaths::TempLocation);
 	if(tempPath.isEmpty())
 	{
@@ -367,7 +373,7 @@ void MainWindow::slotJobNewButtonClicked()
 	if(result == QDialog::Rejected)
 		return;
 	JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
-    m_pServerSocket->sendBinaryMessage(
+	m_pServerSocket->sendBinaryMessage(
 		vsedit::jsonMessage(MSG_CREATE_JOB, newJobProperties.toJson()));
 }
 
@@ -654,6 +660,7 @@ void MainWindow::slotServerConnected()
 	m_pServerSocket->sendBinaryMessage(MSG_GET_JOBS_INFO);
 	m_pServerSocket->sendBinaryMessage(MSG_GET_LOG);
 	m_pServerSocket->sendBinaryMessage(MSG_SUBSCRIBE);
+	processTaskList();
 }
 
 // END OF void MainWindow::slotServerConnected()
@@ -1033,7 +1040,41 @@ void MainWindow::slotTaskServerNewConnection()
 
 void MainWindow::slotTaskClientReadyRead()
 {
+	QLocalSocket * pSocket = m_pTaskServer->nextPendingConnection();
+	if(!pSocket)
+		return;
 
+	QByteArray message = pSocket->readAll();
+
+	QString command = QString::fromUtf8(message);
+	QByteArray arguments;
+	int spaceIndex = message.indexOf(' ');
+	if(spaceIndex >= 0)
+	{
+		command = QString::fromUtf8(message.left(spaceIndex));
+		arguments = message.mid(spaceIndex + 1);
+	}
+
+	if(command == QString(VSEMSG_CLI_ENCODE_JOB))
+	{
+		QJsonDocument jsArguments = QJsonDocument::fromJson(arguments);
+		JobProperties properties =
+			JobProperties::fromJson(jsArguments.object());
+
+		m_taskList.push_back(properties);
+
+		if(m_state != WatcherState::Connected)
+		{
+			m_ui.logView->addEntry(trUtf8("New job task is put on hold "
+				"until watcher connects to server."), LOG_STYLE_WARNING);
+			return;
+		}
+
+		if(m_pJobEditDialog->isVisible())
+			return;
+
+		processTaskList();
+	}
 }
 
 // END OF void MainWindow::slotTaskClientReadyRead()
@@ -1285,4 +1326,22 @@ void MainWindow::changeState(WatcherState a_newState)
 }
 
 // END OF void MainWindow::changeState(WatcherState a_newState)
+//==============================================================================
+
+void MainWindow::processTaskList()
+{
+	while(!m_taskList.empty())
+	{
+		int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
+		if(result == QDialog::Accepted)
+		{
+			JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
+			m_pServerSocket->sendBinaryMessage(
+				vsedit::jsonMessage(MSG_CREATE_JOB, newJobProperties.toJson()));
+		}
+		m_taskList.pop_front();
+	}
+}
+
+// END OF void MainWindow::processTaskList()
 //==============================================================================

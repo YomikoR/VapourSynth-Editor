@@ -134,6 +134,8 @@ private:
 
 	void changeState(WatcherState a_newState);
 
+	void processTaskList();
+
 	static const char WINDOW_TITLE[];
 
 	Ui::MainWindow m_ui;
@@ -169,6 +171,8 @@ private:
 
 	QLocalServer * m_pTaskServer;
 	std::list<QLocalSocket *> m_taskClients;
+
+	std::list<JobProperties> m_taskList;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;
