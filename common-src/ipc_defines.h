@@ -1,6 +1,8 @@
 #ifndef IPC_DEFINES_H_INCLUDED
 #define IPC_DEFINES_H_INCLUDED
 
+// Watcher <-> Job server communication
+
 static const char JOB_SERVER_NAME[] = "vsedit_job_server";
 static const uint16_t JOB_SERVER_PORT = 3370;
 
@@ -38,5 +40,12 @@ static const char SMSG_JOBS_SWAPPED[] = "JSW";
 static const char SMSG_JOBS_DELETED[] = "JD";
 static const char SMSG_REFUSE[] = "RF";
 static const char SMSG_CLOSING_SERVER[] = "SCS";
+
+// Editor <-> Watcher communication
+
+static const char JOB_SERVER_WATCHER_LOCAL_SERVER_NAME[] =
+	"vsedit_job_server_watcher";
+
+static const char VSEMSG_CLI_ENCODE_JOB[] = "CEJ";
 
 #endif // IPC_DEFINES_H_INCLUDED

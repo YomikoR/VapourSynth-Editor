@@ -36,6 +36,8 @@
 #include <QProcess>
 #include <QSystemTrayIcon>
 #include <QTimer>
+#include <QLocalServer>
+#include <QLocalSocket>
 #include <map>
 
 #ifdef Q_OS_WIN
@@ -66,6 +68,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionShutdownServerAndExit(nullptr)
 	, m_pConnectToServerDialog(nullptr)
 	, m_nextServerAddress(QHostAddress::LocalHost)
+	, m_pTaskServer(nullptr)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
@@ -134,6 +137,8 @@ MainWindow::MainWindow() : QMainWindow()
 		m_pTrayIcon->show();
 	}
 
+	m_pTaskServer = new QLocalServer(this);
+
 	connect(m_ui.jobNewButton, SIGNAL(clicked()),
 		this, SLOT(slotJobNewButtonClicked()));
 	connect(m_ui.jobEditButton, SIGNAL(clicked()),
@@ -198,9 +203,19 @@ MainWindow::MainWindow() : QMainWindow()
 		this, &MainWindow::slotJobProgressChanged);
 	connect(m_pJobsModel, &JobsModel::signalSetDependencies,
 		this, &MainWindow::slotSetJobDependencies);
+	connect(m_pTaskServer, &QLocalServer::newConnection,
+		this, &MainWindow::slotTaskServerNewConnection);
 
 	createActionsAndMenus();
 	setUiEnabled();
+
+	bool taskServerStarted =
+		m_pTaskServer->listen(JOB_SERVER_WATCHER_LOCAL_SERVER_NAME);
+	if(!taskServerStarted)
+	{
+		m_ui.logView->addEntry(trUtf8("Couldn't start task server."),
+			LOG_STYLE_ERROR);
+	}
 }
 
 // END OF MainWindow::MainWindow()
@@ -998,6 +1013,42 @@ void MainWindow::slotShutdownServerAndExit()
 }
 
 // END OF void MainWindow::slotShutdownServerAndExit()
+//==============================================================================
+
+void MainWindow::slotTaskServerNewConnection()
+{
+	QLocalSocket * pSocket = m_pTaskServer->nextPendingConnection();
+	if(!pSocket)
+		return;
+
+	connect(pSocket, &QLocalSocket::disconnected,
+		this, &MainWindow::slotTaskClientDisconnected);
+	connect(pSocket, &QLocalSocket::readyRead,
+		this, &MainWindow::slotTaskClientReadyRead);
+	m_taskClients.push_back(pSocket);
+}
+
+// END OF void MainWindow::slotTaskServerNewConnection()
+//==============================================================================
+
+void MainWindow::slotTaskClientReadyRead()
+{
+
+}
+
+// END OF void MainWindow::slotTaskClientReadyRead()
+//==============================================================================
+
+void MainWindow::slotTaskClientDisconnected()
+{
+	QLocalSocket * pClient = qobject_cast<QLocalSocket *>(sender());
+	if(!pClient)
+		return;
+	m_taskClients.remove(pClient);
+	pClient->deleteLater();
+}
+
+// END OF void MainWindow::slotTaskClientDisconnected()
 //==============================================================================
 
 void MainWindow::createActionsAndMenus()

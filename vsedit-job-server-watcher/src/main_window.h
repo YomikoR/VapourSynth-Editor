@@ -9,6 +9,7 @@
 #include <QWebSocket>
 #include <QJsonObject>
 #include <QHostAddress>
+#include <list>
 
 class SettingsManager;
 class JobsModel;
@@ -19,6 +20,8 @@ class VSScriptLibrary;
 class QMenu;
 class QSystemTrayIcon;
 class ConnectToServerDialog;
+class QLocalServer;
+class QLocalSocket;
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
@@ -96,6 +99,10 @@ private slots:
 	void slotExit();
 	void slotShutdownServerAndExit();
 
+	void slotTaskServerNewConnection();
+	void slotTaskClientReadyRead();
+	void slotTaskClientDisconnected();
+
 private:
 
 	enum class WatcherState
@@ -159,6 +166,9 @@ private:
 	ConnectToServerDialog * m_pConnectToServerDialog;
 
 	QHostAddress m_nextServerAddress;
+
+	QLocalServer * m_pTaskServer;
+	std::list<QLocalSocket *> m_taskClients;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;
