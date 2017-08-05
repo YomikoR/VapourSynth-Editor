@@ -152,15 +152,15 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log_definitions.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_null.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_y4m.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/ipc_defines.h
 
-HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer.h
-HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_null.h
-HEADERS += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_definitions.h
-HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.h
 HEADERS += $${PROJECT_DIRECTORY}/src/job_server.h
 
@@ -172,13 +172,13 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log_definitions.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_null.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_y4m.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.cpp
 
-SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_null.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/frame_header_writers/frame_header_writer_y4m.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/job_server.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp

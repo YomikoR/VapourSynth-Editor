@@ -208,20 +208,49 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../common-src/aligned_vector.h" />
 		<Unit filename="../common-src/application_instance_file_guard/application_instance_file_guard.cpp" />
 		<Unit filename="../common-src/application_instance_file_guard/application_instance_file_guard.h" />
 		<Unit filename="../common-src/chrono.h" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer.cpp" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer.h" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_null.cpp" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_null.h" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_y4m.cpp" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_y4m.h" />
 		<Unit filename="../common-src/helpers.cpp" />
 		<Unit filename="../common-src/helpers.h" />
+		<Unit filename="../common-src/helpers_gui.cpp" />
+		<Unit filename="../common-src/helpers_gui.h" />
 		<Unit filename="../common-src/ipc_defines.h" />
+		<Unit filename="../common-src/jobs/job.cpp" />
+		<Unit filename="../common-src/jobs/job.h" />
 		<Unit filename="../common-src/jobs/job_variables.cpp" />
 		<Unit filename="../common-src/jobs/job_variables.h" />
+		<Unit filename="../common-src/log/log_styles_model.cpp" />
+		<Unit filename="../common-src/log/log_styles_model.h" />
+		<Unit filename="../common-src/log/styled_log_view.cpp" />
+		<Unit filename="../common-src/log/styled_log_view.h" />
 		<Unit filename="../common-src/log/styled_log_view_core.cpp" />
 		<Unit filename="../common-src/log/styled_log_view_core.h" />
+		<Unit filename="../common-src/log/styled_log_view_settings_dialog.cpp" />
+		<Unit filename="../common-src/log/styled_log_view_settings_dialog.h" />
+		<Unit filename="../common-src/log/styled_log_view_structures.cpp" />
+		<Unit filename="../common-src/log/styled_log_view_structures.h" />
+		<Unit filename="../common-src/log/vs_editor_log.cpp" />
+		<Unit filename="../common-src/log/vs_editor_log.h" />
+		<Unit filename="../common-src/log/vs_editor_log_definitions.cpp" />
+		<Unit filename="../common-src/log/vs_editor_log_definitions.h" />
+		<Unit filename="../common-src/settings/settings_definitions.cpp" />
+		<Unit filename="../common-src/settings/settings_definitions.h" />
 		<Unit filename="../common-src/settings/settings_definitions_core.cpp" />
 		<Unit filename="../common-src/settings/settings_definitions_core.h" />
+		<Unit filename="../common-src/settings/settings_manager.cpp" />
+		<Unit filename="../common-src/settings/settings_manager.h" />
 		<Unit filename="../common-src/settings/settings_manager_core.cpp" />
 		<Unit filename="../common-src/settings/settings_manager_core.h" />
+		<Unit filename="../common-src/timeline_slider/timeline_slider.cpp" />
+		<Unit filename="../common-src/timeline_slider/timeline_slider.h" />
 		<Unit filename="../common-src/vapoursynth/vapoursynth_script_processor.cpp" />
 		<Unit filename="../common-src/vapoursynth/vapoursynth_script_processor.h" />
 		<Unit filename="../common-src/vapoursynth/vs_script_library.cpp" />
@@ -239,8 +268,6 @@
 		<Unit filename="src/frame_header_writers/frame_header_writer_y4m.h" />
 		<Unit filename="src/job_server.cpp" />
 		<Unit filename="src/job_server.h" />
-		<Unit filename="src/jobs/job.cpp" />
-		<Unit filename="src/jobs/job.h" />
 		<Unit filename="src/jobs/job_definitions.h" />
 		<Unit filename="src/jobs/jobs_manager.cpp" />
 		<Unit filename="src/jobs/jobs_manager.h" />
@@ -258,16 +285,16 @@
 			<envvars />
 			<debugger>
 				<search_path add="src" />
-				<remote_debugging target="release-64bit-gcc">
+				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="debug-64bit-gcc">
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
-				<remote_debugging target="release-32bit-gcc">
+				<remote_debugging target="release-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>

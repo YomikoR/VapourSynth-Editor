@@ -1,7 +1,7 @@
 #ifndef JOBS_MANAGER_H_INCLUDED
 #define JOBS_MANAGER_H_INCLUDED
 
-#include "job.h"
+#include "../../../common-src/jobs/job.h"
 #include "job_definitions.h"
 #include "../../../common-src/log/vs_editor_log_definitions.h"
 

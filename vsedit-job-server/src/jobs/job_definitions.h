@@ -1,7 +1,7 @@
 #ifndef JOB_DEFINITIONS_H_INCLUDED
 #define JOB_DEFINITIONS_H_INCLUDED
 
-#include "job.h"
+#include "../../../common-src/jobs/job.h"
 
 enum class JobWantTo
 {

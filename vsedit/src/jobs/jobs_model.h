@@ -1,7 +1,7 @@
 #ifndef JOBS_MODEL_H_INCLUDED
 #define JOBS_MODEL_H_INCLUDED
 
-#include "../../../vsedit-job-server/src/jobs/job.h"
+#include "../../../common-src/jobs/job.h"
 #include "../../../vsedit-job-server/src/jobs/job_definitions.h"
 
 #include <QAbstractItemModel>

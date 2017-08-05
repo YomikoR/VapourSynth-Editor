@@ -169,8 +169,9 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 
 RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit.qrc
 
-FORMS += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.ui
 FORMS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.ui
+
+FORMS += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/script_status_bar_widget/script_status_bar_widget.ui
 FORMS += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.ui
@@ -197,13 +198,13 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_null.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_y4m.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.h
 
-HEADERS += $${COMMON_DIRECTORY}/vsedit-job-server/src/frame_header_writers/frame_header_writer.h
-HEADERS += $${COMMON_DIRECTORY}/vsedit-job-server/src/frame_header_writers/frame_header_writer_null.h
-HEADERS += $${COMMON_DIRECTORY}/vsedit-job-server/src/frame_header_writers/frame_header_writer_y4m.h
-HEADERS += $${COMMON_DIRECTORY}/vsedit-job-server/src/jobs/job.h
 HEADERS += $${COMMON_DIRECTORY}/vsedit-job-server/src/jobs/job_definitions.h
 
 HEADERS += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.h
@@ -239,11 +240,6 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.cp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_manager.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/settings/clearable_key_sequence_editor.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/settings/item_delegate_for_hotkey.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/settings/theme_elements_model.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_core.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_structures.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/log_styles_model.cpp
@@ -254,12 +250,21 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/log/vs_editor_log.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_null.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_writer_y4m.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.cpp
 
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/clearable_key_sequence_editor.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/item_delegate_for_hotkey.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/theme_elements_model.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/settings/settings_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_status_bar_widget/script_status_bar_widget.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/scroll_navigator.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_area.cpp
-SOURCES += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/number_matcher.cpp
@@ -269,12 +274,6 @@ SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/script_completer.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/script_editor.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_plugin_data.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_plugins_manager.cpp
-
-SOURCES += $${COMMON_DIRECTORY}/vsedit-job-server/src/frame_header_writers/frame_header_writer.cpp
-SOURCES += $${COMMON_DIRECTORY}/vsedit-job-server/src/frame_header_writers/frame_header_writer_null.cpp
-SOURCES += $${COMMON_DIRECTORY}/vsedit-job-server/src/frame_header_writers/frame_header_writer_y4m.cpp
-SOURCES += $${COMMON_DIRECTORY}/vsedit-job-server/src/jobs/job.cpp
-
 SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_templates/drop_file_category_model.cpp

@@ -230,11 +230,22 @@
 		<Unit filename="../README" />
 		<Unit filename="../TODO.txt" />
 		<Unit filename="../common-src/aligned_vector.h" />
+		<Unit filename="../common-src/application_instance_file_guard/application_instance_file_guard.cpp" />
+		<Unit filename="../common-src/application_instance_file_guard/application_instance_file_guard.h" />
 		<Unit filename="../common-src/chrono.h" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer.cpp" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer.h" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_null.cpp" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_null.h" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_y4m.cpp" />
+		<Unit filename="../common-src/frame_header_writers/frame_header_writer_y4m.h" />
 		<Unit filename="../common-src/helpers.cpp" />
 		<Unit filename="../common-src/helpers.h" />
 		<Unit filename="../common-src/helpers_gui.cpp" />
 		<Unit filename="../common-src/helpers_gui.h" />
+		<Unit filename="../common-src/ipc_defines.h" />
+		<Unit filename="../common-src/jobs/job.cpp" />
+		<Unit filename="../common-src/jobs/job.h" />
 		<Unit filename="../common-src/jobs/job_variables.cpp" />
 		<Unit filename="../common-src/jobs/job_variables.h" />
 		<Unit filename="../common-src/log/log_styles_model.cpp" />
@@ -278,8 +289,6 @@
 		<Unit filename="../vsedit-job-server/src/frame_header_writers/frame_header_writer_null.h" />
 		<Unit filename="../vsedit-job-server/src/frame_header_writers/frame_header_writer_y4m.cpp" />
 		<Unit filename="../vsedit-job-server/src/frame_header_writers/frame_header_writer_y4m.h" />
-		<Unit filename="../vsedit-job-server/src/jobs/job.cpp" />
-		<Unit filename="../vsedit-job-server/src/jobs/job.h" />
 		<Unit filename="../vsedit-job-server/src/jobs/job_definitions.h" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
 		<Unit filename="generated/ui/ui_job_edit_dialog.h" />
@@ -361,9 +370,6 @@
 				<search_path add="src/preview" />
 				<search_path add="src/scripteditor" />
 				<search_path add="src/settings" />
-				<remote_debugging target="release-32bit-gcc">
-					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
-				</remote_debugging>
 				<remote_debugging target="debug-64bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
@@ -371,6 +377,9 @@
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 				<remote_debugging target="debug-32bit-gcc">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
+				</remote_debugging>
+				<remote_debugging target="release-32bit-gcc">
 					<options conn_type="0" serial_baud="115200" additional_cmds_before="set environment PYTHONHOME =&#x0A;set environment PYTHONPATH =" />
 				</remote_debugging>
 			</debugger>
