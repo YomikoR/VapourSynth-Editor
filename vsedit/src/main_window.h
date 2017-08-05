@@ -11,9 +11,7 @@ class VSScriptLibrary;
 class PreviewDialog;
 class SettingsDialog;
 class ScriptBenchmarkDialog;
-class JobsModel;
-class JobEditDialog;
-class JobsDialog;
+class EncodeDialog;
 class TemplatesDialog;
 
 class MainWindow : public QMainWindow
@@ -97,7 +95,6 @@ private:
 	SettingsManager * m_pSettingsManager;
 	VapourSynthPluginsManager * m_pVapourSynthPluginsManager;
 	VSScriptLibrary * m_pVSScriptLibrary;
-	JobsModel * m_pJobsModel;
 
 	QAction * m_pActionNewScript;
 	QAction * m_pActionOpenScript;
@@ -120,8 +117,7 @@ private:
 	PreviewDialog * m_pPreviewDialog;
 	SettingsDialog * m_pSettingsDialog;
 	ScriptBenchmarkDialog * m_pBenchmarkDialog;
-	JobEditDialog * m_pJobEditDialog;
-	JobsDialog * m_pJobsDialog;
+	EncodeDialog * m_pEncodeDialog;
 	TemplatesDialog * m_pTemplatesDialog;
 
 	QString m_scriptFilePath;

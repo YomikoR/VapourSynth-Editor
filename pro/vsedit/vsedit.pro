@@ -176,9 +176,8 @@ FORMS += $${PROJECT_DIRECTORY}/src/script_status_bar_widget/script_status_bar_wi
 FORMS += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.ui
+FORMS += $${PROJECT_DIRECTORY}/src/frame_consumers/encode_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/script_templates/templates_dialog.ui
-FORMS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.ui
-FORMS += $${PROJECT_DIRECTORY}/src/jobs/jobs_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/main_window.ui
 
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers.h
@@ -205,8 +204,6 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.h
 
-HEADERS += $${COMMON_DIRECTORY}/vsedit-job-server/src/jobs/job_definitions.h
-
 HEADERS += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.h
 HEADERS += $${PROJECT_DIRECTORY}/src/settings/clearable_key_sequence_editor.h
 HEADERS += $${PROJECT_DIRECTORY}/src/settings/item_delegate_for_hotkey.h
@@ -226,13 +223,9 @@ HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_plugin_data.h
 HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_plugins_manager.h
 HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_dialog.h
 HEADERS += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.h
+HEADERS += $${PROJECT_DIRECTORY}/src/frame_consumers/encode_dialog.h
 HEADERS += $${PROJECT_DIRECTORY}/src/script_templates/drop_file_category_model.h
 HEADERS += $${PROJECT_DIRECTORY}/src/script_templates/templates_dialog.h
-HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.h
-HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.h
-HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.h
-HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.h
-HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_dialog.h
 HEADERS += $${PROJECT_DIRECTORY}/src/main_window.h
 
 SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
@@ -276,13 +269,9 @@ SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_plugin_data.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_plugins_manager.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/frame_consumers/benchmark_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/frame_consumers/encode_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_templates/drop_file_category_model.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_templates/templates_dialog.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_state_delegate.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_dependencies_delegate.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.cpp
-SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main_window.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
 

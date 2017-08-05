@@ -4,12 +4,10 @@
 #include "../../common-src/vapoursynth/vs_script_library.h"
 #include "../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "vapoursynth/vapoursynth_plugins_manager.h"
-#include "jobs/jobs_model.h"
-#include "jobs/jobs_dialog.h"
-#include "jobs/job_edit_dialog.h"
 #include "preview/preview_dialog.h"
 #include "settings/settings_dialog.h"
 #include "frame_consumers/benchmark_dialog.h"
+#include "frame_consumers/encode_dialog.h"
 #include "script_templates/templates_dialog.h"
 #include "../../common-src/helpers.h"
 
@@ -42,7 +40,6 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pSettingsManager(nullptr)
 	, m_pVapourSynthPluginsManager(nullptr)
 	, m_pVSScriptLibrary(nullptr)
-	, m_pJobsModel(nullptr)
 	, m_pActionNewScript(nullptr)
 	, m_pActionOpenScript(nullptr)
 	, m_pActionSaveScript(nullptr)
@@ -61,8 +58,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pPreviewDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
 	, m_pBenchmarkDialog(nullptr)
-	, m_pJobEditDialog(nullptr)
-	, m_pJobsDialog(nullptr)
+	, m_pEncodeDialog(nullptr)
 	, m_pTemplatesDialog(nullptr)
 	, m_scriptFilePath()
 	, m_lastSavedText()
@@ -88,9 +84,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pVapourSynthPluginsManager =
 		new VapourSynthPluginsManager(m_pSettingsManager, this);
 	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
-
-	m_pJobsModel = new JobsModel(m_pSettingsManager, m_pVSScriptLibrary, this);
-	m_pJobsModel->loadJobs();
 
 	m_ui.scriptEdit->setPluginsList(vsPluginsList);
 	m_ui.scriptEdit->setSettingsManager(m_pSettingsManager);
@@ -130,10 +123,10 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
-	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,
-		m_pVSScriptLibrary, this);
-	m_pJobsDialog = new JobsDialog(m_pSettingsManager, m_pJobsModel,
-		m_pVSScriptLibrary);
+	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
+	connect(m_pEncodeDialog,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);
@@ -148,7 +141,7 @@ MainWindow::MainWindow() : QMainWindow()
 		(QObject **)&m_pPreviewDialog,
 		(QObject **)&m_pSettingsDialog,
 		(QObject **)&m_pBenchmarkDialog,
-		(QObject **)&m_pJobsDialog,
+		(QObject **)&m_pEncodeDialog,
 		(QObject **)&m_pTemplatesDialog
 	};
 
@@ -253,17 +246,6 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 		a_pEvent->ignore();
 		return;
 	}
-
-	if(m_pJobsModel->hasActiveJobs())
-	{
-		QString message = trUtf8("There are active jobs in queue.");
-		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
-		m_pJobsDialog->show();
-		a_pEvent->ignore();
-		return;
-	}
-
-	m_pJobsModel->saveJobs();
 
 	destroyOrphanQObjects();
 
@@ -460,32 +442,17 @@ void MainWindow::slotBenchmark()
 
 void MainWindow::slotEncode()
 {
-	if(m_ui.scriptEdit->isModified())
+	if(m_pEncodeDialog->busy())
 	{
-		QMessageBox::StandardButton choice =
-			QMessageBox::question(this, trUtf8("Save script?"),
-			trUtf8("Script must be saved before encoding. Save it now?"),
-			QMessageBox::Yes | QMessageBox::No);
-
-		if(choice != QMessageBox::Yes)
-			return;
-
-		bool saved = slotSaveScript();
-		if(!saved)
-			return;
+		QString message = trUtf8("Encode dialog appears busy processing "
+			"frames. Please stop any active actions in the dialog and wait "
+			"for script processor to finish processing.");
+		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
+		return;
 	}
 
-	JobProperties newJobProperties;
-	newJobProperties.type = JobType::EncodeScriptCLI;
-	newJobProperties.scriptName = m_scriptFilePath;
-
-	int result = m_pJobEditDialog->call(trUtf8("New job"), newJobProperties);
-	if(result == QDialog::Rejected)
-		return;
-	newJobProperties = m_pJobEditDialog->jobProperties();
-	int index = m_pJobsModel->createJob();
-	m_pJobsModel->setJobProperties(index, newJobProperties);
-	m_pJobsDialog->show();
+	m_pEncodeDialog->initialize(m_ui.scriptEdit->text(), m_scriptFilePath);
+	m_pEncodeDialog->call();
 }
 
 // END OF void MainWindow::slotEncode()
@@ -493,7 +460,7 @@ void MainWindow::slotEncode()
 
 void MainWindow::slotJobs()
 {
-	m_pJobsDialog->show();
+
 }
 
 // END OF void MainWindow::slotJobs()
