@@ -27,7 +27,7 @@
 					<Add directory="src" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=debug" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=debug" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile -j9 debug" />
@@ -52,7 +52,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=release" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=release" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile -j9 release" />
@@ -74,7 +74,7 @@
 					<Add directory="src" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=debug" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=debug" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile -j9 debug" />
@@ -99,7 +99,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=release" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=release" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile -j9 release" />
@@ -121,7 +121,7 @@
 					<Add directory="src" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=debug" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=debug" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile debug" />
@@ -146,7 +146,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=release" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=release" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile release" />
@@ -168,7 +168,7 @@
 					<Add directory="src" />
 				</Compiler>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=debug" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=debug" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile debug" />
@@ -193,7 +193,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add before="${qt5binpath}qmake -norecursive pro.pro CONFIG+=release" />
+					<Add before="${qt5binpath}qmake -norecursive vsedit-job-server.pro CONFIG+=release" />
 				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile release" />
@@ -259,7 +259,7 @@
 		<Unit filename="../common-src/vapoursynth/vs_script_processor_structures.h" />
 		<Unit filename="../pro/common.pri" />
 		<Unit filename="../pro/local_quirks.pri" />
-		<Unit filename="../pro/vsedit-job-server/pro.pro" />
+		<Unit filename="../pro/vsedit-job-server/vsedit-job-server.pro" />
 		<Unit filename="src/frame_header_writers/frame_header_writer.cpp" />
 		<Unit filename="src/frame_header_writers/frame_header_writer.h" />
 		<Unit filename="src/frame_header_writers/frame_header_writer_null.cpp" />
