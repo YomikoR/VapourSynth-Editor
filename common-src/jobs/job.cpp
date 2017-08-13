@@ -231,6 +231,23 @@ bool vsedit::Job::setScriptName(const QString & a_scriptName)
 // END OF bool vsedit::Job::setScriptName(const QString & a_scriptName)
 //==============================================================================
 
+QString vsedit::Job::scriptText() const
+{
+	return m_properties.scriptText;
+}
+
+// END OF QString vsedit::Job::scriptText() const
+//==============================================================================
+
+bool vsedit::Job::setScriptText(const QString & a_scriptText)
+{
+	m_properties.scriptText = a_scriptText;
+	return true;
+}
+
+// END OF bool vsedit::Job::setScriptName(const QString & a_scriptText)
+//==============================================================================
+
 EncodingHeaderType vsedit::Job::encodingHeaderType() const
 {
 	return m_properties.encodingHeaderType;

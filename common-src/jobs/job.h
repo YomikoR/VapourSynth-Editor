@@ -61,6 +61,9 @@ public:
 	virtual QString scriptName() const;
 	virtual bool setScriptName(const QString & a_scriptName);
 
+	virtual QString scriptText() const;
+	virtual bool setScriptText(const QString & a_scriptText);
+
 	virtual EncodingHeaderType encodingHeaderType() const;
 	virtual bool setEncodingHeaderType(EncodingHeaderType a_headerType);
 
