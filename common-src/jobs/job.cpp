@@ -1033,20 +1033,23 @@ void vsedit::Job::startEncodeScriptCLI()
 {
 	changeStateAndNotify(JobState::Running);
 
-	QString absoluteScriptPath =
-		resolvePathFromApplication(m_properties.scriptName);
-	QFile scriptFile(absoluteScriptPath);
-	bool opened = scriptFile.open(QIODevice::ReadOnly);
-	if(!opened)
+	if(m_properties.scriptText.isEmpty())
 	{
-		emit signalLogMessage(trUtf8("Could not open script file \"%1\".")
-			.arg(m_properties.scriptName), LOG_STYLE_ERROR);
-		changeStateAndNotify(JobState::Failed);
-		return;
-	}
+		QString absoluteScriptPath =
+			resolvePathFromApplication(m_properties.scriptName);
+		QFile scriptFile(absoluteScriptPath);
+		bool opened = scriptFile.open(QIODevice::ReadOnly);
+		if(!opened)
+		{
+			emit signalLogMessage(trUtf8("Could not open script file \"%1\".")
+				.arg(m_properties.scriptName), LOG_STYLE_ERROR);
+			changeStateAndNotify(JobState::Failed);
+			return;
+		}
 
-	QString script = QString::fromUtf8(scriptFile.readAll());
-	scriptFile.close();
+		m_properties.scriptText = QString::fromUtf8(scriptFile.readAll());
+		scriptFile.close();
+	}
 
 	if((!m_pVSScriptLibrary) || (!m_pSettingsManager))
 	{
@@ -1085,7 +1088,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	}
 
 	bool scriptProcessorInitialized = m_pVapourSynthScriptProcessor->initialize(
-		script, m_properties.scriptName);
+		m_properties.scriptText, m_properties.scriptName);
 	if(!scriptProcessorInitialized)
 	{
 		emit signalLogMessage(trUtf8("Failed to initialize script.\n%1")

@@ -116,6 +116,7 @@ const char JP_DEPENDS_ON_JOB_IDS[] = "dependsOnJobIds";
 const char JP_TIME_STARTED[] = "timeStarted";
 const char JP_TIME_ENDED[] = "timeEnded";
 const char JP_SCRIPT_NAME[] = "scriptName";
+const char JP_SCRIPT_TEXT[] = "scriptText";
 const char JP_ENCODING_TYPE[] = "encodingType";
 const char JP_ENCODING_HEADER_TYPE[] = "encodingHeaderType";
 const char JP_EXECUTABLE_PATH[] = "executablePath";
@@ -143,6 +144,7 @@ QJsonObject JobProperties::toJson() const
 	jsJob[JP_TIME_STARTED] = timeStarted.toMSecsSinceEpoch();
 	jsJob[JP_TIME_ENDED] = timeEnded.toMSecsSinceEpoch();
 	jsJob[JP_SCRIPT_NAME] = scriptName;
+	jsJob[JP_SCRIPT_TEXT] = scriptText;
 	jsJob[JP_ENCODING_TYPE] = (int)encodingType;
 	jsJob[JP_ENCODING_HEADER_TYPE] = (int)encodingHeaderType;
 	jsJob[JP_EXECUTABLE_PATH] = executablePath;
@@ -183,6 +185,8 @@ JobProperties JobProperties::fromJson(const QJsonObject & a_object)
 			a_object[JP_TIME_ENDED].toVariant().toLongLong());
 	if(a_object.contains(JP_SCRIPT_NAME))
 		properties.scriptName = a_object[JP_SCRIPT_NAME].toString();
+	if(a_object.contains(JP_SCRIPT_TEXT))
+		properties.scriptText = a_object[JP_SCRIPT_TEXT].toString();
 	if(a_object.contains(JP_ENCODING_TYPE))
 		properties.encodingType =
 			(EncodingType)a_object[JP_ENCODING_TYPE].toInt();

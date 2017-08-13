@@ -283,7 +283,6 @@
 		<Unit filename="../pro/local_quirks.pri" />
 		<Unit filename="../pro/vsedit/vsedit.pro" />
 		<Unit filename="../resources/vsedit.qrc" />
-		<Unit filename="../vsedit-job-server/src/jobs/job_definitions.h" />
 		<Unit filename="generated/ui/ui_benchmark_dialog.h" />
 		<Unit filename="generated/ui/ui_job_edit_dialog.h" />
 		<Unit filename="generated/ui/ui_jobs_dialog.h" />

@@ -44,6 +44,7 @@ const char JOB_DEPENDS_ON_JOBS_KEY[] = "depends_on_jobs";
 const char JOB_TIME_STARTED_KEY[] = "time_started";
 const char JOB_TIME_ENDED_KEY[] = "time_ended";
 const char JOB_SCRIPT_NAME_KEY[] = "script_name";
+const char JOB_SCRIPT_TEXT_KEY[] = "script_text";
 const char JOB_ENCODING_TYPE_KEY[] = "encoding_type";
 const char JOB_ENCODING_HEADER_TYPE_KEY[] = "encoding_header_type";
 const char JOB_EXECUTABLE_PATH_KEY[] = "executable_path";
@@ -420,6 +421,7 @@ std::vector<JobProperties> SettingsManagerCore::getJobs() const
 		job.timeStarted = settings.value(JOB_TIME_STARTED_KEY).toDateTime();
 		job.timeEnded = settings.value(JOB_TIME_ENDED_KEY).toDateTime();
 		job.scriptName = settings.value(JOB_SCRIPT_NAME_KEY).toString();
+		job.scriptText = settings.value(JOB_SCRIPT_TEXT_KEY).toString();
 
 		job.encodingType = (EncodingType)settings.value(JOB_ENCODING_TYPE_KEY,
 			(int)DEFAULT_ENCODING_TYPE).toInt();
@@ -475,6 +477,7 @@ bool SettingsManagerCore::setJobs(const std::vector<JobProperties> & a_jobs)
 		settings.setValue(JOB_TIME_STARTED_KEY, job.timeStarted);
 		settings.setValue(JOB_TIME_ENDED_KEY, job.timeEnded);
 		settings.setValue(JOB_SCRIPT_NAME_KEY, job.scriptName);
+		settings.setValue(JOB_SCRIPT_TEXT_KEY, job.scriptText);
 		settings.setValue(JOB_ENCODING_TYPE_KEY, (int)job.encodingType);
 		settings.setValue(JOB_ENCODING_HEADER_TYPE_KEY,
 			(int)job.encodingHeaderType);

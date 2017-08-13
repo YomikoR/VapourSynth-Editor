@@ -100,6 +100,7 @@ struct JobProperties
 	QDateTime timeStarted;
 	QDateTime timeEnded;
 	QString scriptName;
+	QString scriptText;
 	EncodingType encodingType;
 	EncodingHeaderType encodingHeaderType;
 	QString executablePath;
