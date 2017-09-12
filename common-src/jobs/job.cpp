@@ -543,7 +543,8 @@ bool vsedit::Job::initialize()
 			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
 			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
 	}
-	else if((!m_pVapourSynthScriptProcessor->isInitialized()) ||
+
+	if((!m_pVapourSynthScriptProcessor->isInitialized()) ||
 		(m_pVapourSynthScriptProcessor->scriptName() !=
 		m_properties.scriptName) || (m_pVapourSynthScriptProcessor->script() !=
 		m_properties.scriptText))
