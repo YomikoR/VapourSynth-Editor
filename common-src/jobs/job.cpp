@@ -85,110 +85,6 @@ bool vsedit::Job::isActive() const
 // END OF bool vsedit::Job::isActive() const
 //==============================================================================
 
-void vsedit::Job::start()
-{
-	if(m_properties.jobState == JobState::Waiting)
-	{
-		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
-		changeStateAndNotify(JobState::Running);
-		emit signalStartTimeChanged();
-		if(m_properties.type == JobType::EncodeScriptCLI)
-			startEncodeScriptCLI();
-		else if(m_properties.type == JobType::RunProcess)
-			startRunProcess();
-		else if(m_properties.type == JobType::RunShellCommand)
-			startRunShellCommand();
-	}
-	else if (m_properties.jobState == JobState::Paused)
-	{
-		changeStateAndNotify(JobState::Running);
-		if(m_properties.type == JobType::EncodeScriptCLI)
-			processFramesQueue();
-		else if(m_properties.type == JobType::RunProcess)
-		{
-#ifdef Q_OS_WIN
-			BOOL result = DebugActiveProcessStop((DWORD)m_process.processId());
-			if(result)
-				changeStateAndNotify(JobState::Running);
-			else
-				emit signalLogMessage(trUtf8("Failed to resume process. "
-					"Error %1.").arg(GetLastError()), LOG_STYLE_ERROR);
-#else
-			int error = kill((pid_t)m_process.processId(), SIGCONT);
-			if(!error)
-				changeStateAndNotify(JobState::Running);
-			else
-				emit signalLogMessage(trUtf8("Failed to resume process. "
-					"Error %1.").arg(error), LOG_STYLE_ERROR);
-#endif
-		}
-	}
-}
-
-// END OF void vsedit::Job::start()
-//==============================================================================
-
-void vsedit::Job::pause()
-{
-	if(!isActive())
-		return;
-
-	if(m_properties.type == JobType::EncodeScriptCLI)
-	{
-		EncodingState invalidStates[] = {EncodingState::Idle,
-			EncodingState::EncoderCrashed, EncodingState::Finishing,
-			EncodingState::Aborting};
-		if(vsedit::contains(invalidStates, m_encodingState))
-			return;
-		changeStateAndNotify(JobState::Pausing);
-	}
-	else if(m_properties.type == JobType::RunProcess)
-	{
-#ifdef Q_OS_WIN
-		BOOL result = DebugActiveProcess((DWORD)m_process.processId());
-		if(result)
-			changeStateAndNotify(JobState::Paused);
-		else
-			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
-				.arg(GetLastError()), LOG_STYLE_ERROR);
-#else
-		int error = kill((pid_t)m_process.processId(), SIGSTOP);
-		if(!error)
-			changeStateAndNotify(JobState::Paused);
-		else
-			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
-				.arg(error), LOG_STYLE_ERROR);
-#endif
-	}
-}
-
-// END OF void vsedit::Job::pause()
-//==============================================================================
-
-void vsedit::Job::abort()
-{
-	changeStateAndNotify(JobState::Aborting);
-	if(m_properties.type == JobType::EncodeScriptCLI)
-	{
-		m_encodingState = EncodingState::Aborting;
-		cleanUpEncoding();
-		return;
-	}
-	else if(m_properties.type == JobType::RunProcess)
-	{
-		if(m_process.state() == QProcess::Running)
-		{
-			m_process.kill();
-			m_process.waitForFinished(-1);
-		}
-	}
-
-	changeStateAndNotify(JobState::Aborted);
-}
-
-// END OF void vsedit::Job::abort()
-//==============================================================================
-
 QUuid vsedit::Job::id() const
 {
 	return m_properties.id;
@@ -684,6 +580,110 @@ bool vsedit::Job::initialize()
 }
 
 // END OF bool vsedit::Job::initialize()
+//==============================================================================
+
+void vsedit::Job::start()
+{
+	if(m_properties.jobState == JobState::Waiting)
+	{
+		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
+		changeStateAndNotify(JobState::Running);
+		emit signalStartTimeChanged();
+		if(m_properties.type == JobType::EncodeScriptCLI)
+			startEncodeScriptCLI();
+		else if(m_properties.type == JobType::RunProcess)
+			startRunProcess();
+		else if(m_properties.type == JobType::RunShellCommand)
+			startRunShellCommand();
+	}
+	else if (m_properties.jobState == JobState::Paused)
+	{
+		changeStateAndNotify(JobState::Running);
+		if(m_properties.type == JobType::EncodeScriptCLI)
+			processFramesQueue();
+		else if(m_properties.type == JobType::RunProcess)
+		{
+#ifdef Q_OS_WIN
+			BOOL result = DebugActiveProcessStop((DWORD)m_process.processId());
+			if(result)
+				changeStateAndNotify(JobState::Running);
+			else
+				emit signalLogMessage(trUtf8("Failed to resume process. "
+					"Error %1.").arg(GetLastError()), LOG_STYLE_ERROR);
+#else
+			int error = kill((pid_t)m_process.processId(), SIGCONT);
+			if(!error)
+				changeStateAndNotify(JobState::Running);
+			else
+				emit signalLogMessage(trUtf8("Failed to resume process. "
+					"Error %1.").arg(error), LOG_STYLE_ERROR);
+#endif
+		}
+	}
+}
+
+// END OF void vsedit::Job::start()
+//==============================================================================
+
+void vsedit::Job::pause()
+{
+	if(!isActive())
+		return;
+
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		EncodingState invalidStates[] = {EncodingState::Idle,
+			EncodingState::EncoderCrashed, EncodingState::Finishing,
+			EncodingState::Aborting};
+		if(vsedit::contains(invalidStates, m_encodingState))
+			return;
+		changeStateAndNotify(JobState::Pausing);
+	}
+	else if(m_properties.type == JobType::RunProcess)
+	{
+#ifdef Q_OS_WIN
+		BOOL result = DebugActiveProcess((DWORD)m_process.processId());
+		if(result)
+			changeStateAndNotify(JobState::Paused);
+		else
+			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
+				.arg(GetLastError()), LOG_STYLE_ERROR);
+#else
+		int error = kill((pid_t)m_process.processId(), SIGSTOP);
+		if(!error)
+			changeStateAndNotify(JobState::Paused);
+		else
+			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
+				.arg(error), LOG_STYLE_ERROR);
+#endif
+	}
+}
+
+// END OF void vsedit::Job::pause()
+//==============================================================================
+
+void vsedit::Job::abort()
+{
+	changeStateAndNotify(JobState::Aborting);
+	if(m_properties.type == JobType::EncodeScriptCLI)
+	{
+		m_encodingState = EncodingState::Aborting;
+		cleanUpEncoding();
+		return;
+	}
+	else if(m_properties.type == JobType::RunProcess)
+	{
+		if(m_process.state() == QProcess::Running)
+		{
+			m_process.kill();
+			m_process.waitForFinished(-1);
+		}
+	}
+
+	changeStateAndNotify(JobState::Aborted);
+}
+
+// END OF void vsedit::Job::abort()
 //==============================================================================
 
 void vsedit::Job::slotProcessStarted()

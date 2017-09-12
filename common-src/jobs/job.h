@@ -50,10 +50,6 @@ public:
 
 	virtual bool isActive() const;
 
-	virtual void start();
-	virtual void pause();
-	virtual void abort();
-
 	virtual QUuid id() const;
 	virtual bool setId(const QUuid & a_id);
 
@@ -107,6 +103,12 @@ public:
 	virtual const VSVideoInfo * videoInfo() const;
 
 	virtual bool initialize();
+
+public slots:
+
+	virtual void start();
+	virtual void pause();
+	virtual void abort();
 
 signals:
 
