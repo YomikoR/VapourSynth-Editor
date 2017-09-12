@@ -483,7 +483,7 @@ bool vsedit::Job::initialize()
 	if(m_properties.type != JobType::EncodeScriptCLI)
 		return false;
 
-	if(isActive())
+	if(isActive() && (m_encodingState != EncodingState::Idle))
 	{
 		emit signalLogMessage(trUtf8("Can not initialize an active job"),
 			LOG_STYLE_ERROR);
@@ -585,19 +585,7 @@ bool vsedit::Job::initialize()
 
 void vsedit::Job::start()
 {
-	if(m_properties.jobState == JobState::Waiting)
-	{
-		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
-		changeStateAndNotify(JobState::Running);
-		emit signalStartTimeChanged();
-		if(m_properties.type == JobType::EncodeScriptCLI)
-			startEncodeScriptCLI();
-		else if(m_properties.type == JobType::RunProcess)
-			startRunProcess();
-		else if(m_properties.type == JobType::RunShellCommand)
-			startRunShellCommand();
-	}
-	else if (m_properties.jobState == JobState::Paused)
+	if(m_properties.jobState == JobState::Paused)
 	{
 		changeStateAndNotify(JobState::Running);
 		if(m_properties.type == JobType::EncodeScriptCLI)
@@ -620,6 +608,18 @@ void vsedit::Job::start()
 					"Error %1.").arg(error), LOG_STYLE_ERROR);
 #endif
 		}
+	}
+	else if(!vsedit::contains(ACTIVE_JOB_STATES, m_properties.jobState))
+	{
+		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
+		changeStateAndNotify(JobState::Running);
+		emit signalStartTimeChanged();
+		if(m_properties.type == JobType::EncodeScriptCLI)
+			startEncodeScriptCLI();
+		else if(m_properties.type == JobType::RunProcess)
+			startRunProcess();
+		else if(m_properties.type == JobType::RunShellCommand)
+			startRunShellCommand();
 	}
 }
 
@@ -1273,8 +1273,6 @@ void vsedit::Job::changeStateAndNotify(JobState a_state)
 
 void vsedit::Job::startEncodeScriptCLI()
 {
-	changeStateAndNotify(JobState::Running);
-
 	if(!initialize())
 		return;
 
