@@ -48,6 +48,8 @@ public:
 		Aborting,
 	};
 
+	virtual bool isActive() const;
+
 	virtual void start();
 	virtual void pause();
 	virtual void abort();
@@ -84,6 +86,12 @@ public:
 
 	virtual QString subject() const;
 
+	virtual int firstFrame() const;
+	virtual bool setFirstFrame(int a_frame);
+
+	virtual int lastFrame() const;
+	virtual bool setLastFrame(int a_frame);
+
 	virtual int framesProcessed() const;
 	virtual int framesTotal() const;
 	virtual double fps() const;
@@ -95,6 +103,10 @@ public:
 
 	virtual JobProperties properties() const;
 	virtual bool setProperties(const JobProperties & a_properties);
+
+	virtual const VSVideoInfo * videoInfo() const;
+
+	virtual bool initialize();
 
 signals:
 

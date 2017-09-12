@@ -15,6 +15,7 @@
 #include <vapoursynth/VSHelper.h>
 
 #ifdef Q_OS_WIN
+	#define NOMINMAX
 	#include <windows.h>
 #else
 	#include <signal.h>
@@ -76,6 +77,14 @@ vsedit::Job::~Job()
 // END OF vsedit::Job::~Job()
 //==============================================================================
 
+bool vsedit::Job::isActive() const
+{
+	return vsedit::contains(ACTIVE_JOB_STATES, m_properties.jobState);
+}
+
+// END OF bool vsedit::Job::isActive() const
+//==============================================================================
+
 void vsedit::Job::start()
 {
 	if(m_properties.jobState == JobState::Waiting)
@@ -121,7 +130,7 @@ void vsedit::Job::start()
 
 void vsedit::Job::pause()
 {
-	if(!vsedit::contains(ACTIVE_JOB_STATES, m_properties.jobState))
+	if(!isActive())
 		return;
 
 	if(m_properties.type == JobType::EncodeScriptCLI)
@@ -190,6 +199,8 @@ QUuid vsedit::Job::id() const
 
 bool vsedit::Job::setId(const QUuid & a_id)
 {
+	if(isActive())
+		return false;
 	m_properties.id = a_id;
 	return true;
 }
@@ -207,6 +218,8 @@ JobType vsedit::Job::type() const
 
 bool vsedit::Job::setType(JobType a_type)
 {
+	if(isActive())
+		return false;
 	m_properties.type = a_type;
 	return true;
 }
@@ -224,6 +237,8 @@ QString vsedit::Job::scriptName() const
 
 bool vsedit::Job::setScriptName(const QString & a_scriptName)
 {
+	if(isActive())
+		return false;
 	m_properties.scriptName = a_scriptName;
 	return true;
 }
@@ -241,6 +256,8 @@ QString vsedit::Job::scriptText() const
 
 bool vsedit::Job::setScriptText(const QString & a_scriptText)
 {
+	if(isActive())
+		return false;
 	m_properties.scriptText = a_scriptText;
 	return true;
 }
@@ -293,6 +310,8 @@ QString vsedit::Job::arguments() const
 
 bool vsedit::Job::setArguments(const QString & a_arguments)
 {
+	if(isActive())
+		return false;
 	m_properties.arguments = a_arguments;
 	return true;
 }
@@ -310,6 +329,8 @@ QString vsedit::Job::shellCommand() const
 
 bool vsedit::Job::setShellCommand(const QString & a_command)
 {
+	if(isActive())
+		return false;
 	m_properties.shellCommand = a_command;
 	return true;
 }
@@ -327,6 +348,8 @@ JobState vsedit::Job::state() const
 
 bool vsedit::Job::setState(JobState a_state)
 {
+	if(isActive())
+		return false;
 	changeStateAndNotify(a_state);
 	return true;
 }
@@ -344,6 +367,8 @@ std::vector<QUuid> vsedit::Job::dependsOnJobIds() const
 
 bool vsedit::Job::setDependsOnJobIds(const std::vector<QUuid> & a_ids)
 {
+	if(isActive())
+		return false;
 	m_properties.dependsOnJobIds = a_ids;
 	return true;
 }
@@ -380,6 +405,88 @@ QString vsedit::Job::subject() const
 }
 
 // END OF QString vsedit::Job::subject() const
+//==============================================================================
+
+int vsedit::Job::firstFrame() const
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return -1;
+
+	if(m_properties.firstFrameReal >= 0)
+		return m_properties.firstFrameReal;
+
+	return m_properties.firstFrame;
+}
+
+// END OF int vsedit::Job::firstFrame() const
+//==============================================================================
+
+bool vsedit::Job::setFirstFrame(int a_frame)
+{
+	if(isActive())
+		return false;
+
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return false;
+
+	if(a_frame < 0)
+		return false;
+
+	m_properties.firstFrame = a_frame;
+	if(m_pVapourSynthScriptProcessor->isInitialized())
+	{
+		assert(m_cpVideoInfo);
+		m_properties.firstFrameReal = std::min(m_properties.firstFrame,
+			m_cpVideoInfo->numFrames - 1);
+	}
+	else
+		m_properties.firstFrameReal = -1;
+
+	return true;
+}
+
+// END OF bool vsedit::Job::setFirstFrame(int a_frame)
+//==============================================================================
+
+int vsedit::Job::lastFrame() const
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return -1;
+
+	if(m_properties.lastFrameReal >= 0)
+		return m_properties.lastFrameReal;
+
+	return m_properties.lastFrame;
+}
+
+// END OF int vsedit::Job::lastFrame() const
+//==============================================================================
+
+bool vsedit::Job::setLastFrame(int a_frame)
+{
+	if(isActive())
+		return false;
+
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return false;
+
+	if(a_frame < 0)
+		return false;
+
+	m_properties.lastFrame = a_frame;
+	if(m_pVapourSynthScriptProcessor->isInitialized())
+	{
+		assert(m_cpVideoInfo);
+		m_properties.lastFrameReal = std::min(m_properties.lastFrame,
+			m_cpVideoInfo->numFrames - 1);
+	}
+	else
+		m_properties.lastFrameReal = -1;
+
+	return true;
+}
+
+// END OF bool vsedit::Job::setFirstFrame(int a_frame)
 //==============================================================================
 
 int vsedit::Job::framesProcessed() const
@@ -454,12 +561,129 @@ JobProperties vsedit::Job::properties() const
 
 bool vsedit::Job::setProperties(const JobProperties & a_properties)
 {
-	// TODO: sanity checks
+	if(isActive())
+		return false;
 	m_properties = a_properties;
 	return true;
 }
 
 // END OF bool vsedit::Job::setProperties(const JobProperties & a_properties)
+//==============================================================================
+
+const VSVideoInfo * vsedit::Job::videoInfo() const
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return nullptr;
+	if(!m_pVapourSynthScriptProcessor)
+		return nullptr;
+	return m_pVapourSynthScriptProcessor->videoInfo();
+}
+
+// END OF const VSVideoInfo * vsedit::Job::videoInfo() const
+//==============================================================================
+
+bool vsedit::Job::initialize()
+{
+	if(m_properties.type != JobType::EncodeScriptCLI)
+		return false;
+
+	if(isActive())
+	{
+		emit signalLogMessage(trUtf8("Can not initialize an active job"),
+			LOG_STYLE_ERROR);
+		return false;
+	}
+
+	if(m_properties.scriptText.isEmpty())
+	{
+		QString absoluteScriptPath =
+			resolvePathFromApplication(m_properties.scriptName);
+		QFile scriptFile(absoluteScriptPath);
+		bool opened = scriptFile.open(QIODevice::ReadOnly);
+		if(!opened)
+		{
+			emit signalLogMessage(trUtf8("Could not open script file \"%1\".")
+				.arg(m_properties.scriptName), LOG_STYLE_ERROR);
+			changeStateAndNotify(JobState::Failed);
+			return false;
+		}
+
+		m_properties.scriptText = QString::fromUtf8(scriptFile.readAll());
+		scriptFile.close();
+	}
+
+	if((!m_pVSScriptLibrary) || (!m_pSettingsManager))
+	{
+		emit signalLogMessage(trUtf8("Job is not created properly."),
+			LOG_STYLE_ERROR);
+		changeStateAndNotify(JobState::Failed);
+		return false;
+	}
+
+	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
+	assert(m_cpVSAPI);
+
+	if(!m_pVapourSynthScriptProcessor)
+	{
+		m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
+			m_pSettingsManager, m_pVSScriptLibrary, this);
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalWriteLogMessage(int, const QString &)),
+			this, SLOT(slotWriteLogMessage(int, const QString &)));
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
+			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+		connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
+			this, SLOT(slotScriptProcessorFinalized()));
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
+				const VSFrameRef *)),
+			this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *,
+				const VSFrameRef *)));
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
+			this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
+		connect(m_pVapourSynthScriptProcessor,
+			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
+			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+	}
+	else if((!m_pVapourSynthScriptProcessor->isInitialized()) ||
+		(m_pVapourSynthScriptProcessor->scriptName() !=
+		m_properties.scriptName) || (m_pVapourSynthScriptProcessor->script() !=
+		m_properties.scriptText))
+	{
+		bool scriptProcessorInitialized =
+			m_pVapourSynthScriptProcessor->initialize(
+			m_properties.scriptText, m_properties.scriptName);
+		if(!scriptProcessorInitialized)
+		{
+			emit signalLogMessage(trUtf8("Failed to initialize script.\n%1")
+				.arg(m_pVapourSynthScriptProcessor->error()), LOG_STYLE_ERROR);
+			changeStateAndNotify(JobState::Failed);
+			return false;
+		}
+	}
+
+	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
+	assert(m_cpVideoInfo);
+
+	m_properties.framesProcessed = 0;
+	m_properties.firstFrameReal = m_properties.firstFrame;
+	vsedit::clamp(m_properties.firstFrameReal, 0, m_cpVideoInfo->numFrames - 1);
+	m_properties.lastFrameReal = m_properties.lastFrame;
+	if((m_properties.lastFrameReal < m_properties.firstFrameReal) ||
+		(m_properties.lastFrameReal >= m_cpVideoInfo->numFrames))
+		m_properties.lastFrameReal = m_cpVideoInfo->numFrames - 1;
+	m_lastFrameRequested = m_properties.firstFrameReal - 1;
+	m_lastFrameProcessed = m_lastFrameRequested;
+	m_encodingState = EncodingState::Idle;
+	m_bytesToWrite = 0u;
+	m_bytesWritten = 0u;
+
+	return true;
+}
+
+// END OF bool vsedit::Job::initialize()
 //==============================================================================
 
 void vsedit::Job::slotProcessStarted()
@@ -872,7 +1096,7 @@ void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
 	(void)a_reason;
 
 	EncodingState validStates[] = {EncodingState::WaitingForFrames,
-		 EncodingState::WritingHeader, EncodingState::WritingFrame};
+		EncodingState::WritingHeader, EncodingState::WritingFrame};
 	if(!vsedit::contains(validStates, m_encodingState))
 		return;
 
@@ -1050,85 +1274,8 @@ void vsedit::Job::startEncodeScriptCLI()
 {
 	changeStateAndNotify(JobState::Running);
 
-	if(m_properties.scriptText.isEmpty())
-	{
-		QString absoluteScriptPath =
-			resolvePathFromApplication(m_properties.scriptName);
-		QFile scriptFile(absoluteScriptPath);
-		bool opened = scriptFile.open(QIODevice::ReadOnly);
-		if(!opened)
-		{
-			emit signalLogMessage(trUtf8("Could not open script file \"%1\".")
-				.arg(m_properties.scriptName), LOG_STYLE_ERROR);
-			changeStateAndNotify(JobState::Failed);
-			return;
-		}
-
-		m_properties.scriptText = QString::fromUtf8(scriptFile.readAll());
-		scriptFile.close();
-	}
-
-	if((!m_pVSScriptLibrary) || (!m_pSettingsManager))
-	{
-		emit signalLogMessage(trUtf8("Job is not porerly initialized."),
-			LOG_STYLE_ERROR);
-		changeStateAndNotify(JobState::Failed);
+	if(!initialize())
 		return;
-	}
-
-	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
-	assert(m_cpVSAPI);
-
-	if(!m_pVapourSynthScriptProcessor)
-	{
-		m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
-			m_pSettingsManager, m_pVSScriptLibrary, this);
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalWriteLogMessage(int, const QString &)),
-			this, SLOT(slotWriteLogMessage(int, const QString &)));
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
-		connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
-			this, SLOT(slotScriptProcessorFinalized()));
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
-				const VSFrameRef *)),
-			this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *,
-				const VSFrameRef *)));
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
-			this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
-		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
-	}
-
-	bool scriptProcessorInitialized = m_pVapourSynthScriptProcessor->initialize(
-		m_properties.scriptText, m_properties.scriptName);
-	if(!scriptProcessorInitialized)
-	{
-		emit signalLogMessage(trUtf8("Failed to initialize script.\n%1")
-			.arg(m_pVapourSynthScriptProcessor->error()), LOG_STYLE_ERROR);
-		changeStateAndNotify(JobState::Failed);
-		return;
-	}
-
-	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
-	assert(m_cpVideoInfo);
-
-	m_properties.framesProcessed = 0;
-	m_properties.firstFrameReal = m_properties.firstFrame;
-	vsedit::clamp(m_properties.firstFrameReal, 0, m_cpVideoInfo->numFrames - 1);
-	m_properties.lastFrameReal = m_properties.lastFrame;
-	if((m_properties.lastFrameReal < m_properties.firstFrameReal) ||
-		(m_properties.lastFrameReal >= m_cpVideoInfo->numFrames))
-		m_properties.lastFrameReal = m_cpVideoInfo->numFrames - 1;
-	m_lastFrameRequested = m_properties.firstFrameReal - 1;
-	m_lastFrameProcessed = m_lastFrameRequested;
-	m_encodingState = EncodingState::Idle;
-	m_bytesToWrite = 0u;
-	m_bytesWritten = 0u;
 
 	emit signalPropertiesChanged();
 
