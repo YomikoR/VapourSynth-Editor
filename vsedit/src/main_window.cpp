@@ -442,17 +442,10 @@ void MainWindow::slotBenchmark()
 
 void MainWindow::slotEncode()
 {
-	if(m_pEncodeDialog->busy())
-	{
-		QString message = trUtf8("Encode dialog appears busy processing "
-			"frames. Please stop any active actions in the dialog and wait "
-			"for script processor to finish processing.");
-		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
-		return;
-	}
-
-	m_pEncodeDialog->initialize(m_ui.scriptEdit->text(), m_scriptFilePath);
-	m_pEncodeDialog->call();
+	bool initialized = m_pEncodeDialog->initialize(
+		m_ui.scriptEdit->text(), m_scriptFilePath);
+	if(initialized)
+		m_pEncodeDialog->show();
 }
 
 // END OF void MainWindow::slotEncode()
