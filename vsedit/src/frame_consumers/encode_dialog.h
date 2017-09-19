@@ -29,6 +29,7 @@ public:
 protected:
 
 	virtual void showEvent(QShowEvent * a_pEvent) override;
+	virtual void closeEvent(QCloseEvent * a_pEvent) override;
 
 private slots:
 

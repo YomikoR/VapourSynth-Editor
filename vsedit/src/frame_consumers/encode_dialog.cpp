@@ -148,6 +148,20 @@ void EncodeDialog::showEvent(QShowEvent * a_pEvent)
 // END OF void EncodeDialog::showEvent(QShowEvent * a_pEvent)
 //==============================================================================
 
+void EncodeDialog::closeEvent(QCloseEvent * a_pEvent)
+{
+	if(m_pJob->isActive())
+	{
+		a_pEvent->ignore();
+		return;
+	}
+
+	QDialog::closeEvent(a_pEvent);
+}
+
+// END OF void EncodeDialog::closeEvent(QCloseEvent * a_pEvent)
+//==============================================================================
+
 void EncodeDialog::slotWholeVideoButtonPressed()
 {
 	const VSVideoInfo * cpVideoInfo = m_pJob->videoInfo();
