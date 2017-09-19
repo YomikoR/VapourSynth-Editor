@@ -609,7 +609,7 @@ void vsedit::Job::start()
 #endif
 		}
 	}
-	else if(!vsedit::contains(ACTIVE_JOB_STATES, m_properties.jobState))
+	else if(!isActive())
 	{
 		m_properties.timeStarted = QDateTime::currentDateTimeUtc();
 		changeStateAndNotify(JobState::Running);
@@ -628,16 +628,17 @@ void vsedit::Job::start()
 
 void vsedit::Job::pause()
 {
-	if(!isActive())
+	if(m_properties.jobState != JobState::Running)
 		return;
 
 	if(m_properties.type == JobType::EncodeScriptCLI)
 	{
-		EncodingState invalidStates[] = {EncodingState::Idle,
+		EncodingState invalidEncodingStates[] = {EncodingState::Idle,
 			EncodingState::EncoderCrashed, EncodingState::Finishing,
 			EncodingState::Aborting};
-		if(vsedit::contains(invalidStates, m_encodingState))
+		if(vsedit::contains(invalidEncodingStates, m_encodingState))
 			return;
+
 		changeStateAndNotify(JobState::Pausing);
 	}
 	else if(m_properties.type == JobType::RunProcess)
@@ -665,6 +666,9 @@ void vsedit::Job::pause()
 
 void vsedit::Job::abort()
 {
+	if(!isActive())
+		return;
+
 	changeStateAndNotify(JobState::Aborting);
 	if(m_properties.type == JobType::EncodeScriptCLI)
 	{
