@@ -537,7 +537,7 @@ void JobsManager::connectJob(vsedit::Job * a_pJob)
 
 void JobsManager::startFirstReadyJob(int a_fromIndex)
 {
-		if((a_fromIndex < 0) || (a_fromIndex >= (int)m_tickets.size()))
+	if((a_fromIndex < 0) || (a_fromIndex >= (int)m_tickets.size()))
 		return;
 
 	JobState validStates[] = {JobState::Waiting, JobState::Paused};
@@ -546,6 +546,8 @@ void JobsManager::startFirstReadyJob(int a_fromIndex)
 	{
 		int nextIndex = i % m_tickets.size();
 		vsedit::Job * pNextJob = m_tickets[nextIndex].pJob;
+		if(pNextJob->isActive())
+			return;
 		if(!vsedit::contains(validStates, pNextJob->state()))
 			continue;
 		DependenciesState jobDependenciesState = dependenciesState(i);
