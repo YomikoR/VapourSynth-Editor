@@ -26,6 +26,10 @@ public:
 
 	bool initialize(const QString & a_script, const QString & a_scriptName);
 
+protected:
+
+	virtual void showEvent(QShowEvent * a_pEvent) override;
+
 private slots:
 
 	void slotWholeVideoButtonPressed();

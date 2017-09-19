@@ -65,7 +65,7 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotArgumentsHelpButtonPressed()));
 
 	connect(m_pJob, &vsedit::Job::signalStateChanged,
-		this, &EncodeDialog::slotJobProgressChanged);
+		this, &EncodeDialog::slotJobStateChanged);
 	connect(m_pJob, &vsedit::Job::signalProgressChanged,
 		this, &EncodeDialog::slotJobProgressChanged);
 	connect(m_pJob, &vsedit::Job::signalPropertiesChanged,
@@ -120,14 +120,8 @@ bool EncodeDialog::initialize(const QString & a_script,
 	setUiEnabled();
 
 #ifdef Q_OS_WIN
-	if(!m_pWinTaskbarButton)
-	{
-		m_pWinTaskbarButton = new QWinTaskbarButton(this);
-		m_pWinTaskbarButton->setWindow(windowHandle());
-		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
-	}
-
-	m_pWinTaskbarProgress->hide();
+	if(m_pWinTaskbarProgress)
+		m_pWinTaskbarProgress->hide();
 #endif
 
 	return true;
@@ -135,6 +129,23 @@ bool EncodeDialog::initialize(const QString & a_script,
 
 // END OF bool EncodeDialog::initialize(const QString & a_script,
 //		const QString & a_scriptName)
+//==============================================================================
+
+void EncodeDialog::showEvent(QShowEvent * a_pEvent)
+{
+	QDialog::showEvent(a_pEvent);
+
+#ifdef Q_OS_WIN
+	if(!m_pWinTaskbarButton)
+	{
+		m_pWinTaskbarButton = new QWinTaskbarButton(this);
+		m_pWinTaskbarButton->setWindow(windowHandle());
+		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
+	}
+#endif
+}
+
+// END OF void EncodeDialog::showEvent(QShowEvent * a_pEvent)
 //==============================================================================
 
 void EncodeDialog::slotWholeVideoButtonPressed()
