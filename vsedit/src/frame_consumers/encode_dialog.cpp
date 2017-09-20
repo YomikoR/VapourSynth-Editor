@@ -131,6 +131,26 @@ bool EncodeDialog::initialize(const QString & a_script,
 //		const QString & a_scriptName)
 //==============================================================================
 
+bool EncodeDialog::busy() const
+{
+	return m_pJob->isActive();
+}
+
+// END OF bool EncodeDialog::busy() const
+//==============================================================================
+
+void EncodeDialog::showActive()
+{
+	if(isMinimized())
+		showNormal();
+	else
+		show();
+	QApplication::setActiveWindow(this);
+}
+
+// END OF void EncodeDialog::showActive()
+//==============================================================================
+
 void EncodeDialog::showEvent(QShowEvent * a_pEvent)
 {
 	QDialog::showEvent(a_pEvent);

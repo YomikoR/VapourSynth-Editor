@@ -442,10 +442,16 @@ void MainWindow::slotBenchmark()
 
 void MainWindow::slotEncode()
 {
+	if(m_pEncodeDialog->busy())
+	{
+		m_pEncodeDialog->showActive();
+		return;
+	}
+
 	bool initialized = m_pEncodeDialog->initialize(
 		m_ui.scriptEdit->text(), m_scriptFilePath);
 	if(initialized)
-		m_pEncodeDialog->show();
+		m_pEncodeDialog->showActive();
 }
 
 // END OF void MainWindow::slotEncode()

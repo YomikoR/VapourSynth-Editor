@@ -26,6 +26,12 @@ public:
 
 	bool initialize(const QString & a_script, const QString & a_scriptName);
 
+	bool busy() const;
+
+public slots:
+
+	void showActive();
+
 protected:
 
 	virtual void showEvent(QShowEvent * a_pEvent) override;
