@@ -1,6 +1,7 @@
 CONFIG += qt
 
 QT += widgets
+QT += network
 
 QT_VERSION_WARNING = "WARNING: Linking against Qt version lower than 5.6.1 is likely to cause CLI tools video encoding to crash due to I/O but in Qt."
 

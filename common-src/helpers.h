@@ -33,6 +33,8 @@ double qtimeToSeconds(const QTime & a_qtime);
 
 QTime secondsToQTime(double a_seconds);
 
+void wait(int a_msec);
+
 QString subsamplingString(int a_subsamplingW, int a_subsamplingH);
 
 QString subsamplingString(const VSFormat * a_cpFormat);

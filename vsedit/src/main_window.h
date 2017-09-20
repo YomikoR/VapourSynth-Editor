@@ -13,6 +13,7 @@ class SettingsDialog;
 class ScriptBenchmarkDialog;
 class EncodeDialog;
 class TemplatesDialog;
+class QLocalSocket;
 
 class MainWindow : public QMainWindow
 {
@@ -90,6 +91,10 @@ private:
 
 	void destroyOrphanQObjects();
 
+	bool connectToJobServerWatcher();
+
+	bool sendMessageToJobServerWatcher(const QByteArray & a_data);
+
 	Ui::MainWindow m_ui;
 
 	SettingsManager * m_pSettingsManager;
@@ -124,6 +129,8 @@ private:
 	QString m_lastSavedText;
 
 	std::vector<QObject **> m_orphanQObjects;
+
+	QLocalSocket * m_pJobServerWatcherSocket;
 };
 
 #endif // MAINWINDOW_H

@@ -3,13 +3,15 @@
 #include "../../common-src/settings/settings_manager.h"
 #include "../../common-src/vapoursynth/vs_script_library.h"
 #include "../../common-src/vapoursynth/vapoursynth_script_processor.h"
+#include "../../common-src/helpers.h"
+#include "../../common-src/ipc_defines.h"
+
 #include "vapoursynth/vapoursynth_plugins_manager.h"
 #include "preview/preview_dialog.h"
 #include "settings/settings_dialog.h"
 #include "frame_consumers/benchmark_dialog.h"
 #include "frame_consumers/encode_dialog.h"
 #include "script_templates/templates_dialog.h"
-#include "../../common-src/helpers.h"
 
 #include <QCoreApplication>
 #include <QSettings>
@@ -33,6 +35,8 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QDateTime>
+#include <QLocalSocket>
+#include <QProcess>
 
 //==============================================================================
 
@@ -62,6 +66,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pTemplatesDialog(nullptr)
 	, m_scriptFilePath()
 	, m_lastSavedText()
+	, m_pJobServerWatcherSocket(nullptr)
 {
 	loadFonts();
 
@@ -100,8 +105,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.logView->setSettingsManager(m_pSettingsManager);
 	m_ui.logView->loadSettings();
 
-	createActionsAndMenus();
-
 	m_pPreviewDialog =
 		new PreviewDialog(m_pSettingsManager, m_pVSScriptLibrary);
 
@@ -134,8 +137,6 @@ MainWindow::MainWindow() : QMainWindow()
 	connect(m_pTemplatesDialog, SIGNAL(signalPasteCodeSnippet(const QString &)),
 		this, SLOT(slotInsertTextIntoScriptAtNewLine(const QString &)));
 
-	slotChangeWindowTitle();
-
 	m_orphanQObjects =
 	{
 		(QObject **)&m_pPreviewDialog,
@@ -144,6 +145,15 @@ MainWindow::MainWindow() : QMainWindow()
 		(QObject **)&m_pEncodeDialog,
 		(QObject **)&m_pTemplatesDialog
 	};
+
+	m_pJobServerWatcherSocket = new QLocalSocket(this);
+	m_pJobServerWatcherSocket->setServerName(
+		JOB_SERVER_WATCHER_LOCAL_SERVER_NAME);
+
+
+	createActionsAndMenus();
+
+	slotChangeWindowTitle();
 
 	QByteArray newGeometry = m_pSettingsManager->getMainWindowGeometry();
 	if(!newGeometry.isEmpty())
@@ -459,7 +469,7 @@ void MainWindow::slotEncode()
 
 void MainWindow::slotJobs()
 {
-
+	sendMessageToJobServerWatcher(WMSG_SHOW_WINDOW);
 }
 
 // END OF void MainWindow::slotJobs()
@@ -835,4 +845,63 @@ void MainWindow::destroyOrphanQObjects()
 }
 
 // END OF void MainWindow::destroyOrphanQObjects()
+//==============================================================================
+
+bool MainWindow::connectToJobServerWatcher()
+{
+	if(m_pJobServerWatcherSocket->state() == QLocalSocket::ConnectedState)
+		return true;
+
+	// Must connect in Read/Write mode, or named pipe won't disconnect.
+	const QIODevice::OpenMode openMode = QIODevice::ReadWrite;
+
+	m_pJobServerWatcherSocket->connectToServer(openMode);
+	bool connected = m_pJobServerWatcherSocket->waitForConnected(1000);
+	if(connected)
+		return true;
+
+	QString watcherPath = vsedit::resolvePathFromApplication(
+		"./vsedit-job-server-watcher");
+	bool started = QProcess::startDetached(watcherPath);
+	if(!started)
+	{
+		m_ui.logView->addEntry(trUtf8("Could not start job server watcher."),
+			LOG_STYLE_ERROR);
+		return false;
+	}
+
+	for(int i = 0; i < 10; ++i)
+	{
+		m_pJobServerWatcherSocket->connectToServer(openMode);
+		connected = m_pJobServerWatcherSocket->waitForConnected(1000);
+		if(connected)
+			break;
+		vsedit::wait(1000);
+	}
+
+	if(!connected)
+	{
+		m_ui.logView->addEntry(trUtf8("Started job server watcher, "
+			"but could not connect."), LOG_STYLE_ERROR);
+		return false;
+	}
+
+	return true;
+}
+
+// END OF bool MainWindow::connectToJobServerWatcher()
+//==============================================================================
+
+bool MainWindow::sendMessageToJobServerWatcher(const QByteArray & a_data)
+{
+	bool connected = connectToJobServerWatcher();
+	if(!connected)
+		return false;
+
+	m_pJobServerWatcherSocket->write(a_data);
+	return true;
+}
+
+// END OF bool MainWindow::sendMessageToJobServerWatcher(
+//		const QByteArray & a_data)
 //==============================================================================

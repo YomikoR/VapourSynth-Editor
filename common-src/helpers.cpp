@@ -125,6 +125,19 @@ QTime vsedit::secondsToQTime(double a_seconds)
 // END OF QTime vsedit::secondsToQTime(double a_seconds)
 //==============================================================================
 
+void vsedit::wait(int a_msec)
+{
+	if(a_msec <= 0)
+		return;
+
+	QTime mark = QTime::currentTime().addMSecs(a_msec);
+    while(QTime::currentTime() < mark)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+
+// END OF void vsedit::wait(int a_msec)
+//==============================================================================
+
 QString vsedit::subsamplingString(int a_subsamplingW, int a_subsamplingH)
 {
 	if((a_subsamplingW == 0) && (a_subsamplingH == 0))
