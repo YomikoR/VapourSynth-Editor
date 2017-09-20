@@ -176,6 +176,8 @@ void EncodeDialog::closeEvent(QCloseEvent * a_pEvent)
 		return;
 	}
 
+	m_pJob->cleanUpEncoding();
+
 	QDialog::closeEvent(a_pEvent);
 }
 
@@ -212,7 +214,7 @@ void EncodeDialog::slotStartEncodeButtonPressed()
 	{
 		m_ui.feedbackTextEdit->addEntry(trUtf8("First frame number is "
 			"larger than the last frame number."), LOG_STYLE_WARNING);
-			return;
+		return;
 	}
 
 	m_pJob->setFirstFrame(firstFrame);
