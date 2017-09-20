@@ -104,6 +104,8 @@ public:
 
 	virtual bool initialize();
 
+	virtual void cleanUpEncoding();
+
 public slots:
 
 	virtual void start();
@@ -153,8 +155,6 @@ protected:
 	virtual void startRunShellCommand();
 
 	virtual QString decodeArguments(const QString & a_arguments) const;
-
-	virtual void cleanUpEncoding();
 
 	virtual void clearFramesCache();
 

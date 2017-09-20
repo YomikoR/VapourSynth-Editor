@@ -583,6 +583,26 @@ bool vsedit::Job::initialize()
 // END OF bool vsedit::Job::initialize()
 //==============================================================================
 
+void vsedit::Job::cleanUpEncoding()
+{
+	if(m_process.state() == QProcess::Running)
+	{
+		if(m_encodingState != EncodingState::Aborting)
+			m_encodingState = EncodingState::Finishing;
+		m_process.closeWriteChannel();
+	}
+
+	if(m_pVapourSynthScriptProcessor)
+		m_pVapourSynthScriptProcessor->finalize();
+
+	clearFramesCache();
+	m_framebuffer.clear();
+	m_cpVideoInfo = nullptr;
+}
+
+// END OF void vsedit::Job::cleanUpEncoding()
+//==============================================================================
+
 void vsedit::Job::start()
 {
 	if(m_properties.jobState == JobState::Paused)
@@ -1396,26 +1416,6 @@ QString vsedit::Job::decodeArguments(const QString & a_arguments) const
 
 // END OF QString vsedit::Job::decodeArguments(
 //		const QString & a_arguments) const
-//==============================================================================
-
-void vsedit::Job::cleanUpEncoding()
-{
-	if(m_process.state() == QProcess::Running)
-	{
-		if(m_encodingState != EncodingState::Aborting)
-			m_encodingState = EncodingState::Finishing;
-		m_process.closeWriteChannel();
-	}
-
-	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
-	clearFramesCache();
-	m_framebuffer.clear();
-
-	m_cpVideoInfo = nullptr;
-	m_pVapourSynthScriptProcessor->finalize();
-}
-
-// END OF void vsedit::Job::cleanUpEncoding()
 //==============================================================================
 
 void vsedit::Job::clearFramesCache()
