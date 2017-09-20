@@ -394,7 +394,10 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 		hide();
 	}
 	else
+	{
 		QMainWindow::closeEvent(a_pEvent);
+		QCoreApplication::quit();
+	}
 }
 
 // END OF void MainWindow::closeEvent(QCloseEvent * a_pEvent)
@@ -414,11 +417,13 @@ void MainWindow::slotTrayIconActivated(
 void MainWindow::slotJobNewButtonClicked()
 {
 	int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
-	if(result == QDialog::Rejected)
-		return;
-	JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
-	m_pServerSocket->sendBinaryMessage(
-		vsedit::jsonMessage(MSG_CREATE_JOB, newJobProperties.toJson()));
+	if(result == QDialog::Accepted)
+	{
+		JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
+		m_pServerSocket->sendBinaryMessage(
+			vsedit::jsonMessage(MSG_CREATE_JOB, newJobProperties.toJson()));
+	}
+	processTaskList();
 }
 
 // END OF void MainWindow::slotJobNewButtonClicked()
@@ -1096,6 +1101,8 @@ void MainWindow::slotTaskClientReadyRead()
 	}
 	else if(command == QString(WMSG_CLI_ENCODE_JOB))
 	{
+		show();
+
 		QJsonDocument jsArguments = QJsonDocument::fromJson(arguments);
 		JobProperties properties =
 			JobProperties::fromJson(jsArguments.object());
@@ -1189,21 +1196,26 @@ void MainWindow::saveGeometrySettings()
 void MainWindow::editJob(const QModelIndex & a_index)
 {
 	JobProperties properties = m_pJobsModel->jobProperties(a_index.row());
+
 	if(vsedit::contains(ACTIVE_JOB_STATES, properties.jobState))
 	{
 		m_ui.logView->addEntry(trUtf8("Can not edit active job."),
 			LOG_STYLE_WARNING);
 		return;
 	}
+
 	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
 		.arg(a_index.row() + 1), properties);
-	if(result == QDialog::Rejected)
-		return;
-	QUuid id = properties.id;
-	properties = m_pJobEditDialog->jobProperties();
-	properties.id = id;
-    m_pServerSocket->sendBinaryMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
-		properties.toJson()));
+	if(result == QDialog::Accepted)
+	{
+		QUuid id = properties.id;
+		properties = m_pJobEditDialog->jobProperties();
+		properties.id = id;
+		m_pServerSocket->sendBinaryMessage(vsedit::jsonMessage(MSG_CHANGE_JOB,
+			properties.toJson()));
+	}
+
+	processTaskList();
 }
 
 // END OF void MainWindow::editJob(const QModelIndex & a_index)
@@ -1371,7 +1383,8 @@ void MainWindow::processTaskList()
 {
 	while(!m_taskList.empty())
 	{
-		int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
+		int result = m_pJobEditDialog->call(trUtf8("New job"),
+			m_taskList.front());
 		if(result == QDialog::Accepted)
 		{
 			JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
