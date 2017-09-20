@@ -2,8 +2,10 @@
 
 #include "../../common-src/log/vs_editor_log.h"
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
+#include "../../common-src/ipc_defines.h"
 
 #include <QApplication>
+#include <QLocalSocket>
 #include <cassert>
 
 MainWindow * pMainWindow = nullptr;
@@ -68,8 +70,17 @@ int main(int argc, char *argv[])
 	ApplicationInstanceFileGuard guard("vsedit_job_server_watcher_running");
 	if(!guard.isLocked())
 	{
-		qCritical("Couldn't start the server watcher. "
-			"Another instance is probably already running.");
+		QLocalSocket socket;
+		socket.connectToServer(JOB_SERVER_WATCHER_LOCAL_SERVER_NAME,
+			QIODevice::WriteOnly);
+		bool connected = socket.waitForConnected(5000);
+		if(connected)
+		{
+			socket.write(WMSG_SHOW_WINDOW);
+			socket.waitForBytesWritten(5000);
+		}
+		else
+			qCritical("Couldn't start the server watcher.");
 		return 1;
 	}
 

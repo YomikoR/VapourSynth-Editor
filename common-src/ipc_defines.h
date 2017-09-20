@@ -46,6 +46,7 @@ static const char SMSG_CLOSING_SERVER[] = "SCS";
 static const char JOB_SERVER_WATCHER_LOCAL_SERVER_NAME[] =
 	"vsedit_job_server_watcher";
 
-static const char VSEMSG_CLI_ENCODE_JOB[] = "CEJ";
+static const char WMSG_SHOW_WINDOW[] = "S";
+static const char WMSG_CLI_ENCODE_JOB[] = "CEJ";
 
 #endif // IPC_DEFINES_H_INCLUDED

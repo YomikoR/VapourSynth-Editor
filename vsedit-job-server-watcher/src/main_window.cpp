@@ -261,6 +261,7 @@ void MainWindow::show()
 		showMaximized();
 	else
 		showNormal();
+	QApplication::setActiveWindow(this);
 }
 
 // END OF MainWindow::show()
@@ -1074,7 +1075,7 @@ void MainWindow::slotTaskServerNewConnection()
 
 void MainWindow::slotTaskClientReadyRead()
 {
-	QLocalSocket * pSocket = m_pTaskServer->nextPendingConnection();
+	QLocalSocket * pSocket = qobject_cast<QLocalSocket *>(sender());
 	if(!pSocket)
 		return;
 
@@ -1089,7 +1090,11 @@ void MainWindow::slotTaskClientReadyRead()
 		arguments = message.mid(spaceIndex + 1);
 	}
 
-	if(command == QString(VSEMSG_CLI_ENCODE_JOB))
+	if(command == QString(WMSG_SHOW_WINDOW))
+	{
+		show();
+	}
+	else if(command == QString(WMSG_CLI_ENCODE_JOB))
 	{
 		QJsonDocument jsArguments = QJsonDocument::fromJson(arguments);
 		JobProperties properties =
