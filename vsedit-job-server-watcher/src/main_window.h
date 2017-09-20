@@ -6,6 +6,7 @@
 #include "../../common-src/settings/settings_definitions_core.h"
 #include "../../common-src/settings/settings_definitions.h"
 
+#include <QSystemTrayIcon>
 #include <QWebSocket>
 #include <QJsonObject>
 #include <QHostAddress>
@@ -18,7 +19,6 @@ class JobStateDelegate;
 class JobDependenciesDelegate;
 class VSScriptLibrary;
 class QMenu;
-class QSystemTrayIcon;
 class ConnectToServerDialog;
 class QLocalServer;
 class QLocalSocket;
@@ -43,6 +43,7 @@ public:
 public slots:
 
 	void show();
+	void close();
 	void slotWriteLogMessage(int a_messageType, const QString & a_message);
 	void slotWriteLogMessage(const QString & a_message,
 		const QString & a_style = LOG_STYLE_DEFAULT);
@@ -53,8 +54,11 @@ protected:
 	virtual void resizeEvent(QResizeEvent * a_pEvent) override;
 	virtual void changeEvent(QEvent * a_pEvent) override;
 	virtual void showEvent(QShowEvent * a_pEvent) override;
+	virtual void closeEvent(QCloseEvent * a_pEvent) override;
 
 private slots:
+
+	void slotTrayIconActivated(QSystemTrayIcon::ActivationReason a_reason);
 
 	void slotJobNewButtonClicked();
 	void slotJobEditButtonClicked();
@@ -96,7 +100,6 @@ private slots:
 	void slotConnectToServer(const QHostAddress & a_address);
 	void slotConnectToLocalServer();
 
-	void slotExit();
 	void slotShutdownServerAndExit();
 
 	void slotTaskServerNewConnection();

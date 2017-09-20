@@ -134,6 +134,10 @@ MainWindow::MainWindow() : QMainWindow()
 	{
 		m_pTrayIcon = new QSystemTrayIcon(QIcon(":watcher.ico"), this);
 		m_pTrayIcon->setToolTip(WINDOW_TITLE);
+
+		connect(m_pTrayIcon, &QSystemTrayIcon::activated,
+			this, &MainWindow::slotTrayIconActivated);
+
 		m_pTrayIcon->show();
 	}
 
@@ -262,6 +266,15 @@ void MainWindow::show()
 // END OF MainWindow::show()
 //==============================================================================
 
+void MainWindow::close()
+{
+	changeState(WatcherState::ShuttingDown);
+	QMainWindow::close();
+}
+
+// END OF void MainWindow::close()
+//==============================================================================
+
 void MainWindow::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
@@ -365,6 +378,36 @@ void MainWindow::showEvent(QShowEvent * a_pEvent)
 }
 
 // END OF void MainWindow::showEvent(QShowEvent * a_pEvent)
+//==============================================================================
+
+void MainWindow::closeEvent(QCloseEvent * a_pEvent)
+{
+	WatcherState statesToClose[] = {WatcherState::ShuttingDown,
+		WatcherState::ClosingServerShuttingDown};
+	bool closeToTray = QSystemTrayIcon::isSystemTrayAvailable() &&
+		(!vsedit::contains(statesToClose, m_state));
+
+	if(closeToTray)
+	{
+		a_pEvent->ignore();
+		hide();
+	}
+	else
+		QMainWindow::closeEvent(a_pEvent);
+}
+
+// END OF void MainWindow::closeEvent(QCloseEvent * a_pEvent)
+//==============================================================================
+
+void MainWindow::slotTrayIconActivated(
+	QSystemTrayIcon::ActivationReason a_reason)
+{
+	if(a_reason == QSystemTrayIcon::DoubleClick)
+		show();
+}
+
+// END OF void MainWindow::slotTrayIconActivated(
+//		QSystemTrayIcon::ActivationReason a_reason)
 //==============================================================================
 
 void MainWindow::slotJobNewButtonClicked()
@@ -994,15 +1037,6 @@ void MainWindow::slotConnectToLocalServer()
 // END OF void MainWindow::slotConnectToLocalServer()
 //==============================================================================
 
-void MainWindow::slotExit()
-{
-	changeState(WatcherState::ShuttingDown);
-	close();
-}
-
-// END OF void MainWindow::slotExit()
-//==============================================================================
-
 void MainWindow::slotShutdownServerAndExit()
 {
 	if(m_state != WatcherState::Connected)
@@ -1105,7 +1139,7 @@ void MainWindow::createActionsAndMenus()
 	ActionToCreate actionsToCreate[] =
 	{
 		{&m_pActionExit, ACTION_ID_EXIT,
-			this, SLOT(slotExit())},
+			this, SLOT(close())},
 		{&m_pActionShutdownServerAndExit, ACTION_ID_SHUTDOWN_SERVER_AND_EXIT,
 			this, SLOT(slotShutdownServerAndExit())},
 	};
