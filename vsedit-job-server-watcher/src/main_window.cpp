@@ -299,7 +299,8 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 	QDateTime now = QDateTime::currentDateTime();
 	QString timeString = now.toString("hh:mm:ss.zzz");
 	QString dateString = now.toString("yyyy-MM-dd");
-	QString caption = QObject::trUtf8("VapourSynth fatal error!");
+	QString caption = QObject::trUtf8("VapourSynth Editor Job Server "
+		"fatal error!");
 	QString fullMessage = dateString + QString(" ") + timeString +
 		QString("\n") + caption + QString("\n") + a_message;
 
