@@ -303,7 +303,13 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 	{
 		QStringList trustedClientsAddresses;
 		for(QJsonValue value : jsArguments.array())
-			trustedClientsAddresses << value.toString();
+		{
+			QString address = value.toString();
+			QHostAddress hostAddress(address);
+			if(hostAddress.isLoopback())
+				continue;
+			trustedClientsAddresses << address;
+		}
 		trustedClientsAddresses.removeDuplicates();
         m_trustedClientsAddresses = trustedClientsAddresses;
         m_pSettingsManager->setTrustedClientsAddresses(
