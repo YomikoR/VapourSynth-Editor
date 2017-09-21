@@ -53,6 +53,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pActionCheckScript(nullptr)
 	, m_pActionBenchmark(nullptr)
 	, m_pActionEncode(nullptr)
+	, m_pActionEnqueueEncodeJob(nullptr)
 	, m_pActionJobs(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
@@ -466,6 +467,23 @@ void MainWindow::slotEncode()
 // END OF void MainWindow::slotEncode()
 //==============================================================================
 
+void MainWindow::slotEnqueueEncodeJob()
+{
+	if(m_scriptFilePath.isEmpty())
+		return;
+
+	JobProperties properties;
+	properties.type = JobType::EncodeScriptCLI;
+	properties.scriptName = m_scriptFilePath;
+
+	QByteArray message = vsedit::jsonMessage(WMSG_CLI_ENCODE_JOB,
+		properties.toJson());
+	m_pJobServerWatcherSocket->sendMessage(message);
+}
+
+// END OF void MainWindow::slotEnqueueEncodeJob()
+//==============================================================================
+
 void MainWindow::slotJobs()
 {
 	m_pJobServerWatcherSocket->sendMessage(WMSG_SHOW_WINDOW);
@@ -594,10 +612,12 @@ void MainWindow::createActionsAndMenus()
 			this, SLOT(slotCheckScript())},
 		{&m_pActionBenchmark, ACTION_ID_BENCHMARK,
 			this, SLOT(slotBenchmark())},
-		{&m_pActionJobs, ACTION_ID_JOBS,
-			this, SLOT(slotJobs())},
 		{&m_pActionEncode, ACTION_ID_CLI_ENCODE,
 			this, SLOT(slotEncode())},
+		{&m_pActionEnqueueEncodeJob, ACTION_ID_ENQUEUE_ENCODE_JOB,
+			this, SLOT(slotEnqueueEncodeJob())},
+		{&m_pActionJobs, ACTION_ID_JOBS,
+			this, SLOT(slotJobs())},
 		{&m_pActionAbout, ACTION_ID_ABOUT,
 			this, SLOT(slotAbout())},
 	};
@@ -647,6 +667,7 @@ void MainWindow::createActionsAndMenus()
 	pScriptMenu->addAction(m_pActionCheckScript);
 	pScriptMenu->addAction(m_pActionBenchmark);
 	pScriptMenu->addAction(m_pActionEncode);
+	pScriptMenu->addAction(m_pActionEnqueueEncodeJob);
 	pScriptMenu->addAction(m_pActionJobs);
 
 //------------------------------------------------------------------------------

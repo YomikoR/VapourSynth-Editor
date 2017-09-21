@@ -57,6 +57,7 @@ private slots:
 	void slotCheckScript();
 	void slotBenchmark();
 	void slotEncode();
+	void slotEnqueueEncodeJob();
 	void slotJobs();
 
 	void slotAbout();
@@ -107,6 +108,7 @@ private:
 	QAction * m_pActionCheckScript;
 	QAction * m_pActionBenchmark;
 	QAction * m_pActionEncode;
+	QAction * m_pActionEnqueueEncodeJob;
 	QAction * m_pActionJobs;
 	QAction * m_pActionExit;
 	QAction * m_pActionAbout;
