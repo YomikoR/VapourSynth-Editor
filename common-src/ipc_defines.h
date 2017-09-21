@@ -12,6 +12,8 @@ static const char MSG_GET_LOG[] = "GL";
 static const char MSG_SUBSCRIBE[] = "SS";
 static const char MSG_UNSUBSCRIBE[] = "USS";
 static const char MSG_CLOSE_SERVER[] = "CS";
+static const char MSG_GET_TRUSTED_CLIENTS[] = "GTC";
+static const char MSG_SET_TRUSTED_CLIENTS[] = "STC";
 
 static const char MSG_CREATE_JOB[] = "CJ";
 static const char MSG_CHANGE_JOB[] = "CHJ";
@@ -40,6 +42,7 @@ static const char SMSG_JOBS_SWAPPED[] = "JSW";
 static const char SMSG_JOBS_DELETED[] = "JD";
 static const char SMSG_REFUSE[] = "RF";
 static const char SMSG_CLOSING_SERVER[] = "SCS";
+static const char SMSG_TRUSTED_CLIENTS_INFO[] = "TCI";
 
 // Editor <-> Watcher communication
 

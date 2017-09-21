@@ -17,6 +17,9 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 {
 	m_pSettingsManager = new SettingsManagerCore(this);
 
+	m_trustedClientsAddresses =
+		m_pSettingsManager->getTrustedClientsAddresses();
+
 	m_pJobsManager = new JobsManager(m_pSettingsManager, this);
 	m_pJobsManager->loadJobs();
 	connect(m_pJobsManager, &JobsManager::signalLogMessage,
@@ -228,7 +231,8 @@ void JobServer::slotJobsDeleted(const std::vector<QUuid> & a_ids)
 void JobServer::processMessage(QWebSocket * a_pClient,
 	const QString & a_message)
 {
-	bool local = a_pClient->peerAddress().isLoopback();
+	bool trustedClient = a_pClient->peerAddress().isLoopback() ||
+		m_trustedClientsAddresses.contains(a_pClient->peerAddress().toString());
 
 	QString command = a_message;
 	QString arguments;
@@ -239,12 +243,13 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		arguments = a_message.mid(spaceIndex + 1);
 	}
 
-	QString localOnlyCommands[] = {MSG_CLOSE_SERVER, MSG_CREATE_JOB,
+	QString trustedOnlyCommands[] = {MSG_CLOSE_SERVER, MSG_CREATE_JOB,
 		MSG_CHANGE_JOB, MSG_SWAP_JOBS, MSG_RESET_JOBS, MSG_DELETE_JOBS,
 		MSG_START_ALL_WAITING_JOBS, MSG_PAUSE_ACTIVE_JOBS,
-		MSG_RESUME_PAUSED_JOBS, MSG_ABORT_ACTIVE_JOBS};
+		MSG_RESUME_PAUSED_JOBS, MSG_ABORT_ACTIVE_JOBS, MSG_GET_TRUSTED_CLIENTS,
+		MSG_SET_TRUSTED_CLIENTS};
 
-	if(vsedit::contains(localOnlyCommands, command) && (!local))
+	if(vsedit::contains(trustedOnlyCommands, command) && (!trustedClient))
 	{
 		a_pClient->sendBinaryMessage("You're naughty! This command can not "
 			"be executed remotely.");
@@ -255,13 +260,13 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 	if(command == QString(MSG_GET_JOBS_INFO))
 	{
-		a_pClient->sendBinaryMessage(jobsInfoMessage().toUtf8());
+		a_pClient->sendBinaryMessage(jobsInfoMessage());
 		return;
 	}
 
 	if(command == QString(MSG_GET_LOG))
 	{
-		a_pClient->sendBinaryMessage(completeLogMessage().toUtf8());
+		a_pClient->sendBinaryMessage(completeLogMessage());
 		return;
 	}
 
@@ -283,6 +288,29 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 	{
 		broadcastMessage(SMSG_CLOSING_SERVER, true);
 		emit finish();
+		return;
+	}
+
+	if(command == QString(MSG_GET_TRUSTED_CLIENTS))
+	{
+		QByteArray message = vsedit::jsonMessage(SMSG_TRUSTED_CLIENTS_INFO,
+			QJsonArray::fromStringList(m_trustedClientsAddresses));
+		a_pClient->sendBinaryMessage(message);
+		return;
+	}
+
+	if(command == QString(MSG_SET_TRUSTED_CLIENTS))
+	{
+		QStringList trustedClientsAddresses;
+		for(QJsonValue value : jsArguments.array())
+			trustedClientsAddresses << value.toString();
+		trustedClientsAddresses.removeDuplicates();
+        m_trustedClientsAddresses = trustedClientsAddresses;
+        m_pSettingsManager->setTrustedClientsAddresses(
+			m_trustedClientsAddresses);
+		QByteArray message = vsedit::jsonMessage(SMSG_TRUSTED_CLIENTS_INFO,
+			QJsonArray::fromStringList(m_trustedClientsAddresses));
+		broadcastMessage(message, true, true);
 		return;
 	}
 
@@ -378,51 +406,59 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 
 //==============================================================================
 
-QString JobServer::jobsInfoMessage() const
+QByteArray JobServer::jobsInfoMessage() const
 {
 	QJsonArray jsJobs;
 	for(const JobProperties & properties : m_pJobsManager->jobsProperties())
 		jsJobs.push_back(properties.toJson());
-	QString message = vsedit::jsonMessage(SMSG_JOBS_INFO, jsJobs);
+	QByteArray message = vsedit::jsonMessage(SMSG_JOBS_INFO, jsJobs);
 	return message;
 }
 
 //==============================================================================
 
-QString JobServer::completeLogMessage() const
+QByteArray JobServer::completeLogMessage() const
 {
 	QJsonArray jsEntries;
 	for(const LogEntry & entry : m_logEntries)
 		jsEntries.push_back(entry.toJson());
-	QString message = vsedit::jsonMessage(SMSG_COMPLETE_LOG, jsEntries);
+	QByteArray message = vsedit::jsonMessage(SMSG_COMPLETE_LOG, jsEntries);
 	return message;
 }
 
 //==============================================================================
 
 void JobServer::broadcastMessage(const QString & a_message,
-	bool a_includeNonSubscribers)
+	bool a_includeNonSubscribers, bool a_trustedOnly)
 {
-	broadcastMessage(a_message.toUtf8(), a_includeNonSubscribers);
+	broadcastMessage(a_message.toUtf8(), a_includeNonSubscribers,
+		a_trustedOnly);
 }
 
 //==============================================================================
 
 void JobServer::broadcastMessage(const char * a_message,
-	bool a_includeNonSubscribers)
+	bool a_includeNonSubscribers, bool a_trustedOnly)
 {
-	broadcastMessage(QByteArray(a_message), a_includeNonSubscribers);
+	broadcastMessage(QByteArray(a_message), a_includeNonSubscribers,
+		a_trustedOnly);
 }
 
 //==============================================================================
 
 void JobServer::broadcastMessage(const QByteArray & a_message,
-	bool a_includeNonSubscribers)
+	bool a_includeNonSubscribers, bool a_trustedOnly)
 {
 	std::list<QWebSocket *> & clients =
 		a_includeNonSubscribers ? m_clients : m_subscribers;
 	for(QWebSocket * pClient : clients)
-		pClient->sendBinaryMessage(a_message);
+	{
+		if((!a_trustedOnly) || m_trustedClientsAddresses.contains(
+			pClient->peerAddress().toString()))
+		{
+			pClient->sendBinaryMessage(a_message);
+		}
+	}
 }
 
 //==============================================================================

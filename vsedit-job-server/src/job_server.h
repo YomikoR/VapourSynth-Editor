@@ -56,15 +56,15 @@ private slots:
 private:
 
 	void processMessage(QWebSocket * a_pClient, const QString & a_message);
-	QString jobsInfoMessage() const;
-	QString completeLogMessage() const;
+	QByteArray jobsInfoMessage() const;
+	QByteArray completeLogMessage() const;
 
 	void broadcastMessage(const QString & a_message,
-		bool a_includeNonSubscribers = false);
+		bool a_includeNonSubscribers = false, bool a_trustedOnly = false);
 	void broadcastMessage(const char * a_message,
-		bool a_includeNonSubscribers = false);
+		bool a_includeNonSubscribers = false, bool a_trustedOnly = false);
 	void broadcastMessage(const QByteArray & a_message,
-		bool a_includeNonSubscribers = false);
+		bool a_includeNonSubscribers = false, bool a_trustedOnly = false);
 
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;
@@ -74,6 +74,8 @@ private:
 
 	std::list<QWebSocket *> m_clients;
 	std::list<QWebSocket *> m_subscribers;
+
+	QStringList m_trustedClientsAddresses;
 };
 
 #endif // WEB_SOCKET_JOB_SERVER_H_INCLUDED

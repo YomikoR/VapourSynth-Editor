@@ -23,6 +23,7 @@ const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
 const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
 const char RECENT_JOB_SERVERS_KEY[] = "recent_job_servers";
+const char TRUSTED_CLIENTS_ADDRESSES_KEY[] = "trusted_clients_addresses";
 
 //==============================================================================
 
@@ -514,6 +515,23 @@ bool SettingsManagerCore::setRecentJobServers(const QStringList & a_servers)
 	recentServers.removeDuplicates();
 	recentServers = recentServers.mid(0, DEFAULT_RECENT_JOB_SERVERS_NUMBER);
 	return setValue(RECENT_JOB_SERVERS_KEY, recentServers);
+}
+
+//==============================================================================
+
+QStringList SettingsManagerCore::getTrustedClientsAddresses() const
+{
+	QStringList addresses = value(TRUSTED_CLIENTS_ADDRESSES_KEY).toStringList();
+	addresses.removeDuplicates();
+	return addresses;
+}
+
+bool SettingsManagerCore::setTrustedClientsAddresses(
+	const QStringList & a_addresses)
+{
+	QStringList addresses = a_addresses;
+	addresses.removeDuplicates();
+	return setValue(TRUSTED_CLIENTS_ADDRESSES_KEY, addresses);
 }
 
 //==============================================================================

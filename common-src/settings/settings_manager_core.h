@@ -71,6 +71,10 @@ public:
 
 	bool setRecentJobServers(const QStringList & a_servers);
 
+	QStringList getTrustedClientsAddresses() const;
+
+	bool setTrustedClientsAddresses(const QStringList & a_addresses);
+
 protected:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,
