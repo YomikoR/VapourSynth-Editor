@@ -52,6 +52,7 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_commonScriptTextFormat()
 	, m_tabText("\t")
 	, m_spacesInTab(DEFAULT_SPACES_IN_TAB)
+	, m_pContextMenu(nullptr)
 	, m_pActionDuplicateSelection(nullptr)
 	, m_pActionCommentSelection(nullptr)
 	, m_pActionUncommentSelection(nullptr)
@@ -865,21 +866,21 @@ void ScriptEditor::slotHighlightCurrentBlockAndMatches()
 
 void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)
 {
-	QMenu * pContextMenu = createStandardContextMenu();
+	if(m_pContextMenu)
+		delete m_pContextMenu;
+
+	m_pContextMenu = createStandardContextMenu();
 
 	if(m_pSettingsManager)
 	{
-		pContextMenu->addSeparator();
+		m_pContextMenu->addSeparator();
 		std::vector<QAction *> actionsList = actionsForMenu();
 		for(QAction * pAction : actionsList)
-			pContextMenu->addAction(pAction);
+			m_pContextMenu->addAction(pAction);
 	}
 
-	connect(pContextMenu, &QMenu::aboutToHide,
-		pContextMenu, &QMenu::deleteLater);
-
 	QPoint globalPosition = mapToGlobal(a_position);
-    pContextMenu->popup(globalPosition);
+    m_pContextMenu->popup(globalPosition);
 }
 
 // END OF void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)

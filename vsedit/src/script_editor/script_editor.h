@@ -167,6 +167,7 @@ private:
 
 	int m_spacesInTab;
 
+	QMenu * m_pContextMenu;
 	QAction * m_pActionDuplicateSelection;
 	QAction * m_pActionCommentSelection;
 	QAction * m_pActionUncommentSelection;
