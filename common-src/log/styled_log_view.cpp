@@ -279,7 +279,7 @@ void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
 {
 	createActionsAndMenus();
 	QPoint globalPosition = mapToGlobal(a_position);
-    m_pContextMenu->exec(globalPosition);
+    m_pContextMenu->popup(globalPosition);
 }
 
 // END OF void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
