@@ -178,8 +178,6 @@ private:
 
 	std::vector<QAction *> m_settableActionsList;
 
-	QMenu * m_pContextMenu;
-
 	QString m_droppedFilePath;
 	int m_droppedFileNumber;
 

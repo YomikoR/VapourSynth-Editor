@@ -60,7 +60,6 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	, m_pActionMoveTextBlockUp(nullptr)
 	, m_pActionMoveTextBlockDown(nullptr)
 	, m_pActionToggleComment(nullptr)
-	, m_pContextMenu(nullptr)
 {
 	m_pSideBox = new QWidget(this);
 	m_pSideBox->installEventFilter(this);
@@ -74,8 +73,6 @@ ScriptEditor::ScriptEditor(QWidget * a_pParent) :
 	m_pCompleter->setWrapAround(false);
 
 	m_pSyntaxHighlighter = new SyntaxHighlighter(document());
-
-	m_pContextMenu = createStandardContextMenu();
 
 	fillVariables();
 
@@ -868,8 +865,21 @@ void ScriptEditor::slotHighlightCurrentBlockAndMatches()
 
 void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)
 {
+	QMenu * pContextMenu = createStandardContextMenu();
+
+	if(m_pSettingsManager)
+	{
+		pContextMenu->addSeparator();
+		std::vector<QAction *> actionsList = actionsForMenu();
+		for(QAction * pAction : actionsList)
+			pContextMenu->addAction(pAction);
+	}
+
+	connect(pContextMenu, &QMenu::aboutToHide,
+		pContextMenu, &QMenu::deleteLater);
+
 	QPoint globalPosition = mapToGlobal(a_position);
-    m_pContextMenu->exec(globalPosition);
+    pContextMenu->popup(globalPosition);
 }
 
 // END OF void ScriptEditor::slotShowCustomMenu(const QPoint & a_position)
@@ -919,16 +929,6 @@ void ScriptEditor::createActionsAndMenus()
 		m_settableActionsList.push_back(pAction);
 		connect(pAction, SIGNAL(triggered()), this, item.slotToConnect);
 	}
-
-	if(m_pContextMenu)
-		delete m_pContextMenu;
-
-	m_pContextMenu = createStandardContextMenu();
-	m_pContextMenu->addSeparator();
-
-	std::vector<QAction *> actionsList = actionsForMenu();
-	for(QAction * pAction : actionsList)
-		m_pContextMenu->addAction(pAction);
 }
 
 // END OF void ScriptEditor::createActionsAndMenus()
