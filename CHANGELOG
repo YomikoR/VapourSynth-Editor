@@ -1,6 +1,8 @@
 r17:
 -BUGFIX: Blank preview on variable size video with fixed zoom ratio.
 -BUGFIX: Saving new script.
+-BUGFIX: Invalid context menu for editor.
+-BUGFIX: Context menu behavior in preview.
 -New multi-app architecture: editor, job server, server watcher.
 
 r16:
