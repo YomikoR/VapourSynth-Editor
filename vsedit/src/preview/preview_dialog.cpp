@@ -1037,7 +1037,7 @@ void PreviewDialog::slotPreviewAreaMouseMiddleButtonReleased()
 
 void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 {
-	m_pPreviewContextMenu->exec(QCursor::pos());
+	m_pPreviewContextMenu->popup(QCursor::pos());
 }
 
 // END OF void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
