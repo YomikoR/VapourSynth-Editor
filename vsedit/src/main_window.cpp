@@ -313,7 +313,7 @@ void MainWindow::slotNewScript()
 	m_lastSavedText = newScriptTemplate;
 	m_ui.scriptEdit->setPlainText(newScriptTemplate);
 	m_ui.scriptEdit->moveCursor(QTextCursor::End);
-	slotChangeWindowTitle();
+	m_ui.scriptEdit->setModified(true);
 }
 
 // END OF void MainWindow::slotNewScript()

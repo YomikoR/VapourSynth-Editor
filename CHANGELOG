@@ -1,5 +1,6 @@
 r17:
 -BUGFIX: Blank preview on variable size video with fixed zoom ratio.
+-BUGFIX: Saving new script.
 -New multi-app architecture: editor, job server, server watcher.
 
 r16:
