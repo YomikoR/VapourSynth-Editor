@@ -15,7 +15,9 @@
 #include <vapoursynth/VSHelper.h>
 
 #ifdef Q_OS_WIN
-	#define NOMINMAX
+	#ifndef NOMINMAX
+		#define NOMINMAX
+	#endif
 	#include <windows.h>
 #else
 	#include <signal.h>
