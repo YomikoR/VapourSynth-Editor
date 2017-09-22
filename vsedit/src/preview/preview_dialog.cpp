@@ -1804,8 +1804,8 @@ void PreviewDialog::setPreviewPixmap()
 	if(zoomMode == ZoomMode::FixedRatio)
 	{
 		double ratio = m_ui.zoomRatioSpinBox->value();
-		frameWidth = m_cpVideoInfo->width * ratio;
-		frameHeight = m_cpVideoInfo->height * ratio;
+		frameWidth = m_framePixmap.width() * ratio;
+		frameHeight = m_framePixmap.height() * ratio;
 	}
 	else
 	{
