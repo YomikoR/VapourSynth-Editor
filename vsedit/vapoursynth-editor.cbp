@@ -298,6 +298,8 @@
 		<Unit filename="src/frame_consumers/benchmark_dialog.ui" />
 		<Unit filename="src/frame_consumers/encode_dialog.cpp" />
 		<Unit filename="src/frame_consumers/encode_dialog.h" />
+		<Unit filename="src/job_server_watcher_socket.cpp" />
+		<Unit filename="src/job_server_watcher_socket.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/main_window.cpp" />
 		<Unit filename="src/main_window.h" />

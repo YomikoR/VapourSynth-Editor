@@ -5,6 +5,7 @@
 #include "jobs/job_dependencies_delegate.h"
 #include "jobs/job_edit_dialog.h"
 #include "connect_to_server_dialog.h"
+#include "trusted_clients_addresses_dialog.h"
 
 #include "../../common-src/helpers.h"
 #include "../../common-src/ipc_defines.h"
@@ -64,6 +65,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_state(WatcherState::NotConnected)
 	, m_pTrayIcon(nullptr)
 	, m_pTrayMenu(nullptr)
+	, m_pActionSetTrustedClientsAddresses(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionShutdownServerAndExit(nullptr)
 	, m_pConnectToServerDialog(nullptr)
@@ -719,6 +721,8 @@ void MainWindow::slotServerConnected()
 void MainWindow::slotServerDisconnected()
 {
 	m_pJobsModel->clear();
+	m_trustedClientsAddresses.clear();
+	m_pActionSetTrustedClientsAddresses->setEnabled(false);
 
 	if(m_state == WatcherState::ProbingLocal)
 	{
@@ -944,6 +948,17 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 		return;
 	}
 
+	if(command == QString(SMSG_TRUSTED_CLIENTS_INFO))
+	{
+		QStringList trustedClientsAddresses;
+		QVariantList values = jsArguments.array().toVariantList();
+		for(const QVariant & value : values)
+			trustedClientsAddresses << value.toString();
+		m_trustedClientsAddresses = trustedClientsAddresses;
+		m_pActionSetTrustedClientsAddresses->setEnabled(true);
+		return;
+	}
+
 	m_ui.logView->addEntry(a_message);
 }
 
@@ -1139,6 +1154,20 @@ void MainWindow::slotTaskClientDisconnected()
 // END OF void MainWindow::slotTaskClientDisconnected()
 //==============================================================================
 
+void MainWindow::slotSetTrustedClientsAddresses()
+{
+    TrustedClientsAddressesDialog dialog(this);
+    int result = dialog.call(m_trustedClientsAddresses);
+    if(result == QDialog::Rejected)
+		return;
+	QByteArray message = vsedit::jsonMessage(MSG_SET_TRUSTED_CLIENTS,
+		QJsonArray::fromStringList(dialog.addresses()));
+	m_pServerSocket->sendBinaryMessage(message);
+}
+
+// END OF void MainWindow::slotSetTrustedClientsAddresses()
+//==============================================================================
+
 void MainWindow::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -1151,6 +1180,9 @@ void MainWindow::createActionsAndMenus()
 
 	ActionToCreate actionsToCreate[] =
 	{
+		{&m_pActionSetTrustedClientsAddresses,
+			ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES,
+			this, SLOT(slotSetTrustedClientsAddresses())},
 		{&m_pActionExit, ACTION_ID_EXIT,
 			this, SLOT(close())},
 		{&m_pActionShutdownServerAndExit, ACTION_ID_SHUTDOWN_SERVER_AND_EXIT,
@@ -1167,7 +1199,10 @@ void MainWindow::createActionsAndMenus()
 			item.pObjectToConnect, item.slotToConnect);
 	}
 
+	m_pActionSetTrustedClientsAddresses->setEnabled(false);
+
 	QMenu * pMainMenu = m_ui.menuBar->addMenu(trUtf8("Main"));
+	pMainMenu->addAction(m_pActionSetTrustedClientsAddresses);
 	pMainMenu->addAction(m_pActionExit);
 	pMainMenu->addAction(m_pActionShutdownServerAndExit);
 
@@ -1290,8 +1325,7 @@ void MainWindow::setUiEnabled()
 		buttonsToEnable[m_ui.connectToServerButton] = true;
 	}
 
-	if((m_state == WatcherState::Connected) &&
-		m_pServerSocket->peerAddress().isLoopback())
+	if(m_state == WatcherState::Connected)
 	{
 		buttonsToEnable[m_ui.jobNewButton] = true;
 		buttonsToEnable[m_ui.shutdownServerButton] = true;

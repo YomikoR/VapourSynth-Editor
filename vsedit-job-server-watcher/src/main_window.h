@@ -22,6 +22,7 @@ class QMenu;
 class ConnectToServerDialog;
 class QLocalServer;
 class QLocalSocket;
+class TrustedClientsAddressesDialog;
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
@@ -106,6 +107,8 @@ private slots:
 	void slotTaskClientReadyRead();
 	void slotTaskClientDisconnected();
 
+	void slotSetTrustedClientsAddresses();
+
 private:
 
 	enum class WatcherState
@@ -165,6 +168,7 @@ private:
 
 	QMenu * m_pTrayMenu;
 
+	QAction * m_pActionSetTrustedClientsAddresses;
 	QAction * m_pActionExit;
 	QAction * m_pActionShutdownServerAndExit;
 
@@ -176,6 +180,8 @@ private:
 	std::list<QLocalSocket *> m_taskClients;
 
 	std::list<JobProperties> m_taskList;
+
+	QStringList m_trustedClientsAddresses;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

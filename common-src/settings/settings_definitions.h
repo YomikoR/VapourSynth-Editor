@@ -148,6 +148,7 @@ extern const char ACTION_ID_MOVE_TEXT_BLOCK_UP[];
 extern const char ACTION_ID_MOVE_TEXT_BLOCK_DOWN[];
 extern const char ACTION_ID_TOGGLE_COMMENT[];
 extern const char ACTION_ID_SHUTDOWN_SERVER_AND_EXIT[];
+extern const char ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES[];
 
 //==============================================================================
 

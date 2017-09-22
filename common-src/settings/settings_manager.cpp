@@ -202,7 +202,9 @@ void SettingsManager::initializeStandardActions()
 		{ACTION_ID_TOGGLE_COMMENT, trUtf8("Toggle comment"),
 			QIcon(), QKeySequence(Qt::CTRL + Qt::Key_Slash)},
 		{ACTION_ID_SHUTDOWN_SERVER_AND_EXIT, trUtf8("Shutdown server and exit"),
-			 QIcon(":exit.png"), QKeySequence()},
+			QIcon(":exit.png"), QKeySequence()},
+		{ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES,
+			trUtf8("Set trusted clients addresses"), QIcon(), QKeySequence()},
 	};
 }
 

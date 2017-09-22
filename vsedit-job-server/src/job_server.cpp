@@ -49,6 +49,7 @@ JobServer::JobServer(QObject * a_pParent) : QObject(a_pParent)
 		this, &JobServer::slotNewConnection);
 }
 
+// END OF JobServer::JobServer(QObject * a_pParent)
 //==============================================================================
 
 JobServer::~JobServer()
@@ -65,6 +66,7 @@ JobServer::~JobServer()
 	m_pJobsManager->saveJobs();
 }
 
+// END OF JobServer::~JobServer()
 //==============================================================================
 
 bool JobServer::start()
@@ -73,6 +75,7 @@ bool JobServer::start()
 	return m_pWebSocketServer->listen(QHostAddress::Any, JOB_SERVER_PORT);
 }
 
+// END OF bool JobServer::start()
 //==============================================================================
 
 void JobServer::slotNewConnection()
@@ -86,8 +89,16 @@ void JobServer::slotNewConnection()
 		this, &JobServer::slotTextMessageReceived);
 	connect(pSocket, &QWebSocket::disconnected,
 		this, &JobServer::slotSocketDisconnected);
+
+	if(trustedClientAddress(pSocket->peerAddress()))
+	{
+		QByteArray message = vsedit::jsonMessage(SMSG_TRUSTED_CLIENTS_INFO,
+			QJsonArray::fromStringList(m_trustedClientsAddresses));
+		pSocket->sendBinaryMessage(message);
+	}
 }
 
+// END OF void JobServer::slotNewConnection()
 //==============================================================================
 
 void JobServer::slotBinaryMessageReceived(
@@ -100,6 +111,8 @@ void JobServer::slotBinaryMessageReceived(
 	processMessage(pClient, messageString);
 }
 
+// END OF void JobServer::slotBinaryMessageReceived(
+//		const QByteArray & a_message)
 //==============================================================================
 
 void JobServer::slotTextMessageReceived(const QString & a_message)
@@ -110,6 +123,7 @@ void JobServer::slotTextMessageReceived(const QString & a_message)
 	processMessage(pClient, a_message);
 }
 
+// END OF void JobServer::slotTextMessageReceived(const QString & a_message)
 //==============================================================================
 
 void JobServer::slotSocketDisconnected()
@@ -122,6 +136,7 @@ void JobServer::slotSocketDisconnected()
 	pClient->deleteLater();
 }
 
+// END OF void JobServer::slotSocketDisconnected()
 //==============================================================================
 
 void JobServer::slotLogMessage(const QString & a_message,
@@ -132,6 +147,8 @@ void JobServer::slotLogMessage(const QString & a_message,
 	broadcastMessage(vsedit::jsonMessage(SMSG_LOG_MESSAGE, entry.toJson()));
 }
 
+// END OF void JobServer::slotLogMessage(const QString & a_message,
+//		const QString & a_style)
 //==============================================================================
 
 void JobServer::slotJobCreated(const JobProperties & a_properties)
@@ -140,6 +157,7 @@ void JobServer::slotJobCreated(const JobProperties & a_properties)
 		a_properties.toJson()));
 }
 
+// END OF void JobServer::slotJobCreated(const JobProperties & a_properties)
 //==============================================================================
 
 void JobServer::slotJobChanged(const JobProperties & a_properties)
@@ -148,6 +166,7 @@ void JobServer::slotJobChanged(const JobProperties & a_properties)
 		a_properties.toJson()));
 }
 
+// END OF void JobServer::slotJobChanged(const JobProperties & a_properties)
 //==============================================================================
 
 void JobServer::slotJobStateChanged(const QUuid & a_jobID, JobState a_state)
@@ -158,6 +177,8 @@ void JobServer::slotJobStateChanged(const QUuid & a_jobID, JobState a_state)
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_STATE_UPDATE, jsJob));
 }
 
+// END OF void JobServer::slotJobStateChanged(const QUuid & a_jobID,
+//		JobState a_state)
 //==============================================================================
 
 void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress,
@@ -170,6 +191,8 @@ void JobServer::slotJobProgressChanged(const QUuid & a_jobID, int a_progress,
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_PROGRESS_UPDATE, jsJob));
 }
 
+// END OF void JobServer::slotJobProgressChanged(const QUuid & a_jobID,
+//		int a_progress, double a_fps)
 //==============================================================================
 
 void JobServer::slotJobStartTimeChanged(const QUuid & a_jobID,
@@ -181,6 +204,8 @@ void JobServer::slotJobStartTimeChanged(const QUuid & a_jobID,
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_START_TIME_UPDATE, jsJob));
 }
 
+// END OF void JobServer::slotJobStartTimeChanged(const QUuid & a_jobID,
+//		const QDateTime & a_time)
 //==============================================================================
 
 void JobServer::slotJobEndTimeChanged(const QUuid & a_jobID,
@@ -192,10 +217,12 @@ void JobServer::slotJobEndTimeChanged(const QUuid & a_jobID,
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_END_TIME_UPDATE, jsJob));
 }
 
+// END OF void JobServer::slotJobEndTimeChanged(const QUuid & a_jobID,
+//		const QDateTime & a_time)
 //==============================================================================
 
 void JobServer::slotJobDependenciesChanged(const QUuid & a_jobID,
-		const std::vector<QUuid> & a_dependencies)
+	const std::vector<QUuid> & a_dependencies)
 {
 	QJsonObject jsJob;
 	jsJob[JP_ID] = a_jobID.toString();
@@ -206,6 +233,8 @@ void JobServer::slotJobDependenciesChanged(const QUuid & a_jobID,
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOB_DEPENDENCIES_UPDATE, jsJob));
 }
 
+// END OF void JobServer::slotJobDependenciesChanged(const QUuid & a_jobID,
+//		const std::vector<QUuid> & a_dependencies)
 //==============================================================================
 
 void JobServer::slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2)
@@ -216,6 +245,8 @@ void JobServer::slotJobsSwapped(const QUuid & a_jobID1, const QUuid & a_jobID2)
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOBS_SWAPPED, jsSwap));
 }
 
+// END OF void JobServer::slotJobsSwapped(const QUuid & a_jobID1,
+//		const QUuid & a_jobID2)
 //==============================================================================
 
 void JobServer::slotJobsDeleted(const std::vector<QUuid> & a_ids)
@@ -226,13 +257,13 @@ void JobServer::slotJobsDeleted(const std::vector<QUuid> & a_ids)
 	broadcastMessage(vsedit::jsonMessage(SMSG_JOBS_DELETED, jsIdsArray));
 }
 
+// END OF void JobServer::slotJobsDeleted(const std::vector<QUuid> & a_ids)
 //==============================================================================
 
 void JobServer::processMessage(QWebSocket * a_pClient,
 	const QString & a_message)
 {
-	bool trustedClient = a_pClient->peerAddress().isLoopback() ||
-		m_trustedClientsAddresses.contains(a_pClient->peerAddress().toString());
+	bool trustedClient = trustedClientAddress(a_pClient->peerAddress());
 
 	QString command = a_message;
 	QString arguments;
@@ -410,6 +441,8 @@ void JobServer::processMessage(QWebSocket * a_pClient,
 		.arg(a_message).toUtf8());
 }
 
+// END OF void JobServer::processMessage(QWebSocket * a_pClient,
+//		const QString & a_message)
 //==============================================================================
 
 QByteArray JobServer::jobsInfoMessage() const
@@ -421,6 +454,7 @@ QByteArray JobServer::jobsInfoMessage() const
 	return message;
 }
 
+// END OF QByteArray JobServer::jobsInfoMessage() const
 //==============================================================================
 
 QByteArray JobServer::completeLogMessage() const
@@ -432,6 +466,7 @@ QByteArray JobServer::completeLogMessage() const
 	return message;
 }
 
+// END OF QByteArray JobServer::completeLogMessage() const
 //==============================================================================
 
 void JobServer::broadcastMessage(const QString & a_message,
@@ -441,6 +476,8 @@ void JobServer::broadcastMessage(const QString & a_message,
 		a_trustedOnly);
 }
 
+// END OF void JobServer::broadcastMessage(const QString & a_message,
+//		bool a_includeNonSubscribers, bool a_trustedOnly)
 //==============================================================================
 
 void JobServer::broadcastMessage(const char * a_message,
@@ -450,6 +487,8 @@ void JobServer::broadcastMessage(const char * a_message,
 		a_trustedOnly);
 }
 
+// END OF void JobServer::broadcastMessage(const char * a_message,
+//		bool a_includeNonSubscribers, bool a_trustedOnly)
 //==============================================================================
 
 void JobServer::broadcastMessage(const QByteArray & a_message,
@@ -459,12 +498,22 @@ void JobServer::broadcastMessage(const QByteArray & a_message,
 		a_includeNonSubscribers ? m_clients : m_subscribers;
 	for(QWebSocket * pClient : clients)
 	{
-		if((!a_trustedOnly) || m_trustedClientsAddresses.contains(
-			pClient->peerAddress().toString()))
-		{
+		if((!a_trustedOnly) || trustedClientAddress(pClient->peerAddress()))
 			pClient->sendBinaryMessage(a_message);
-		}
 	}
 }
 
+// END OF void JobServer::broadcastMessage(const QByteArray & a_message,
+//		bool a_includeNonSubscribers, bool a_trustedOnly)
+//==============================================================================
+
+bool JobServer::trustedClientAddress(const QHostAddress & a_address)
+{
+	return (a_address.isLoopback() ||
+		m_trustedClientsAddresses.contains(a_address.toString()) ||
+		m_trustedClientsAddresses.contains(
+		a_address.toString().remove("::ffff:")));
+}
+
+// END OF bool JobServer::trustedClientAddress(const QHostAddress & a_address)
 //==============================================================================

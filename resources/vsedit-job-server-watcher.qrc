@@ -7,5 +7,7 @@
 		<file alias="information.png">information.png</file>
 		<file alias="jobs.png">sheduled_task.png</file>
 		<file alias="link.png">link.png</file>
+		<file alias="add.png">add.png</file>
+		<file alias="delete.png">delete.png</file>
 	</qresource>
 </RCC>

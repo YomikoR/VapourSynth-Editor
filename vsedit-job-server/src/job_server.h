@@ -15,6 +15,7 @@ class SettingsManagerCore;
 class JobsManager;
 class QWebSocketServer;
 class QWebSocket;
+class QHostAddress;
 
 class JobServer : public QObject
 {
@@ -65,6 +66,8 @@ private:
 		bool a_includeNonSubscribers = false, bool a_trustedOnly = false);
 	void broadcastMessage(const QByteArray & a_message,
 		bool a_includeNonSubscribers = false, bool a_trustedOnly = false);
+
+	bool trustedClientAddress(const QHostAddress & a_address);
 
 	SettingsManagerCore * m_pSettingsManager;
 	JobsManager * m_pJobsManager;
