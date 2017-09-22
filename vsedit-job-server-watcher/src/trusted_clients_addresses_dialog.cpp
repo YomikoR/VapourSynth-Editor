@@ -80,7 +80,8 @@ void TrustedClientsAddressesDialog::checkAndAddAddress(
 	const QString & a_address)
 {
 	QHostAddress hostAddress(a_address);
-	if(hostAddress.isNull() && hostAddress.isLoopback())
+	if(hostAddress.isLoopback() || (hostAddress.protocol() ==
+		QAbstractSocket::UnknownNetworkLayerProtocol))
 		return;
 	m_ui.addressesList->addItem(a_address);
 	m_ui.addressesList->sortItems();
