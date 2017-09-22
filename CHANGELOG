@@ -1,3 +1,6 @@
+r17:
+-New multi-app architecture: editor, job server, server watcher.
+
 r16:
 -BUGFIX: Default hotkey forced when trying to save an empty hotkey.
 -BUGFIX: Inactive actions in the log context menu.

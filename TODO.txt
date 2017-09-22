@@ -1,4 +1,3 @@
-- jobs server
 - insert formatted data from preview window into script
 - functions autocompletion refinement
 - python error parsing and script line highlighting
