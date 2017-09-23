@@ -3,7 +3,7 @@
 
 #include <QLocalSocket>
 
-class JobServerWatcherSocket : public QLocalSocket
+class JobServerWatcherSocket : public QObject
 {
 	Q_OBJECT
 
@@ -22,6 +22,9 @@ signals:
 private:
 
 	bool connectToJobServerWatcher();
+	void resetSocket();
+
+	QLocalSocket * m_pSocket;
 };
 
 #endif // JOB_SERVER_WATCHER_SOCKET_H_INCLUDED

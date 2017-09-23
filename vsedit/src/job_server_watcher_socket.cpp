@@ -9,9 +9,9 @@
 //==============================================================================
 
 JobServerWatcherSocket::JobServerWatcherSocket(QObject * a_pParent):
-	QLocalSocket(a_pParent)
+	  QObject(a_pParent)
+	, m_pSocket(nullptr)
 {
-	setServerName(JOB_SERVER_WATCHER_LOCAL_SERVER_NAME);
 }
 
 // END OF JobServerWatcherSocket::JobServerWatcherSocket(QObject * a_pParent)
@@ -30,7 +30,7 @@ bool JobServerWatcherSocket::sendMessage(const QByteArray & a_data)
 	if(!connected)
 		return false;
 
-	write(a_data);
+	m_pSocket->write(a_data);
 	return true;
 }
 
@@ -39,14 +39,15 @@ bool JobServerWatcherSocket::sendMessage(const QByteArray & a_data)
 
 bool JobServerWatcherSocket::connectToJobServerWatcher()
 {
-	if(state() == QLocalSocket::ConnectedState)
-		return true;
+	// In Linux QLocalSocket wouldn't reconnect once disconnected.
+	// So we recreate it before each connection attempt.
+	resetSocket();
 
 	// Must connect in Read/Write mode, or named pipe won't disconnect.
 	const QIODevice::OpenMode openMode = QIODevice::ReadWrite;
 
-	connectToServer(openMode);
-	bool connected = waitForConnected(1000);
+	m_pSocket->connectToServer(openMode);
+	bool connected = m_pSocket->waitForConnected(1000);
 	if(connected)
 		return true;
 
@@ -62,8 +63,9 @@ bool JobServerWatcherSocket::connectToJobServerWatcher()
 
 	for(int i = 0; i < 10; ++i)
 	{
-		connectToServer(openMode);
-		connected = waitForConnected(1000);
+		resetSocket();
+		m_pSocket->connectToServer(openMode);
+		connected = m_pSocket->waitForConnected(1000);
 		if(connected)
 			break;
 		vsedit::wait(1000);
@@ -80,4 +82,16 @@ bool JobServerWatcherSocket::connectToJobServerWatcher()
 }
 
 // END OF bool JobServerWatcherSocket::connectToJobServerWatcher()
+//==============================================================================
+
+void JobServerWatcherSocket::resetSocket()
+{
+	if(m_pSocket)
+		delete m_pSocket;
+
+	m_pSocket = new QLocalSocket(this);
+	m_pSocket->setServerName(JOB_SERVER_WATCHER_LOCAL_SERVER_NAME);
+}
+
+// END OF void JobServerWatcherSocket::resetSocket()
 //==============================================================================
