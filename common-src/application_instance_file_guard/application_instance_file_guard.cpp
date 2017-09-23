@@ -3,6 +3,10 @@
 #include <QObject>
 #include <QStandardPaths>
 
+#ifndef Q_OS_WIN
+	#include <sys/file.h>
+#endif
+
 //==============================================================================
 
 ApplicationInstanceFileGuard::ApplicationInstanceFileGuard(
@@ -38,6 +42,7 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 
 	QString filePath = m_tempDir + "/" + a_fileName;
 
+#ifdef Q_OS_WIN
 	if(QFile::exists(filePath))
 	{
 		bool deleted = QFile::remove(filePath);
@@ -48,13 +53,28 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 			return false;
 		}
 	}
+#endif
 
 	m_fileName = a_fileName;
 	m_file.setFileName(filePath);
 	bool opened = m_file.open(QIODevice::ReadWrite);
 	if(!opened)
+	{
 		m_error = QObject::trUtf8("Could not open file %1").arg(filePath);
-	return opened;
+		return false;
+	}
+
+#ifndef Q_OS_WIN
+	int result = flock(m_file.handle(), LOCK_EX | LOCK_NB);
+	if(result != 0)
+	{
+		m_error = QObject::trUtf8("Could not lock file %1").arg(filePath);
+		m_file.close();
+		return false;
+	}
+#endif
+
+	return true;
 }
 
 //==============================================================================
@@ -62,7 +82,12 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 bool ApplicationInstanceFileGuard::unlock()
 {
 	if(m_file.isOpen())
+	{
+	#ifndef Q_OS_WIN
+		flock(m_file.handle(), LOCK_UN | LOCK_NB);
+	#endif
 		m_file.close();
+	}
 
 	QString filePath = m_file.fileName();
 
