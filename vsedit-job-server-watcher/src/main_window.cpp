@@ -215,6 +215,7 @@ MainWindow::MainWindow() : QMainWindow()
 	createActionsAndMenus();
 	setUiEnabled();
 
+	m_pTaskServer->setSocketOptions(QLocalServer::WorldAccessOption);
 	bool taskServerStarted =
 		m_pTaskServer->listen(JOB_SERVER_WATCHER_LOCAL_SERVER_NAME);
 	if(!taskServerStarted)
