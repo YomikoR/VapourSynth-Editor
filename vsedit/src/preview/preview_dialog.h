@@ -124,6 +124,7 @@ protected slots:
 
 	void slotProcessPlayQueue();
 
+	void slotLoadChapters();
 	void slotClearBookmarks();
 	void slotBookmarkCurrentFrame();
 	void slotUnbookmarkCurrentFrame();
@@ -212,6 +213,7 @@ protected:
 	QAction * m_pActionAdvancedSettingsDialog;
 	QAction * m_pActionToggleColorPicker;
 	QAction * m_pActionPlay;
+	QAction * m_pActionLoadChapters;
 	QAction * m_pActionClearBookmarks;
 	QAction * m_pActionBookmarkCurrentFrame;
 	QAction * m_pActionUnbookmarkCurrentFrame;

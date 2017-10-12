@@ -174,6 +174,8 @@ void SettingsManager::initializeStandardActions()
 		{ACTION_ID_TOGGLE_COLOR_PICKER, trUtf8("Color panel"),
 			QIcon(":color_picker.png"), QKeySequence()},
 		{ACTION_ID_PLAY, trUtf8("Play"), QIcon(":play.png"), QKeySequence()},
+		{ACTION_ID_TIMELINE_LOAD_CHAPTERS, trUtf8("Load chapters"),
+		QIcon(":load.png"), QKeySequence() },
 		{ACTION_ID_TIMELINE_CLEAR_BOOKMARKS, trUtf8("Clear bookmarks"),
 			QIcon(":timeline_bookmark.png"), QKeySequence()},
 		{ACTION_ID_TIMELINE_BOOKMARK_CURRENT_FRAME,
