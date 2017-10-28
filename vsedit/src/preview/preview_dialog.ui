@@ -235,7 +235,7 @@
    </item>
    <item>
     <widget class="QWidget" name="timeLinePanel" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0">
       <property name="spacing">
        <number>2</number>
       </property>
@@ -306,6 +306,13 @@
       </item>
       <item>
        <widget class="QToolButton" name="unbookmarkCurrentFrameButton"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="loadChaptersButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="clearBookmarksButton"/>

@@ -88,6 +88,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionAdvancedSettingsDialog(nullptr)
 	, m_pActionToggleColorPicker(nullptr)
 	, m_pActionPlay(nullptr)
+	, m_pActionLoadChapters(nullptr)
 	, m_pActionClearBookmarks(nullptr)
 	, m_pActionBookmarkCurrentFrame(nullptr)
 	, m_pActionUnbookmarkCurrentFrame(nullptr)
@@ -1290,6 +1291,47 @@ void PreviewDialog::slotProcessPlayQueue()
 // END OF void PreviewDialog::slotProcessPlayQueue()
 //==============================================================================
 
+void PreviewDialog::slotLoadChapters()
+{
+	if (m_playing)
+		return;
+
+	const QString filePath = QFileDialog::getOpenFileName(this,
+		                                                  trUtf8("Open chapters"),
+		                                                  QString(),
+		                                                  trUtf8("Chapters file (*.txt);;All files (*)"));
+	QFile chaptersFile(filePath);
+	if (!chaptersFile.open(QIODevice::ReadOnly |
+		QIODevice::Text)) {
+		return;
+	}
+
+	const auto frameNumberSlider = m_ui.toolBar->findChild<TimeLineSlider *>(QString("frameNumberSlider"));
+
+	const double fps = (double)(m_pVapourSynthScriptProcessor->videoInfo()->fpsNum) /
+		m_pVapourSynthScriptProcessor->videoInfo()->fpsDen;
+
+	static const QRegExp regExp(R"***((\d{2}):(\d{2}):(\d{2}((\.|:)\d{3}))?)***");
+	while (!chaptersFile.atEnd()) {
+		const QByteArray line = chaptersFile.readLine();
+		if (regExp.indexIn(line) < 0)
+			continue;
+
+		const QStringList timecodes = regExp.capturedTexts();
+
+		const double timecode = timecodes.at(1).toDouble() * 3600
+			                  + timecodes.at(2).toDouble() * 60
+			                  + timecodes.at(3).toDouble();
+		const int frameIndex  = ceil(timecode * fps);
+		frameNumberSlider->addBookmark(frameIndex);
+	}
+
+	saveTimelineBookmarks();
+}
+
+// END OF void PreviewDialog::slotLoadBookmarks()
+//==============================================================================
+
 void PreviewDialog::slotClearBookmarks()
 {
 	if(m_playing)
@@ -1415,6 +1457,8 @@ void PreviewDialog::createActionsAndMenus()
 			true, SLOT(slotToggleColorPicker(bool))},
 		{&m_pActionPlay, ACTION_ID_PLAY,
 			true, SLOT(slotPlay(bool))},
+		{&m_pActionLoadChapters, ACTION_ID_TIMELINE_LOAD_CHAPTERS,
+			false, SLOT(slotLoadChapters())},
 		{&m_pActionClearBookmarks, ACTION_ID_TIMELINE_CLEAR_BOOKMARKS,
 			false, SLOT(slotClearBookmarks())},
 		{&m_pActionBookmarkCurrentFrame,
@@ -1574,6 +1618,7 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionPlay->setChecked(false);
 	addAction(m_pActionPlay);
 
+	addAction(m_pActionLoadChapters);
 	addAction(m_pActionClearBookmarks);
 	addAction(m_pActionBookmarkCurrentFrame);
 	addAction(m_pActionUnbookmarkCurrentFrame);
@@ -1674,6 +1719,7 @@ void PreviewDialog::setUpTimeLinePanel()
 
 	slotSetPlayFPSLimit();
 
+	m_ui.loadChaptersButton->setDefaultAction(m_pActionLoadChapters);
 	m_ui.clearBookmarksButton->setDefaultAction(m_pActionClearBookmarks);
 	m_ui.bookmarkCurrentFrameButton->setDefaultAction(
 		m_pActionBookmarkCurrentFrame);
