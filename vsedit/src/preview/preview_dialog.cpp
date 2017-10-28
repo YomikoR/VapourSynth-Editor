@@ -1293,37 +1293,36 @@ void PreviewDialog::slotProcessPlayQueue()
 
 void PreviewDialog::slotLoadChapters()
 {
-	if (m_playing)
+	if(m_playing)
 		return;
 
+	const QString lastUsedPath = m_pSettingsManager->getLastUsedPath();
 	const QString filePath = QFileDialog::getOpenFileName(this,
-		                                                  trUtf8("Open chapters"),
-		                                                  QString(),
-		                                                  trUtf8("Chapters file (*.txt);;All files (*)"));
+		trUtf8("Load chapters"), lastUsedPath,
+		trUtf8("Chapters file (*.txt;*.xml);;All files (*)"));
 	QFile chaptersFile(filePath);
-	if (!chaptersFile.open(QIODevice::ReadOnly |
-		QIODevice::Text)) {
+	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
-	}
 
-	const auto frameNumberSlider = m_ui.toolBar->findChild<TimeLineSlider *>(QString("frameNumberSlider"));
+	const VSVideoInfo * cpVideoInfo =
+		m_pVapourSynthScriptProcessor->videoInfo();
+	const double fps = (double)cpVideoInfo->fpsNum /
+		(double)cpVideoInfo->fpsDen;
 
-	const double fps = (double)(m_pVapourSynthScriptProcessor->videoInfo()->fpsNum) /
-		m_pVapourSynthScriptProcessor->videoInfo()->fpsDen;
-
-	static const QRegExp regExp(R"***((\d{2}):(\d{2}):(\d{2}((\.|:)\d{3}))?)***");
-	while (!chaptersFile.atEnd()) {
+	static const QRegExp regExp(R"((\d{2}):(\d{2}):(\d{2})[\.:](\d{3})?)");
+	while(!chaptersFile.atEnd())
+	{
 		const QByteArray line = chaptersFile.readLine();
-		if (regExp.indexIn(line) < 0)
+		if(regExp.indexIn(line) < 0)
 			continue;
 
 		const QStringList timecodes = regExp.capturedTexts();
 
-		const double timecode = timecodes.at(1).toDouble() * 3600
-			                  + timecodes.at(2).toDouble() * 60
-			                  + timecodes.at(3).toDouble();
+		const double timecode = timecodes.at(1).toDouble() * 3600.0 +
+			timecodes.at(2).toDouble() * 60.0 + timecodes.at(3).toDouble() +
+			timecodes.at(4).toDouble() / 1000;
 		const int frameIndex  = ceil(timecode * fps);
-		frameNumberSlider->addBookmark(frameIndex);
+		m_ui.frameNumberSlider->addBookmark(frameIndex);
 	}
 
 	saveTimelineBookmarks();
