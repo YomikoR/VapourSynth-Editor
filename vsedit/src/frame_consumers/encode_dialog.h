@@ -32,6 +32,11 @@ public slots:
 
 	void showActive();
 
+signals:
+
+	void signalWriteLogMessage(const QString & a_style,
+		const QString & a_message);
+
 protected:
 
 	virtual void showEvent(QShowEvent * a_pEvent) override;
@@ -54,6 +59,9 @@ private slots:
 	void slotJobStateChanged(JobState a_newState, JobState a_oldState);
 	void slotJobProgressChanged();
 	void slotJobPropertiesChanged();
+
+	void slotWriteLogMessage(const QString & a_message,
+		const QString & a_style);
 
 private:
 

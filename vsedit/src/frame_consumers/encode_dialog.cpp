@@ -71,8 +71,7 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	connect(m_pJob, &vsedit::Job::signalPropertiesChanged,
 		this, &EncodeDialog::slotJobPropertiesChanged);
 	connect(m_pJob, SIGNAL(signalLogMessage(const QString &, const QString &)),
-		m_ui.feedbackTextEdit,
-		SLOT(addEntry(const QString &, const QString &)));
+		this, SLOT(slotWriteLogMessage(const QString &, const QString &)));
 }
 
 // END OF EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
@@ -422,16 +421,13 @@ void EncodeDialog::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 	JobState failStates[] = {JobState::FailedCleanUp, JobState::Failed,
 		JobState::Aborted, JobState::Aborting};
 
-#ifdef Q_OS_WIN
-	assert(m_pWinTaskbarProgress);
-#endif
-
 	if(a_newState == JobState::Running)
 	{
 		if(a_oldState == JobState::Paused)
 		{
 		#ifdef Q_OS_WIN
-			m_pWinTaskbarProgress->resume();
+			if(m_pWinTaskbarProgress)
+				m_pWinTaskbarProgress->resume();
 		#endif
 		}
 
@@ -446,28 +442,34 @@ void EncodeDialog::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 		m_ui.processingProgressBar->setValue(0);
 
 	#ifdef Q_OS_WIN
-		m_pWinTaskbarProgress->setMaximum(properties.framesTotal());
-		m_pWinTaskbarProgress->setValue(0);
-		m_pWinTaskbarProgress->resume();
-		m_pWinTaskbarProgress->show();
+		if(m_pWinTaskbarProgress)
+		{
+			m_pWinTaskbarProgress->setMaximum(properties.framesTotal());
+			m_pWinTaskbarProgress->setValue(0);
+			m_pWinTaskbarProgress->resume();
+			m_pWinTaskbarProgress->show();
+		}
 	#endif
 	}
 	else if(vsedit::contains(pauseStates, a_newState))
 	{
 	#ifdef Q_OS_WIN
-		m_pWinTaskbarProgress->pause();
+		if(m_pWinTaskbarProgress)
+			m_pWinTaskbarProgress->pause();
 	#endif
 	}
 	else if(vsedit::contains(failStates, a_newState))
 	{
 	#ifdef Q_OS_WIN
-		m_pWinTaskbarProgress->stop();
+		if(m_pWinTaskbarProgress)
+			m_pWinTaskbarProgress->stop();
 	#endif
 	}
 	else if(a_newState == JobState::Completed)
 	{
 	#ifdef Q_OS_WIN
-		m_pWinTaskbarProgress->hide();
+		if(m_pWinTaskbarProgress)
+			m_pWinTaskbarProgress->hide();
 	#endif
 	}
 }
@@ -508,8 +510,8 @@ void EncodeDialog::slotJobProgressChanged()
 		.arg(percentage).arg(properties.scriptName));
 
 #ifdef Q_OS_WIN
-	assert(m_pWinTaskbarProgress);
-	m_pWinTaskbarProgress->setValue(properties.framesProcessed);
+	if(m_pWinTaskbarProgress)
+		m_pWinTaskbarProgress->setValue(properties.framesProcessed);
 #endif
 }
 
@@ -521,11 +523,25 @@ void EncodeDialog::slotJobPropertiesChanged()
 	JobProperties properties = m_pJob->properties();
 	m_ui.processingProgressBar->setMaximum(properties.framesTotal());
 #ifdef Q_OS_WIN
-	m_pWinTaskbarProgress->setMaximum(properties.framesTotal());
+	if(m_pWinTaskbarProgress)
+		m_pWinTaskbarProgress->setMaximum(properties.framesTotal());
 #endif
 }
 
 // END OF void EncodeDialog::slotJobPropertiesChanged()
+//==============================================================================
+
+void EncodeDialog::slotWriteLogMessage(const QString & a_message,
+	const QString & a_style)
+{
+	if(!isVisible())
+		emit signalWriteLogMessage(a_message, a_style);
+	else
+		m_ui.feedbackTextEdit->addEntry(a_message, a_style);
+}
+
+// END OF void EncodeDialog::slotWriteLogMessage(const QString & a_message,
+//		const QString & a_style)
 //==============================================================================
 
 void EncodeDialog::setUpEncodingPresets()

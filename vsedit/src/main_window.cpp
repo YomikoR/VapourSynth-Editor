@@ -128,8 +128,8 @@ MainWindow::MainWindow() : QMainWindow()
 
 	m_pEncodeDialog = new EncodeDialog(m_pSettingsManager, m_pVSScriptLibrary);
 	connect(m_pEncodeDialog,
-		SIGNAL(signalWriteLogMessage(int, const QString &)),
-		this, SLOT(slotWriteLogMessage(int, const QString &)));
+		SIGNAL(signalWriteLogMessage(const QString &, const QString &)),
+		this, SLOT(slotWriteLogMessage(const QString &, const QString &)));
 
 	m_pTemplatesDialog = new TemplatesDialog(m_pSettingsManager);
 	m_pTemplatesDialog->setPluginsList(vsPluginsList);
