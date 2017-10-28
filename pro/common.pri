@@ -1,4 +1,4 @@
-VER_MAJ = 17
+VER_MAJ = 18
 VERSION = $$VER_MAJ
 
 QMAKE_TARGET_COMPANY = 'Aleksey [Mystery Keeper] Lyashin'

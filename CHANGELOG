@@ -1,3 +1,8 @@
+r18:
+-BUGFIX: Crash on encode dialog initialization error.
+-BUGFIX: No error in log on encode dialog initialization error.
+-Import chapter files as preview bookmarks (by brainvlad@gmail.com).
+
 r17:
 -BUGFIX: Blank preview on variable size video with fixed zoom ratio.
 -BUGFIX: Saving new script.
