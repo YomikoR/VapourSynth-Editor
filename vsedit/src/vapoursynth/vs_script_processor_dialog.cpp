@@ -43,9 +43,6 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
-	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
-	assert(m_cpVSAPI);
-
 	m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
 		m_pSettingsManager, m_pVSScriptLibrary, this);
 
@@ -88,6 +85,10 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	const QString & a_scriptName)
 {
 	assert(m_pVapourSynthScriptProcessor);
+
+	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
+	if(!m_cpVSAPI)
+		return false;
 
 	if(m_pVapourSynthScriptProcessor->isInitialized())
 	{
