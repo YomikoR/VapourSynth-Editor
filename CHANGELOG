@@ -1,3 +1,6 @@
+r19:
+-BUGFIX: Rapid settings updating on windows geometry change.
+
 r18:
 -BUGFIX: Crash on encode dialog initialization error.
 -BUGFIX: No error in log on encode dialog initialization error.
