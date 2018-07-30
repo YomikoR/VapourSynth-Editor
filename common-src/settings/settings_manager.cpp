@@ -10,11 +10,9 @@
 
 const char MAIN_WINDOW_GEOMETRY_KEY[] = "main_window_geometry";
 const char PREVIEW_DIALOG_GEOMETRY_KEY[] = "prewiew_dialog_geometry";
-const char JOBS_DIALOG_GEOMETRY_KEY[] = "jobs_dialog_geometry";
 const char JOB_SERVER_WATCHER_GEOMETRY_KEY[] = "job_server_watcher_geometry";
 const char MAIN_WINDOW_MAXIMIZED_KEY[] = "main_window_maximized";
 const char PREVIEW_DIALOG_MAXIMIZED_KEY[] = "preview_dialog_maximized";
-const char JOBS_DIALOG_MAXIMIZED_KEY[] = "jobs_dialog_maximized";
 const char JOB_SERVER_WATCHER_MAXIMIZED_KEY[] = "job_server_watcher_maximized";
 const char JOBS_HEADER_STATE_KEY[] = "jobs_header_state";
 const char AUTO_LOAD_LAST_SCRIPT_KEY[] = "auto_load_last_script";
@@ -468,32 +466,6 @@ bool SettingsManager::getPreviewDialogMaximized() const
 bool SettingsManager::setPreviewDialogMaximized(bool a_previewDialogMaximized)
 {
 	return setValue(PREVIEW_DIALOG_MAXIMIZED_KEY, a_previewDialogMaximized);
-}
-
-//==============================================================================
-
-QByteArray SettingsManager::getJobsDialogGeometry() const
-{
-	return value(JOBS_DIALOG_GEOMETRY_KEY).toByteArray();
-}
-
-bool SettingsManager::setJobsDialogGeometry(
-	const QByteArray & a_jobsDialogGeometry)
-{
-	return setValue(JOBS_DIALOG_GEOMETRY_KEY, a_jobsDialogGeometry);
-}
-
-//==============================================================================
-
-bool SettingsManager::getJobsDialogMaximized() const
-{
-	return value(JOBS_DIALOG_MAXIMIZED_KEY,
-		DEFAULT_JOBS_DIALOG_MAXIMIZED).toBool();
-}
-
-bool SettingsManager::setJobsDialogMaximized(bool a_jobsDialogMaximized)
-{
-	return setValue(JOBS_DIALOG_MAXIMIZED_KEY, a_jobsDialogMaximized);
 }
 
 //==============================================================================

@@ -72,14 +72,6 @@ public:
 
 	bool setPreviewDialogMaximized(bool a_previewDialogMaximized);
 
-	QByteArray getJobsDialogGeometry() const;
-
-	bool setJobsDialogGeometry(const QByteArray & a_previewDialogGeometry);
-
-	bool getJobsDialogMaximized() const;
-
-	bool setJobsDialogMaximized(bool a_previewDialogMaximized);
-
 	QByteArray getJobServerWatcherGeometry() const;
 
 	bool setJobServerWatcherGeometry(const QByteArray & a_geometry);
