@@ -14,6 +14,7 @@ class ScriptBenchmarkDialog;
 class EncodeDialog;
 class TemplatesDialog;
 class JobServerWatcherSocket;
+class QTimer;
 
 class MainWindow : public QMainWindow
 {
@@ -72,6 +73,8 @@ private slots:
 
 	void slotScriptFileDropped(const QString & a_filePath, bool * a_pHandled);
 
+	void slotSaveGeometry();
+
 private:
 
 	void createActionsAndMenus();
@@ -91,6 +94,8 @@ private:
 	void loadFonts();
 
 	void destroyOrphanQObjects();
+
+	void saveGeometryDelayed();
 
 	Ui::MainWindow m_ui;
 
@@ -129,6 +134,9 @@ private:
 	std::vector<QObject **> m_orphanQObjects;
 
 	JobServerWatcherSocket * m_pJobServerWatcherSocket;
+
+	QTimer * m_pGeometrySaveTimer;
+	QByteArray m_windowGeometry;
 };
 
 #endif // MAINWINDOW_H

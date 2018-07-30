@@ -36,6 +36,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QDateTime>
+#include <QTimer>
 
 //==============================================================================
 
@@ -67,6 +68,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_scriptFilePath()
 	, m_lastSavedText()
 	, m_pJobServerWatcherSocket(nullptr)
+	, m_pGeometrySaveTimer(nullptr)
 {
 	loadFonts();
 
@@ -151,13 +153,18 @@ MainWindow::MainWindow() : QMainWindow()
 		SIGNAL(signalWriteLogMessage(const QString &, const QString &)),
 		this, SLOT(slotWriteLogMessage(const QString &, const QString &)));
 
+	m_pGeometrySaveTimer = new QTimer(this);
+	m_pGeometrySaveTimer->setInterval(DEFAULT_WINDOW_GEOMETRY_SAVE_DELAY);
+	connect(m_pGeometrySaveTimer, &QTimer::timeout,
+		this, &MainWindow::slotSaveGeometry);
+
 	createActionsAndMenus();
 
 	slotChangeWindowTitle();
 
-	QByteArray newGeometry = m_pSettingsManager->getMainWindowGeometry();
-	if(!newGeometry.isEmpty())
-		restoreGeometry(newGeometry);
+	m_windowGeometry = m_pSettingsManager->getMainWindowGeometry();
+	if(!m_windowGeometry.isEmpty())
+		restoreGeometry(m_windowGeometry);
 
 	if(m_pSettingsManager->getMainWindowMaximized())
 		showMaximized();
@@ -170,6 +177,12 @@ MainWindow::MainWindow() : QMainWindow()
 
 MainWindow::~MainWindow()
 {
+	if(m_pGeometrySaveTimer->isActive())
+	{
+		m_pGeometrySaveTimer->stop();
+		slotSaveGeometry();
+	}
+
 	qInstallMessageHandler(0);
 	destroyOrphanQObjects();
 }
@@ -268,9 +281,7 @@ void MainWindow::closeEvent(QCloseEvent * a_pEvent)
 void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 {
 	QMainWindow::moveEvent(a_pEvent);
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setMainWindowGeometry(saveGeometry());
+	saveGeometryDelayed();
 }
 
 // END OF void MainWindow::moveEvent(QMoveEvent * a_pEvent)
@@ -279,9 +290,7 @@ void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
 {
 	QMainWindow::resizeEvent(a_pEvent);
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setMainWindowGeometry(saveGeometry());
+	saveGeometryDelayed();
 }
 
 // END OF void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
@@ -580,6 +589,15 @@ void MainWindow::slotScriptFileDropped(const QString & a_filePath,
 //		bool * a_pHandled)
 //==============================================================================
 
+void MainWindow::slotSaveGeometry()
+{
+	m_pGeometrySaveTimer->stop();
+	m_pSettingsManager->setMainWindowGeometry(m_windowGeometry);
+}
+
+// END OF void MainWindow::slotSaveGeometry()
+//==============================================================================
+
 void MainWindow::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -866,3 +884,17 @@ void MainWindow::destroyOrphanQObjects()
 
 // END OF void MainWindow::destroyOrphanQObjects()
 //==============================================================================
+
+void MainWindow::saveGeometryDelayed()
+{
+	QApplication::processEvents();
+	if(!isMaximized())
+	{
+		m_windowGeometry = saveGeometry();
+		m_pGeometrySaveTimer->start();
+	}
+}
+
+// END OF void MainWindow::saveGeometryDelayed()
+//==============================================================================
+
