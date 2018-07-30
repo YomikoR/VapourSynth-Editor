@@ -897,4 +897,3 @@ void MainWindow::saveGeometryDelayed()
 
 // END OF void MainWindow::saveGeometryDelayed()
 //==============================================================================
-

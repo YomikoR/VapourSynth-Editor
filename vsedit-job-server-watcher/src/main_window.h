@@ -23,6 +23,7 @@ class ConnectToServerDialog;
 class QLocalServer;
 class QLocalSocket;
 class TrustedClientsAddressesDialog;
+class QTimer;
 
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
@@ -109,6 +110,8 @@ private slots:
 
 	void slotSetTrustedClientsAddresses();
 
+	void slotSaveGeometry();
+
 private:
 
 	enum class WatcherState
@@ -126,8 +129,6 @@ private:
 
 	void createActionsAndMenus();
 
-	void saveGeometrySettings();
-
 	void editJob(const QModelIndex & a_index);
 
 	void processSMsgJobInfo(const QString & a_message);
@@ -141,6 +142,8 @@ private:
 	void changeState(WatcherState a_newState);
 
 	void processTaskList();
+
+	void saveGeometryDelayed();
 
 	static const char WINDOW_TITLE[];
 
@@ -182,6 +185,9 @@ private:
 	std::list<JobProperties> m_taskList;
 
 	QStringList m_trustedClientsAddresses;
+
+	QTimer * m_pGeometrySaveTimer;
+	QByteArray m_windowGeometry;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;

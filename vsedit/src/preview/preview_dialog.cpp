@@ -183,6 +183,11 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 
 PreviewDialog::~PreviewDialog()
 {
+	if(m_pGeometrySaveTimer->isActive())
+	{
+		m_pGeometrySaveTimer->stop();
+		slotSaveGeometry();
+	}
 }
 
 // END OF PreviewDialog::~PreviewDialog()

@@ -71,6 +71,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pConnectToServerDialog(nullptr)
 	, m_nextServerAddress(QHostAddress::LocalHost)
 	, m_pTaskServer(nullptr)
+	, m_pGeometrySaveTimer(nullptr)
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
@@ -109,9 +110,14 @@ MainWindow::MainWindow() : QMainWindow()
 	m_pServerSocket = new QWebSocket(QString(),
 		QWebSocketProtocol::VersionLatest, this);
 
-	QByteArray newGeometry = m_pSettingsManager->getJobServerWatcherGeometry();
-	if(!newGeometry.isEmpty())
-		restoreGeometry(newGeometry);
+	m_pGeometrySaveTimer = new QTimer(this);
+	m_pGeometrySaveTimer->setInterval(DEFAULT_WINDOW_GEOMETRY_SAVE_DELAY);
+	connect(m_pGeometrySaveTimer, &QTimer::timeout,
+		this, &MainWindow::slotSaveGeometry);
+
+	m_windowGeometry = m_pSettingsManager->getJobServerWatcherGeometry();
+	if(!m_windowGeometry.isEmpty())
+		restoreGeometry(m_windowGeometry);
 
 	QByteArray headerState = m_pSettingsManager->getJobsHeaderState();
 	if(!headerState.isEmpty())
@@ -230,6 +236,12 @@ MainWindow::MainWindow() : QMainWindow()
 
 MainWindow::~MainWindow()
 {
+	if(m_pGeometrySaveTimer->isActive())
+	{
+		m_pGeometrySaveTimer->stop();
+		slotSaveGeometry();
+	}
+
 	m_pServerSocket->close(QWebSocketProtocol::CloseCodeNormal,
 		trUtf8("Closing watcher."));
 	for(QLocalSocket * pClient : m_taskClients)
@@ -338,7 +350,7 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 {
 	QMainWindow::moveEvent(a_pEvent);
-	saveGeometrySettings();
+	saveGeometryDelayed();
 }
 
 // END OF void MainWindow::moveEvent(QMoveEvent * a_pEvent)
@@ -347,7 +359,7 @@ void MainWindow::moveEvent(QMoveEvent * a_pEvent)
 void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
 {
 	QMainWindow::resizeEvent(a_pEvent);
-	saveGeometrySettings();
+	saveGeometryDelayed();
 }
 
 // END OF void MainWindow::resizeEvent(QResizeEvent * a_pEvent)
@@ -1169,6 +1181,15 @@ void MainWindow::slotSetTrustedClientsAddresses()
 // END OF void MainWindow::slotSetTrustedClientsAddresses()
 //==============================================================================
 
+void MainWindow::slotSaveGeometry()
+{
+	m_pGeometrySaveTimer->stop();
+	m_pSettingsManager->setJobServerWatcherGeometry(m_windowGeometry);
+}
+
+// END OF void MainWindow::slotSaveGeometry()
+//==============================================================================
+
 void MainWindow::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -1218,16 +1239,6 @@ void MainWindow::createActionsAndMenus()
 }
 
 // END OF void MainWindow::createActionsAndMenus()
-//==============================================================================
-
-void MainWindow::saveGeometrySettings()
-{
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setJobServerWatcherGeometry(saveGeometry());
-}
-
-// END OF void MainWindow::saveGeometrySettings()
 //==============================================================================
 
 void MainWindow::editJob(const QModelIndex & a_index)
@@ -1432,4 +1443,17 @@ void MainWindow::processTaskList()
 }
 
 // END OF void MainWindow::processTaskList()
+//==============================================================================
+
+void MainWindow::saveGeometryDelayed()
+{
+	QApplication::processEvents();
+	if(!isMaximized())
+	{
+		m_windowGeometry = saveGeometry();
+		m_pGeometrySaveTimer->start();
+	}
+}
+
+// END OF void MainWindow::saveGeometryDelayed()
 //==============================================================================
