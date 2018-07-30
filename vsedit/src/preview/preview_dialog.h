@@ -133,6 +133,8 @@ protected slots:
 
 	void slotPasteShownFrameNumberIntoScript();
 
+	void slotSaveGeometry();
+
 protected:
 
 	virtual void stopAndCleanUp() override;
@@ -172,6 +174,8 @@ protected:
 
 	void saveTimelineBookmarks();
 	void loadTimelineBookmarks();
+
+	void saveGeometryDelayed();
 
 	Ui::PreviewDialog m_ui;
 
@@ -239,6 +243,9 @@ protected:
 	QIcon m_iconPause;
 
 	bool m_alwaysKeepCurrentFrame;
+
+	QTimer * m_pGeometrySaveTimer;
+	QByteArray m_windowGeometry;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

@@ -100,6 +100,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
 	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
+	, m_pGeometrySaveTimer(nullptr)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -135,9 +136,14 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 
 	m_ui.colorPickerButton->setDefaultAction(m_pActionToggleColorPicker);
 
-	QByteArray newGeometry = m_pSettingsManager->getPreviewDialogGeometry();
-	if(!newGeometry.isEmpty())
-		restoreGeometry(newGeometry);
+	m_pGeometrySaveTimer = new QTimer(this);
+	m_pGeometrySaveTimer->setInterval(DEFAULT_WINDOW_GEOMETRY_SAVE_DELAY);
+	connect(m_pGeometrySaveTimer, &QTimer::timeout,
+		this, &PreviewDialog::slotSaveGeometry);
+
+	m_windowGeometry = m_pSettingsManager->getPreviewDialogGeometry();
+	if(!m_windowGeometry.isEmpty())
+		restoreGeometry(m_windowGeometry);
 
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotAdvancedSettingsChanged()));
@@ -290,9 +296,7 @@ void PreviewDialog::stopAndCleanUp()
 void PreviewDialog::moveEvent(QMoveEvent * a_pEvent)
 {
 	QDialog::moveEvent(a_pEvent);
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setPreviewDialogGeometry(saveGeometry());
+	saveGeometryDelayed();
 }
 
 // END OF void PreviewDialog::moveEvent(QMoveEvent * a_pEvent)
@@ -301,9 +305,7 @@ void PreviewDialog::moveEvent(QMoveEvent * a_pEvent)
 void PreviewDialog::resizeEvent(QResizeEvent * a_pEvent)
 {
 	QDialog::resizeEvent(a_pEvent);
-	QApplication::processEvents();
-	if(!isMaximized())
-		m_pSettingsManager->setPreviewDialogGeometry(saveGeometry());
+	saveGeometryDelayed();
 }
 
 // END OF void PreviewDialog::resizeEvent(QResizeEvent * a_pEvent)
@@ -1405,6 +1407,15 @@ void PreviewDialog::slotPasteShownFrameNumberIntoScript()
 // END OF void PreviewDialog::slotPasteShownFrameNumberIntoScript()
 //==============================================================================
 
+void PreviewDialog::slotSaveGeometry()
+{
+	m_pGeometrySaveTimer->stop();
+	m_pSettingsManager->setPreviewDialogGeometry(m_windowGeometry);
+}
+
+// END OF void PreviewDialog::slotSaveGeometry()
+//==============================================================================
+
 void PreviewDialog::createActionsAndMenus()
 {
 	struct ActionToCreate
@@ -2095,4 +2106,17 @@ void PreviewDialog::loadTimelineBookmarks()
 }
 
 // END OF void PreviewDialog::loadTimelineBookmarks()
+//==============================================================================
+
+void PreviewDialog::saveGeometryDelayed()
+{
+	QApplication::processEvents();
+	if(!isMaximized())
+	{
+		m_windowGeometry = saveGeometry();
+		m_pGeometrySaveTimer->start();
+	}
+}
+
+// END OF void PreviewDialog::saveGeometryDelayed()
 //==============================================================================
