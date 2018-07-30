@@ -16,35 +16,35 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 	QString prefix = "Qt debug";
 	QString style = LOG_STYLE_DEFAULT;
 
-    switch(a_type)
-    {
-    case QtDebugMsg:
+	switch(a_type)
+	{
+	case QtDebugMsg:
 		prefix = "Qt debug";
 		style = LOG_STYLE_QT_DEBUG;
-        break;
+		break;
 #if(QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-    case QtInfoMsg:
+	case QtInfoMsg:
 		prefix = "Qt info";
 		style = LOG_STYLE_QT_INFO;
-        break;
+		break;
 #endif
-    case QtWarningMsg:
+	case QtWarningMsg:
 		prefix = "Qt warning";
 		style = LOG_STYLE_QT_WARNING;
-        break;
-    case QtCriticalMsg:
+		break;
+	case QtCriticalMsg:
 		prefix = "Qt critical";
 		style = LOG_STYLE_QT_CRITICAL;
-        break;
-    case QtFatalMsg:
+		break;
+	case QtFatalMsg:
 		prefix = "Qt fatal";
 		style = LOG_STYLE_QT_FATAL;
 		break;
 	default:
 		assert(false);
-    }
+	}
 
-    QString fullMessage = QString("%1: %2").arg(prefix).arg(a_message);
+	QString fullMessage = QString("%1: %2").arg(prefix).arg(a_message);
 
 	QString fileString(a_context.file);
 	QString lineString = QString::number(a_context.line);
@@ -57,9 +57,9 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 	if(!fileString.isEmpty())
 		fullMessage += lineInfo;
 
-    pMainWindow->slotWriteLogMessage(fullMessage, style);
+	pMainWindow->slotWriteLogMessage(fullMessage, style);
 
-    if(a_type == QtFatalMsg)
+	if(a_type == QtFatalMsg)
 		abort();
 }
 
