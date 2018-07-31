@@ -1,5 +1,7 @@
 #include "settings_manager.h"
 
+#include "../helpers.h"
+
 #include <QSettings>
 #include <QFileInfo>
 #include <QPalette>
@@ -345,15 +347,18 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 QTextCharFormat SettingsManager::getTextFormat(const QString & a_textFormatID)
 	const
 {
-	QVariant textFormatValue = valueInGroup(THEME_GROUP, a_textFormatID,
-		getDefaultTextFormat(a_textFormatID));
-	return qvariant_cast<QTextFormat>(textFormatValue).toCharFormat();
+	QVariant textFormatValue = valueInGroup(THEME_GROUP, a_textFormatID);
+	if(textFormatValue.isNull())
+		return getDefaultTextFormat(a_textFormatID);
+	return vsedit::fromByteArray<QTextCharFormat>(
+		textFormatValue.toByteArray());
 }
 
 bool SettingsManager::setTextFormat(const QString & a_textFormatID,
 	const QTextCharFormat & a_format)
 {
-	return setValueInGroup(THEME_GROUP, a_textFormatID, a_format);
+	return setValueInGroup(THEME_GROUP, a_textFormatID,
+		vsedit::toByteArray(a_format));
 }
 
 //==============================================================================

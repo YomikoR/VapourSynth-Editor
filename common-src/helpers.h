@@ -9,6 +9,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QByteArray>
+#include <QDataStream>
 #include <cassert>
 #include <algorithm>
 #include <functional>
@@ -76,6 +77,24 @@ template<typename T>
 		return a_number;
 
 	return a_number + a_multiple - remainder;
+}
+
+template<typename T>
+	QByteArray toByteArray(const T & a_data)
+{
+	QByteArray buf;
+	QDataStream stream(&buf, QIODevice::WriteOnly);
+	stream << a_data;
+	return buf;
+}
+
+template<typename T>
+	T fromByteArray(const QByteArray & a_array)
+{
+	QDataStream stream(a_array);
+	T data;
+	stream >> data;
+	return data;
 }
 
 //------------------------------------------------------------------------------
