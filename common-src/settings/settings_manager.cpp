@@ -389,15 +389,16 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 QColor SettingsManager::getColor(const QString & a_colorID) const
 {
-	QVariant colorValue = valueInGroup(THEME_GROUP, a_colorID,
-		getDefaultColor(a_colorID));
-	return qvariant_cast<QColor>(colorValue);
+	QVariant colorValue = valueInGroup(THEME_GROUP, a_colorID);
+	if(colorValue.isNull())
+		return getDefaultColor(a_colorID);
+	return QColor(colorValue.toString());
 }
 
 bool SettingsManager::setColor(const QString & a_colorID,
 	const QColor & a_color)
 {
-	return setValueInGroup(THEME_GROUP, a_colorID, a_color);
+	return setValueInGroup(THEME_GROUP, a_colorID, a_color.name());
 }
 
 //==============================================================================
