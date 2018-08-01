@@ -27,6 +27,8 @@ public:
 
 	void setPixmap(const QPixmap & a_pixmap);
 
+	void checkMouseOverPreview(const QPoint & a_globalMousePos);
+
 public slots:
 
 	void slotScrollLeft();

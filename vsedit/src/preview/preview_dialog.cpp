@@ -1942,6 +1942,7 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	m_framePixmap = pixmapFromCompatBGR32(a_cpPreviewFrameRef);
 	m_cpVSAPI->freeFrame(a_cpPreviewFrameRef);
 	setPreviewPixmap();
+	m_ui.previewArea->checkMouseOverPreview(QCursor::pos());
 }
 
 // END OF void PreviewDialog::setCurrentFrame(

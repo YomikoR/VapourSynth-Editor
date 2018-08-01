@@ -60,6 +60,31 @@ void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 // END OF void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 //==============================================================================
 
+void PreviewArea::checkMouseOverPreview(const QPoint & a_globalMousePos)
+{
+	if(!m_pPreviewLabel->underMouse())
+		return;
+
+	QPoint imagePoint = m_pPreviewLabel->mapFromGlobal(a_globalMousePos);
+
+	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
+	int pixmapWidth = pPreviewPixmap->width();
+	int pixmapHeight = pPreviewPixmap->height();
+
+	if((imagePoint.x() < 0) || (imagePoint.y() < 0) ||
+		(imagePoint.x() >= pixmapWidth) || (imagePoint.y() >= pixmapHeight))
+		return;
+
+	float normX = (float)imagePoint.x() / (float)pixmapWidth;
+	float normY = (float)imagePoint.y() / (float)pixmapHeight;
+
+	emit signalMouseOverPoint(normX, normY);
+}
+
+// END OF void PreviewArea::checkMouseOverPreview(
+//		const QPoint & a_globalMousePos)
+//==============================================================================
+
 void PreviewArea::slotScrollLeft()
 {
 	horizontalScrollBar()->setValue(0);
@@ -181,19 +206,7 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 	}
 
 	QPoint globalPoint = a_pEvent->globalPos();
-	QPoint imagePoint = m_pPreviewLabel->mapFromGlobal(globalPoint);
-
-	const QPixmap * pPreviewPixmap = m_pPreviewLabel->pixmap();
-	int pixmapWidth = pPreviewPixmap->width();
-	int pixmapHeight = pPreviewPixmap->height();
-
-	if((imagePoint.x() < pixmapWidth) && (imagePoint.y() < pixmapHeight))
-	{
-		float normX = (float)imagePoint.x() / (float)pixmapWidth;
-		float normY = (float)imagePoint.y() / (float)pixmapHeight;
-
-		emit signalMouseOverPoint(normX, normY);
-	}
+	checkMouseOverPreview(globalPoint);
 
 	QScrollArea::mouseMoveEvent(a_pEvent);
 }
