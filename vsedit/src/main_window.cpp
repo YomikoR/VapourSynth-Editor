@@ -323,6 +323,8 @@ void MainWindow::slotNewScript()
 	m_ui.scriptEdit->setPlainText(newScriptTemplate);
 	m_ui.scriptEdit->moveCursor(QTextCursor::End);
 	m_ui.scriptEdit->setModified(true);
+
+	m_pBenchmarkDialog->resetSavedRange();
 }
 
 // END OF void MainWindow::slotNewScript()
@@ -765,7 +767,7 @@ bool MainWindow::loadScriptFromFile(const QString& a_filePath)
 		QMessageBox::critical(this,
 			QString::fromUtf8("File open error"),
 			QString::fromUtf8("Failed to open the file %1.").arg(a_filePath));
-        return false;
+		return false;
 	}
 
 	setCurrentScriptFilePath(a_filePath);
@@ -773,6 +775,8 @@ bool MainWindow::loadScriptFromFile(const QString& a_filePath)
 	QString scriptText = QString::fromUtf8(utf8Script);
 	m_lastSavedText = scriptText;
 	m_ui.scriptEdit->setPlainText(scriptText);
+
+	m_pBenchmarkDialog->resetSavedRange();
 
 	return true;
 }

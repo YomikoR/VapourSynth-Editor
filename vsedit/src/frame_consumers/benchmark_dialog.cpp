@@ -26,6 +26,8 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	, m_framesTotal(0)
 	, m_framesProcessed(0)
 	, m_framesFailed(0)
+	, m_lastFromFrame(-1)
+	, m_lastToFrame(-1)
 
 #ifdef Q_OS_WIN
 	, m_pWinTaskbarButton(nullptr)
@@ -74,6 +76,15 @@ bool ScriptBenchmarkDialog::initialize(const QString & a_script,
 //		const QString & a_scriptName)
 //==============================================================================
 
+void ScriptBenchmarkDialog::resetSavedRange()
+{
+	m_lastFromFrame = -1;
+	m_lastToFrame = -1;
+}
+
+// END OF void ScriptBenchmarkDialog::resetSavedRange()
+//==============================================================================
+
 void ScriptBenchmarkDialog::call()
 {
 	if(m_processing)
@@ -92,13 +103,21 @@ void ScriptBenchmarkDialog::call()
 	QString text = trUtf8("Ready to benchmark script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
+	int firstFrame = 0;
 	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
-	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setMaximum(lastFrame);
-	m_ui.toFrameSpinBox->setValue(lastFrame);
 	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
 	m_ui.processingProgressBar->setValue(0);
+
+	if(m_lastFromFrame >= 0)
+		firstFrame = std::min(m_lastFromFrame, lastFrame);
+	m_ui.fromFrameSpinBox->setValue(firstFrame);
+
+	if(m_lastToFrame >= 0)
+		lastFrame = std::min(m_lastToFrame, lastFrame);
+	m_ui.toFrameSpinBox->setValue(lastFrame);
+
 	show();
 
 #ifdef Q_OS_WIN
@@ -173,6 +192,9 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
 	setWindowTitle(trUtf8("0% Benchmark: %1").arg(scriptName()));
+
+	m_lastFromFrame = firstFrame;
+	m_lastToFrame = lastFrame;
 
 #ifdef Q_OS_WIN
 	assert(m_pWinTaskbarProgress);

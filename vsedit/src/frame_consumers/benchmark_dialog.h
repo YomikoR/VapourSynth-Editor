@@ -25,6 +25,8 @@ public:
 	virtual bool initialize(const QString & a_script,
 		const QString & a_scriptName) override;
 
+	void resetSavedRange();
+
 public slots:
 
 	void call();
@@ -62,6 +64,9 @@ protected:
 	int m_framesFailed;
 
 	hr_time_point m_benchmarkStartTime;
+
+	int m_lastFromFrame;
+	int m_lastToFrame;
 
 #ifdef Q_OS_WIN
 	QWinTaskbarButton * m_pWinTaskbarButton;
