@@ -2,6 +2,7 @@ r19:
 -BUGFIX: Rapid settings updating on windows geometry change.
 -BUGFIX: Theme settings corruption when using job server.
 -Color picker update with a still mouse cursor in play mode.
+-Benchmark dialog remembers first and last frame for current script.
 
 r18:
 -BUGFIX: Crash on encode dialog initialization error.
