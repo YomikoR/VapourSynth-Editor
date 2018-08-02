@@ -220,6 +220,7 @@ HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/syntax_highlighter.h
 HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_completer_model.h
 HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_completer.h
 HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_editor.h
+HEADERS += $${PROJECT_DIRECTORY}/src/script_editor/script_lexer.h
 HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_plugin_data.h
 HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vapoursynth_plugins_manager.h
 HEADERS += $${PROJECT_DIRECTORY}/src/vapoursynth/vs_script_processor_dialog.h
