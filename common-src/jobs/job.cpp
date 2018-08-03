@@ -10,7 +10,6 @@
 
 #include <QFileInfo>
 #include <QFile>
-#include <cassert>
 #include <algorithm>
 #include <vapoursynth/VSHelper.h>
 
@@ -333,7 +332,7 @@ bool vsedit::Job::setFirstFrame(int a_frame)
 	m_properties.firstFrame = a_frame;
 	if(m_pVapourSynthScriptProcessor->isInitialized())
 	{
-		assert(m_cpVideoInfo);
+		Q_ASSERT(m_cpVideoInfo);
 		m_properties.firstFrameReal = std::min(m_properties.firstFrame,
 			m_cpVideoInfo->numFrames - 1);
 	}
@@ -374,7 +373,7 @@ bool vsedit::Job::setLastFrame(int a_frame)
 	m_properties.lastFrame = a_frame;
 	if(m_pVapourSynthScriptProcessor->isInitialized())
 	{
-		assert(m_cpVideoInfo);
+		Q_ASSERT(m_cpVideoInfo);
 		m_properties.lastFrameReal = std::min(m_properties.lastFrame,
 			m_cpVideoInfo->numFrames - 1);
 	}
@@ -519,7 +518,7 @@ bool vsedit::Job::initialize()
 	}
 
 	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	if(!m_pVapourSynthScriptProcessor)
 	{
@@ -564,7 +563,7 @@ bool vsedit::Job::initialize()
 	}
 
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
-	assert(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo);
 
 	m_properties.framesProcessed = 0;
 	m_properties.firstFrameReal = m_properties.firstFrame;
@@ -732,7 +731,7 @@ void vsedit::Job::slotProcessStarted()
 			return;
 		}
 
-		assert(m_pFrameHeaderWriter);
+		Q_ASSERT(m_pFrameHeaderWriter);
 		if(m_pFrameHeaderWriter->needVideoHeader())
 		{
 			QByteArray videoHeader =
@@ -890,7 +889,7 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 			break;
 
 		default:
-			assert(false);
+			Q_ASSERT(false);
 		}
 	}
 	else if(m_properties.type == JobType::RunProcess)
@@ -1004,7 +1003,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 	if(m_bytesWritten < m_bytesToWrite)
 		return;
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 	if(m_encodingState == EncodingState::WritingHeader)
 	{
 		m_memorizedEncodingTime = 0.0;
@@ -1016,7 +1015,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 		std::list<Frame>::iterator it =
 			std::find(m_framesCache.begin(), m_framesCache.end(),
 			referenceFrame);
-		assert(it != m_framesCache.end());
+		Q_ASSERT(it != m_framesCache.end());
 
 		m_cpVSAPI->freeFrame(it->cpOutputFrameRef);
 		m_framesCache.erase(it);
@@ -1078,7 +1077,7 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 
 void vsedit::Job::slotScriptProcessorFinalized()
 {
-	assert(m_properties.type == JobType::EncodeScriptCLI);
+	Q_ASSERT(m_properties.type == JobType::EncodeScriptCLI);
 	finishEncodingCLI();
 }
 
@@ -1100,7 +1099,7 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		(a_frameNumber > m_properties.lastFrameReal))
 		return;
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 	const VSFrameRef * cpFrameRef =
 		m_cpVSAPI->cloneFrameRef(a_cpOutputFrameRef);
 	Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
@@ -1425,7 +1424,7 @@ void vsedit::Job::clearFramesCache()
 	if(m_framesCache.empty())
 		return;
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 	for(Frame & frame : m_framesCache)
 	{
 		m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
@@ -1444,7 +1443,7 @@ void vsedit::Job::processFramesQueue()
 
 	if(m_properties.framesProcessed == framesTotal())
 	{
-		assert(m_framesCache.empty());
+		Q_ASSERT(m_framesCache.empty());
 		memorizeEncodingTime();
 		updateFPS();
 		changeStateAndNotify(JobState::CompletedCleanUp);
@@ -1478,9 +1477,9 @@ void vsedit::Job::processFramesQueue()
 
 	size_t currentDataSize = 0;
 
-	assert(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo);
 	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	assert(cpFormat);
+	Q_ASSERT(cpFormat);
 
 	if(m_pFrameHeaderWriter->needFramePrefix())
 	{

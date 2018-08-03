@@ -1,7 +1,5 @@
 #include "frame_header_writer_null.h"
 
-#include <cassert>
-
 //==============================================================================
 
 FrameHeaderWriterNull::FrameHeaderWriterNull(const VSAPI * a_cpVSAPI,
@@ -16,7 +14,7 @@ FrameHeaderWriterNull::FrameHeaderWriterNull(const VSAPI * a_cpVSAPI,
 
 bool FrameHeaderWriterNull::isCompatible()
 {
-    assert(m_cpVideoInfo);
+    Q_ASSERT(m_cpVideoInfo);
     if(!m_cpVideoInfo)
 		return false;
 	return true;

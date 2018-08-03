@@ -3,7 +3,6 @@
 #include "../../common-src/log/vs_editor_log.h"
 
 #include <QApplication>
-#include <cassert>
 
 Q_DECLARE_OPAQUE_POINTER(const VSFrameRef *)
 Q_DECLARE_OPAQUE_POINTER(VSNodeRef *)
@@ -41,7 +40,7 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 		style = LOG_STYLE_QT_FATAL;
 		break;
 	default:
-		assert(false);
+		Q_ASSERT(false);
 	}
 
 	QString fullMessage = QString("%1: %2").arg(prefix).arg(a_message);

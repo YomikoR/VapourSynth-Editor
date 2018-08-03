@@ -7,7 +7,6 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFile>
-#include <cassert>
 
 //==============================================================================
 
@@ -287,7 +286,7 @@ void StyledLogView::slotShowCustomMenu(const QPoint & a_position)
 
 void StyledLogView::slotLogSettings()
 {
-	assert(m_pSettingsDialog);
+	Q_ASSERT(m_pSettingsDialog);
 	m_pSettingsDialog->setStyles(m_styles);
 	m_pSettingsDialog->show();
 }

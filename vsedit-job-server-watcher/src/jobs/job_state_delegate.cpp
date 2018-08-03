@@ -5,7 +5,6 @@
 #include "../../../common-src/helpers.h"
 
 #include <QPainter>
-#include <cassert>
 
 JobStateDelegate::JobStateDelegate(QObject * a_pParent) :
 	QStyledItemDelegate(a_pParent)
@@ -22,8 +21,8 @@ void JobStateDelegate::paint(QPainter * a_pPainter,
 	a_pPainter->save();
 	const JobsModel * cpModel =
 		qobject_cast<const JobsModel *>(a_index.model());
-	assert(cpModel);
-	assert(a_index.column() == JobsModel::STATE_COLUMN);
+	Q_ASSERT(cpModel);
+	Q_ASSERT(a_index.column() == JobsModel::STATE_COLUMN);
 	JobProperties properties = cpModel->jobProperties(a_index.row());
 	JobState state = properties.jobState;
 	QColor cellColor = jobStateColor(state, a_option);

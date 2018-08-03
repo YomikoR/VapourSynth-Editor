@@ -8,7 +8,6 @@
 
 #include <QMessageBox>
 #include <QFileDialog>
-#include <cassert>
 #include <algorithm>
 
 #ifdef Q_OS_WIN
@@ -101,7 +100,7 @@ bool EncodeDialog::initialize(const QString & a_script,
 
 	properties = m_pJob->properties();
 	const VSVideoInfo * cpVideoInfo = m_pJob->videoInfo();
-	assert(cpVideoInfo);
+	Q_ASSERT(cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
 	setWindowTitle(trUtf8("Encode: %1").arg(a_scriptName));
@@ -186,7 +185,7 @@ void EncodeDialog::closeEvent(QCloseEvent * a_pEvent)
 void EncodeDialog::slotWholeVideoButtonPressed()
 {
 	const VSVideoInfo * cpVideoInfo = m_pJob->videoInfo();
-	assert(cpVideoInfo);
+	Q_ASSERT(cpVideoInfo);
 	int lastFrame = cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
@@ -305,14 +304,14 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
 	if(it == m_encodingPresets.end())
 	{
-		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
+		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
 		m_encodingPresets.push_back(preset);
 		m_ui.encodingPresetComboBox->addItem(preset.name);
 		m_ui.encodingPresetComboBox->model()->sort(0);
 	}
 	else
 	{
-		assert(m_ui.encodingPresetComboBox->findText(preset.name) != -1);
+		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) != -1);
 		*it = preset;
 	}
 
@@ -341,14 +340,14 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
 	if(it == m_encodingPresets.end())
 	{
-		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
+		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
 		m_ui.feedbackTextEdit->addEntry(trUtf8("Error deleting preset. "
 			"Preset was never saved."), LOG_STYLE_ERROR);
 		return;
 	}
 
 	int index = m_ui.encodingPresetComboBox->findText(preset.name);
-	assert(index != -1);
+	Q_ASSERT(index != -1);
 	m_ui.encodingPresetComboBox->removeItem(index);
 	m_encodingPresets.erase(it);
 	m_ui.encodingPresetComboBox->setCurrentIndex(0);
@@ -494,7 +493,7 @@ void EncodeDialog::slotJobProgressChanged()
 	if((properties.framesProcessed > 0) &&
 		(properties.framesProcessed < properties.framesTotal()))
 	{
-		assert(properties.fps > 0.0);
+		Q_ASSERT(properties.fps > 0.0);
 		double estimated = (properties.framesTotal() -
 			properties.framesProcessed) / properties.fps;
 		QString estimatedString = vsedit::timeToString(estimated);

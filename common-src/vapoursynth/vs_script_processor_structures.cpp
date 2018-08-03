@@ -1,7 +1,5 @@
 #include "vs_script_processor_structures.h"
 
-#include <cassert>
-
 //==============================================================================
 
 Frame::Frame(int a_number, int a_outputIndex,

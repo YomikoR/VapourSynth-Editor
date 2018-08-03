@@ -10,7 +10,6 @@
 #include <QJsonDocument>
 #include <QByteArray>
 #include <QDataStream>
-#include <cassert>
 #include <algorithm>
 #include <functional>
 
@@ -52,7 +51,7 @@ QByteArray jsonMessage(const QString & a_command,
 template<typename T1, typename T2, typename T3>
 	void clamp(T1& a_value, const T2& a_low, const T3& a_high)
 {
-	assert(a_high > a_low);
+	Q_ASSERT(a_high > a_low);
 	if(a_value < a_low)
 		a_value = a_low;
 	else if(a_value > a_high)

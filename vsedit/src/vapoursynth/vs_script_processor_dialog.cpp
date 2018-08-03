@@ -7,7 +7,6 @@
 
 #include <vapoursynth/VapourSynth.h>
 
-#include <cassert>
 #include <QCloseEvent>
 #include <QStatusBar>
 #include <QLabel>
@@ -36,8 +35,8 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_errorPixmap(":cross.png")
 	, m_cachedFramesLimit(100)
 {
-	assert(m_pSettingsManager);
-	assert(m_pVSScriptLibrary);
+	Q_ASSERT(m_pSettingsManager);
+	Q_ASSERT(m_pVSScriptLibrary);
 
 	connect(m_pVSScriptLibrary,
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
@@ -84,7 +83,7 @@ VSScriptProcessorDialog::~VSScriptProcessorDialog()
 bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	const QString & a_scriptName)
 {
-	assert(m_pVapourSynthScriptProcessor);
+	Q_ASSERT(m_pVapourSynthScriptProcessor);
 
 	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
 	if(!m_cpVSAPI)
@@ -111,7 +110,7 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	}
 
 	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
-	assert(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo);
 
 	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo);
 
@@ -233,7 +232,7 @@ void VSScriptProcessorDialog::clearFramesCache()
 	if(m_framesCache.empty())
 		return;
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 	for(Frame & frame : m_framesCache)
 	{
 		m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
@@ -248,7 +247,7 @@ void VSScriptProcessorDialog::clearFramesCache()
 void VSScriptProcessorDialog::createStatusBar()
 {
 	QLayout * pLayout = layout();
-	assert(pLayout);
+	Q_ASSERT(pLayout);
 	if(!pLayout)
 		return;
 

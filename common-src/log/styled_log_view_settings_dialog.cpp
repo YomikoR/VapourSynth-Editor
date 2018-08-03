@@ -5,7 +5,6 @@
 #include <QGuiApplication>
 #include <QFontDialog>
 #include <QColorDialog>
-#include <cassert>
 
 //==============================================================================
 
@@ -50,7 +49,7 @@ StyledLogViewSettingsDialog::~StyledLogViewSettingsDialog()
 
 std::vector<TextBlockStyle> StyledLogViewSettingsDialog::styles() const
 {
-	assert(m_pLogStylesModel);
+	Q_ASSERT(m_pLogStylesModel);
 	return m_pLogStylesModel->styles();
 }
 
@@ -61,7 +60,7 @@ std::vector<TextBlockStyle> StyledLogViewSettingsDialog::styles() const
 void StyledLogViewSettingsDialog::setStyles(
 	const std::vector<TextBlockStyle> & a_styles)
 {
-	assert(m_pLogStylesModel);
+	Q_ASSERT(m_pLogStylesModel);
 	m_pLogStylesModel->setStyles(a_styles);
 	m_ui.stylesView->resizeRowsToContents();
 }

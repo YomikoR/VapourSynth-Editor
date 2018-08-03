@@ -1,7 +1,5 @@
 #include "log_styles_model.h"
 
-#include <cassert>
-
 //==============================================================================
 
 LogStylesModel::LogStylesModel(QObject * a_pParent) :
@@ -150,7 +148,7 @@ void LogStylesModel::setStyles(const std::vector<TextBlockStyle> & a_styles)
 
 TextBlockStyle LogStylesModel::style(int a_index) const
 {
-	assert(styleIndexValid(a_index));
+	Q_ASSERT(styleIndexValid(a_index));
 	return m_styles[a_index];
 }
 

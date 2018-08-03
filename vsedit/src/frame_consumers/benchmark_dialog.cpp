@@ -96,7 +96,7 @@ void ScriptBenchmarkDialog::call()
 	if((!m_pVapourSynthScriptProcessor->isInitialized()) || m_wantToFinalize)
 		return;
 
-	assert(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
 	setWindowTitle(trUtf8("Benchmark: %1").arg(scriptName()));
@@ -158,7 +158,7 @@ void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 
 void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
 {
-	assert(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo);
 	int lastFrame = m_cpVideoInfo->numFrames - 1;
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
@@ -197,7 +197,7 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_lastToFrame = lastFrame;
 
 #ifdef Q_OS_WIN
-	assert(m_pWinTaskbarProgress);
+	Q_ASSERT(m_pWinTaskbarProgress);
 	m_pWinTaskbarProgress->setMaximum(m_framesTotal);
 	m_pWinTaskbarProgress->setValue(0);
 	m_pWinTaskbarProgress->resume();
@@ -264,7 +264,7 @@ void ScriptBenchmarkDialog::stopProcessing()
 	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
 
 #ifdef Q_OS_WIN
-	assert(m_pWinTaskbarProgress);
+	Q_ASSERT(m_pWinTaskbarProgress);
 	if(m_framesProcessed == m_framesTotal)
 		m_pWinTaskbarProgress->setVisible(false);
 	else
@@ -303,7 +303,7 @@ void ScriptBenchmarkDialog::updateMetrics()
 		.arg(percentage).arg(scriptName()));
 
 #ifdef Q_OS_WIN
-	assert(m_pWinTaskbarProgress);
+	Q_ASSERT(m_pWinTaskbarProgress);
 	m_pWinTaskbarProgress->setValue(m_framesProcessed);
 #endif
 

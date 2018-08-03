@@ -5,7 +5,6 @@
 
 #include <QSettings>
 #include <QProcessEnvironment>
-#include <cassert>
 
 //==============================================================================
 
@@ -30,7 +29,7 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	, m_initialized(false)
 	, m_cpVSAPI(nullptr)
 {
-	assert(m_pSettingsManager);
+	Q_ASSERT(m_pSettingsManager);
 }
 
 // END OF VSScriptLibrary::VSScriptLibrary(
@@ -188,14 +187,14 @@ bool VSScriptLibrary::initLibrary()
 {
 	if(m_vsScriptLibrary.isLoaded())
 	{
-		assert(vssInit);
-		assert(vssGetVSApi);
-		assert(vssEvaluateScript);
-		assert(vssGetError);
-		assert(vssGetCore);
-		assert(vssGetOutput);
-		assert(vssFreeScript);
-		assert(vssFinalize);
+		Q_ASSERT(vssInit);
+		Q_ASSERT(vssGetVSApi);
+		Q_ASSERT(vssEvaluateScript);
+		Q_ASSERT(vssGetError);
+		Q_ASSERT(vssGetCore);
+		Q_ASSERT(vssGetOutput);
+		Q_ASSERT(vssFreeScript);
+		Q_ASSERT(vssFinalize);
 		return true;
 	}
 
@@ -303,7 +302,7 @@ bool VSScriptLibrary::initLibrary()
 
 	for(Entry & entry : vssEntries)
 	{
-		assert(entry.ppFunction);
+		Q_ASSERT(entry.ppFunction);
 		*entry.ppFunction = m_vsScriptLibrary.resolve(entry.name);
 		if(!*entry.ppFunction)
 		{ // Win32 fallback

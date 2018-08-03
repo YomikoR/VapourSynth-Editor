@@ -4,7 +4,6 @@
 #include "../../../common-src/helpers.h"
 
 #include <QGuiApplication>
-#include <cassert>
 
 //==============================================================================
 
@@ -26,7 +25,7 @@ JobsModel::JobsModel(SettingsManager * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_fpsDisplayPrecision(DEFAULT_FPS_DISPLAY_PRECISION)
 {
-	assert(m_pSettingsManager);
+	Q_ASSERT(m_pSettingsManager);
 }
 
 // END OF JobsModel::JobsModel(SettingsManager * a_pSettingsManager,

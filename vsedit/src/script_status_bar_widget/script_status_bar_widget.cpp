@@ -3,7 +3,6 @@
 #include "../../../common-src/helpers.h"
 
 #include <QLocale>
-#include <cassert>
 
 //==============================================================================
 
