@@ -1,0 +1,14 @@
+*
+!/.gitignore
+!*.pro
+!*.pri
+!/common-src/
+!/vsedit/src/
+!/vsedit-job-server/src/
+!/vsedit-job-server-watcher/src/
+!/resources/
+!/BUILDING
+!/CHANGELOG
+!/LICENSE
+!/README
+!/TODO.txt
