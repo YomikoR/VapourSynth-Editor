@@ -63,7 +63,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument * a_pDocument,
 	, m_vsArgumentFormat()
 {
 	m_keywordsList << "False" << "None" << "True" << "and" << "as" <<
-		"Q_ASSERT" << "break" << "class" << "continue" << "def" << "del" <<
+		"assert" << "break" << "class" << "continue" << "def" << "del" <<
 		"elif" << "else" << "except" << "finally" << "for" << "from" <<
 		"global" << "if" << "import" << "in" << "is" << "lambda" <<
 		"nonlocal" << "not" << "or" << "pass" << "raise" << "return" <<
