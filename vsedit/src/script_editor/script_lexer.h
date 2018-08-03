@@ -6,7 +6,6 @@
 
 #include <QObject>
 #include <QTextCharFormat>
-#include <vector>
 
 class SettingsManager;
 class QTextDocument;
@@ -19,7 +18,7 @@ public:
 
 	ScriptLexer(QTextDocument * a_pDocument,
 		SettingsManager * a_pSettingsManager = nullptr);
-	virtual ~ScriptLexer();
+	virtual ~ScriptLexer() = default ;
 
 	void setSettingsManager(SettingsManager * a_pSettingsManager);
 
@@ -42,13 +41,14 @@ private:
 	void highlight(int a_from = 0);
 	void format(int a_start, int a_count, const QTextCharFormat & a_format);
 	void format(const Token & a_token, const QTextCharFormat & a_format);
+	TokenIterator tokenAt(int a_textPosition);
 
 	QTextDocument * m_pDocument;
 	SettingsManager * m_pSettingsManager;
 
 	VSPluginsList m_pluginsList;
 
-	std::vector<Token> m_tokens;
+	TokenVector m_tokens;
 };
 
 #endif // SCRIPT_LEXER_H

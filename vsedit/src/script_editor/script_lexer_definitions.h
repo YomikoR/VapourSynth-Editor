@@ -1,8 +1,9 @@
 #ifndef SCRIPT_LEXER_DEFINITIONS_H
 #define SCRIPT_LEXER_DEFINITIONS_H
 
-#include <list>
 #include <QString>
+#include <list>
+#include <vector>
 
 enum class ScriptContextType
 {
@@ -50,8 +51,14 @@ struct Token
 	TokenType type;
 	std::list<ScriptContext> contextStack;
 
+	Token(QString a_text, int a_start, TokenType a_type,
+		std::list<ScriptContext>  a_contextStack);
+	Token(int a_start);
 	int length() const;
 	bool operator<(const Token & a_other) const;
 };
+
+typedef std::vector<Token> TokenVector;
+typedef TokenVector::iterator TokenIterator;
 
 #endif // SCRIPT_LEXER_DEFINITIONS_H
