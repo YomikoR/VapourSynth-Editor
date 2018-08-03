@@ -5,6 +5,7 @@
 #include "../vapoursynth/vs_plugin_data.h"
 
 #include <QObject>
+#include <QTextCharFormat>
 #include <vector>
 
 class SettingsManager;
@@ -17,8 +18,7 @@ class ScriptLexer : public QObject
 public:
 
 	ScriptLexer(QTextDocument * a_pDocument,
-		SettingsManager * a_pSettingsManager = nullptr,
-		QObject * a_pParent = nullptr);
+		SettingsManager * a_pSettingsManager = nullptr);
 	virtual ~ScriptLexer();
 
 	void setSettingsManager(SettingsManager * a_pSettingsManager);
@@ -31,10 +31,17 @@ public slots:
 
 	void slotParseAndHighlight();
 
+private slots:
+
+	void slotContentChanged(int a_position, int a_charsRemoved,
+		int a_charsAdded);
+
 private:
 
-	void parse();
-	void highlight();
+	void parse(int a_from = 0);
+	void highlight(int a_from = 0);
+	void format(int a_start, int a_count, const QTextCharFormat & a_format);
+	void format(const Token & a_token, const QTextCharFormat & a_format);
 
 	QTextDocument * m_pDocument;
 	SettingsManager * m_pSettingsManager;
