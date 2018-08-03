@@ -1,44 +1,47 @@
 #ifndef SCRIPT_LEXER_H
 #define SCRIPT_LEXER_H
 
-enum class ScriptContextType
-{
-	Code,
-	ModuleImport,
-	Function,
-	FunctionHeader,
-	FunctionArguments,
-	FunctionCallArguments,
-	Expression,
-	Comment,
-};
+#include "script_lexer_definitions.h"
+#include "../vapoursynth/vs_plugin_data.h"
 
-enum class TokenType
-{
-	Undecided,
-	Module,
-	Keyword,
-	Operator,
-	String,
-	Number,
-	Comment,
-	Variable,
-	Function,
-	FunctionArgument,
-	VSModule,
-	VSCore,
-	VSNamespace,
-	VSFunction,
-	VSConstant,
-	VSClip,
-};
+#include <QObject>
+#include <vector>
 
-struct Token
+class SettingsManager;
+class QTextDocument;
+
+class ScriptLexer : public QObject
 {
-	QString text;
-	int start;
-	int length;
-	TokenType type;
+	Q_OBJECT
+
+public:
+
+	ScriptLexer(QTextDocument * a_pDocument,
+		SettingsManager * a_pSettingsManager = nullptr,
+		QObject * a_pParent = nullptr);
+	virtual ~ScriptLexer();
+
+	void setSettingsManager(SettingsManager * a_pSettingsManager);
+
+	void setPluginsList(VSPluginsList a_pluginsList);
+
+public slots:
+
+	void slotLoadSettings();
+
+	void slotParseAndHighlight();
+
+private:
+
+	void parse();
+	void highlight();
+
+	QTextDocument * m_pDocument;
+	SettingsManager * m_pSettingsManager;
+
+	VSPluginsList m_pluginsList;
+
+	std::vector<Token> m_tokens;
 };
 
 #endif // SCRIPT_LEXER_H
