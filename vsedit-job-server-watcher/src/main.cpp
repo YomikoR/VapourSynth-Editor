@@ -6,7 +6,6 @@
 
 #include <QApplication>
 #include <QLocalSocket>
-#include <cassert>
 
 MainWindow * pMainWindow = nullptr;
 
@@ -41,7 +40,7 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 		style = LOG_STYLE_QT_FATAL;
 		break;
 	default:
-		assert(false);
+		Q_ASSERT(false);
     }
 
     QString fullMessage = QString("%1: %2").arg(prefix).arg(a_message);

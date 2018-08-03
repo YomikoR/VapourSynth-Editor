@@ -23,7 +23,6 @@
 #include <QDir>
 #include <QMenu>
 #include <algorithm>
-#include <cassert>
 
 //==============================================================================
 
@@ -744,7 +743,7 @@ void ScriptEditor::dropEvent(QDropEvent * a_pEvent)
 	}
 
 	QList<QUrl> urls = a_pEvent->mimeData()->urls();
-	assert(urls.size() > 0);
+	Q_ASSERT(urls.size() > 0);
 
 	if(urls.size() == 1)
 	{
@@ -1095,7 +1094,7 @@ void ScriptEditor::indentNewLine()
 	QTextCursor currentCursor = textCursor();
 	QTextBlock currentBlock = currentCursor.block();
 	int blockNumber = currentBlock.blockNumber();
-	assert(blockNumber != 0);
+	Q_ASSERT(blockNumber != 0);
 	QTextBlock previousBlock =
 		document()->findBlockByNumber(blockNumber - 1);
 	QString blockText = previousBlock.text();

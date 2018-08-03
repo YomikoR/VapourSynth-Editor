@@ -33,7 +33,6 @@
 #include <QTimer>
 #include <QImageWriter>
 #include <QFileInfo>
-#include <cassert>
 #include <algorithm>
 #include <cmath>
 
@@ -287,7 +286,7 @@ void PreviewDialog::stopAndCleanUp()
 
 	if(m_cpFrameRef)
 	{
-		assert(m_cpVSAPI);
+		Q_ASSERT(m_cpVSAPI);
 		m_cpVSAPI->freeFrame(m_cpFrameRef);
 		m_cpFrameRef = nullptr;
 	}
@@ -346,7 +345,7 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 		QDialog::keyPressEvent(a_pEvent);
 		return;
 	}
-	assert(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo);
 
 	int key = a_pEvent->key();
 
@@ -384,7 +383,7 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 	if(!a_cpOutputFrameRef)
 		return;
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 	const VSFrameRef * cpOutputFrameRef =
 		m_cpVSAPI->cloneFrameRef(a_cpOutputFrameRef);
 	const VSFrameRef * cpPreviewFrameRef =
@@ -1204,7 +1203,7 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		}
 	}
 	else
-		assert(false);
+		Q_ASSERT(false);
 
 	m_pSettingsManager->setPlayFPSLimitMode(mode);
 	m_pSettingsManager->setPlayFPSLimit(limit);
@@ -1936,7 +1935,7 @@ void PreviewDialog::resetCropSpinBoxes()
 void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	const VSFrameRef * a_cpPreviewFrameRef)
 {
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 	m_cpVSAPI->freeFrame(m_cpFrameRef);
 	m_cpFrameRef = a_cpOutputFrameRef;
 	m_framePixmap = pixmapFromCompatBGR32(a_cpPreviewFrameRef);
@@ -1952,14 +1951,14 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 
 double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
 {
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	if(!m_cpFrameRef)
 		return 0.0;
 
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
 
-	assert((a_plane >= 0) && (a_plane < cpFormat->numPlanes));
+	Q_ASSERT((a_plane >= 0) && (a_plane < cpFormat->numPlanes));
 
     const uint8_t * cpPlane =
 		m_cpVSAPI->getReadPtr(m_cpFrameRef, a_plane);
@@ -2013,7 +2012,7 @@ QPixmap PreviewDialog::pixmapFromCompatBGR32(
 		return QPixmap();
 
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(a_cpFrameRef);
-	assert(cpFormat);
+	Q_ASSERT(cpFormat);
 
 	if(cpFormat->id != pfCompatBGR32)
 	{

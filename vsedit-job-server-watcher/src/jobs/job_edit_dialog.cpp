@@ -9,7 +9,6 @@
 #include <QFileDialog>
 #include <QFile>
 #include <map>
-#include <cassert>
 #include <limits>
 
 //==============================================================================
@@ -253,14 +252,14 @@ void JobEditDialog::slotEncodingPresetSaveButtonClicked()
 		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
 	if(it == m_encodingPresets.end())
 	{
-		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
+		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
 		m_encodingPresets.push_back(preset);
 		m_ui.encodingPresetComboBox->addItem(preset.name);
 		m_ui.encodingPresetComboBox->model()->sort(0);
 	}
 	else
 	{
-		assert(m_ui.encodingPresetComboBox->findText(preset.name) != -1);
+		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) != -1);
 		*it = preset;
 	}
 }
@@ -286,14 +285,14 @@ void JobEditDialog::slotEncodingPresetDeleteButton()
 		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
 	if(it == m_encodingPresets.end())
 	{
-		assert(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
+		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
 		QMessageBox::critical(this, trUtf8("Preset delete error."),
 			trUtf8("Error deleting preset. Preset was never saved."));
 		return;
 	}
 
 	int index = m_ui.encodingPresetComboBox->findText(preset.name);
-	assert(index != -1);
+	Q_ASSERT(index != -1);
 	m_ui.encodingPresetComboBox->removeItem(index);
 	m_encodingPresets.erase(it);
 	m_ui.encodingPresetComboBox->setCurrentIndex(0);

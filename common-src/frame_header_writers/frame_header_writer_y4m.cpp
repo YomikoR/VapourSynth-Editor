@@ -2,7 +2,6 @@
 
 #include "../../../common-src/helpers.h"
 
-#include <cassert>
 #include <string>
 #include <map>
 
@@ -20,7 +19,7 @@ FrameHeaderWriterY4M::FrameHeaderWriterY4M(const VSAPI * a_cpVSAPI,
 
 bool FrameHeaderWriterY4M::isCompatible()
 {
-    assert(m_cpVideoInfo);
+    Q_ASSERT(m_cpVideoInfo);
     if(!m_cpVideoInfo)
 		return false;
 
@@ -62,10 +61,10 @@ bool FrameHeaderWriterY4M::needVideoHeader()
 
 QByteArray FrameHeaderWriterY4M::videoHeader(int a_totalFrames)
 {
-	assert(m_cpVideoInfo);
-	assert(isCompatible());
+	Q_ASSERT(m_cpVideoInfo);
+	Q_ASSERT(isCompatible());
 	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	assert(cpFormat);
+	Q_ASSERT(cpFormat);
 
 	std::string header;
 
@@ -105,14 +104,14 @@ QByteArray FrameHeaderWriterY4M::videoHeader(int a_totalFrames)
 				header += "d";
 			else
 			{
-				assert(false);
+				Q_ASSERT(false);
 				header += "u";
 			}
 		}
 	}
 	else
 	{
-		assert(false);
+		Q_ASSERT(false);
 	}
 
 	int totalFrames = (a_totalFrames < 0) ? m_cpVideoInfo->numFrames :

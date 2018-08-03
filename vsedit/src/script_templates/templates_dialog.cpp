@@ -5,7 +5,6 @@
 
 #include <QAction>
 #include <QMessageBox>
-#include <cassert>
 
 //==============================================================================
 
@@ -16,7 +15,7 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 	, m_pDropFileCategoryModel(nullptr)
 	, m_pSaveAction(nullptr)
 {
-	assert(m_pSettingsManager);
+	Q_ASSERT(m_pSettingsManager);
 	m_ui.setupUi(this);
 
 	m_scriptEditors = {m_ui.snippetEdit, m_ui.newScriptTemplateEdit,
@@ -154,14 +153,14 @@ void TemplatesDialog::slotSnippetSaveButtonClicked()
 		m_codeSnippets.begin(), m_codeSnippets.end(), snippet);
 	if(it == m_codeSnippets.end())
 	{
-		assert(m_ui.snippetNameComboBox->findText(snippet.name) == -1);
+		Q_ASSERT(m_ui.snippetNameComboBox->findText(snippet.name) == -1);
 		m_codeSnippets.push_back(snippet);
 		m_ui.snippetNameComboBox->addItem(snippet.name);
 		m_ui.snippetNameComboBox->model()->sort(0);
 	}
 	else
 	{
-		assert(m_ui.snippetNameComboBox->findText(snippet.name) != -1);
+		Q_ASSERT(m_ui.snippetNameComboBox->findText(snippet.name) != -1);
 		*it = snippet;
 	}
 }
@@ -187,12 +186,12 @@ void TemplatesDialog::slotSnippetDeleteButtonClicked()
 		m_codeSnippets.begin(), m_codeSnippets.end(), snippet);
 	if(it == m_codeSnippets.end())
 	{
-		assert(m_ui.snippetNameComboBox->findText(snippet.name) == -1);
+		Q_ASSERT(m_ui.snippetNameComboBox->findText(snippet.name) == -1);
 		return;
 	}
 
 	int index = m_ui.snippetNameComboBox->findText(snippet.name);
-	assert(index != -1);
+	Q_ASSERT(index != -1);
 	m_ui.snippetNameComboBox->removeItem(index);
 	m_codeSnippets.erase(it);
 	m_ui.snippetNameComboBox->setCurrentIndex(0);

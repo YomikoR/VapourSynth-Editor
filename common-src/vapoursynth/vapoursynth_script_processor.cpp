@@ -3,7 +3,6 @@
 #include "../helpers.h"
 #include "vs_script_library.h"
 
-#include <cassert>
 #include <vector>
 #include <cmath>
 #include <utility>
@@ -18,7 +17,7 @@ void VS_CC frameReady(void * a_pUserData,
 {
 	VapourSynthScriptProcessor * pScriptProcessor =
 		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
-	assert(pScriptProcessor);
+	Q_ASSERT(pScriptProcessor);
 	QString errorMessage(a_errorMessage);
 	QMetaObject::invokeMethod(pScriptProcessor,
 		"slotReceiveFrameAndProcessQueue",
@@ -51,8 +50,8 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_cpCoreInfo(nullptr)
 	, m_finalizing(false)
 {
-	assert(m_pSettingsManager);
-	assert(m_pVSScriptLibrary);
+	Q_ASSERT(m_pSettingsManager);
+	Q_ASSERT(m_pVSScriptLibrary);
 
 	slotResetSettings();
 }
@@ -207,8 +206,8 @@ const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
 	if(!m_initialized)
 		return nullptr;
 
-	assert(m_cpVSAPI);
-	assert(m_pVSScript);
+	Q_ASSERT(m_cpVSAPI);
+	Q_ASSERT(m_pVSScript);
 
 	VSNodeRef * pNode =
 		m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
@@ -221,7 +220,7 @@ const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
 	}
 
 	const VSVideoInfo * cpVideoInfo = m_cpVSAPI->getVideoInfo(pNode);
-	assert(cpVideoInfo);
+	Q_ASSERT(cpVideoInfo);
 
 	m_cpVSAPI->freeNode(pNode);
 
@@ -245,7 +244,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 		return false;
 	}
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	NodePair & nodePair = getNodePair(a_outputIndex, a_needPreview);
 	if(!nodePair.pOutputNode)
@@ -253,7 +252,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 
 	const VSVideoInfo * cpVideoInfo =
 		m_cpVSAPI->getVideoInfo(nodePair.pOutputNode);
-	assert(cpVideoInfo);
+	Q_ASSERT(cpVideoInfo);
 
 	if(a_frameNumber >= cpVideoInfo->numFrames)
 	{
@@ -372,7 +371,7 @@ void VapourSynthScriptProcessor::receiveFrame(
 	const VSFrameRef * a_cpFrameRef, int a_frameNumber,
 	VSNodeRef * a_pNodeRef, const QString & a_errorMessage)
 {
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	if(!a_errorMessage.isEmpty())
 	{
@@ -403,7 +402,7 @@ void VapourSynthScriptProcessor::receiveFrame(
 
 			if(it->needPreview)
 			{
-				assert(it->pPreviewNode);
+				Q_ASSERT(it->pPreviewNode);
 				if(a_cpFrameRef)
 				{
 					m_cpVSAPI->getFrameAsync(it->frameNumber, it->pPreviewNode,
@@ -466,7 +465,7 @@ void VapourSynthScriptProcessor::receiveFrame(
 
 void VapourSynthScriptProcessor::processFrameTicketsQueue()
 {
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	size_t oldInQueue = m_frameTicketsQueue.size();
 	size_t oldInProcess = m_frameTicketsInProcess.size();
@@ -598,7 +597,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			resizeName = "Spline36";
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 		}
 	}
 
@@ -625,7 +624,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			matrixInS = "2020cl";
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 		}
 
 		int matrixStringLength = (int)strlen(matrixInS);
@@ -659,7 +658,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			chromaLoc = 2;
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 		}
 		m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
 			chromaLoc, paReplace);
@@ -683,7 +682,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 	VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pResultMap, "clip", 0,
 		nullptr);
-	assert(pPreviewNode);
+	Q_ASSERT(pPreviewNode);
 	a_nodePair.pPreviewNode = pPreviewNode;
 
 	m_cpVSAPI->freeMap(pResultMap);
@@ -697,7 +696,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 {
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	a_ticket.discard = true;
 
@@ -738,7 +737,7 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 
 	if(!nodePair.pOutputNode)
 	{
-		assert(!nodePair.pPreviewNode);
+		Q_ASSERT(!nodePair.pPreviewNode);
 
 		nodePair.pOutputNode =
 			m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
@@ -776,7 +775,7 @@ QString VapourSynthScriptProcessor::framePropsString(
 	if(!a_cpFrame)
 		return trUtf8("Null frame.");
 
-	assert(m_cpVSAPI);
+	Q_ASSERT(m_cpVSAPI);
 
 	QString propsString;
 	QStringList propsStringList;
@@ -859,7 +858,7 @@ QString VapourSynthScriptProcessor::framePropsString(
 			break;
 		}
 		default:
-			assert(false);
+			Q_ASSERT(false);
 		}
 
 		propsStringList += currentPropString;

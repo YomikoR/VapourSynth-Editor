@@ -3,8 +3,6 @@
 #include "../../../common-src/settings/settings_manager_core.h"
 #include "../../../common-src/vapoursynth/vs_script_library.h"
 
-#include <cassert>
-
 //==============================================================================
 
 JobsManager::JobsManager(SettingsManagerCore * a_pSettingsManager,
@@ -13,7 +11,7 @@ JobsManager::JobsManager(SettingsManagerCore * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(nullptr)
 {
-	assert(m_pSettingsManager);
+	Q_ASSERT(m_pSettingsManager);
 
 	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
 
@@ -432,7 +430,7 @@ bool JobsManager::canModifyJob(int a_index) const
 		return false;
 
 	vsedit::Job * pJob = m_tickets[a_index].pJob;
-	assert(pJob);
+	Q_ASSERT(pJob);
 	if(!pJob)
 		return false;
 

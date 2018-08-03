@@ -614,7 +614,7 @@ void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
 	if(QSystemTrayIcon::isSystemTrayAvailable() &&
 		vsedit::contains(finalStates, a_state))
 	{
-		assert(m_pTrayIcon);
+		Q_ASSERT(m_pTrayIcon);
 		QString message;
 		QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::NoIcon;
 
@@ -1230,7 +1230,7 @@ void MainWindow::createActionsAndMenus()
 
 	if(QSystemTrayIcon::isSystemTrayAvailable())
 	{
-		assert(m_pTrayIcon);
+		Q_ASSERT(m_pTrayIcon);
 		m_pTrayMenu = new QMenu(this);
 		m_pTrayMenu->addAction(m_pActionExit);
 		m_pTrayMenu->addAction(m_pActionShutdownServerAndExit);
@@ -1407,7 +1407,7 @@ void MainWindow::resetWindowTitle(int a_jobIndex)
 
 	if(QSystemTrayIcon::isSystemTrayAvailable())
 	{
-		assert(m_pTrayIcon);
+		Q_ASSERT(m_pTrayIcon);
 		m_pTrayIcon->setToolTip(title);
 	}
 }

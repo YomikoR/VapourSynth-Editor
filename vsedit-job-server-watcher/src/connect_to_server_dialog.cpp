@@ -3,14 +3,13 @@
 #include "../../common-src/settings/settings_manager.h"
 
 #include <QComboBox>
-#include <cassert>
 
 ConnectToServerDialog::ConnectToServerDialog(
 	SettingsManager * a_pSettingsManager, QWidget * a_pParent) :
 	  QDialog(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 {
-	assert(m_pSettingsManager);
+	Q_ASSERT(m_pSettingsManager);
 	m_ui.setupUi(this);
 
 	connect(m_ui.connectButton, SIGNAL(clicked()),

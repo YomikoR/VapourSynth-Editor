@@ -1,7 +1,5 @@
 #include "actions_hotkey_edit_model.h"
 
-#include <cassert>
-
 //==============================================================================
 
 const int COLUMNS_NUMBER = 3;
@@ -16,7 +14,7 @@ ActionsHotkeyEditModel::ActionsHotkeyEditModel(
 	QAbstractItemModel(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 {
-	assert(m_pSettingsManager);
+	Q_ASSERT(m_pSettingsManager);
 	m_actions = m_pSettingsManager->getStandardActions();
 	reloadHotkeysSettings();
 }

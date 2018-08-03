@@ -6,7 +6,6 @@
 
 #include <QWebSocketServer>
 #include <QWebSocket>
-#include <cassert>
 
 //==============================================================================
 
@@ -71,7 +70,7 @@ JobServer::~JobServer()
 
 bool JobServer::start()
 {
-	assert(m_pWebSocketServer);
+	Q_ASSERT(m_pWebSocketServer);
 	return m_pWebSocketServer->listen(QHostAddress::Any, JOB_SERVER_PORT);
 }
 

@@ -15,7 +15,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
-#include <cassert>
 
 //==============================================================================
 
@@ -41,7 +40,7 @@ TimeLineSlider::TimeLineSlider(QWidget * a_pParent) : QWidget(a_pParent)
 	, m_sliderPressed(false)
 	, m_labelsFont("Digital Mini")
 {
-	assert(m_bigStep > 0);
+	Q_ASSERT(m_bigStep > 0);
 
 	setAutoFillBackground(true);
 	setFocusPolicy(Qt::StrongFocus);
