@@ -17,6 +17,31 @@ ScriptLexer::ScriptLexer(QTextDocument * a_pDocument,
 	, m_pSettingsManager(a_pSettingsManager)
 {
 	Q_ASSERT(m_pDocument);
+
+	fillTokenTypeFormatMap();
+
+	m_keywordsList << "False" << "None" << "True" << "and" << "as" <<
+		"assert" << "break" << "class" << "continue" << "def" << "del" <<
+		"elif" << "else" << "except" << "finally" << "for" << "from" <<
+		"global" << "if" << "import" << "in" << "is" << "lambda" <<
+		"nonlocal" << "not" << "or" << "pass" << "raise" << "return" <<
+		"try" << "while" << "with" << "yield";
+
+	// MUST be sorted by length in descending order.
+	m_operatorsList << "//=" << ">>=" << "<<=" << "**=" << "**" << "//" <<
+		"<<" << ">>" << "<=" << ">=" << "==" << "!=" << "->" << "+=" << "-=" <<
+		"*=" << "/=" << "%=" << "&=" << "|=" << "^=" << "+" << "-" << "*" <<
+		"/" << "%" << "&" << "|" << "^" << "~" << "<" << ">" << "(" << ")" <<
+		"[" << "]" << "{" << "}" << "," << ":" << "." << ";" << "@" << "=";
+	// Don't trust yourself. Sort it.
+	std::sort(m_operatorsList.begin(), m_operatorsList.end(),
+		[&](const QString & a_first, const QString & a_second)->bool
+		{
+			return (a_first.length() > a_second.length());
+		});
+
+	slotLoadSettings();
+
 	connect(m_pDocument, SIGNAL(contentsChange(int, int, int)),
 		this, SLOT(slotContentChanged(int, int, int)));
 }
@@ -31,7 +56,6 @@ void ScriptLexer::setSettingsManager(SettingsManager * a_pSettingsManager)
 	if(m_pSettingsManager)
 	{
 		slotLoadSettings();
-		highlight();
 	}
 }
 
@@ -50,7 +74,11 @@ void ScriptLexer::setPluginsList(VSPluginsList a_pluginsList)
 
 void ScriptLexer::slotLoadSettings()
 {
+	if(!m_pSettingsManager)
+		return;
 
+	fillTokenTypeFormatMap();
+	highlight();
 }
 
 // END OF void ScriptLexer::slotLoadSettings()
@@ -89,7 +117,10 @@ void ScriptLexer::parse(int a_from)
 
 void ScriptLexer::highlight(int a_from)
 {
-	(void)a_from;
+	for(TokenIterator it = tokenAt(a_from); it != m_tokens.end(); it++)
+	{
+		format(it->start, it->length(), m_tokenTypeFormatMap[it->type]);
+	}
 }
 
 // END OF void ScriptLexer::highlight(int a_from)
@@ -133,4 +164,40 @@ TokenIterator ScriptLexer::tokenAt(int a_textPosition)
 }
 
 // END OF TokenIterator ScriptLexer::tokenAt(int a_textPosition)
+//==============================================================================
+
+void ScriptLexer::fillTokenTypeFormatMap()
+{
+	static std::map<TokenType, const char *> tokenTypeToSettingsKeyMap;
+	if(tokenTypeToSettingsKeyMap.empty())
+	{
+		std::map<TokenType, const char *> tempMap = {
+			{TokenType::Undecided, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::Module, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::Keyword, TEXT_FORMAT_ID_KEYWORD},
+			{TokenType::Operator, TEXT_FORMAT_ID_OPERATOR},
+			{TokenType::String, TEXT_FORMAT_ID_STRING},
+			{TokenType::Number, TEXT_FORMAT_ID_NUMBER},
+			{TokenType::Comment, TEXT_FORMAT_ID_COMMENT},
+			{TokenType::Variable, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::Function, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::FunctionArgument, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::VSModule, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::VSCore, TEXT_FORMAT_ID_VS_CORE},
+			{TokenType::VSNamespace, TEXT_FORMAT_ID_VS_NAMESPACE},
+			{TokenType::VSFunction, TEXT_FORMAT_ID_VS_FUNCTION},
+			{TokenType::VSConstant, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+			{TokenType::VSClip, TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT},
+		};
+		tokenTypeToSettingsKeyMap = std::move(tempMap);
+	}
+	for(const std::pair<TokenType, const char *> record :
+		tokenTypeToSettingsKeyMap)
+	{
+		m_tokenTypeFormatMap[record.first] =
+			m_pSettingsManager->getTextFormat(record.second);
+	}
+}
+
+// END OF void ScriptLexer::fillTokenTypeFormatMap()
 //==============================================================================

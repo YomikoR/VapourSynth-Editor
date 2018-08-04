@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <QTextCharFormat>
+#include <map>
 
 class SettingsManager;
 class QTextDocument;
@@ -42,6 +43,7 @@ private:
 	void format(int a_start, int a_count, const QTextCharFormat & a_format);
 	void format(const Token & a_token, const QTextCharFormat & a_format);
 	TokenIterator tokenAt(int a_textPosition);
+	void fillTokenTypeFormatMap();
 
 	QTextDocument * m_pDocument;
 	SettingsManager * m_pSettingsManager;
@@ -49,6 +51,11 @@ private:
 	VSPluginsList m_pluginsList;
 
 	TokenVector m_tokens;
+
+	std::map<TokenType, QTextCharFormat> m_tokenTypeFormatMap;
+
+	QStringList m_keywordsList;
+	QStringList m_operatorsList;
 };
 
 #endif // SCRIPT_LEXER_H
