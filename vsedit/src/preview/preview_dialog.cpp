@@ -158,8 +158,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotPreviewAreaMouseMiddleButtonReleased()));
 	connect(m_ui.previewArea, SIGNAL(signalMouseRightButtonReleased()),
 		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
-	connect(m_ui.previewArea, SIGNAL(signalMouseRightButtonReleased()),
-		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
 	connect(m_ui.previewArea, SIGNAL(signalMouseOverPoint(float, float)),
 		this, SLOT(slotPreviewAreaMouseOverPoint(float, float)));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
