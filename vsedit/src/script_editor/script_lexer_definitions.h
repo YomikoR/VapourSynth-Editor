@@ -14,7 +14,6 @@ enum class ScriptContextType
 	FunctionArguments,
 	FunctionCallArguments,
 	Expression,
-	Comment,
 };
 
 enum class TokenType

@@ -110,6 +110,24 @@ void ScriptLexer::parse(int a_from)
 {
 	TokenIterator it = tokenAt(a_from);
 	m_tokens.erase(it, m_tokens.end());
+
+	std::list<ScriptContext> contextStack;
+	int i = 0;
+	int j = 0;
+	if(!m_tokens.empty())
+	{
+		const Token & lastToken = m_tokens.back();
+		contextStack = lastToken.contextStack;
+		i = lastToken.start + lastToken.length();
+	}
+
+	const QString text = m_pDocument->toPlainText();
+	const int textLength = text.length();
+	while(i < textLength)
+	{
+		// TODO: actual implementation
+		i++;
+	}
 }
 
 // END OF void ScriptLexer::parse(int a_from)
