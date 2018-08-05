@@ -271,8 +271,8 @@ void SyntaxHighlighter::highlightBlock(const QString & a_text)
 //------Long string, double quotes----------------------------------------------
 
 		if((((a_text[i].toLower() == 'r') || (a_text[i].toLower() == 'u')) &&
-			(a_text.mid(i + 1, 3) == "\"\"\"")) ||
-			(a_text.mid(i, 3) == "\"\"\""))
+			(a_text.mid(i + 1, 3) == R"(""")")) ||
+			(a_text.mid(i, 3) == R"(""")"))
 		{
 			if(a_text[i] == '\"')
 				j = i + 3;
@@ -282,7 +282,7 @@ void SyntaxHighlighter::highlightBlock(const QString & a_text)
 			bool foundMatchingQuotes = false;
 			for(; j < textLength - 2; ++j)
 			{
-				if((a_text.mid(j, 3) == "\"\"\"") &&
+				if((a_text.mid(j, 3) == R"(""")") &&
 					((j == 0) || ((j != 0) && (a_text[j - 1] != '\\'))))
 				{
 					foundMatchingQuotes = true;
