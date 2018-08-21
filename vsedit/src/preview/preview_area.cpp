@@ -22,6 +22,7 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 	m_pPreviewLabel->setPixmap(QPixmap());
 	m_pPreviewLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	QScrollArea::setWidget(m_pPreviewLabel);
+	setWidgetResizable(true);
 
 	m_pScrollNavigator = new ScrollNavigator(this);
 	int scrollFrameWidth = frameWidth();
