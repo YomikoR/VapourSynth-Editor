@@ -1,3 +1,5 @@
+r20:
+
 r19:
 -BUGFIX: Rapid settings updating on windows geometry change.
 -BUGFIX: Theme settings corruption when using job server.
