@@ -8,7 +8,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <algorithm>
-
+// Testing CI. Useless comment
 //==============================================================================
 
 ScriptLexer::ScriptLexer(QTextDocument * a_pDocument,
