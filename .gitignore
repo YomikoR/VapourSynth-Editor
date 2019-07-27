@@ -2,6 +2,7 @@
 !/.gitignore
 !*.pro
 !*.pri
+!*.bat
 !/common-src/
 !/vsedit/src/
 !/vsedit-job-server/src/
