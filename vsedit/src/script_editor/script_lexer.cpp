@@ -111,13 +111,10 @@ void ScriptLexer::parse(int a_from)
 	TokenIterator it = tokenAt(a_from);
 	m_tokens.erase(it, m_tokens.end());
 
-	std::list<ScriptContext> contextStack;
 	int i = 0;
-	int j = 0;
 	if(!m_tokens.empty())
 	{
 		const Token & lastToken = m_tokens.back();
-		contextStack = lastToken.contextStack;
 		i = lastToken.start + lastToken.length();
 	}
 
@@ -218,4 +215,29 @@ void ScriptLexer::fillTokenTypeFormatMap()
 }
 
 // END OF void ScriptLexer::fillTokenTypeFormatMap()
+//==============================================================================
+
+ScriptContext * ScriptLexer::contextAt(int a_textPosition)
+{
+	ScriptContext * pCurrentContext = m_pRootContext.get();
+	while(true)
+	{
+		ScriptContext * pDeeperContext = nullptr;
+
+		for(std::unique_ptr<ScriptContext> & child : pCurrentContext->children)
+		{
+			if(child->start > a_textPosition)
+				break;
+			pDeeperContext = child.get();
+		}
+
+		if(!pDeeperContext)
+			break;
+
+		pCurrentContext = pDeeperContext;
+	}
+	return pCurrentContext;
+}
+
+// END OF ScriptContext * ScriptLexer::contextAt(int a_textPosition)
 //==============================================================================

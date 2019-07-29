@@ -4,6 +4,7 @@
 #include <QString>
 #include <list>
 #include <vector>
+#include <memory>
 
 enum class ScriptContextType
 {
@@ -39,19 +40,19 @@ enum class TokenType
 struct ScriptContext
 {
 	ScriptContextType type;
-	int start;
-	int end;
+	int start{0};
+	int end{-1};
+	ScriptContext * pParent{nullptr};
+	std::list<std::unique_ptr<ScriptContext> > children;
 };
 
 struct Token
 {
 	QString text;
 	int start;
-	TokenType type;
-	std::list<ScriptContext> contextStack;
+	TokenType type{TokenType::Undecided};
 
-	Token(QString a_text, int a_start, TokenType a_type,
-		std::list<ScriptContext>  a_contextStack);
+	Token(QString a_text, int a_start, TokenType a_type);
 	Token(int a_start);
 	int length() const;
 	bool operator<(const Token & a_other) const;

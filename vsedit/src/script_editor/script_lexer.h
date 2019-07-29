@@ -44,6 +44,7 @@ private:
 	void format(const Token & a_token, const QTextCharFormat & a_format);
 	TokenIterator tokenAt(int a_textPosition);
 	void fillTokenTypeFormatMap();
+	ScriptContext * contextAt(int a_textPosition);
 
 	QTextDocument * m_pDocument;
 	SettingsManager * m_pSettingsManager;
@@ -56,6 +57,8 @@ private:
 
 	QStringList m_keywordsList;
 	QStringList m_operatorsList;
+
+	std::unique_ptr<ScriptContext> m_pRootContext{new ScriptContext};
 };
 
 #endif // SCRIPT_LEXER_H
