@@ -530,7 +530,7 @@ void PreviewDialog::slotSaveSnapshot()
 
 	if(!snapshotFilePath.isEmpty())
 	{
-		bool success = m_framePixmap.save(snapshotFilePath, format, 100);
+		bool success = m_framePixmap.save(snapshotFilePath, format, format == "webp" ? 100 : 0);
 		if(success)
 			m_pSettingsManager->setLastSnapshotExtension(suffix);
 		else
