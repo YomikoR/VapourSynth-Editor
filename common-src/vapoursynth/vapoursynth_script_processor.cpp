@@ -567,6 +567,10 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		paReplace);
 	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfRGB24, paReplace);
 
+	const char * dither_type = "error_diffusion";
+	m_cpVSAPI->propSetData(pArgumentMap, "dither_type",
+			dither_type, (int)strlen(dither_type), paReplace);
+
 	if(canSubsample)
 	{
 		switch(m_chromaResamplingFilter)
