@@ -1,4 +1,10 @@
-r20:
+r19-mod-1:
+-Drop support for YCOCG and COMPAT colorspaces.
+-Work with VapourSynth v4 API (built with v3).
+-Dither to RGB for preview output.
+-Preview in 10-bit color depth in Unix when allowed.
+-Compress PNG file size when saving snapshots.
+-Replace legacy get_core() from the template.
 
 r19:
 -BUGFIX: Rapid settings updating on windows geometry change.
