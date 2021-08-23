@@ -1,4 +1,3 @@
-*
 !/.gitignore
 !*.pro
 !*.pri
@@ -13,3 +12,11 @@
 !/LICENSE
 !/README
 !/TODO.txt
+build
+pro/*/*.rc
+pro/*/Makefile.Release
+pro/*/Makefile.Debug
+pro/*/Makefile
+pro/.qmake.stash
+pro/Makefile
+*/generated
