@@ -159,6 +159,8 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/ipc_defines.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.h
 
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_definitions.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.h
@@ -178,6 +180,8 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/frame_header_writers/frame_header_wri
 SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/v210.cpp
 
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/job_server.cpp
