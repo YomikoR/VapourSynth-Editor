@@ -547,7 +547,9 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	const VSFormat * cpFormat = cpVideoInfo->format;
 
-	if(cpFormat->id == pfRGB24)
+	bool is_10_bits = vsedit::output10Bits();
+
+	if(cpFormat->id == (is_10_bits ? pfRGB30 : pfRGB24))
 	{
 		a_nodePair.pPreviewNode =
 			m_cpVSAPI->cloneNodeRef(a_nodePair.pOutputNode);
@@ -565,7 +567,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	VSMap * pArgumentMap = m_cpVSAPI->createMap();
 	m_cpVSAPI->propSetNode(pArgumentMap, "clip", a_nodePair.pOutputNode,
 		paReplace);
-	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfRGB24, paReplace);
+	m_cpVSAPI->propSetInt(pArgumentMap, "format", (is_10_bits ? pfRGB30 : pfRGB24), paReplace);
 
 	const char * dither_type = "error_diffusion";
 	m_cpVSAPI->propSetData(pArgumentMap, "dither_type",

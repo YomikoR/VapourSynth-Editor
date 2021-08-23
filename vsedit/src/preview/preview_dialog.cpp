@@ -1978,19 +1978,35 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(a_cpFrameRef);
 	Q_ASSERT(cpFormat);
 
-	if(cpFormat->id != pfRGB24)
+	bool is_10_bits = vsedit::output10Bits();
+
+	if (is_10_bits)
 	{
-		QString errorString = trUtf8("Error forming pixmap from frame. "
-			"Expected format RGB24. Instead got \'%1\'.")
-			.arg(cpFormat->name);
-		emit signalWriteLogMessage(mtCritical, errorString);
-		return QPixmap();
+		if(cpFormat->id != pfRGB30)
+		{
+			QString errorString = trUtf8("Error forming pixmap from frame. "
+				"Expected format RGB30. Instead got \'%1\'.")
+				.arg(cpFormat->name);
+			emit signalWriteLogMessage(mtCritical, errorString);
+			return QPixmap();
+		}
+	}
+	else
+	{
+		if(cpFormat->id != pfRGB24)
+		{
+			QString errorString = trUtf8("Error forming pixmap from frame. "
+				"Expected format RGB24. Instead got \'%1\'.")
+				.arg(cpFormat->name);
+			emit signalWriteLogMessage(mtCritical, errorString);
+			return QPixmap();
+		}
 	}
 
 	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
 
-	QImage frameImage(width, height, QImage::Format_ARGB32);
+	QImage frameImage(width, height, is_10_bits ? QImage::Format_RGB30 : QImage::Format_ARGB32);
 
 	p2p_buffer_param p2p_src = {};
 	p2p_src.width = width;
@@ -2002,7 +2018,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	}
 	p2p_src.dst[0] = frameImage.bits();
 	p2p_src.dst_stride[0] = width * 4;
-	p2p_src.packing = p2p_argb32;
+	p2p_src.packing = is_10_bits ? p2p_rgb30 : p2p_argb32;
 	p2p_pack_frame(&p2p_src, P2P_ALPHA_SET_ONE);
 
 	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
