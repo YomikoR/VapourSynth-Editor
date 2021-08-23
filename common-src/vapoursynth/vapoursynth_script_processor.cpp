@@ -547,7 +547,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	const VSFormat * cpFormat = cpVideoInfo->format;
 
-	if(cpFormat->id == pfCompatBGR32)
+	if(cpFormat->id == pfRGB24)
 	{
 		a_nodePair.pPreviewNode =
 			m_cpVSAPI->cloneNodeRef(a_nodePair.pOutputNode);
@@ -565,7 +565,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	VSMap * pArgumentMap = m_cpVSAPI->createMap();
 	m_cpVSAPI->propSetNode(pArgumentMap, "clip", a_nodePair.pOutputNode,
 		paReplace);
-	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfCompatBGR32, paReplace);
+	m_cpVSAPI->propSetInt(pArgumentMap, "format", pfRGB24, paReplace);
 
 	if(canSubsample)
 	{

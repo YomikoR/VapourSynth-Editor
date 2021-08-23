@@ -168,7 +168,7 @@ protected:
 
 	double valueAtPoint(size_t a_x, size_t a_y, int a_plane) ;
 
-	QPixmap pixmapFromCompatBGR32(const VSFrameRef * a_cpFrameRef);
+	QPixmap pixmapFromRGB(const VSFrameRef * a_cpFrameRef);
 
 	void setTitle();
 

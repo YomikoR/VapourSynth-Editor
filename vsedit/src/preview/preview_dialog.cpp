@@ -1,6 +1,7 @@
 #include "preview_dialog.h"
 
 #include "../../../common-src/helpers.h"
+#include "../../../common-src/libp2p/p2p_api.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../../../common-src/settings/settings_manager.h"
 #include "../settings/settings_dialog.h"
@@ -1901,7 +1902,7 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	Q_ASSERT(m_cpVSAPI);
 	m_cpVSAPI->freeFrame(m_cpFrameRef);
 	m_cpFrameRef = a_cpOutputFrameRef;
-	m_framePixmap = pixmapFromCompatBGR32(a_cpPreviewFrameRef);
+	m_framePixmap = pixmapFromRGB(a_cpPreviewFrameRef);
 	m_cpVSAPI->freeFrame(a_cpPreviewFrameRef);
 	setPreviewPixmap();
 	m_ui.previewArea->checkMouseOverPreview(QCursor::pos());
@@ -1968,7 +1969,7 @@ double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
 //		int a_plane)
 //==============================================================================
 
-QPixmap PreviewDialog::pixmapFromCompatBGR32(
+QPixmap PreviewDialog::pixmapFromRGB(
 	const VSFrameRef * a_cpFrameRef)
 {
 	if((!m_cpVSAPI) || (!a_cpFrameRef))
@@ -1977,10 +1978,10 @@ QPixmap PreviewDialog::pixmapFromCompatBGR32(
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(a_cpFrameRef);
 	Q_ASSERT(cpFormat);
 
-	if(cpFormat->id != pfCompatBGR32)
+	if(cpFormat->id != pfRGB24)
 	{
 		QString errorString = trUtf8("Error forming pixmap from frame. "
-			"Expected format CompatBGR32. Instead got \'%1\'.")
+			"Expected format RGB24. Instead got \'%1\'.")
 			.arg(cpFormat->name);
 		emit signalWriteLogMessage(mtCritical, errorString);
 		return QPixmap();
@@ -1988,16 +1989,27 @@ QPixmap PreviewDialog::pixmapFromCompatBGR32(
 
 	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
-	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
-	QImage frameImage((const uchar *)pData, width, height,
-		stride, QImage::Format_RGB32);
-	QImage flippedImage = frameImage.mirrored();
-	QPixmap framePixmap = QPixmap::fromImage(flippedImage);
+
+	QImage frameImage(width, height, QImage::Format_ARGB32);
+
+	p2p_buffer_param p2p_src = {};
+	p2p_src.width = width;
+	p2p_src.height = height;
+	for (int plane = 0; plane < 3; ++plane)
+	{
+		p2p_src.src[plane] = m_cpVSAPI->getReadPtr(a_cpFrameRef, plane);
+		p2p_src.src_stride[plane] = m_cpVSAPI->getStride(a_cpFrameRef, plane);
+	}
+	p2p_src.dst[0] = frameImage.bits();
+	p2p_src.dst_stride[0] = width * 4;
+	p2p_src.packing = p2p_argb32;
+	p2p_pack_frame(&p2p_src, P2P_ALPHA_SET_ONE);
+
+	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
 	return framePixmap;
 }
 
-// END OF QPixmap PreviewDialog::pixmapFromCompatBGR32(
+// END OF QPixmap PreviewDialog::pixmapFromRGB(
 //		const VSFrameRef * a_cpFrameRef)
 //==============================================================================
 
