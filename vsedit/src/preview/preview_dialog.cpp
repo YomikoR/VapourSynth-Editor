@@ -2006,7 +2006,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	int width = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
 
-	QImage frameImage(width, height, is_10_bits ? QImage::Format_RGB30 : QImage::Format_ARGB32);
+	QImage frameImage(width, height, is_10_bits ? QImage::Format_RGB30 : QImage::Format_RGB32);
 
 	p2p_buffer_param p2p_src = {};
 	p2p_src.width = width;
@@ -2019,7 +2019,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	p2p_src.dst[0] = frameImage.bits();
 	p2p_src.dst_stride[0] = width * 4;
 	p2p_src.packing = is_10_bits ? p2p_rgb30 : p2p_argb32;
-	p2p_pack_frame(&p2p_src, P2P_ALPHA_SET_ONE);
+	p2p_pack_frame(&p2p_src, 0);
 
 	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
 	return framePixmap;
