@@ -548,12 +548,24 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	const VSFormat * cpFormat = cpVideoInfo->format;
 
-	bool is_10_bits = vsedit::output10Bits();
+	bool is_10_bits;
+#ifdef _WIN32
+	is_10_bits = false;
+#else
+	is_10_bits = (QPixmap::defaultDepth() == 30);
+#endif
 
 	VSMap * pResultMap = nullptr;
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 
-	if (cpFormat->id == (is_10_bits ? pfRGB30 : pfRGB24))
+	if (cpFormat->id == pfRGB24)
+	{
+		is_10_bits = false;
+		pResultMap = m_cpVSAPI->createMap();
+		m_cpVSAPI->propSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
+			paReplace);
+	}
+	else if (is_10_bits && cpFormat->id == pfRGB30)
 	{
 		pResultMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->propSetNode(pResultMap, "clip", a_nodePair.pOutputNode,

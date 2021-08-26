@@ -10,22 +10,11 @@
 #include <QJsonDocument>
 #include <QByteArray>
 #include <QDataStream>
-#include <QPixmap>
 #include <algorithm>
 #include <functional>
 
 namespace vsedit
 {
-
-inline bool output10Bits()
-{
-#ifdef _WIN32
-	return false;
-#else
-	return QPixmap::defaultDepth() == 30;
-#endif
-}
-
 struct VariableToken
 {
 	QString token;

@@ -1979,13 +1979,31 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	Q_ASSERT(cpFormat);
 	int wwidth = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 
-	bool is_10_bits = vsedit::output10Bits();
-
 	if((cpFormat->id != pfGray8) || (wwidth % 4) )
 	{
 		QString errorString = trUtf8("Error forming pixmap from frame. "
 			"Expected format Gray8 with width divisible by 4. Instead got \'%1\'.")
 			.arg(cpFormat->name);
+		emit signalWriteLogMessage(mtCritical, errorString);
+		return QPixmap();
+	}
+
+	const VSMap *props = m_cpVSAPI->getFramePropsRO(a_cpFrameRef);
+	enum p2p_packing packing_fmt = static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props,
+		"_packingFormat", 0, nullptr));
+	bool is_10_bits;
+	if (packing_fmt == p2p_rgb30)
+	{
+		is_10_bits = true;
+	}
+	else if (packing_fmt == p2p_argb32)
+	{
+		is_10_bits = false;
+	}
+	else
+	{
+		QString errorString = trUtf8("Error forming pixmap from frame. "
+			"Expected frame being packed from RGB24 or RGB30.");
 		emit signalWriteLogMessage(mtCritical, errorString);
 		return QPixmap();
 	}
