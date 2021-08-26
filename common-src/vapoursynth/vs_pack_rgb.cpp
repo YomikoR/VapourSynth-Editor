@@ -66,7 +66,6 @@ void VS_CC packCreateRGB24(const VSMap *in, VSMap *out, VSCore *core, const VSAP
     d.vi = vsapi->getVideoInfo(d.node);
     d.packing_fmt = p2p_argb32;
     packData *data = new packData(d);
-    VSPlugin *vs_std_plugin = vsapi->getPluginById("com.vapoursynth.std", core);
     vsapi->createFilter(in, out, "PackRGB24", packInit, packGetFrame, packFree, fmParallel, 0, data, core);
 }
 
@@ -77,6 +76,5 @@ void VS_CC packCreateRGB30(const VSMap *in, VSMap *out, VSCore *core, const VSAP
     d.vi = vsapi->getVideoInfo(d.node);
     d.packing_fmt = p2p_rgb30;
     packData *data = new packData(d);
-    VSPlugin *vs_std_plugin = vsapi->getPluginById("com.vapoursynth.std", core);
     vsapi->createFilter(in, out, "PackRGB30", packInit, packGetFrame, packFree, fmParallel, 0, data, core);
 }
