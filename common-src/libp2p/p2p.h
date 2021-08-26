@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <climits>
 #include <type_traits>
+#ifdef P2P_SIMD
+#include <typeinfo>
+#endif
 
 #ifdef _WIN32
   #include <stdlib.h> // _byteswap_x
@@ -444,7 +447,7 @@ using packed_y210_le = byte_packed_422_le<uint16_t, uint64_t, make_mask(C_Y, C_U
 using packed_y210 = endian_select<packed_y210_be, packed_y210_le>::type;
 
 using packed_y216_be = byte_packed_422_be<uint16_t, uint64_t, make_mask(C_Y, C_U, C_Y, C_V)>;
-using packed_y216_le = byte_packed_422_le<uint16_t, uint16_t, make_mask(C_Y, C_U, C_Y, C_V)>;
+using packed_y216_le = byte_packed_422_le<uint16_t, uint64_t, make_mask(C_Y, C_U, C_Y, C_V)>;
 using packed_y216 = endian_select<packed_y216_be, packed_y216_le>::type;
 
 // Apple v210 format. Handled by special-case code. Only the LE ordering is found in Qt files.
@@ -498,6 +501,34 @@ using packed_p216_le = packed_p016_le;
 using packed_p216 = packed_p016;
 
 
+#ifdef P2P_SIMD
+namespace detail {
+
+// Runtime function dispatch.
+typedef void (*unpack_func)(const void *, void * const *, unsigned, unsigned);
+typedef void (*pack_func)(const void * const *, void *, unsigned, unsigned);
+
+unpack_func search_unpack_func(const std::type_info &ti);
+pack_func search_pack_func(const std::type_info &ti, bool alpha_one_fill);
+
+template <class Traits>
+unpack_func search_unpack_func(unpack_func default_func)
+{
+	unpack_func func = search_unpack_func(typeid(Traits));
+	return func ? func : default_func;
+}
+
+template <class Traits, bool AlphaOneFill>
+pack_func search_pack_func(pack_func default_func)
+{
+	pack_func func = search_pack_func(typeid(Traits), AlphaOneFill);
+	return func ? func : default_func;
+}
+
+} // namespace detail
+#endif // P2P_SIMD
+
+
 // Conversions.
 template <class Traits>
 class packed_to_planar {
@@ -506,6 +537,10 @@ class packed_to_planar {
 	typedef typename detail::numeric_type<packed_type>::type numeric_type;
 
 	typedef typename Traits::endian endian;
+
+#ifdef P2P_SIMD
+	static detail::unpack_func s_delegate;
+#endif
 
 	static numeric_type get_mask(unsigned c)
 	{
@@ -516,8 +551,8 @@ class packed_to_planar {
 	{
 		return static_cast<planar_type>((x >> Traits::shift_mask[c]) & get_mask(c));
 	}
-public:
-	static void unpack(const void *src, void * const dst[4], unsigned left, unsigned right)
+
+	static void unpack_impl(const void *src, void * const dst[4], unsigned left, unsigned right)
 	{
 		const packed_type *src_p = static_cast<const packed_type *>(src);
 		planar_type *dst_p[4] = {
@@ -548,7 +583,22 @@ public:
 		}
 #undef P2P_COMPONENT_ENABLED
 	}
+public:
+	static void unpack(const void *src, void * const dst[4], unsigned left, unsigned right)
+	{
+#ifdef P2P_SIMD
+		s_delegate(src, dst, left, right);
+#else
+		unpack_impl(src, dst, left, right);
+#endif
+	}
 };
+
+#ifdef P2P_SIMD
+template <class Traits>
+detail::unpack_func packed_to_planar<Traits>::s_delegate = detail::search_unpack_func<Traits>(packed_to_planar::unpack_impl);
+#endif
+
 
 template <class Traits, bool AlphaOneFill = false>
 class planar_to_packed {
@@ -557,6 +607,10 @@ class planar_to_packed {
 	typedef typename detail::numeric_type<packed_type>::type numeric_type;
 
 	typedef typename Traits::endian endian;
+
+#ifdef P2P_SIMD
+	static detail::pack_func s_delegate;
+#endif
 
 	static numeric_type get_mask(unsigned c)
 	{
@@ -567,8 +621,8 @@ class planar_to_packed {
 	{
 		return (static_cast<numeric_type>(x) & get_mask(c)) << Traits::shift_mask[c];
 	}
-public:
-	static void pack(const void * const src[4], void *dst, unsigned left, unsigned right)
+
+	static void pack_impl(const void * const src[4], void *dst, unsigned left, unsigned right)
 	{
 		const planar_type *src_p[4] = {
 			static_cast<const planar_type *>(src[0]), static_cast<const planar_type *>(src[1]),
@@ -602,9 +656,24 @@ public:
 
 			*dst_p++ = detail::endian_swap<endian>(static_cast<packed_type>(x));
 		}
-	}
 #undef P2P_COMPONENT_ENABLED
+	}
+public:
+	static void pack(const void * const src[4], void *dst, unsigned left, unsigned right)
+	{
+#ifdef P2P_SIMD
+		s_delegate(src, dst, left, right);
+#else
+		pack_impl(src, dst, left, right);
+#endif
+	}
 };
+
+#ifdef P2P_SIMD
+template <class Traits, bool AlphaOneFill>
+detail::pack_func planar_to_packed<Traits, AlphaOneFill>::s_delegate = detail::search_pack_func<Traits, AlphaOneFill>(planar_to_packed::pack_impl);
+#endif
+
 
 // v210 specializations.
 template <>

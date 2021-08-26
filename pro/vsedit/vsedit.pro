@@ -206,6 +206,8 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/simd/cpuinfo_x86.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_simd.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.h
 
 HEADERS += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.h
@@ -256,6 +258,9 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/v210.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/simd/cpuinfo_x86.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_simd.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_sse41.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.cpp
 
 SOURCES += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.cpp
