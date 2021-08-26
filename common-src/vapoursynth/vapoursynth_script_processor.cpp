@@ -2,6 +2,7 @@
 
 #include "../helpers.h"
 #include "vs_script_library.h"
+#include "vs_pack_rgb.h"
 
 #include <vector>
 #include <cmath>
@@ -549,130 +550,135 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 	bool is_10_bits = vsedit::output10Bits();
 
-	if(cpFormat->id == (is_10_bits ? pfRGB30 : pfRGB24))
-	{
-		a_nodePair.pPreviewNode =
-			m_cpVSAPI->cloneNodeRef(a_nodePair.pOutputNode);
-		return true;
-	}
-
-	bool isYUV = (cpFormat->colorFamily == cmYUV);
-	bool canSubsample = isYUV;
-
+	VSMap * pResultMap = nullptr;
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
-	VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
-		"com.vapoursynth.resize", pCore);
-	const char * resizeName = "Point";
 
-	VSMap * pArgumentMap = m_cpVSAPI->createMap();
-	m_cpVSAPI->propSetNode(pArgumentMap, "clip", a_nodePair.pOutputNode,
-		paReplace);
-	m_cpVSAPI->propSetInt(pArgumentMap, "format", (is_10_bits ? pfRGB30 : pfRGB24), paReplace);
-
-	const char * dither_type = "error_diffusion";
-	m_cpVSAPI->propSetData(pArgumentMap, "dither_type",
-			dither_type, (int)strlen(dither_type), paReplace);
-
-	if(canSubsample)
+	if (cpFormat->id == (is_10_bits ? pfRGB30 : pfRGB24))
 	{
-		switch(m_chromaResamplingFilter)
-		{
-		case ResamplingFilter::Point:
-			resizeName = "Point";
-			break;
-		case ResamplingFilter::Bilinear:
-			resizeName = "Bilinear";
-			break;
-		case ResamplingFilter::Bicubic:
-			resizeName = "Bicubic";
-			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-				m_resamplingFilterParameterA, paReplace);
-			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
-				m_resamplingFilterParameterB, paReplace);
-			break;
-		case ResamplingFilter::Lanczos:
-			resizeName = "Lanczos";
-			m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
-				m_resamplingFilterParameterA, paReplace);
-			break;
-		case ResamplingFilter::Spline16:
-			resizeName = "Spline16";
-			break;
-		case ResamplingFilter::Spline36:
-			resizeName = "Spline36";
-			break;
-		default:
-			Q_ASSERT(false);
-		}
+		pResultMap = m_cpVSAPI->createMap();
+		m_cpVSAPI->propSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
+			paReplace);
 	}
-
-	m_cpVSAPI->propSetInt(pArgumentMap, "prefer_props", 1, paReplace);
-
-	if(isYUV)
+	else
 	{
-		const char * matrixInS = nullptr;
-		switch(m_yuvMatrix)
+		bool isYUV = (cpFormat->colorFamily == cmYUV);
+		bool canSubsample = isYUV;
+
+		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
+			"com.vapoursynth.resize", pCore);
+		const char * resizeName = "Point";
+
+		VSMap * pArgumentMap = m_cpVSAPI->createMap();
+		m_cpVSAPI->propSetNode(pArgumentMap, "clip", a_nodePair.pOutputNode,
+			paReplace);
+		m_cpVSAPI->propSetInt(pArgumentMap, "format", (is_10_bits ?
+			pfRGB30 : pfRGB24), paReplace);
+
+		const char * dither_type = "error_diffusion";
+		m_cpVSAPI->propSetData(pArgumentMap, "dither_type",
+				dither_type, (int)strlen(dither_type), paReplace);
+
+		if(canSubsample)
 		{
-		case YuvMatrixCoefficients::m709:
-			matrixInS = "709";
-			break;
-		case YuvMatrixCoefficients::m470BG:
-			matrixInS = "470bg";
-			break;
-		case YuvMatrixCoefficients::m170M:
-			matrixInS = "170m";
-			break;
-		case YuvMatrixCoefficients::m2020_NCL:
-			matrixInS = "2020ncl";
-			break;
-		case YuvMatrixCoefficients::m2020_CL:
-			matrixInS = "2020cl";
-			break;
-		default:
-			Q_ASSERT(false);
+			switch(m_chromaResamplingFilter)
+			{
+			case ResamplingFilter::Point:
+				resizeName = "Point";
+				break;
+			case ResamplingFilter::Bilinear:
+				resizeName = "Bilinear";
+				break;
+			case ResamplingFilter::Bicubic:
+				resizeName = "Bicubic";
+				m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+					m_resamplingFilterParameterA, paReplace);
+				m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_b_uv",
+					m_resamplingFilterParameterB, paReplace);
+				break;
+			case ResamplingFilter::Lanczos:
+				resizeName = "Lanczos";
+				m_cpVSAPI->propSetFloat(pArgumentMap, "filter_param_a_uv",
+					m_resamplingFilterParameterA, paReplace);
+				break;
+			case ResamplingFilter::Spline16:
+				resizeName = "Spline16";
+				break;
+			case ResamplingFilter::Spline36:
+				resizeName = "Spline36";
+				break;
+			default:
+				Q_ASSERT(false);
+			}
 		}
 
-		int matrixStringLength = (int)strlen(matrixInS);
-		m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
-			matrixInS, matrixStringLength, paReplace);
+		m_cpVSAPI->propSetInt(pArgumentMap, "prefer_props", 1, paReplace);
 
-		if(m_yuvMatrix == YuvMatrixCoefficients::m2020_CL)
+		if(isYUV)
 		{
-			const char * transferIn = "709";
-			const char * transferOut = "2020_10";
+			const char * matrixInS = nullptr;
+			switch(m_yuvMatrix)
+			{
+			case YuvMatrixCoefficients::m709:
+				matrixInS = "709";
+				break;
+			case YuvMatrixCoefficients::m470BG:
+				matrixInS = "470bg";
+				break;
+			case YuvMatrixCoefficients::m170M:
+				matrixInS = "170m";
+				break;
+			case YuvMatrixCoefficients::m2020_NCL:
+				matrixInS = "2020ncl";
+				break;
+			case YuvMatrixCoefficients::m2020_CL:
+				matrixInS = "2020cl";
+				break;
+			default:
+				Q_ASSERT(false);
+			}
 
-			m_cpVSAPI->propSetData(pArgumentMap, "transfer_in_s",
-				transferIn, (int)strlen(transferIn), paReplace);
-			m_cpVSAPI->propSetData(pArgumentMap, "transfer_s",
-				transferOut, (int)strlen(transferOut), paReplace);
+			int matrixStringLength = (int)strlen(matrixInS);
+			m_cpVSAPI->propSetData(pArgumentMap, "matrix_in_s",
+				matrixInS, matrixStringLength, paReplace);
+
+			if(m_yuvMatrix == YuvMatrixCoefficients::m2020_CL)
+			{
+				const char * transferIn = "709";
+				const char * transferOut = "2020_10";
+
+				m_cpVSAPI->propSetData(pArgumentMap, "transfer_in_s",
+					transferIn, (int)strlen(transferIn), paReplace);
+				m_cpVSAPI->propSetData(pArgumentMap, "transfer_s",
+					transferOut, (int)strlen(transferOut), paReplace);
+			}
 		}
+
+		if(canSubsample)
+		{
+			int64_t chromaLoc = 0;
+			switch(m_chromaPlacement)
+			{
+			case ChromaPlacement::MPEG1:
+				chromaLoc = 1;
+				break;
+			case ChromaPlacement::MPEG2:
+				chromaLoc = 0;
+				break;
+			case ChromaPlacement::DV:
+				chromaLoc = 2;
+				break;
+			default:
+				Q_ASSERT(false);
+			}
+			m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
+				chromaLoc, paReplace);
+		}
+
+		pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName, pArgumentMap);
+
+		m_cpVSAPI->freeMap(pArgumentMap);
+
 	}
-
-	if(canSubsample)
-	{
-		int64_t chromaLoc = 0;
-		switch(m_chromaPlacement)
-		{
-		case ChromaPlacement::MPEG1:
-			chromaLoc = 1;
-			break;
-		case ChromaPlacement::MPEG2:
-			chromaLoc = 0;
-			break;
-		case ChromaPlacement::DV:
-			chromaLoc = 2;
-			break;
-		default:
-			Q_ASSERT(false);
-		}
-		m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
-			chromaLoc, paReplace);
-	}
-
-	VSMap * pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName,
-		pArgumentMap);
-
-	m_cpVSAPI->freeMap(pArgumentMap);
 
 	const char * cpResultError = m_cpVSAPI->getError(pResultMap);
 
@@ -685,12 +691,19 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	}
 
-	VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pResultMap, "clip", 0,
-		nullptr);
+	VSMap * pPackedMap = m_cpVSAPI->createMap();
+
+	is_10_bits ?
+		packCreateRGB30(pResultMap, pPackedMap, pCore, m_cpVSAPI):
+		packCreateRGB24(pResultMap, pPackedMap, pCore, m_cpVSAPI);
+
+	m_cpVSAPI->freeMap(pResultMap);
+
+	VSNodeRef * pPreviewNode = m_cpVSAPI->propGetNode(pPackedMap, "clip", 0, nullptr);
 	Q_ASSERT(pPreviewNode);
 	a_nodePair.pPreviewNode = pPreviewNode;
 
-	m_cpVSAPI->freeMap(pResultMap);
+	m_cpVSAPI->freeMap(pPackedMap);
 
 	return true;
 }

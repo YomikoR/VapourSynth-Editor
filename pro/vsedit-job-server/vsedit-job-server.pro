@@ -160,6 +160,7 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/appli
 HEADERS += $${COMMON_DIRECTORY}/common-src/ipc_defines.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.h
 
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/job_definitions.h
 HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.h
@@ -181,6 +182,7 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/v210.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.cpp
 
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/job_server.cpp
