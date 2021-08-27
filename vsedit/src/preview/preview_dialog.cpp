@@ -10,6 +10,7 @@
 #include "preview_advanced_settings_dialog.h"
 
 #include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VSHelper.h>
 
 #include <QEvent>
 #include <QCloseEvent>
@@ -2012,9 +2013,13 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
 	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
-	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	QImage frameImage((const uchar *)pData, width, height, stride,
-		is_10_bits ? QImage::Format_RGB30 : QImage::Format_RGB32);
+	const uint8_t * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+
+	QImage frameImage(width, height, is_10_bits ?
+		QImage::Format_RGB30 : QImage::Format_RGB32);
+	
+	vs_bitblt(frameImage.bits(), frameImage.bytesPerLine(), pData, stride,
+		wwidth, height);
 
 	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
 	return framePixmap;
