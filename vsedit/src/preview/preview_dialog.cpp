@@ -2026,13 +2026,6 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	const uint8_t * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	/*
-	QImage frameImage(width, height, is_10_bits ?
-		QImage::Format_RGB30 : QImage::Format_RGB32);
-	
-	vs_bitblt(frameImage.bits(), frameImage.bytesPerLine(), pData, stride,
-		wwidth, height);
-	 */
 	QImage frameImage(reinterpret_cast<const uchar *>(pData),
 		width, height, stride, is_10_bits ?
 		QImage::Format_RGB30 : QImage::Format_RGB32);
