@@ -188,6 +188,7 @@ protected:
 	int m_bigFrameStep;
 
 	const VSFrameRef * m_cpFrameRef;
+	const VSFrameRef * m_cpPreviewFrameRef;
 	QPixmap m_framePixmap;
 
 	bool m_changingCropValues;

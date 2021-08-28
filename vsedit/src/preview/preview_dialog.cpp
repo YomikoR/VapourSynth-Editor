@@ -62,6 +62,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_lastFrameRequestedForPlay(-1)
 	, m_bigFrameStep(10)
 	, m_cpFrameRef(nullptr)
+	, m_cpPreviewFrameRef(nullptr)
 	, m_changingCropValues(false)
 	, m_pPreviewContextMenu(nullptr)
 	, m_pActionFrameToClipboard(nullptr)
@@ -288,6 +289,13 @@ void PreviewDialog::stopAndCleanUp()
 		Q_ASSERT(m_cpVSAPI);
 		m_cpVSAPI->freeFrame(m_cpFrameRef);
 		m_cpFrameRef = nullptr;
+	}
+
+	if(m_cpPreviewFrameRef)
+	{
+		Q_ASSERT(m_cpVSAPI);
+		m_cpVSAPI->freeFrame(m_cpPreviewFrameRef);
+		m_cpPreviewFrameRef = nullptr;
 	}
 
 	VSScriptProcessorDialog::stopAndCleanUp();
@@ -1902,8 +1910,13 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	Q_ASSERT(m_cpVSAPI);
 	m_cpVSAPI->freeFrame(m_cpFrameRef);
 	m_cpFrameRef = a_cpOutputFrameRef;
+	if (m_cpPreviewFrameRef)
+	{
+		m_cpVSAPI->freeFrame(m_cpPreviewFrameRef);
+		m_cpPreviewFrameRef = nullptr;
+	}
 	m_framePixmap = pixmapFromRGB(a_cpPreviewFrameRef);
-	m_cpVSAPI->freeFrame(a_cpPreviewFrameRef);
+	m_cpPreviewFrameRef = a_cpPreviewFrameRef;
 	setPreviewPixmap();
 	m_ui.previewArea->checkMouseOverPreview(QCursor::pos());
 }
@@ -2012,10 +2025,17 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
 	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
-	const void * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
-	QImage frameImage((const uchar *)pData, width, height, stride,
-		is_10_bits ? QImage::Format_RGB30 : QImage::Format_RGB32);
-
+	const uint8_t * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
+	/*
+	QImage frameImage(width, height, is_10_bits ?
+		QImage::Format_RGB30 : QImage::Format_RGB32);
+	
+	vs_bitblt(frameImage.bits(), frameImage.bytesPerLine(), pData, stride,
+		wwidth, height);
+	 */
+	QImage frameImage(reinterpret_cast<const uchar *>(pData),
+		width, height, stride, is_10_bits ?
+		QImage::Format_RGB30 : QImage::Format_RGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
 	return framePixmap;
 }
