@@ -115,7 +115,7 @@ contains(QMAKE_COMPILER, clang) {
 }
 
 contains(QMAKE_COMPILER, gcc) {
-	QMAKE_CXXFLAGS += -std=c++11
+	QMAKE_CXXFLAGS += -std=c++14
 	QMAKE_CXXFLAGS += -Wall
 	QMAKE_CXXFLAGS += -Wextra
 	QMAKE_CXXFLAGS += -Wredundant-decls
@@ -125,7 +125,7 @@ contains(QMAKE_COMPILER, gcc) {
 
 	LIBS += -L$$[QT_INSTALL_LIBS]
 } else {
-	CONFIG += c++11
+	CONFIG += c++14
 }
 
 include($${COMMON_DIRECTORY}/pro/common.pri)
@@ -202,11 +202,6 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_library.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_script_processor_structures.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vapoursynth_script_processor.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
-SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.cpp
-SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/v210.cpp
-SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/simd/cpuinfo_x86.cpp
-SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_simd.cpp
-SOURCES += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_sse41.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/jobs_model.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.cpp
@@ -216,5 +211,40 @@ SOURCES += $${PROJECT_DIRECTORY}/src/connect_to_server_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/trusted_clients_addresses_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main_window.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/main.cpp
+
+# libp2p
+SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.cpp
+SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/v210.cpp
+SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/simd/cpuinfo_x86.cpp
+SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_simd.cpp
+SOURCES_P2P_SSE41 += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_sse41.cpp
+
+p2p.name = p2p
+p2p.input = SOURCES_P2P
+p2p.dependency_type = TYPE_C
+p2p.variable_out = OBJECTS
+p2p.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+p2p.commands = $${QMAKE_CXX} $(CXXFLAGS) -DP2P_SIMD $(INCPATH) -c ${QMAKE_FILE_IN}
+contains(QMAKE_COMPILER, msvc) {
+	p2p.commands += -Fo${QMAKE_FILE_OUT}
+} else {
+	p2p.commands += -o ${QMAKE_FILE_OUT}
+}
+QMAKE_EXTRA_COMPILERS += p2p
+
+p2p_sse41.name = p2p_sse41
+p2p_sse41.input = SOURCES_P2P_SSE41
+p2p_sse41.dependency_type = TYPE_C
+p2p_sse41.variable_out = OBJECTS
+p2p_sse41.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+p2p_sse41.commands = $${QMAKE_CXX} $(CXXFLAGS) -DP2P_SIMD $(INCPATH) -c ${QMAKE_FILE_IN}
+contains(QMAKE_COMPILER, msvc) {
+	p2p_sse41.commands += /arch:SSE2
+	p2p_sse41.commands += -Fo${QMAKE_FILE_OUT}
+} else {
+	p2p_sse41.commands += -msse4.1
+	p2p_sse41.commands += -o ${QMAKE_FILE_OUT}
+}
+QMAKE_EXTRA_COMPILERS += p2p_sse41
 
 include($${COMMON_DIRECTORY}/pro/local_quirks.pri)

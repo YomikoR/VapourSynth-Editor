@@ -24,18 +24,3 @@ win32:contains(QMAKE_COMPILER, msvc) {
 	}
 
 }
-
-contains(QMAKE_COMPILER, msvc) {
-	QMAKE_CXXFLAGS += /DP2P_SIMD
-	QMAKE_CXXFLAGS += /arch:AVX
-}
-
-contains(QMAKE_COMPILER, clang) {
-	QMAKE_CXXFLAGS += -DP2P_SIMD
-	QMAKE_CXXFLAGS += -msse4.1
-}
-
-contains(QMAKE_COMPILER, gcc) {
-	QMAKE_CXXFLAGS += -DP2P_SIMD
-	QMAKE_CXXFLAGS += -msse4.1
-}
