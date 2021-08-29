@@ -1082,11 +1082,40 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	if((frameX >= (size_t)width) || (frameY >= (size_t)height))
 		return;
 
-	value1 = valueAtPoint(frameX, frameY, 0);
-	if(cpFormat->numPlanes > 1)
-		value2 = valueAtPoint(frameX, frameY, 1);
-	if(cpFormat->numPlanes > 2)
-		value3 = valueAtPoint(frameX, frameY, 2);
+	if(cpFormat->id == pfCompatBGR32)
+	{
+		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpFrameRef, 0);
+		int stride = m_cpVSAPI->getStride(m_cpFrameRef, 0);
+		const uint32_t * cpLine = (const uint32_t *)(cpData + (height - 1 - frameY) * stride);
+		uint32_t packedValue = cpLine[frameX];
+		value3 = (double)(packedValue & 0xFF);
+		value2 = (double)((packedValue >> 8) & 0xFF);
+		value1 = (double)((packedValue >> 16) & 0xFF);
+	}
+	else if(cpFormat->id == pfCompatYUY2)
+	{
+		size_t x = frameX >> 1;
+		size_t rem = frameX & 0x1;
+		const uint8_t * cpData = m_cpVSAPI->getReadPtr(m_cpFrameRef, 0);
+		int stride = m_cpVSAPI->getStride(m_cpFrameRef, 0);
+		const uint32_t * cpLine = (const uint32_t *)(cpData + frameY * stride);
+		uint32_t packedValue = cpLine[x];
+
+		if(rem == 0)
+			value1 = (double)(packedValue & 0xFF);
+		else
+			value1 = (double)((packedValue >> 16) & 0xFF);
+		value2 = (double)((packedValue >> 8) & 0xFF);
+		value3 = (double)((packedValue >> 24) & 0xFF);
+	}
+	else
+	{
+		value1 = valueAtPoint(frameX, frameY, 0);
+		if(cpFormat->numPlanes > 1)
+			value2 = valueAtPoint(frameX, frameY, 1);
+		if(cpFormat->numPlanes > 2)
+			value3 = valueAtPoint(frameX, frameY, 2);
+	}
 
 	QString l1("1");
 	QString l2("2");
@@ -1095,17 +1124,23 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	int colorFamily = m_cpVideoInfo->format->colorFamily;
 	int formatID = m_cpVideoInfo->format->id;
 
-	if(colorFamily == cmYUV)
+	if((colorFamily == cmYUV) || (formatID == pfCompatYUY2))
 	{
 		l1 = "Y";
 		l2 = "U";
 		l3 = "V";
 	}
-	else if(colorFamily == cmRGB)
+	else if((colorFamily == cmRGB) || (formatID == pfCompatBGR32))
 	{
 		l1 = "R";
 		l2 = "G";
 		l3 = "B";
+	}
+	else if(colorFamily == cmYCoCg)
+	{
+		l1 = "Y";
+		l2 = "Co";
+		l3 = "Cg";
 	}
 
 	QString colorString = QString("%1:%2|%3:%4|%5:%6")

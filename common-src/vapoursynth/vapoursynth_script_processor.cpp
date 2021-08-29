@@ -573,8 +573,9 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	}
 	else
 	{
-		bool isYUV = (cpFormat->colorFamily == cmYUV);
-		bool canSubsample = isYUV;
+		bool isYUV = ((cpFormat->colorFamily == cmYUV) ||
+			(cpFormat->id == pfCompatYUY2));
+		bool canSubsample = (isYUV || (cpFormat->colorFamily == cmYCoCg));
 
 		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginById(
 			"com.vapoursynth.resize", pCore);
