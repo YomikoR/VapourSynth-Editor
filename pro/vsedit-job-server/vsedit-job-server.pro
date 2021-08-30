@@ -216,7 +216,6 @@ p2p_sse41.variable_out = OBJECTS
 p2p_sse41.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 p2p_sse41.commands = $${QMAKE_CXX} $(CXXFLAGS) -DP2P_SIMD $(INCPATH) -c ${QMAKE_FILE_IN}
 contains(QMAKE_COMPILER, msvc) {
-	p2p_sse41.commands += /arch:SSE2
 	p2p_sse41.commands += -Fo${QMAKE_FILE_OUT}
 } else {
 	p2p_sse41.commands += -msse4.1
