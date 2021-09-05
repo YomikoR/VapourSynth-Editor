@@ -9,6 +9,7 @@
 #include <utility>
 #include <memory>
 #include <functional>
+#include <QPixmap>
 
 //==============================================================================
 
