@@ -1143,13 +1143,20 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 		l3 = "Cg";
 	}
 
-	QString colorString = QString("%1:%2|%3:%4|%5:%6")
-		.arg(l1).arg(value1).arg(l2).arg(value2).arg(l3).arg(value3);
+	QString colorString;
 
 	if(colorFamily == cmGray)
 		colorString = QString("G:%1").arg(value1);
+	else
+	{
+		colorString = QString("%1:%2|%3:%4|%5:%6")
+			.arg(l1).arg(value1).arg(l2).arg(value2).arg(l3).arg(value3);
+	}
 
-	m_pStatusBarWidget->setColorPickerString(colorString);
+	QString coordString = QString("    X:%1 Y:%2")
+		.arg(frameX + 1).arg(frameY + 1);
+
+	m_pStatusBarWidget->setColorPickerString(colorString + coordString);
 }
 
 // END OF void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX,
