@@ -1068,6 +1068,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	double value1 = 0.0;
 	double value2 = 0.0;
 	double value3 = 0.0;
+	int preview_values[3] = {0, 0, 0};
 
 	size_t frameX = 0;
 	size_t frameY = 0;
@@ -1117,6 +1118,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 			value3 = valueAtPoint(frameX, frameY, 2);
 	}
 
+	previewValueAtPoint(frameX, frameY, preview_values);
+
 	QString l1("1");
 	QString l2("2");
 	QString l3("3");
@@ -1146,17 +1149,21 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	QString colorString;
 
 	if(colorFamily == cmGray)
-		colorString = QString("G:%1").arg(value1);
+		colorString = QString("Video: G:%1").arg(value1);
 	else
 	{
-		colorString = QString("%1:%2|%3:%4|%5:%6")
+		colorString = QString("Video: %1:%2|%3:%4|%5:%6")
 			.arg(l1).arg(value1).arg(l2).arg(value2).arg(l3).arg(value3);
 	}
 
-	QString coordString = QString("    X:%1 Y:%2")
-		.arg(frameX + 1).arg(frameY + 1);
+	QString coordString = QString("    Position: X:%1|Y:%2")
+		.arg(frameX).arg(frameY);
 
-	m_pStatusBarWidget->setColorPickerString(colorString + coordString);
+	QString dispString = QString("    Display: R:%1|G:%2|B:%3")
+		.arg(preview_values[0]).arg(preview_values[1]).arg(preview_values[2]);
+
+	m_pStatusBarWidget->setColorPickerString(colorString + coordString + 
+		dispString);
 }
 
 // END OF void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX,
@@ -2021,6 +2028,73 @@ double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
 }
 
 // END OF double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y,
+//		int a_plane)
+//==============================================================================
+
+void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
+{
+	// Read RGB values on screen from packed Gray8
+
+	if(!m_cpPreviewFrameRef)
+		return;
+
+	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpPreviewFrameRef);
+	const VSMap *props = m_cpVSAPI->getFramePropsRO(m_cpPreviewFrameRef);
+	enum p2p_packing packing_fmt =
+		static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props, "_packingFormat",
+		0, nullptr));
+	bool is_10_bits = (packing_fmt == p2p_rgb30);
+	if (!is_10_bits)
+	{
+		Q_ASSERT(packing_fmt == p2p_argb32);
+	}
+
+    const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(m_cpPreviewFrameRef, 0);
+
+	size_t x = a_x;
+	size_t y = a_y;
+
+	int stride = m_cpVSAPI->getStride(m_cpPreviewFrameRef, 0);
+	const uint8_t * cpLoc = cpPlane + y * stride + x * 4;
+
+	// libp2p will handle endianness
+	p2p_buffer_param p = {};
+	p.width = 1;
+	p.height = 1;
+	p.packing = packing_fmt;
+	p.src[0] = cpLoc;
+	p.src_stride[0] = 1;
+	if (is_10_bits)
+	{
+		uint16_t unpacked[3];
+		for (int plane = 0; plane < 3; ++plane)
+		{
+			p.dst[plane] = &unpacked[plane];
+			p.dst_stride[plane] = 1;
+		}
+		p2p_unpack_frame(&p, 0);
+		for (int plane = 0; plane < 3; ++plane)
+		{
+			a_ret[plane] = static_cast<int>(unpacked[plane]);
+		}
+	}
+	else
+	{
+		uint8_t unpacked[3];
+		for (int plane = 0; plane < 3; ++plane)
+		{
+			p.dst[plane] = &unpacked[plane];
+			p.dst_stride[plane] = 1;
+		}
+		p2p_unpack_frame(&p, 0);
+		for (int plane = 0; plane < 3; ++plane)
+		{
+			a_ret[plane] = static_cast<int>(unpacked[plane]);
+		}
+	}
+}
+
+// END OF int PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y,
 //		int a_plane)
 //==============================================================================
 

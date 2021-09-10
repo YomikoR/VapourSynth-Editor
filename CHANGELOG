@@ -1,6 +1,6 @@
 r19-mod-3:
 -Add back support for YCOCG and COMPAT colorspaces.
--Show X and Y coordinates (starting from 1) of cursor with color panel.
+-Show cursur position and on screen RGB values with color panel.
 
 r19-mod-2:
 -Improve performance for RGB format packing (thanks to DJATOM and sekrit-twc).

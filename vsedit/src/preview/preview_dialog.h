@@ -166,7 +166,9 @@ protected:
 	void setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 		const VSFrameRef * a_cpPreviewFrameRef);
 
-	double valueAtPoint(size_t a_x, size_t a_y, int a_plane) ;
+	double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
+
+	void previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[]);
 
 	QPixmap pixmapFromRGB(const VSFrameRef * a_cpFrameRef);
 
