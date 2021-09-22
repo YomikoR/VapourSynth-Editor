@@ -118,6 +118,8 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getRememberLastPreviewFrame());
 	m_ui.alwaysKeepCurrentFrameCheckBox->setChecked(
 		m_pSettingsManager->getAlwaysKeepCurrentFrame());
+	m_ui.snapshotCompressionLevelSpinBox->setValue(
+		m_pSettingsManager->getSnapshotCompressionLevel());
 
 	m_ui.vsLibraryPathsListWidget->clear();
 	m_ui.vsLibraryPathsListWidget->addItems(
@@ -219,6 +221,8 @@ void SettingsDialog::slotApply()
 		m_ui.rememberLastPreviewFrameCheckBox->isChecked());
 	m_pSettingsManager->setAlwaysKeepCurrentFrame(
 		m_ui.alwaysKeepCurrentFrameCheckBox->isChecked());
+	m_pSettingsManager->setSnapshotCompressionLevel(
+		m_ui.snapshotCompressionLevelSpinBox->value());
 
 	QStringList vapourSynthLibraryPaths;
 	int vsLibraryPathsNumber = m_ui.vsLibraryPathsListWidget->count();
