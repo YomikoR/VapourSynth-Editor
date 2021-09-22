@@ -2095,8 +2095,8 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 	}
 }
 
-// END OF int PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y,
-//		int a_plane)
+// END OF void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y,
+//		int a_ret[])
 //==============================================================================
 
 QPixmap PreviewDialog::pixmapFromRGB(

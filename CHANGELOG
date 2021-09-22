@@ -1,6 +1,8 @@
 r19-mod-3:
+-BUGFIX: Crash on file drop setting menu.
 -Add back support for YCOCG and COMPAT colorspaces.
 -Show cursur position and on screen RGB values with color panel.
+-Add a setting entry for snapshot compression level.
 
 r19-mod-2:
 -Improve performance for RGB format packing (thanks to DJATOM and sekrit-twc).
