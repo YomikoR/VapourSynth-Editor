@@ -44,7 +44,7 @@ const VSFrameRef * VS_CC packGetFrame(int n, int activationReason, void **instan
         }
         p.dst[0] = vsapi->getWritePtr(dst_frame, 0);
         p.dst_stride[0] = vsapi->getStride(dst_frame, 0);
-        p2p_pack_frame(&p, 0);
+        p2p_pack_frame(&p, P2P_ALPHA_SET_ONE);
 
         VSMap *props = vsapi->getFramePropsRW(dst_frame);
         vsapi->propSetInt(props, "_packingFormat", static_cast<int64_t>(d->packing_fmt), paReplace);

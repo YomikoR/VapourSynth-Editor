@@ -1,5 +1,6 @@
 r19-mod-3:
 -BUGFIX: Crash on file drop setting menu.
+-BUGFIX: Black screen for 10-bit preview.
 -Add back support for YCOCG and COMPAT colorspaces.
 -Show cursur position and on screen RGB values with color panel.
 -Add a setting entry for snapshot compression level.
