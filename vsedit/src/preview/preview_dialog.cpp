@@ -1334,6 +1334,13 @@ void PreviewDialog::slotLoadChapters()
 
 	const VSVideoInfo * cpVideoInfo =
 		m_pVapourSynthScriptProcessor->videoInfo();
+	if (cpVideoInfo->fpsDen == 0)
+	{
+		QString infoString = trUtf8(
+			"Warning: Load chapters requires clip having constant frame rate. Skipped");
+		emit signalWriteLogMessage(mtWarning, infoString);
+		return;
+	}
 	const double fps = (double)cpVideoInfo->fpsNum /
 		(double)cpVideoInfo->fpsDen;
 
@@ -1349,7 +1356,7 @@ void PreviewDialog::slotLoadChapters()
 		const double timecode = timecodes.at(1).toDouble() * 3600.0 +
 			timecodes.at(2).toDouble() * 60.0 + timecodes.at(3).toDouble() +
 			timecodes.at(4).toDouble() / 1000;
-		const int frameIndex  = ceil(timecode * fps);
+		const int frameIndex = round(timecode * fps);
 		m_ui.frameNumberSlider->addBookmark(frameIndex);
 	}
 
