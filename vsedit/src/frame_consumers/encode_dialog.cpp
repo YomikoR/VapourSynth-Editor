@@ -45,11 +45,6 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	m_ui.feedbackTextEdit->setSettingsManager(m_pSettingsManager);
 	m_ui.feedbackTextEdit->loadSettings();
 
-	m_ui.headerTypeComboBox->addItem(trUtf8("No header"),
-		(int)EncodingHeaderType::NoHeader);
-	m_ui.headerTypeComboBox->addItem(trUtf8("Y4M"),
-		(int)EncodingHeaderType::Y4M);
-
 	connect(m_ui.wholeVideoButton, SIGNAL(clicked()),
 		this, SLOT(slotWholeVideoButtonPressed()));
 	connect(m_ui.startEncodeButton, SIGNAL(clicked()),
@@ -548,6 +543,11 @@ void EncodeDialog::setUpEncodingPresets()
 	m_encodingPresets = m_pSettingsManager->getAllEncodingPresets();
 	for(const EncodingPreset & preset : m_encodingPresets)
 		m_ui.encodingPresetComboBox->addItem(preset.name);
+
+	m_ui.headerTypeComboBox->addItem(trUtf8("No header"),
+		(int)EncodingHeaderType::NoHeader);
+	m_ui.headerTypeComboBox->addItem(trUtf8("Y4M"),
+		(int)EncodingHeaderType::Y4M);
 
 	connect(m_ui.encodingPresetSaveButton, SIGNAL(clicked()),
 		this, SLOT(slotEncodingPresetSaveButtonPressed()));
