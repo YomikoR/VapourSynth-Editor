@@ -53,7 +53,11 @@ bool JobServerWatcherSocket::connectToJobServerWatcher()
 
 	QString watcherPath = vsedit::resolvePathFromApplication(
 		"./vsedit-job-server-watcher");
-	bool started = QProcess::startDetached(watcherPath);
+	QString thisDir = vsedit::resolvePathFromApplication(".");
+	QProcess watcherProcess;
+
+	bool started = watcherProcess.startDetached(watcherPath, QStringList(),
+		thisDir);
 	if(!started)
 	{
 		emit signalWriteLogMessage(tr("Could not start "
