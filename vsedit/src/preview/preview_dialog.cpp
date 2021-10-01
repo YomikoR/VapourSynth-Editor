@@ -2045,7 +2045,6 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 	if(!m_cpPreviewFrameRef)
 		return;
 
-	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpPreviewFrameRef);
 	const VSMap *props = m_cpVSAPI->getFramePropsRO(m_cpPreviewFrameRef);
 	enum p2p_packing packing_fmt =
 		static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props, "_packingFormat",
