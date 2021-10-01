@@ -1,3 +1,10 @@
+r19-mod-4:
+-BUGFIX: Encode preset header not correctly loaded.
+-BUGFIX: Loading chapters for VFR video results in division by zero.
+-Frame numbers computed from chapter timestamps are rounded instead of ceiling.
+-"Shell commands" in job server won't be executed with cmd /c or sh -c prefix.
+-Remove a number of obsolete Qt methods.
+
 r19-mod-3:
 -BUGFIX: Crash on file drop setting menu.
 -BUGFIX: Black screen for 10-bit preview.
