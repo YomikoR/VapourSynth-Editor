@@ -609,8 +609,8 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 					labelString = QString::number(n);
 				else
 					labelString = vsedit::timeToString(((double)n) / m_fps);
-				labelPos.setX(tickPos - labelsFontMetrics.width(labelString) /
-					2 + 1);
+				labelPos.setX(tickPos - labelsFontMetrics.horizontalAdvance(
+					labelString) / 2 + 1);
 				painter.drawText(labelPos, labelString);
 			}
 			else if(n % 5 == 0)
@@ -681,8 +681,8 @@ void TimeLineSlider::paintEvent(QPaintEvent * a_pEvent)
 					labelString = QString::number(units);
 				else
 					labelString = vsedit::timeToString(units);
-				labelPos.setX(tickPos - labelsFontMetrics.width(labelString) /
-					2 + 1);
+				labelPos.setX(tickPos - labelsFontMetrics.horizontalAdvance(
+					labelString) / 2 + 1);
 				painter.drawText(labelPos, labelString);
 			}
 			else if(n % 5 == 0)

@@ -385,7 +385,7 @@ VSData::Function VapourSynthPluginsManager::parseFunctionSignature(
 {
 	VSData::Function function;
 	function.name = a_name;
-	QStringList argumentsList = a_arguments.split(';', QString::SkipEmptyParts);
+	QStringList argumentsList = a_arguments.split(';', Qt::SkipEmptyParts);
 	if(argumentsList.size() == 0)
 		return function;
 

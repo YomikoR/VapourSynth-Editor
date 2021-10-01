@@ -226,7 +226,7 @@ void ScriptEditor::slotLoadSettings()
 	m_tabText = m_pSettingsManager->getTabText();
 	m_spacesInTab = m_pSettingsManager->getSpacesInTab();
 	QFontMetrics metrics(commonScriptTextFont);
-	setTabStopWidth(metrics.width(' ') * m_spacesInTab);
+	setTabStopDistance(metrics.horizontalAdvance(' ') * m_spacesInTab);
 
 	m_backgroundColor = m_pSettingsManager->getColor(COLOR_ID_TEXT_BACKGROUND);
 	QColor textColor = m_commonScriptTextFormat.foreground().color();
@@ -397,7 +397,7 @@ void ScriptEditor::slotBackTab()
 		cursor.setPosition(position);
 
 		// If line begins with set tabulation text - remove it.
-		cursor.setPosition(std::min(position + m_tabText.length(),
+		cursor.setPosition(std::min<int>(position + m_tabText.length(),
 			pDocument->characterCount() - 1), QTextCursor::KeepAnchor);
 		if(cursor.selectedText() == m_tabText)
 		{
@@ -1039,7 +1039,7 @@ int ScriptEditor::sideBoxWidth() const
 
 	QFont commonTextFont = m_commonScriptTextFormat.font();
 	QFontMetrics metrics(commonTextFont);
-	int space = metrics.width(controlString);
+	int space = metrics.horizontalAdvance(controlString);
 	space += m_sideBoxTextMargin * 2;
 	space += m_sideBoxLineWidth;
 

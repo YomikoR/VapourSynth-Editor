@@ -12,7 +12,6 @@ ClearableKeySequenceEditor::ClearableKeySequenceEditor(QWidget * a_pParent):
 	, m_pClearKeySequenceButton(nullptr)
 {
 	QHBoxLayout * pLayout = new QHBoxLayout(this);
-	pLayout->setMargin(0);
 	pLayout->setContentsMargins(0, 0, 0, 0);
 	pLayout->setSpacing(0);
 	setLayout(pLayout);
