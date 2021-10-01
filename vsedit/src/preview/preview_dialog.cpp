@@ -277,9 +277,8 @@ void PreviewDialog::stopAndCleanUp()
 	// -helps to keep the scrolling position when refreshing the script;
 	// -leaves the image blank on sudden error;
 	// -creates a blinking effect indicating the script is being refreshed.
-	const QPixmap * pPreviewPixmap = m_ui.previewArea->pixmap();
-	int pixmapWidth = pPreviewPixmap->width();
-	int pixmapHeight = pPreviewPixmap->height();
+	int pixmapWidth = m_ui.previewArea->pixmapWidth();
+	int pixmapHeight = m_ui.previewArea->pixmapHeight();
 	QPixmap blackPixmap(pixmapWidth, pixmapHeight);
 	blackPixmap.fill(Qt::black);
 	m_ui.previewArea->setPixmap(blackPixmap);

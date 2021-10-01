@@ -23,7 +23,9 @@ public:
 
 	void setWidget(QWidget * a_pWidget) = delete;
 
-	const QPixmap * pixmap() const;
+	int pixmapWidth() const { return m_pixmapWidth; }
+
+	int pixmapHeight() const { return m_pixmapHeight; }
 
 	void setPixmap(const QPixmap & a_pixmap);
 
@@ -64,6 +66,9 @@ private:
 	bool m_draggingPreview;
 	QPoint m_lastCursorPos;
 	QPoint m_lastPreviewLabelPos;
+
+	int m_pixmapWidth = 0;
+	int m_pixmapHeight = 0;
 };
 
 #endif // PREVIEWAREA_H
