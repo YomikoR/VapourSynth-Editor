@@ -1336,7 +1336,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	emit signalLogMessage(tr("Checking the encoder sanity."));
 	m_encodingState = EncodingState::CheckingEncoderSanity;
 
-	m_process.start(commandLine);
+	m_process.start(commandLine, QStringList());
 	if(!m_process.waitForStarted(3000))
 	{
 		emit signalLogMessage(tr("Encoder wouldn't start."),
@@ -1360,7 +1360,7 @@ void vsedit::Job::startEncodeScriptCLI()
 
 	emit signalLogMessage(tr("Encoder seems sane. Starting."));
 	m_encodingState = EncodingState::StartingEncoder;
-	m_process.start(commandLine);
+	m_process.start(commandLine, QStringList());
 }
 
 // END OF void vsedit::Job::startEncodeScriptCLI()
@@ -1378,7 +1378,7 @@ void vsedit::Job::startRunProcess()
 	emit signalLogMessage(tr("Command line:"));
 	emit signalLogMessage(commandLine);
 
-	m_process.start(commandLine);
+	m_process.start(commandLine, QStringList());
 }
 
 // END OF void vsedit::Job::startRunProcess()
@@ -1389,13 +1389,7 @@ void vsedit::Job::startRunShellCommand()
 	changeStateAndNotify(JobState::Running);
 
 	QString command = "%1";
-#ifdef Q_OS_WIN
-	command = "cmd.exe /c %1";
-#else
-	command = "/bin/sh -c %1";
-#endif
-
-	QProcess::startDetached(command.arg(m_properties.shellCommand));
+	m_process.startDetached(m_properties.shellCommand, QStringList());
 	changeStateAndNotify(JobState::Completed);
 }
 
