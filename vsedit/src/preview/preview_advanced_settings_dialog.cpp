@@ -17,34 +17,34 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	setWindowIcon(QIcon(":settings.png"));
 
 	m_ui.yuvMatrixCoefficientsComboBox->addItem(
-		trUtf8("709"), (int)YuvMatrixCoefficients::m709);
+		tr("709"), (int)YuvMatrixCoefficients::m709);
 	m_ui.yuvMatrixCoefficientsComboBox->addItem(
-		trUtf8("470BG"), (int)YuvMatrixCoefficients::m470BG);
+		tr("470BG"), (int)YuvMatrixCoefficients::m470BG);
 	m_ui.yuvMatrixCoefficientsComboBox->addItem(
-		trUtf8("170M"), (int)YuvMatrixCoefficients::m170M);
+		tr("170M"), (int)YuvMatrixCoefficients::m170M);
 	m_ui.yuvMatrixCoefficientsComboBox->addItem(
-		trUtf8("2020 NCL"), (int)YuvMatrixCoefficients::m2020_NCL);
+		tr("2020 NCL"), (int)YuvMatrixCoefficients::m2020_NCL);
 	m_ui.yuvMatrixCoefficientsComboBox->addItem(
-		trUtf8("2020 CL"), (int)YuvMatrixCoefficients::m2020_CL);
+		tr("2020 CL"), (int)YuvMatrixCoefficients::m2020_CL);
 
-	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Point"),
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Point"),
 		(int)ResamplingFilter::Point);
-	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Bilinear"),
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Bilinear"),
 		(int)ResamplingFilter::Bilinear);
-	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Bicubic"),
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Bicubic"),
 		(int)ResamplingFilter::Bicubic);
-	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Spline16"),
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Spline16"),
 		(int)ResamplingFilter::Spline16);
-	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Spline36"),
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Spline36"),
 		(int)ResamplingFilter::Spline36);
-	m_ui.chromaResamplingFilterComboBox->addItem(trUtf8("Lanczos"),
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Lanczos"),
 		(int)ResamplingFilter::Lanczos);
 
-	m_ui.chromaPlacementComboBox->addItem(trUtf8("MPEG1"),
+	m_ui.chromaPlacementComboBox->addItem(tr("MPEG1"),
 		(int)ChromaPlacement::MPEG1);
-	m_ui.chromaPlacementComboBox->addItem(trUtf8("MPEG2"),
+	m_ui.chromaPlacementComboBox->addItem(tr("MPEG2"),
 		(int)ChromaPlacement::MPEG2);
-	m_ui.chromaPlacementComboBox->addItem(trUtf8("DV"),
+	m_ui.chromaPlacementComboBox->addItem(tr("DV"),
 		(int)ChromaPlacement::DV);
 
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));

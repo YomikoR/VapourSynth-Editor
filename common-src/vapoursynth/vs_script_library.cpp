@@ -56,7 +56,7 @@ bool VSScriptLibrary::initialize()
 	int opresult = vssInit();
 	if(!opresult)
 	{
-		QString errorString = trUtf8("Failed to initialize "
+		QString errorString = tr("Failed to initialize "
 			"VapourSynth environment!");
 		emit signalWriteLogMessage(mtCritical, errorString);
 		finalize();
@@ -67,7 +67,7 @@ bool VSScriptLibrary::initialize()
 	m_cpVSAPI = vssGetVSApi();
 	if(!m_cpVSAPI)
 	{
-		QString errorString = trUtf8("Failed to get VapourSynth API!");
+		QString errorString = tr("Failed to get VapourSynth API!");
 		emit signalWriteLogMessage(mtCritical, errorString);
 		finalize();
 		return false;
@@ -310,7 +310,7 @@ bool VSScriptLibrary::initLibrary()
 		}
 		if(!*entry.ppFunction)
 		{
-			QString errorString = trUtf8("Failed to get entry %1() "
+			QString errorString = tr("Failed to get entry %1() "
 				"in vapoursynth script library!").arg(entry.name);
 			emit signalWriteLogMessage(mtCritical, errorString);
 			freeLibrary();

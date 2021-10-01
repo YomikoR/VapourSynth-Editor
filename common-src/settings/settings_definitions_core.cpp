@@ -52,9 +52,9 @@ QString JobProperties::typeName(JobType a_type)
 {
 	static std::map<JobType, QString> typeNameMap =
 	{
-		{JobType::EncodeScriptCLI, QObject::trUtf8("CLI encoding")},
-		{JobType::RunProcess, QObject::trUtf8("Process run")},
-		{JobType::RunShellCommand, QObject::trUtf8("Shell command")},
+		{JobType::EncodeScriptCLI, QObject::tr("CLI encoding")},
+		{JobType::RunProcess, QObject::tr("Process run")},
+		{JobType::RunShellCommand, QObject::tr("Shell command")},
 	};
 
 	return typeNameMap[a_type];
@@ -64,17 +64,17 @@ QString JobProperties::stateName(JobState a_state)
 {
 	static std::map<JobState, QString> stateNameMap =
 	{
-		{JobState::Waiting, QObject::trUtf8("Waiting")},
-		{JobState::Running, QObject::trUtf8("Running")},
-		{JobState::Paused, QObject::trUtf8("Paused")},
-		{JobState::Pausing, QObject::trUtf8("Pausing")},
-		{JobState::Aborted, QObject::trUtf8("Aborted")},
-		{JobState::Aborting, QObject::trUtf8("Aborting")},
-		{JobState::FailedCleanUp, QObject::trUtf8("Failed. Cleaning up.")},
-		{JobState::Failed, QObject::trUtf8("Failed")},
-		{JobState::DependencyNotMet, QObject::trUtf8("Dependency not met")},
-		{JobState::CompletedCleanUp, QObject::trUtf8("Completing")},
-		{JobState::Completed, QObject::trUtf8("Completed")},
+		{JobState::Waiting, QObject::tr("Waiting")},
+		{JobState::Running, QObject::tr("Running")},
+		{JobState::Paused, QObject::tr("Paused")},
+		{JobState::Pausing, QObject::tr("Pausing")},
+		{JobState::Aborted, QObject::tr("Aborted")},
+		{JobState::Aborting, QObject::tr("Aborting")},
+		{JobState::FailedCleanUp, QObject::tr("Failed. Cleaning up.")},
+		{JobState::Failed, QObject::tr("Failed")},
+		{JobState::DependencyNotMet, QObject::tr("Dependency not met")},
+		{JobState::CompletedCleanUp, QObject::tr("Completing")},
+		{JobState::Completed, QObject::tr("Completed")},
 	};
 
 	return stateNameMap[a_state];

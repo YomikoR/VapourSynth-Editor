@@ -1164,14 +1164,14 @@ void ScriptEditor::fillVariables()
 {
 	m_variables =
 	{
-		{"{f}", trUtf8("file path"),
+		{"{f}", tr("file path"),
 			[&]()
 			{
 				return m_droppedFilePath;
 			}
 		},
 
-		{"{d}", trUtf8("file directory"),
+		{"{d}", tr("file directory"),
 			[&]()
 			{
 				QFileInfo file(m_droppedFilePath);
@@ -1179,7 +1179,7 @@ void ScriptEditor::fillVariables()
 			}
 		},
 
-		{"{n}", trUtf8("file name"),
+		{"{n}", tr("file name"),
 			[&]()
 			{
 				QFileInfo file(m_droppedFilePath);
@@ -1187,7 +1187,7 @@ void ScriptEditor::fillVariables()
 			}
 		},
 
-		{"{x}", trUtf8("file extension"),
+		{"{x}", tr("file extension"),
 			[&]()
 			{
 				QFileInfo file(m_droppedFilePath);
@@ -1195,7 +1195,7 @@ void ScriptEditor::fillVariables()
 			}
 		},
 
-		{"{i}", trUtf8("file number in the list of dropped files"),
+		{"{i}", tr("file number in the list of dropped files"),
 			[&]()
 			{
 				return m_droppedFileNumber > 0 ?

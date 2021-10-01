@@ -78,7 +78,7 @@ MainWindow::MainWindow() : QMainWindow()
 #endif
 {
 	m_ui.setupUi(this);
-	setWindowTitle(trUtf8(WINDOW_TITLE));
+	setWindowTitle(tr(WINDOW_TITLE));
 
 	m_pSettingsManager = new SettingsManager(this);
 	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
@@ -226,7 +226,7 @@ MainWindow::MainWindow() : QMainWindow()
 		m_pTaskServer->listen(JOB_SERVER_WATCHER_LOCAL_SERVER_NAME);
 	if(!taskServerStarted)
 	{
-		m_ui.logView->addEntry(trUtf8("Couldn't start task server."),
+		m_ui.logView->addEntry(tr("Couldn't start task server."),
 			LOG_STYLE_ERROR);
 	}
 }
@@ -243,7 +243,7 @@ MainWindow::~MainWindow()
 	}
 
 	m_pServerSocket->close(QWebSocketProtocol::CloseCodeNormal,
-		trUtf8("Closing watcher."));
+		tr("Closing watcher."));
 	for(QLocalSocket * pClient : m_taskClients)
 	{
 		disconnect(pClient, &QLocalSocket::disconnected,
@@ -262,7 +262,7 @@ void MainWindow::showAndConnect()
 	if(m_state != WatcherState::NotConnected)
 		return;
 
-	slotWriteLogMessage(trUtf8("Connecting to local server."));
+	slotWriteLogMessage(tr("Connecting to local server."));
 	changeState(WatcherState::ProbingLocal);
 	slotConnectToLocalServer();
 }
@@ -314,7 +314,7 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 	QDateTime now = QDateTime::currentDateTime();
 	QString timeString = now.toString("hh:mm:ss.zzz");
 	QString dateString = now.toString("yyyy-MM-dd");
-	QString caption = QObject::trUtf8("VapourSynth Editor Job Server "
+	QString caption = QObject::tr("VapourSynth Editor Job Server "
 		"fatal error!");
 	QString fullMessage = dateString + QString(" ") + timeString +
 		QString("\n") + caption + QString("\n") + a_message;
@@ -432,7 +432,7 @@ void MainWindow::slotTrayIconActivated(
 
 void MainWindow::slotJobNewButtonClicked()
 {
-	int result = m_pJobEditDialog->call(trUtf8("New job"), JobProperties());
+	int result = m_pJobEditDialog->call(tr("New job"), JobProperties());
 	if(result == QDialog::Accepted)
 	{
 		JobProperties newJobProperties = m_pJobEditDialog->jobProperties();
@@ -621,21 +621,21 @@ void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
 		if(m_pJobsModel->hasActiveJobs() || m_pJobsModel->hasWaitingJobs())
 		{
 			if(a_state == JobState::Completed)
-				message = trUtf8("Job%1 has finished successfully");
+				message = tr("Job%1 has finished successfully");
 			else if(a_state == JobState::Aborted)
 			{
-				message = trUtf8("Job%1 was aborted");
+				message = tr("Job%1 was aborted");
 				icon = QSystemTrayIcon::Warning;
 			}
 			else if(a_state == JobState::Failed)
 			{
-				message = trUtf8("Job%1 has failed");
+				message = tr("Job%1 has failed");
 				icon = QSystemTrayIcon::Critical;
 			}
 			message = message.arg(a_job + 1);
 		}
 		else
-			message = trUtf8("All jobs are finished.");
+			message = tr("All jobs are finished.");
 
 		m_pTrayIcon->showMessage(WINDOW_TITLE, message, icon);
 	}
@@ -746,7 +746,7 @@ void MainWindow::slotServerDisconnected()
 		if(!started)
 		{
 			changeState(WatcherState::NotConnected);
-			m_ui.logView->addEntry(trUtf8("Could not start server."),
+			m_ui.logView->addEntry(tr("Could not start server."),
 				LOG_STYLE_ERROR);
 			return;
 		}
@@ -762,7 +762,7 @@ void MainWindow::slotServerDisconnected()
 		{
 			changeState(WatcherState::NotConnected);
 			m_connectionAttempts = 0;
-			m_ui.logView->addEntry(trUtf8("Could not connect to server."),
+			m_ui.logView->addEntry(tr("Could not connect to server."),
 				LOG_STYLE_ERROR);
 			return;
 		}
@@ -779,11 +779,11 @@ void MainWindow::slotServerDisconnected()
 		(m_state == WatcherState::ShuttingDown))
 	{
 		changeState(WatcherState::NotConnected);
-		m_ui.logView->addEntry(trUtf8("Disconnected from server"));
+		m_ui.logView->addEntry(tr("Disconnected from server"));
 	}
 	else if(m_state == WatcherState::Connected)
 	{
-		m_ui.logView->addEntry(trUtf8("Disconnected from server. "
+		m_ui.logView->addEntry(tr("Disconnected from server. "
 			"Reconnecting"), LOG_STYLE_ERROR);
 		changeState(WatcherState::Connecting);
 		slotReconnectToServer();
@@ -957,7 +957,7 @@ void MainWindow::slotTextMessageReceived(const QString & a_message)
 
 	if(command == QString(SMSG_CLOSING_SERVER))
 	{
-		m_ui.logView->addEntry(trUtf8("Server is shutting down."));
+		m_ui.logView->addEntry(tr("Server is shutting down."));
 		return;
 	}
 
@@ -993,7 +993,7 @@ void MainWindow::slotStartLocalServer()
 	if(m_state != WatcherState::NotConnected)
 		return;
 
-	slotWriteLogMessage(trUtf8("Starting local server."));
+	slotWriteLogMessage(tr("Starting local server."));
 	changeState(WatcherState::ProbingLocal);
 	slotConnectToLocalServer();
 }
@@ -1051,7 +1051,7 @@ void MainWindow::slotConnectToServer(const QHostAddress & a_address)
 		(m_state == WatcherState::Connecting))
 	{
 		changeState(WatcherState::Connecting);
-		slotWriteLogMessage(trUtf8("Connecting to server %1. Try %2.")
+		slotWriteLogMessage(tr("Connecting to server %1. Try %2.")
 			.arg(addressString).arg(m_connectionAttempts + 1));
 		m_pServerSocket->open(connectionURL);
 	}
@@ -1080,7 +1080,7 @@ void MainWindow::slotShutdownServerAndExit()
 	if(!m_pServerSocket->peerAddress().isLoopback())
 	{
 		m_ui.logView->addEntry(
-			trUtf8("Not allowed to shut down remote server."),
+			tr("Not allowed to shut down remote server."),
 			LOG_STYLE_ERROR);
 		return;
 	}
@@ -1140,7 +1140,7 @@ void MainWindow::slotTaskClientReadyRead()
 
 		if(m_state != WatcherState::Connected)
 		{
-			m_ui.logView->addEntry(trUtf8("New job task is put on hold "
+			m_ui.logView->addEntry(tr("New job task is put on hold "
 				"until watcher connects to server."), LOG_STYLE_WARNING);
 			return;
 		}
@@ -1223,7 +1223,7 @@ void MainWindow::createActionsAndMenus()
 
 	m_pActionSetTrustedClientsAddresses->setEnabled(false);
 
-	QMenu * pMainMenu = m_ui.menuBar->addMenu(trUtf8("Main"));
+	QMenu * pMainMenu = m_ui.menuBar->addMenu(tr("Main"));
 	pMainMenu->addAction(m_pActionSetTrustedClientsAddresses);
 	pMainMenu->addAction(m_pActionExit);
 	pMainMenu->addAction(m_pActionShutdownServerAndExit);
@@ -1247,12 +1247,12 @@ void MainWindow::editJob(const QModelIndex & a_index)
 
 	if(vsedit::contains(ACTIVE_JOB_STATES, properties.jobState))
 	{
-		m_ui.logView->addEntry(trUtf8("Can not edit active job."),
+		m_ui.logView->addEntry(tr("Can not edit active job."),
 			LOG_STYLE_WARNING);
 		return;
 	}
 
-	int result = m_pJobEditDialog->call(trUtf8("Edit Job %1")
+	int result = m_pJobEditDialog->call(tr("Edit Job %1")
 		.arg(a_index.row() + 1), properties);
 	if(result == QDialog::Accepted)
 	{
@@ -1430,7 +1430,7 @@ void MainWindow::processTaskList()
 {
 	while(!m_taskList.empty())
 	{
-		int result = m_pJobEditDialog->call(trUtf8("New job"),
+		int result = m_pJobEditDialog->call(tr("New job"),
 			m_taskList.front());
 		if(result == QDialog::Accepted)
 		{

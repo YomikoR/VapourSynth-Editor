@@ -106,7 +106,7 @@ void JobServer::slotBinaryMessageReceived(
 	QWebSocket * pClient = qobject_cast<QWebSocket *>(sender());
 	if(!pClient)
 		return;
-	QString messageString = trUtf8(a_message);
+	QString messageString = tr(a_message);
 	processMessage(pClient, messageString);
 }
 

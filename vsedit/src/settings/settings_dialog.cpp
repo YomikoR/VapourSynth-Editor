@@ -154,35 +154,35 @@ void SettingsDialog::slotCall()
 void SettingsDialog::addThemeElements()
 {
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT,
-		trUtf8("Common script text"));
+		tr("Common script text"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_KEYWORD,
-		trUtf8("Keyword"));
+		tr("Keyword"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_OPERATOR,
-		trUtf8("Operator"));
+		tr("Operator"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_STRING,
-		trUtf8("String"));
+		tr("String"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_NUMBER,
-		trUtf8("Number"));
+		tr("Number"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_COMMENT,
-		trUtf8("Comment"));
+		tr("Comment"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_CORE,
-		trUtf8("VapourSynth core"));
+		tr("VapourSynth core"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_NAMESPACE,
-		trUtf8("VapourSynth namespace"));
+		tr("VapourSynth namespace"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_FUNCTION,
-		trUtf8("VapourSynth function"));
+		tr("VapourSynth function"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_VS_ARGUMENT,
-		trUtf8("VapourSynth argument"));
+		tr("VapourSynth argument"));
 	m_pThemeElementsModel->addTextCharFormat(TEXT_FORMAT_ID_TIMELINE,
-		trUtf8("Timeline labels"));
+		tr("Timeline labels"));
 	m_pThemeElementsModel->addColor(COLOR_ID_TEXT_BACKGROUND,
-		trUtf8("Text background color"));
+		tr("Text background color"));
 	m_pThemeElementsModel->addColor(COLOR_ID_ACTIVE_LINE,
-		trUtf8("Active line color"));
+		tr("Active line color"));
 	m_pThemeElementsModel->addColor(COLOR_ID_SELECTION_MATCHES,
-		trUtf8("Selection matches color"));
+		tr("Selection matches color"));
 	m_pThemeElementsModel->addColor(COLOR_ID_TIMELINE_BOOKMARKS,
-		trUtf8("Timeline bookmarks color"));
+		tr("Timeline bookmarks color"));
 }
 
 // END OF void SettingsDialog::addThemeElements()
@@ -300,7 +300,7 @@ void SettingsDialog::slotRemoveVSLibraryPath()
 void SettingsDialog::slotSelectVSLibraryPath()
 {
 	QString path = QFileDialog::getExistingDirectory(this,
-		trUtf8("Select VapourSynth library search path"),
+		tr("Select VapourSynth library search path"),
 		m_ui.vsLibraryPathEdit->text());
 	if(!path.isEmpty())
 		m_ui.vsLibraryPathEdit->setText(path);
@@ -343,7 +343,7 @@ void SettingsDialog::slotRemoveVSPluginsPath()
 void SettingsDialog::slotSelectVSPluginsPath()
 {
 	QString path = QFileDialog::getExistingDirectory(this,
-		trUtf8("Select VapourSynth plugins path"),
+		tr("Select VapourSynth plugins path"),
 		m_ui.vsPluginsPathEdit->text());
 	if(!path.isEmpty())
 		m_ui.vsPluginsPathEdit->setText(path);
@@ -386,7 +386,7 @@ void SettingsDialog::slotRemoveVSDocumentationPath()
 void SettingsDialog::slotSelectVSDocumentationPath()
 {
 	QString path = QFileDialog::getExistingDirectory(this,
-		trUtf8("Select documentation path"),
+		tr("Select documentation path"),
 		m_ui.vsDocumentationPathEdit->text());
 	if(!path.isEmpty())
 		m_ui.vsDocumentationPathEdit->setText(path);

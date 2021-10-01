@@ -486,7 +486,7 @@ bool vsedit::Job::initialize()
 
 	if(isActive() && (m_encodingState != EncodingState::Idle))
 	{
-		emit signalLogMessage(trUtf8("Can not initialize an active job"),
+		emit signalLogMessage(tr("Can not initialize an active job"),
 			LOG_STYLE_ERROR);
 		return false;
 	}
@@ -499,7 +499,7 @@ bool vsedit::Job::initialize()
 		bool opened = scriptFile.open(QIODevice::ReadOnly);
 		if(!opened)
 		{
-			emit signalLogMessage(trUtf8("Could not open script file \"%1\".")
+			emit signalLogMessage(tr("Could not open script file \"%1\".")
 				.arg(m_properties.scriptName), LOG_STYLE_ERROR);
 			changeStateAndNotify(JobState::Failed);
 			return false;
@@ -511,7 +511,7 @@ bool vsedit::Job::initialize()
 
 	if((!m_pVSScriptLibrary) || (!m_pSettingsManager))
 	{
-		emit signalLogMessage(trUtf8("Job is not created properly."),
+		emit signalLogMessage(tr("Job is not created properly."),
 			LOG_STYLE_ERROR);
 		changeStateAndNotify(JobState::Failed);
 		return false;
@@ -555,7 +555,7 @@ bool vsedit::Job::initialize()
 			m_properties.scriptText, m_properties.scriptName);
 		if(!scriptProcessorInitialized)
 		{
-			emit signalLogMessage(trUtf8("Failed to initialize script.\n%1")
+			emit signalLogMessage(tr("Failed to initialize script.\n%1")
 				.arg(m_pVapourSynthScriptProcessor->error()), LOG_STYLE_ERROR);
 			changeStateAndNotify(JobState::Failed);
 			return false;
@@ -618,14 +618,14 @@ void vsedit::Job::start()
 			if(result)
 				changeStateAndNotify(JobState::Running);
 			else
-				emit signalLogMessage(trUtf8("Failed to resume process. "
+				emit signalLogMessage(tr("Failed to resume process. "
 					"Error %1.").arg(GetLastError()), LOG_STYLE_ERROR);
 #else
 			int error = kill((pid_t)m_process.processId(), SIGCONT);
 			if(!error)
 				changeStateAndNotify(JobState::Running);
 			else
-				emit signalLogMessage(trUtf8("Failed to resume process. "
+				emit signalLogMessage(tr("Failed to resume process. "
 					"Error %1.").arg(error), LOG_STYLE_ERROR);
 #endif
 		}
@@ -669,14 +669,14 @@ void vsedit::Job::pause()
 		if(result)
 			changeStateAndNotify(JobState::Paused);
 		else
-			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
+			emit signalLogMessage(tr("Failed to pause process. Error %1.")
 				.arg(GetLastError()), LOG_STYLE_ERROR);
 #else
 		int error = kill((pid_t)m_process.processId(), SIGSTOP);
 		if(!error)
 			changeStateAndNotify(JobState::Paused);
 		else
-			emit signalLogMessage(trUtf8("Failed to pause process. Error %1.")
+			emit signalLogMessage(tr("Failed to pause process. Error %1.")
 				.arg(error), LOG_STYLE_ERROR);
 #endif
 	}
@@ -719,13 +719,13 @@ void vsedit::Job::slotProcessStarted()
 
 	if(m_properties.type == JobType::EncodeScriptCLI)
 	{
-		emit signalLogMessage(trUtf8("Encoder started. Beginning encoding."));
+		emit signalLogMessage(tr("Encoder started. Beginning encoding."));
 
 		if(!m_process.isWritable())
 		{
 			m_encodingState = EncodingState::Aborting;
 			m_properties.jobState = JobState::Aborting;
-			emit signalLogMessage(trUtf8("Can not write to encoder. Aborting."),
+			emit signalLogMessage(tr("Can not write to encoder. Aborting."),
 				LOG_STYLE_ERROR);
 			cleanUpEncoding();
 			return;
@@ -738,7 +738,7 @@ void vsedit::Job::slotProcessStarted()
 				m_pFrameHeaderWriter->videoHeader(framesTotal());
 
 			if(m_properties.encodingHeaderType == EncodingHeaderType::Y4M)
-				emit signalLogMessage(trUtf8("Y4M header: ") +
+				emit signalLogMessage(tr("Y4M header: ") +
 					QString::fromLatin1(videoHeader), LOG_STYLE_DEBUG);
 
 			m_bytesToWrite = videoHeader.size();
@@ -752,7 +752,7 @@ void vsedit::Job::slotProcessStarted()
 					m_encodingState = EncodingState::Aborting;
 					changeStateAndNotify(JobState::FailedCleanUp);
 					emit signalLogMessage(
-						trUtf8("Error on writing header to encoder. Aborting."),
+						tr("Error on writing header to encoder. Aborting."),
 						LOG_STYLE_ERROR);
 					cleanUpEncoding();
 					return;
@@ -790,8 +790,8 @@ void vsedit::Job::slotProcessFinished(int a_exitCode,
 		else if(vsedit::contains(workingStates, m_encodingState))
 		{
 			QString exitStatusString = (a_exitStatus == QProcess::CrashExit) ?
-				trUtf8("crash") : trUtf8("normal exit");
-			emit signalLogMessage(trUtf8("Encoder has finished "
+				tr("crash") : tr("normal exit");
+			emit signalLogMessage(tr("Encoder has finished "
 				"unexpectedly.\nReason: %1; exit code: %2")
 				.arg(exitStatusString).arg(a_exitCode), LOG_STYLE_ERROR);
 			changeStateAndNotify(JobState::FailedCleanUp);
@@ -802,20 +802,20 @@ void vsedit::Job::slotProcessFinished(int a_exitCode,
 	}
 	else if(m_properties.type == JobType::RunProcess)
 	{
-		QString message = trUtf8("Process has finished.");
+		QString message = tr("Process has finished.");
 		QString logStyle = LOG_STYLE_POSITIVE;
 		JobState nextState = JobState::Completed;
 
 		if(a_exitStatus == QProcess::CrashExit)
 		{
-			message = trUtf8("Process has crashed.");
+			message = tr("Process has crashed.");
 			logStyle = LOG_STYLE_ERROR;
 			nextState = JobState::Failed;
 		}
 		else if(a_exitCode != 0)
 			logStyle = LOG_STYLE_WARNING;
 
-		emit signalLogMessage(trUtf8("%1 Exit code: %2")
+		emit signalLogMessage(tr("%1 Exit code: %2")
 			.arg(message).arg(a_exitCode), logStyle);
 		changeStateAndNotify(nextState);
 	}
@@ -834,7 +834,7 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 
 		if(m_encodingState == EncodingState::Idle)
 		{
-			emit signalLogMessage(trUtf8("Encoder has reported "
+			emit signalLogMessage(tr("Encoder has reported "
 				"an error while it shouldn't be running at all. Ignoring."),
 				LOG_STYLE_WARNING);
 			return;
@@ -843,7 +843,7 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 		switch(a_error)
 		{
 		case QProcess::FailedToStart:
-			emit signalLogMessage(trUtf8("Encoder has failed to start. "
+			emit signalLogMessage(tr("Encoder has failed to start. "
 				"Aborting."), LOG_STYLE_ERROR);
 			m_encodingState = EncodingState::Aborting;
 			changeStateAndNotify(JobState::FailedCleanUp);
@@ -851,7 +851,7 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 			break;
 
 		case QProcess::Crashed:
-			emit signalLogMessage(trUtf8("Encoder has crashed. "
+			emit signalLogMessage(tr("Encoder has crashed. "
 				"Aborting."), LOG_STYLE_ERROR);
 			m_encodingState = EncodingState::EncoderCrashed;
 			changeStateAndNotify(JobState::FailedCleanUp);
@@ -864,7 +864,7 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 		case QProcess::WriteError:
 			if(m_encodingState == EncodingState::WritingFrame)
 			{
-				emit signalLogMessage(trUtf8("Writing to encoder "
+				emit signalLogMessage(tr("Writing to encoder "
 					"failed. Aborting."), LOG_STYLE_ERROR);
 				m_encodingState = EncodingState::Aborting;
 				changeStateAndNotify(JobState::FailedCleanUp);
@@ -872,19 +872,19 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 			}
 			else
 			{
-				emit signalLogMessage(trUtf8("Encoder has returned a "
+				emit signalLogMessage(tr("Encoder has returned a "
 					"writing error, but we were not writing. Ignoring."),
 					LOG_STYLE_WARNING);
 			}
 			break;
 
 		case QProcess::ReadError:
-			emit signalLogMessage(trUtf8("Error on reading the "
+			emit signalLogMessage(tr("Error on reading the "
 				"encoder feedback."), LOG_STYLE_WARNING);
 			break;
 
 		case QProcess::UnknownError:
-			emit signalLogMessage(trUtf8("Unknown error in encoder."),
+			emit signalLogMessage(tr("Unknown error in encoder."),
 				LOG_STYLE_WARNING);
 			break;
 
@@ -897,13 +897,13 @@ void vsedit::Job::slotProcessError(QProcess::ProcessError a_error)
 		switch(a_error)
 		{
 		case QProcess::FailedToStart:
-			emit signalLogMessage(trUtf8("Process has failed to start."),
+			emit signalLogMessage(tr("Process has failed to start."),
 				LOG_STYLE_ERROR);
 			changeStateAndNotify(JobState::Failed);
 			break;
 
 		case QProcess::Crashed:
-			emit signalLogMessage(trUtf8("Process has crashed."),
+			emit signalLogMessage(tr("Process has crashed."),
 				LOG_STYLE_ERROR);
 			changeStateAndNotify(JobState::Failed);
 			break;
@@ -927,7 +927,7 @@ void vsedit::Job::slotProcessReadChannelFinished()
 
 	if(m_encodingState == EncodingState::Idle)
 	{
-		emit signalLogMessage(trUtf8("Encoder has suddenly stopped "
+		emit signalLogMessage(tr("Encoder has suddenly stopped "
 			"accepting data while it shouldn't be running at all. Ignoring."),
 			LOG_STYLE_WARNING);
 		return;
@@ -936,7 +936,7 @@ void vsedit::Job::slotProcessReadChannelFinished()
 	if((m_encodingState != EncodingState::Finishing) &&
 		(m_encodingState != EncodingState::Aborting))
 	{
-		emit signalLogMessage(trUtf8("Encoder has suddenly stopped "
+		emit signalLogMessage(tr("Encoder has suddenly stopped "
 			"accepting data. Aborting."), LOG_STYLE_ERROR);
 		m_encodingState = EncodingState::Aborting;
 		changeStateAndNotify(JobState::FailedCleanUp);
@@ -957,7 +957,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 
 	if(m_encodingState == EncodingState::Idle)
 	{
-		emit signalLogMessage(trUtf8("Encoder has reported written "
+		emit signalLogMessage(tr("Encoder has reported written "
 			"data while it shouldn't be running at all. Ignoring."),
 			LOG_STYLE_WARNING);
 		return;
@@ -970,7 +970,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 	if((m_encodingState != EncodingState::WritingFrame) &&
 		(m_encodingState != EncodingState::WritingHeader))
 	{
-		emit signalLogMessage(trUtf8("Encoder reports successful "
+		emit signalLogMessage(tr("Encoder reports successful "
 			"write, but we were not writing anything.\nData written: "
 			"%1 bytes.").arg(a_bytes), LOG_STYLE_WARNING);
 		return;
@@ -978,7 +978,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 
 	if(a_bytes <= 0)
 	{
-		emit signalLogMessage(trUtf8("Error on writing data to "
+		emit signalLogMessage(tr("Error on writing data to "
 			"encoder.\nExpected to write: %1 bytes. Data written: %2 bytes.\n"
 			"Aborting.").arg(m_bytesToWrite).arg(m_bytesWritten),
 			LOG_STYLE_ERROR);
@@ -992,7 +992,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 
 	if((m_bytesWritten + m_process.bytesToWrite()) < m_bytesToWrite)
 	{
-		emit signalLogMessage(trUtf8("Encoder has lost written "
+		emit signalLogMessage(tr("Encoder has lost written "
 			"data. Aborting."), LOG_STYLE_ERROR);
 		m_encodingState = EncodingState::Aborting;
 		changeStateAndNotify(JobState::FailedCleanUp);
@@ -1316,7 +1316,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	bool compatibleHeader = m_pFrameHeaderWriter->isCompatible();
 	if(!compatibleHeader)
 	{
-		emit signalLogMessage(trUtf8("Video is not compatible "
+		emit signalLogMessage(tr("Video is not compatible "
 			"with the chosen header."), LOG_STYLE_ERROR);
 		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
@@ -1330,16 +1330,16 @@ void vsedit::Job::startEncodeScriptCLI()
 	QString commandLine = QString("\"%1\" %2").arg(executable)
 		.arg(decodedArguments);
 
-	emit signalLogMessage(trUtf8("Command line:"));
+	emit signalLogMessage(tr("Command line:"));
 	emit signalLogMessage(commandLine);
 
-	emit signalLogMessage(trUtf8("Checking the encoder sanity."));
+	emit signalLogMessage(tr("Checking the encoder sanity."));
 	m_encodingState = EncodingState::CheckingEncoderSanity;
 
 	m_process.start(commandLine);
 	if(!m_process.waitForStarted(3000))
 	{
-		emit signalLogMessage(trUtf8("Encoder wouldn't start."),
+		emit signalLogMessage(tr("Encoder wouldn't start."),
 			LOG_STYLE_ERROR);
 		changeStateAndNotify(JobState::FailedCleanUp);
 		cleanUpEncoding();
@@ -1349,7 +1349,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	m_process.closeWriteChannel();
 	if(!m_process.waitForFinished(3000))
 	{
-		emit signalLogMessage(trUtf8("Program is not behaving "
+		emit signalLogMessage(tr("Program is not behaving "
 			"like a CLI encoder. Terminating."), LOG_STYLE_ERROR);
 		m_process.kill();
 		m_process.waitForFinished(-1);
@@ -1358,7 +1358,7 @@ void vsedit::Job::startEncodeScriptCLI()
 		return;
 	}
 
-	emit signalLogMessage(trUtf8("Encoder seems sane. Starting."));
+	emit signalLogMessage(tr("Encoder seems sane. Starting."));
 	m_encodingState = EncodingState::StartingEncoder;
 	m_process.start(commandLine);
 }
@@ -1375,7 +1375,7 @@ void vsedit::Job::startRunProcess()
 	QString commandLine = QString("\"%1\" %2").arg(executable)
 		.arg(m_properties.arguments);
 
-	emit signalLogMessage(trUtf8("Command line:"));
+	emit signalLogMessage(tr("Command line:"));
 	emit signalLogMessage(commandLine);
 
 	m_process.start(commandLine);
@@ -1541,7 +1541,7 @@ void vsedit::Job::processFramesQueue()
 	{
 		m_encodingState = EncodingState::Aborting;
 		changeStateAndNotify(JobState::FailedCleanUp);
-		emit signalLogMessage(trUtf8("Error on writing data to encoder. "
+		emit signalLogMessage(tr("Error on writing data to encoder. "
 			"Aborting."), LOG_STYLE_ERROR);
 		cleanUpEncoding();
 		return;
@@ -1562,12 +1562,12 @@ void vsedit::Job::finishEncodingCLI()
 
 	if(m_encodingState == EncodingState::Finishing)
 	{
-		emit signalLogMessage(trUtf8("Finished encoding."), LOG_STYLE_POSITIVE);
+		emit signalLogMessage(tr("Finished encoding."), LOG_STYLE_POSITIVE);
 		changeStateAndNotify(JobState::CompletedCleanUp);
 	}
 	else if(m_encodingState == EncodingState::Aborting)
 	{
-		emit signalLogMessage(trUtf8("Aborted encoding."), LOG_STYLE_WARNING);
+		emit signalLogMessage(tr("Aborted encoding."), LOG_STYLE_WARNING);
 	}
 
 	m_encodingState = EncodingState::Idle;

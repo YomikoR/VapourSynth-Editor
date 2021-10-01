@@ -497,7 +497,7 @@ void PreviewDialog::slotSaveSnapshot()
 
 	std::map<QString, QString> extensionToFilterMap =
 	{
-		{"png", trUtf8("PNG image (*.png)")},
+		{"png", tr("PNG image (*.png)")},
 	};
 
 	QString fileExtension = m_pSettingsManager->getLastSnapshotExtension();
@@ -506,7 +506,7 @@ void PreviewDialog::slotSaveSnapshot()
 	bool webpSupported = (supportedFormats.indexOf("webp") > -1);
 
 	if(webpSupported)
-		extensionToFilterMap["webp"] = trUtf8("WebP image (*.webp)");
+		extensionToFilterMap["webp"] = tr("WebP image (*.webp)");
 
 	QString snapshotFilePath = scriptName();
 	if(snapshotFilePath.isEmpty())
@@ -526,7 +526,7 @@ void PreviewDialog::slotSaveSnapshot()
 	QString selectedFilter = extensionToFilterMap[fileExtension];
 
 	snapshotFilePath = QFileDialog::getSaveFileName(this,
-		trUtf8("Save frame as image"), snapshotFilePath,
+		tr("Save frame as image"), snapshotFilePath,
 		saveFormatsList.join(";;"), &selectedFilter);
 
 	QFileInfo fileInfo(snapshotFilePath);
@@ -544,8 +544,8 @@ void PreviewDialog::slotSaveSnapshot()
 			m_pSettingsManager->setLastSnapshotExtension(suffix);
 		else
 		{
-			QMessageBox::critical(this, trUtf8("Image save error"),
-				trUtf8("Error while saving image ") + snapshotFilePath);
+			QMessageBox::critical(this, tr("Image save error"),
+				tr("Error while saving image ") + snapshotFilePath);
 		}
 	}
 }
@@ -1326,8 +1326,8 @@ void PreviewDialog::slotLoadChapters()
 
 	const QString lastUsedPath = m_pSettingsManager->getLastUsedPath();
 	const QString filePath = QFileDialog::getOpenFileName(this,
-		trUtf8("Load chapters"), lastUsedPath,
-		trUtf8("Chapters file (*.txt;*.xml);;All files (*)"));
+		tr("Load chapters"), lastUsedPath,
+		tr("Chapters file (*.txt;*.xml);;All files (*)"));
 	QFile chaptersFile(filePath);
 	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
@@ -1336,7 +1336,7 @@ void PreviewDialog::slotLoadChapters()
 		m_pVapourSynthScriptProcessor->videoInfo();
 	if (cpVideoInfo->fpsDen == 0)
 	{
-		QString infoString = trUtf8(
+		QString infoString = tr(
 			"Warning: Load chapters requires clip having constant frame rate. Skipped");
 		emit signalWriteLogMessage(mtWarning, infoString);
 		return;
@@ -1372,7 +1372,7 @@ void PreviewDialog::slotClearBookmarks()
 		return;
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
-		trUtf8("Clear bookmards"), trUtf8("Do you really want to clear "
+		tr("Clear bookmards"), tr("Do you really want to clear "
 		"timeline bookmarks?"),
 		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
 		QMessageBox::No);
@@ -1541,7 +1541,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pMenuZoomModes = new QMenu(m_pPreviewContextMenu);
-	m_pMenuZoomModes->setTitle(trUtf8("Zoom mode"));
+	m_pMenuZoomModes->setTitle(tr("Zoom mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuZoomModes);
 
 	m_pActionGroupZoomModes = new QActionGroup(this);
@@ -1575,7 +1575,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pMenuZoomScaleModes = new QMenu(m_pPreviewContextMenu);
-	m_pMenuZoomScaleModes->setTitle(trUtf8("Zoom scale mode"));
+	m_pMenuZoomScaleModes->setTitle(tr("Zoom scale mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuZoomScaleModes);
 
 	m_pActionGroupZoomScaleModes = new QActionGroup(this);
@@ -1618,7 +1618,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pMenuTimeLineModes= new QMenu(m_pPreviewContextMenu);
-	m_pMenuTimeLineModes->setTitle(trUtf8("Timeline display mode"));
+	m_pMenuTimeLineModes->setTitle(tr("Timeline display mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuTimeLineModes);
 
 	m_pActionGroupTimeLineModes = new QActionGroup(this);
@@ -1693,11 +1693,11 @@ void PreviewDialog::setUpZoomPanel()
 	m_ui.zoomCheckButton->setDefaultAction(m_pActionToggleZoomPanel);
 
 	m_ui.zoomModeComboBox->addItem(QIcon(":zoom_no_zoom.png"),
-		trUtf8("No zoom"), (int)ZoomMode::NoZoom);
+		tr("No zoom"), (int)ZoomMode::NoZoom);
 	m_ui.zoomModeComboBox->addItem(QIcon(":zoom_fixed_ratio.png"),
-		trUtf8("Fixed ratio"), (int)ZoomMode::FixedRatio);
+		tr("Fixed ratio"), (int)ZoomMode::FixedRatio);
 	m_ui.zoomModeComboBox->addItem(QIcon(":zoom_fit_to_frame.png"),
-		trUtf8("Fit to frame"), (int)ZoomMode::FitToFrame);
+		tr("Fit to frame"), (int)ZoomMode::FitToFrame);
 
 	ZoomMode zoomMode = m_pSettingsManager->getZoomMode();
 	int comboIndex = m_ui.zoomModeComboBox->findData((int)zoomMode);
@@ -1709,9 +1709,9 @@ void PreviewDialog::setUpZoomPanel()
 	double zoomRatio = m_pSettingsManager->getZoomRatio();
 	m_ui.zoomRatioSpinBox->setValue(zoomRatio);
 
-	m_ui.scaleModeComboBox->addItem(trUtf8("Nearest"),
+	m_ui.scaleModeComboBox->addItem(tr("Nearest"),
 		(int)Qt::FastTransformation);
-	m_ui.scaleModeComboBox->addItem(trUtf8("Bilinear"),
+	m_ui.scaleModeComboBox->addItem(tr("Bilinear"),
 		(int)Qt::SmoothTransformation);
 	bool noZoom = (zoomMode == ZoomMode::NoZoom);
 	m_ui.scaleModeComboBox->setEnabled(!noZoom);
@@ -1742,11 +1742,11 @@ void PreviewDialog::setUpTimeLinePanel()
     m_ui.timeStepForwardButton->setDefaultAction(m_pActionTimeStepForward);
     m_ui.timeStepBackButton->setDefaultAction(m_pActionTimeStepBack);
 
-    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("From video"),
+    m_ui.playFpsLimitModeComboBox->addItem(tr("From video"),
 		(int)PlayFPSLimitMode::FromVideo);
-    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("No limit"),
+    m_ui.playFpsLimitModeComboBox->addItem(tr("No limit"),
 		(int)PlayFPSLimitMode::NoLimit);
-    m_ui.playFpsLimitModeComboBox->addItem(trUtf8("Custom"),
+    m_ui.playFpsLimitModeComboBox->addItem(tr("Custom"),
 		(int)PlayFPSLimitMode::Custom);
 
 	PlayFPSLimitMode playFpsLimitMode =
@@ -1776,10 +1776,10 @@ void PreviewDialog::setUpTimeLinePanel()
     double timeStep = m_pSettingsManager->getTimeStep();
     m_ui.timeStepEdit->setTime(vsedit::secondsToQTime(timeStep));
 
-    m_ui.timeLineModeComboBox->addItem(QIcon(":timeline.png"), trUtf8("Time"),
+    m_ui.timeLineModeComboBox->addItem(QIcon(":timeline.png"), tr("Time"),
 		(int)TimeLineSlider::DisplayMode::Time);
     m_ui.timeLineModeComboBox->addItem(QIcon(":timeline_frames.png"),
-		trUtf8("Frames"), (int)TimeLineSlider::DisplayMode::Frames);
+		tr("Frames"), (int)TimeLineSlider::DisplayMode::Frames);
 
 	TimeLineSlider::DisplayMode timeLineMode =
 		m_pSettingsManager->getTimeLineMode();
@@ -1804,8 +1804,8 @@ void PreviewDialog::setUpCropPanel()
 {
 	m_ui.cropCheckButton->setDefaultAction(m_pActionToggleCropPanel);
 
-	m_ui.cropModeComboBox->addItem(trUtf8("Absolute"), (int)CropMode::Absolute);
-	m_ui.cropModeComboBox->addItem(trUtf8("Relative"), (int)CropMode::Relative);
+	m_ui.cropModeComboBox->addItem(tr("Absolute"), (int)CropMode::Absolute);
+	m_ui.cropModeComboBox->addItem(tr("Relative"), (int)CropMode::Relative);
 	CropMode cropMode = m_pSettingsManager->getCropMode();
 	int cropModeIndex = m_ui.cropModeComboBox->findData((int)cropMode);
 	m_ui.cropModeComboBox->setCurrentIndex(cropModeIndex);
@@ -2118,7 +2118,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 
 	if((cpFormat->id != pfGray8) || (wwidth % 4) )
 	{
-		QString errorString = trUtf8("Error forming pixmap from frame. "
+		QString errorString = tr("Error forming pixmap from frame. "
 			"Expected format Gray8 with width divisible by 4. Instead got \'%1\'.")
 			.arg(cpFormat->name);
 		emit signalWriteLogMessage(mtCritical, errorString);
@@ -2139,7 +2139,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	}
 	else
 	{
-		QString errorString = trUtf8("Error forming pixmap from frame. "
+		QString errorString = tr("Error forming pixmap from frame. "
 			"Expected frame being packed from RGB24 or RGB30.");
 		emit signalWriteLogMessage(mtCritical, errorString);
 		return QPixmap();
@@ -2165,8 +2165,8 @@ void PreviewDialog::setTitle()
 {
 	QString l_scriptName = scriptName();
 	QString scriptNameTitle =
-		l_scriptName.isEmpty() ? trUtf8("(Untitled)") : l_scriptName;
-	QString title = trUtf8("Preview - ") + scriptNameTitle;
+		l_scriptName.isEmpty() ? tr("(Untitled)") : l_scriptName;
+	QString title = tr("Preview - ") + scriptNameTitle;
 	setWindowTitle(title);
 }
 
@@ -2218,7 +2218,7 @@ void PreviewDialog::loadTimelineBookmarks()
 		return;
 	}
 
-	QString bookmarksString = trUtf8(bookmarksFile.readAll().data());
+	QString bookmarksString = tr(bookmarksFile.readAll().data());
 	bookmarksFile.close();
 
 	QStringList bookmarksStringList = bookmarksString.split(",");

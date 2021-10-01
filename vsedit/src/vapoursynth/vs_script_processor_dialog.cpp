@@ -205,7 +205,7 @@ void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 	if(!finalized)
 	{
 		m_wantToFinalize = true;
-		emit signalWriteLogMessage(mtWarning, trUtf8("Script processor "
+		emit signalWriteLogMessage(mtWarning, tr("Script processor "
 			"is busy. Dialog will close when it is finalized."));
 		a_pEvent->ignore();
 		return;

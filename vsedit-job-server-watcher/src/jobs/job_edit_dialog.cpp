@@ -35,9 +35,9 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 	m_ui.jobTypeComboBox->setCurrentIndex(0);
 	slotJobTypeChanged(m_ui.jobTypeComboBox->currentIndex());
 
-	m_ui.encodingHeaderTypeComboBox->addItem(trUtf8("No header"),
+	m_ui.encodingHeaderTypeComboBox->addItem(tr("No header"),
 		(int)EncodingHeaderType::NoHeader);
-	m_ui.encodingHeaderTypeComboBox->addItem(trUtf8("Y4M"),
+	m_ui.encodingHeaderTypeComboBox->addItem(tr("Y4M"),
 		(int)EncodingHeaderType::Y4M);
 
 	m_ui.encodingFirstFrameSpinBox->setMaximum(std::numeric_limits<int>::max());
@@ -159,9 +159,9 @@ void JobEditDialog::slotJobTypeChanged(int a_index)
 void JobEditDialog::slotEncodingScriptBrowseButtonClicked()
 {
 	QFileDialog fileDialog(this);
-	fileDialog.setWindowTitle(trUtf8("Open VapourSynth script"));
+	fileDialog.setWindowTitle(tr("Open VapourSynth script"));
 	fileDialog.setNameFilter(
-		trUtf8("VapourSynth script (*.vpy);;All files (*)"));
+		tr("VapourSynth script (*.vpy);;All files (*)"));
 
 	QString path = m_ui.encodingScriptPathEdit->text();
 	if(path.isEmpty())
@@ -219,8 +219,8 @@ void JobEditDialog::slotEncodingPresetSaveButtonClicked()
 	EncodingPreset preset(m_ui.encodingPresetComboBox->currentText());
 	if(preset.name.isEmpty())
 	{
-		QMessageBox::warning(this, trUtf8("Preset save error."),
-			trUtf8("Preset name must not be empty."));
+		QMessageBox::warning(this, tr("Preset save error."),
+			tr("Preset name must not be empty."));
 		return;
 	}
 
@@ -229,8 +229,8 @@ void JobEditDialog::slotEncodingPresetSaveButtonClicked()
 		preset.executablePath = m_ui.encodingExecutablePathEdit->text();
 		if(preset.executablePath.isEmpty())
 		{
-			QMessageBox::warning(this, trUtf8("Preset save error."),
-				trUtf8("Executable path must not be empty."));
+			QMessageBox::warning(this, tr("Preset save error."),
+				tr("Executable path must not be empty."));
 			return;
 		}
 
@@ -243,8 +243,8 @@ void JobEditDialog::slotEncodingPresetSaveButtonClicked()
 	bool success = m_pSettingsManager->saveEncodingPreset(preset);
 	if(!success)
 	{
-		QMessageBox::critical(this, trUtf8("Preset save error."),
-			trUtf8("Error saving encoding preset."));
+		QMessageBox::critical(this, tr("Preset save error."),
+			tr("Error saving encoding preset."));
 		return;
 	}
 
@@ -274,7 +274,7 @@ void JobEditDialog::slotEncodingPresetDeleteButton()
 		return;
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
-		trUtf8("Delete preset"), trUtf8("Do you really want to delete "
+		tr("Delete preset"), tr("Do you really want to delete "
 		"preset \'%1\'?").arg(preset.name),
 		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
 		QMessageBox::No);
@@ -286,8 +286,8 @@ void JobEditDialog::slotEncodingPresetDeleteButton()
 	if(it == m_encodingPresets.end())
 	{
 		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
-		QMessageBox::critical(this, trUtf8("Preset delete error."),
-			trUtf8("Error deleting preset. Preset was never saved."));
+		QMessageBox::critical(this, tr("Preset delete error."),
+			tr("Error deleting preset. Preset was never saved."));
 		return;
 	}
 
@@ -302,8 +302,8 @@ void JobEditDialog::slotEncodingPresetDeleteButton()
 	bool success = m_pSettingsManager->deleteEncodingPreset(preset.name);
 	if(!success)
 	{
-		QMessageBox::critical(this, trUtf8("Preset delete error."),
-			trUtf8("Error deleting preset \'%1\'.").arg(preset.name));
+		QMessageBox::critical(this, tr("Preset delete error."),
+			tr("Error deleting preset \'%1\'.").arg(preset.name));
 		return;
 	}
 }
@@ -314,7 +314,7 @@ void JobEditDialog::slotEncodingPresetDeleteButton()
 void JobEditDialog::slotEncodingExecutableBrowseButtonClicked()
 {
 	QString executablePath = chooseExecutable(
-		trUtf8("Choose encoder executable"),
+		tr("Choose encoder executable"),
 		m_ui.encodingExecutablePathEdit->text());
 
 	if(!executablePath.isEmpty())
@@ -354,13 +354,13 @@ void JobEditDialog::slotEncodingFramesFromVideoButtonClicked()
 void JobEditDialog::slotEncodingArgumentsHelpButtonClicked()
 {
 	JobVariables variables;
-	QString argumentsHelpString = trUtf8("Use following placeholders:");
+	QString argumentsHelpString = tr("Use following placeholders:");
 	for(const vsedit::VariableToken & variable : variables.variables())
 	{
 		argumentsHelpString += QString("\n%1 - %2")
 			.arg(variable.token).arg(variable.description);
 	}
-	QString title = trUtf8("Encoder arguments");
+	QString title = tr("Encoder arguments");
 	QMessageBox::information(this, title, argumentsHelpString);
 }
 
@@ -370,7 +370,7 @@ void JobEditDialog::slotEncodingArgumentsHelpButtonClicked()
 void JobEditDialog::slotProcessExecutableBrowseButtonClicked()
 {
 	QString executablePath = chooseExecutable(
-		trUtf8("Choose process executable"),
+		tr("Choose process executable"),
 		m_ui.processExecutablePathEdit->text());
 
 	if(!executablePath.isEmpty())

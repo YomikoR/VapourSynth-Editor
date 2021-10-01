@@ -97,21 +97,21 @@ QVariant JobsModel::headerData(int a_section, Qt::Orientation a_orientation,
 	switch(a_section)
 	{
 	case NAME_COLUMN:
-		return trUtf8("Name");
+		return tr("Name");
 	case TYPE_COLUMN:
-		return trUtf8("Type");
+		return tr("Type");
 	case SUBJECT_COLUMN:
-		return trUtf8("Subject");
+		return tr("Subject");
 	case STATE_COLUMN:
-		return trUtf8("State");
+		return tr("State");
 	case DEPENDS_ON_COLUMN:
-		return trUtf8("Depends on jobs");
+		return tr("Depends on jobs");
 	case TIME_START_COLUMN:
-		return trUtf8("Started");
+		return tr("Started");
 	case TIME_END_COLUMN:
-		return trUtf8("Ended");
+		return tr("Ended");
 	case FPS_COLUMN:
-		return trUtf8("FPS");
+		return tr("FPS");
 	default:
 		return QVariant();
 	}
@@ -140,7 +140,7 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 	if((a_role == Qt::DisplayRole) || (a_role == Qt::ToolTipRole))
 	{
 		if(column == NAME_COLUMN)
-			return trUtf8("Job %1").arg(row + 1);
+			return tr("Job %1").arg(row + 1);
 		else if(column == TYPE_COLUMN)
 			return JobProperties::typeName(m_jobs[row].type);
 		else if(column == SUBJECT_COLUMN)
@@ -154,9 +154,9 @@ QVariant JobsModel::data(const QModelIndex & a_index, int a_role) const
 			{
 				ptrdiff_t index = indexOfJob(id);
 				if(index < 0)
-					dependsList << trUtf8("<invalid job>");
+					dependsList << tr("<invalid job>");
 				else
-					dependsList << trUtf8("Job %1").arg(index + 1);
+					dependsList << tr("Job %1").arg(index + 1);
 			}
 			return dependsList.join(", ");
 		}

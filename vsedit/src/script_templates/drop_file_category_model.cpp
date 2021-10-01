@@ -108,10 +108,10 @@ QVariant DropFileCategoryModel::headerData(int a_section,
 		return QVariant();
 
 	if(a_section == NAME_COLUMN)
-		return trUtf8("Category");
+		return tr("Category");
 
 	if(a_section == MASK_LIST_COLUMN)
-		return trUtf8("File name mask list");
+		return tr("File name mask list");
 
 	return QVariant();
 }

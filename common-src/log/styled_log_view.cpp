@@ -214,15 +214,15 @@ bool StyledLogView::saveHtml(bool a_excludeFiltered)
 {
 	QString timeString =
 		QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss-zzz");
-	QString fileName = trUtf8("vapoursynth_editor_log_{time}.html")
+	QString fileName = tr("vapoursynth_editor_log_{time}.html")
 		.replace("{time}", timeString);
 
 	QString currentDir = QDir(".").absolutePath();
 
 	QString filePath = currentDir + QString("/") + fileName;
 
-	filePath = QFileDialog::getSaveFileName(this, trUtf8("Save log"),
-		filePath, trUtf8("HTML files (*.html);;All files (*.*)"));
+	filePath = QFileDialog::getSaveFileName(this, tr("Save log"),
+		filePath, tr("HTML files (*.html);;All files (*.*)"));
 
 	return saveHtml(filePath, a_excludeFiltered);
 }
@@ -340,7 +340,7 @@ void StyledLogView::updateHtml()
 	if(m_entries.size() > m_maxEntriesToShow)
 	{
 		firstEntryToShow = m_entries.size() - m_maxEntriesToShow;
-		html += trUtf8("<tr><td align=\"center\">%1 entries not shown. "
+		html += tr("<tr><td align=\"center\">%1 entries not shown. "
 			"Save the log to read.</td></tr>\n").arg(firstEntryToShow);
 	}
 
@@ -442,11 +442,11 @@ void StyledLogView::createActionsAndMenus()
 
 	ActionToCreate actionsToCreate[] = {
 		SEPARATOR,
-		{trUtf8("Log settings"), SLOT(slotLogSettings())},
+		{tr("Log settings"), SLOT(slotLogSettings())},
 		SEPARATOR,
-		{trUtf8("Save"), SLOT(slotSaveHtml())},
-		{trUtf8("Save filtered"), SLOT(slotSaveHtmlFiltered())},
-		{trUtf8("Clear"), SLOT(clear())},
+		{tr("Save"), SLOT(slotSaveHtml())},
+		{tr("Save filtered"), SLOT(slotSaveHtmlFiltered())},
+		{tr("Clear"), SLOT(clear())},
 	};
 
 	for(const ActionToCreate & action : actionsToCreate)
@@ -463,7 +463,7 @@ void StyledLogView::createActionsAndMenus()
 
 QString StyledLogView::realHtml(bool a_excludeFiltered) const
 {
-	QString title = trUtf8("VapourSynth Editor log ") +
+	QString title = tr("VapourSynth Editor log ") +
 		QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz");
 
 	QString borderColor = palette().color(QPalette::Dark).name();

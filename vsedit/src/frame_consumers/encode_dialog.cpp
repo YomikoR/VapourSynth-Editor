@@ -98,8 +98,8 @@ bool EncodeDialog::initialize(const QString & a_script,
 	Q_ASSERT(cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
-	setWindowTitle(trUtf8("Encode: %1").arg(a_scriptName));
-	QString text = trUtf8("Ready to encode script %1").arg(a_scriptName);
+	setWindowTitle(tr("Encode: %1").arg(a_scriptName));
+	QString text = tr("Ready to encode script %1").arg(a_scriptName);
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
 	int lastFrame = cpVideoInfo->numFrames - 1;
@@ -205,7 +205,7 @@ void EncodeDialog::slotStartEncodeButtonPressed()
 
 	if(firstFrame > lastFrame)
 	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8("First frame number is "
+		m_ui.feedbackTextEdit->addEntry(tr("First frame number is "
 			"larger than the last frame number."), LOG_STYLE_WARNING);
 		return;
 	}
@@ -227,7 +227,7 @@ void EncodeDialog::slotExecutableBrowseButtonPressed()
 {
 	QString applicationPath = QCoreApplication::applicationDirPath();
 	QFileDialog fileDialog;
-	fileDialog.setWindowTitle(trUtf8("Choose encoder executable"));
+	fileDialog.setWindowTitle(tr("Choose encoder executable"));
 	fileDialog.setDirectory(applicationPath);
 
 #ifdef Q_OS_WIN
@@ -247,13 +247,13 @@ void EncodeDialog::slotExecutableBrowseButtonPressed()
 void EncodeDialog::slotArgumentsHelpButtonPressed()
 {
 	JobVariables variables;
-	QString argumentsHelpString = trUtf8("Use following placeholders:");
+	QString argumentsHelpString = tr("Use following placeholders:");
 	for(const vsedit::VariableToken & variable : variables.variables())
 	{
 		argumentsHelpString += QString("\n%1 - %2")
 			.arg(variable.token).arg(variable.description);
 	}
-	QString title = trUtf8("Encoder arguments");
+	QString title = tr("Encoder arguments");
 	QMessageBox::information(this, title, argumentsHelpString);
 }
 
@@ -266,7 +266,7 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 	if(preset.name.isEmpty())
 	{
 		m_ui.feedbackTextEdit->addEntry(
-			trUtf8("Preset name must not be empty."), LOG_STYLE_WARNING);
+			tr("Preset name must not be empty."), LOG_STYLE_WARNING);
 		return;
 	}
 
@@ -276,7 +276,7 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 		if(preset.executablePath.isEmpty())
 		{
 			m_ui.feedbackTextEdit->addEntry(
-				trUtf8("Executable path must not be empty."),
+				tr("Executable path must not be empty."),
 				LOG_STYLE_WARNING);
 			return;
 		}
@@ -290,7 +290,7 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 	bool success = m_pSettingsManager->saveEncodingPreset(preset);
 	if(!success)
 	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Error saving preset."),
+		m_ui.feedbackTextEdit->addEntry(tr("Error saving preset."),
 			LOG_STYLE_ERROR);
 		return;
 	}
@@ -310,7 +310,7 @@ void EncodeDialog::slotEncodingPresetSaveButtonPressed()
 		*it = preset;
 	}
 
-	m_ui.feedbackTextEdit->addEntry(trUtf8("Preset \'%1\' saved.")
+	m_ui.feedbackTextEdit->addEntry(tr("Preset \'%1\' saved.")
 		.arg(preset.name), LOG_STYLE_POSITIVE);
 }
 
@@ -324,7 +324,7 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 		return;
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
-		trUtf8("Delete preset"), trUtf8("Do you really want to delete "
+		tr("Delete preset"), tr("Do you really want to delete "
 		"preset \'%1\'?").arg(preset.name),
 		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
 		QMessageBox::No);
@@ -336,7 +336,7 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 	if(it == m_encodingPresets.end())
 	{
 		Q_ASSERT(m_ui.encodingPresetComboBox->findText(preset.name) == -1);
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Error deleting preset. "
+		m_ui.feedbackTextEdit->addEntry(tr("Error deleting preset. "
 			"Preset was never saved."), LOG_STYLE_ERROR);
 		return;
 	}
@@ -352,12 +352,12 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 	bool success = m_pSettingsManager->deleteEncodingPreset(preset.name);
 	if(!success)
 	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Error deleting "
+		m_ui.feedbackTextEdit->addEntry(tr("Error deleting "
 			"preset \'%1\'.").arg(preset.name), LOG_STYLE_ERROR);
 		return;
 	}
 
-	m_ui.feedbackTextEdit->addEntry(trUtf8("Preset \'%1\' deleted.")
+	m_ui.feedbackTextEdit->addEntry(tr("Preset \'%1\' deleted.")
 		.arg(preset.name), LOG_STYLE_POSITIVE);
 }
 
@@ -379,7 +379,7 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 		m_encodingPresets.begin(), m_encodingPresets.end(), preset);
 	if(it == m_encodingPresets.end())
 	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Error. There is no preset "
+		m_ui.feedbackTextEdit->addEntry(tr("Error. There is no preset "
 			"named \'%1\'.").arg(preset.name), LOG_STYLE_ERROR);
 		return;
 	}
@@ -393,7 +393,7 @@ void EncodeDialog::slotEncodingPresetComboBoxActivated(const QString & a_text)
 		m_ui.headerTypeComboBox->findData((int)preset.headerType);
 	if(headerTypeIndex < 0)
 	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8("Error. Preset \'%1\' "
+		m_ui.feedbackTextEdit->addEntry(tr("Error. Preset \'%1\' "
 			"has unknown header type.").arg(preset.name), LOG_STYLE_ERROR);
 		headerTypeIndex = 0;
 	}
@@ -430,7 +430,7 @@ void EncodeDialog::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 		if(!vsedit::contains(idleStates, a_oldState))
 			return;
 
-		setWindowTitle(trUtf8("0% Encode: %1").arg(properties.scriptName));
+		setWindowTitle(tr("0% Encode: %1").arg(properties.scriptName));
 
 		m_ui.processingProgressBar->setMaximum(properties.framesTotal());
 		m_ui.processingProgressBar->setValue(0);
@@ -482,7 +482,7 @@ void EncodeDialog::slotJobProgressChanged()
 	double passed = ((double)properties.timeStarted.msecsTo(now)) / 1000.0;
 	QString passedString = vsedit::timeToString(passed);
 
-	QString text = trUtf8("Time elapsed: %1 - %2 FPS")
+	QString text = tr("Time elapsed: %1 - %2 FPS")
 		.arg(passedString).arg(QString::number(properties.fps, 'f', 20));
 
 	if((properties.framesProcessed > 0) &&
@@ -492,7 +492,7 @@ void EncodeDialog::slotJobProgressChanged()
 		double estimated = (properties.framesTotal() -
 			properties.framesProcessed) / properties.fps;
 		QString estimatedString = vsedit::timeToString(estimated);
-		text += trUtf8("; estimated time to finish: %1")
+		text += tr("; estimated time to finish: %1")
 			.arg(estimatedString);
 	}
 
@@ -500,7 +500,7 @@ void EncodeDialog::slotJobProgressChanged()
 
 	int percentage = (int)((double)properties.framesProcessed * 100.0 /
 		(double)properties.framesTotal());
-	setWindowTitle(trUtf8("%1% Encode: %2")
+	setWindowTitle(tr("%1% Encode: %2")
 		.arg(percentage).arg(properties.scriptName));
 
 #ifdef Q_OS_WIN
@@ -544,9 +544,9 @@ void EncodeDialog::setUpEncodingPresets()
 	for(const EncodingPreset & preset : m_encodingPresets)
 		m_ui.encodingPresetComboBox->addItem(preset.name);
 
-	m_ui.headerTypeComboBox->addItem(trUtf8("No header"),
+	m_ui.headerTypeComboBox->addItem(tr("No header"),
 		(int)EncodingHeaderType::NoHeader);
-	m_ui.headerTypeComboBox->addItem(trUtf8("Y4M"),
+	m_ui.headerTypeComboBox->addItem(tr("Y4M"),
 		(int)EncodingHeaderType::Y4M);
 
 	connect(m_ui.encodingPresetSaveButton, SIGNAL(clicked()),

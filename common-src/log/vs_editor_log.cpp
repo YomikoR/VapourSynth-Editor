@@ -102,27 +102,27 @@ void VSEditorLog::slotLogSettingsChanged()
 void VSEditorLog::initializeStyles()
 {
 	TextBlockStyle stylesToCreate[] = {
-		{LOG_STYLE_ERROR, trUtf8("Error"), QColor("#ffeeee"), Qt::darkRed},
-		{LOG_STYLE_DEBUG, trUtf8("Debug message"),
+		{LOG_STYLE_ERROR, tr("Error"), QColor("#ffeeee"), Qt::darkRed},
+		{LOG_STYLE_DEBUG, tr("Debug message"),
 			palette().color(QPalette::Active, QPalette::Base),
 			palette().color(QPalette::Active, QPalette::Dark)},
-		{LOG_STYLE_WARNING, trUtf8("Warning"), QColor("#eeeeff"), Qt::darkBlue},
-		{LOG_STYLE_POSITIVE, trUtf8("Positive message"), QColor("#eeffee"),
+		{LOG_STYLE_WARNING, tr("Warning"), QColor("#eeeeff"), Qt::darkBlue},
+		{LOG_STYLE_POSITIVE, tr("Positive message"), QColor("#eeffee"),
 			Qt::darkGreen},
 
 		// Aliases
-		{LOG_STYLE_VS_DEBUG, trUtf8("VapourSynth debug message"),
+		{LOG_STYLE_VS_DEBUG, tr("VapourSynth debug message"),
 			LOG_STYLE_DEBUG},
-		{LOG_STYLE_VS_WARNING, trUtf8("VapourSynth warning"),
+		{LOG_STYLE_VS_WARNING, tr("VapourSynth warning"),
 			LOG_STYLE_WARNING},
-		{LOG_STYLE_VS_CRITICAL, trUtf8("VapourSynth error"), LOG_STYLE_ERROR},
-		{LOG_STYLE_VS_FATAL, trUtf8("VapourSynth fatal error"),
+		{LOG_STYLE_VS_CRITICAL, tr("VapourSynth error"), LOG_STYLE_ERROR},
+		{LOG_STYLE_VS_FATAL, tr("VapourSynth fatal error"),
 			LOG_STYLE_ERROR},
-		{LOG_STYLE_QT_DEBUG, trUtf8("Qt debug message"), LOG_STYLE_DEBUG},
-		{LOG_STYLE_QT_INFO, trUtf8("Qt info"), LOG_STYLE_DEFAULT},
-		{LOG_STYLE_QT_WARNING, trUtf8("Qt warning"), LOG_STYLE_WARNING},
-		{LOG_STYLE_QT_CRITICAL, trUtf8("Qt critical error"), LOG_STYLE_ERROR},
-		{LOG_STYLE_QT_FATAL, trUtf8("Qt fatal error"), LOG_STYLE_ERROR},
+		{LOG_STYLE_QT_DEBUG, tr("Qt debug message"), LOG_STYLE_DEBUG},
+		{LOG_STYLE_QT_INFO, tr("Qt info"), LOG_STYLE_DEFAULT},
+		{LOG_STYLE_QT_WARNING, tr("Qt warning"), LOG_STYLE_WARNING},
+		{LOG_STYLE_QT_CRITICAL, tr("Qt critical error"), LOG_STYLE_ERROR},
+		{LOG_STYLE_QT_FATAL, tr("Qt fatal error"), LOG_STYLE_ERROR},
 	};
 
 	for(TextBlockStyle & styleToCreate : stylesToCreate)

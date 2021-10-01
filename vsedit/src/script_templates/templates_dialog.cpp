@@ -27,7 +27,7 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 	m_pDropFileCategoryModel = new DropFileCategoryModel(this);
 	m_ui.dropFileCategoryView->setModel(m_pDropFileCategoryModel);
 
-	QString fileDropTemplatesInfo = trUtf8("Write file name mask list "
+	QString fileDropTemplatesInfo = tr("Write file name mask list "
 		"as a list of wildcards, separated by semicolons without spaces.\n"
 		"In the template below use tokens: ");
 	QStringList tokenInfoList;
@@ -37,7 +37,7 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 		tokenInfoList += QString("%1 - %2").arg(variable.token)
 			.arg(variable.description);
 	fileDropTemplatesInfo += tokenInfoList.join("; ");
-	fileDropTemplatesInfo += trUtf8(".");
+	fileDropTemplatesInfo += tr(".");
 	m_ui.fileDropTemplatesInfoLabel->setText(fileDropTemplatesInfo);
 
 	m_pSaveAction = m_pSettingsManager->createStandardAction(
@@ -175,7 +175,7 @@ void TemplatesDialog::slotSnippetDeleteButtonClicked()
 		return;
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
-		trUtf8("Delete snippet"), trUtf8("Do you really want to delete "
+		tr("Delete snippet"), tr("Do you really want to delete "
 		"snippet \'%1\'?").arg(snippet.name),
 		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
 		QMessageBox::No);
@@ -305,7 +305,7 @@ void TemplatesDialog::slotDeleteSelectedDropFileCategoryButtonClicked()
 	DropFileCategory category = m_pDropFileCategoryModel->getCategories()[row];
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
-		trUtf8("Delete category"), trUtf8("Do you really want to delete "
+		tr("Delete category"), tr("Do you really want to delete "
 		"category \'%1\'?").arg(category.name),
 		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
 		QMessageBox::No);

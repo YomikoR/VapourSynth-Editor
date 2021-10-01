@@ -61,7 +61,7 @@ void JobDependenciesDelegate::setEditorData(QWidget * a_pEditor,
 	pListWidget->clear();
 	for(int i = 0; i < a_index.row(); ++i)
 	{
-		QString name = trUtf8("Job %1").arg(i + 1);
+		QString name = tr("Job %1").arg(i + 1);
 		QListWidgetItem * pItem = new QListWidgetItem(name, pListWidget);
 		QUuid id = cpModel->jobProperties(i).id;
 		pItem->setData(Qt::UserRole, id);

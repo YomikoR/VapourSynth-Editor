@@ -153,14 +153,14 @@ bool JobsManager::loadJobs()
 {
 	if(hasActiveJobs())
 	{
-		emit signalLogMessage(trUtf8("Can not load jobs. "
+		emit signalLogMessage(tr("Can not load jobs. "
 			"Some of current jobs are still active.", LOG_STYLE_WARNING));
 		return false;
 	}
 
 	if((!m_pSettingsManager) || (!m_pVSScriptLibrary))
 	{
-		emit signalLogMessage(trUtf8("Can not load jobs. "
+		emit signalLogMessage(tr("Can not load jobs. "
 			"Model is not initialized correctly.", LOG_STYLE_ERROR));
 		return false;
 	}
@@ -190,7 +190,7 @@ bool JobsManager::saveJobs()
 {
 	if(!m_pSettingsManager)
 	{
-		emit signalLogMessage(trUtf8("Can not save jobs. "
+		emit signalLogMessage(tr("Can not save jobs. "
 			"Model is not initialized correctly.", LOG_STYLE_ERROR));
 		return false;
 	}
@@ -202,7 +202,7 @@ bool JobsManager::saveJobs()
 	bool result = m_pSettingsManager->setJobs(jobPropertiesList);
 
 	if(!result)
-		emit signalLogMessage(trUtf8("Failed to save jobs.", LOG_STYLE_ERROR));
+		emit signalLogMessage(tr("Failed to save jobs.", LOG_STYLE_ERROR));
 
 	return result;
 }
@@ -292,7 +292,7 @@ void JobsManager::deleteJobs(const std::vector<QUuid> & a_ids)
 		vsedit::Job * pJob = m_tickets[index].pJob;
 		if(vsedit::contains(ACTIVE_JOB_STATES, pJob->state()))
 		{
-			emit signalLogMessage(trUtf8("Can not delete an active job."),
+			emit signalLogMessage(tr("Can not delete an active job."),
 				LOG_STYLE_WARNING);
 			return;
 		}
@@ -301,7 +301,7 @@ void JobsManager::deleteJobs(const std::vector<QUuid> & a_ids)
 		{
 			if(vsedit::contains(ticket.pJob->dependsOnJobIds(), pJob->id()))
 			{
-				emit signalLogMessage(trUtf8("Can not delete a job while "
+				emit signalLogMessage(tr("Can not delete a job while "
 					"other jobs depend on it."), LOG_STYLE_WARNING);
 				return;
 			}
@@ -474,7 +474,7 @@ bool JobsManager::checkCanModifyJobAndNotify(int a_index)
 	bool result = canModifyJob(a_index);
 	if(!result)
 	{
-		emit signalLogMessage(trUtf8("Can not modify an active job."),
+		emit signalLogMessage(tr("Can not modify an active job."),
 			LOG_STYLE_WARNING);
 	}
 	return result;

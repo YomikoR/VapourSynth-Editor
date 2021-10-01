@@ -24,7 +24,7 @@ ClearableKeySequenceEditor::ClearableKeySequenceEditor(QWidget * a_pParent):
 		this, SIGNAL(editingFinished()));
 
 	m_pClearKeySequenceButton = new QToolButton(this);
-	m_pClearKeySequenceButton->setToolTip(trUtf8("Erase hotkey"));
+	m_pClearKeySequenceButton->setToolTip(tr("Erase hotkey"));
 	m_pClearKeySequenceButton->setIcon(QIcon(":erase.png"));
 	pLayout->addWidget(m_pClearKeySequenceButton);
 

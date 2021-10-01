@@ -48,7 +48,7 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 		bool deleted = QFile::remove(filePath);
 		if(!deleted)
 		{
-			m_error = QObject::trUtf8("Could not delete file %1")
+			m_error = QObject::tr("Could not delete file %1")
 				.arg(filePath);
 			return false;
 		}
@@ -60,7 +60,7 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 	bool opened = m_file.open(QIODevice::ReadWrite);
 	if(!opened)
 	{
-		m_error = QObject::trUtf8("Could not open file %1").arg(filePath);
+		m_error = QObject::tr("Could not open file %1").arg(filePath);
 		return false;
 	}
 
@@ -68,7 +68,7 @@ bool ApplicationInstanceFileGuard::lock(const QString & a_fileName)
 	int result = flock(m_file.handle(), LOCK_EX | LOCK_NB);
 	if(result != 0)
 	{
-		m_error = QObject::trUtf8("Could not lock file %1").arg(filePath);
+		m_error = QObject::tr("Could not lock file %1").arg(filePath);
 		m_file.close();
 		return false;
 	}
@@ -93,7 +93,7 @@ bool ApplicationInstanceFileGuard::unlock()
 
 	if(filePath.isEmpty())
 	{
-		m_error = QObject::trUtf8("File name is empty.");
+		m_error = QObject::tr("File name is empty.");
 		return false;
 	}
 
@@ -102,7 +102,7 @@ bool ApplicationInstanceFileGuard::unlock()
 
 	bool deleted = QFile::remove(filePath);
 	if(!deleted)
-		m_error = QObject::trUtf8("Could not delete file %1").arg(filePath);
+		m_error = QObject::tr("Could not delete file %1").arg(filePath);
 	return deleted;
 }
 

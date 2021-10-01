@@ -56,7 +56,7 @@ bool JobServerWatcherSocket::connectToJobServerWatcher()
 	bool started = QProcess::startDetached(watcherPath);
 	if(!started)
 	{
-		emit signalWriteLogMessage(trUtf8("Could not start "
+		emit signalWriteLogMessage(tr("Could not start "
 			"job server watcher."), LOG_STYLE_ERROR);
 		return false;
 	}
@@ -73,7 +73,7 @@ bool JobServerWatcherSocket::connectToJobServerWatcher()
 
 	if(!connected)
 	{
-		emit signalWriteLogMessage(trUtf8("Started job server watcher, "
+		emit signalWriteLogMessage(tr("Started job server watcher, "
 			"but could not connect."), LOG_STYLE_ERROR);
 		return false;
 	}

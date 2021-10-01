@@ -213,7 +213,7 @@ void MainWindow::slotWriteLogMessage(const QString & a_message,
 	QDateTime now = QDateTime::currentDateTime();
 	QString timeString = now.toString("hh:mm:ss.zzz");
 	QString dateString = now.toString("yyyy-MM-dd");
-	QString caption = QObject::trUtf8("VapourSynth Editor fatal error!");
+	QString caption = QObject::tr("VapourSynth Editor fatal error!");
 	QString fullMessage = dateString + QString(" ") + timeString +
 		QString("\n") + caption + QString("\n") + a_message;
 
@@ -354,12 +354,12 @@ bool MainWindow::slotSaveScriptAs()
 	{
 		QFileInfo fileInfo(m_pSettingsManager->getLastUsedPath());
 		offeredFilePath = fileInfo.absoluteDir().path() +
-			trUtf8("/Untitled.vpy");
+			tr("/Untitled.vpy");
 	}
 
 	QString filePath = QFileDialog::getSaveFileName(this,
-		trUtf8("Save VapourSynth script"), offeredFilePath,
-		trUtf8("VapourSynth script (*.vpy);;All files (*)"));
+		tr("Save VapourSynth script"), offeredFilePath,
+		tr("VapourSynth script (*.vpy);;All files (*)"));
 
 	if(!filePath.isEmpty())
 	{
@@ -387,8 +387,8 @@ bool MainWindow::slotOpenScript()
 	QString offeredPath = fileInfo.absoluteDir().path();
 
 	QString filePath = QFileDialog::getOpenFileName(this,
-		trUtf8("Open VapourSynth script"), offeredPath,
-		trUtf8("VapourSynth script (*.vpy);;All files (*)"));
+		tr("Open VapourSynth script"), offeredPath,
+		tr("VapourSynth script (*.vpy);;All files (*)"));
 
 	return loadScriptFromFile(filePath);
 }
@@ -408,7 +408,7 @@ void MainWindow::slotPreview()
 {
 	if(m_pPreviewDialog->busy())
 	{
-		QString message = trUtf8("Preview dialog appears busy processing "
+		QString message = tr("Preview dialog appears busy processing "
 			"frames. Please stop any active actions in the dialog and wait "
 			"for script processor to finish processing.");
 		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
@@ -433,7 +433,7 @@ void MainWindow::slotCheckScript()
 		m_scriptFilePath);
 	if(correct)
 	{
-		QString message = trUtf8("Script was successfully evaluated. "
+		QString message = tr("Script was successfully evaluated. "
 			"Output video info:\n");
 		message += vsedit::videoInfoString(tempProcessor.videoInfo());
 		m_ui.logView->addEntry(message, LOG_STYLE_POSITIVE);
@@ -447,7 +447,7 @@ void MainWindow::slotBenchmark()
 {
 	if(m_pBenchmarkDialog->busy())
 	{
-		QString message = trUtf8("Benchmark dialog appears busy processing "
+		QString message = tr("Benchmark dialog appears busy processing "
 			"frames. Please stop any active actions in the dialog and wait "
 			"for script processor to finish processing.");
 		m_ui.logView->addEntry(message, LOG_STYLE_WARNING);
@@ -654,14 +654,14 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	QMenu * pFileMenu = m_ui.menuBar->addMenu(trUtf8("File"));
+	QMenu * pFileMenu = m_ui.menuBar->addMenu(tr("File"));
 	pFileMenu->addAction(m_pActionNewScript);
 	pFileMenu->addAction(m_pActionOpenScript);
 	pFileMenu->addAction(m_pActionSaveScript);
 	pFileMenu->addAction(m_pActionSaveScriptAs);
 	pFileMenu->addSeparator();
 
-	m_pMenuRecentScripts = new QMenu(trUtf8("Recent scripts"), this);
+	m_pMenuRecentScripts = new QMenu(tr("Recent scripts"), this);
 	pFileMenu->addMenu(m_pMenuRecentScripts);
 	fillRecentScriptsMenu();
 
@@ -670,7 +670,7 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	QMenu * pEditMenu = m_ui.menuBar->addMenu(trUtf8("Edit"));
+	QMenu * pEditMenu = m_ui.menuBar->addMenu(tr("Edit"));
 
 	std::vector<QAction *> editorActions = m_ui.scriptEdit->actionsForMenu();
 	for(QAction * pAction : editorActions)
@@ -682,7 +682,7 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	QMenu * pScriptMenu = m_ui.menuBar->addMenu(trUtf8("Script"));
+	QMenu * pScriptMenu = m_ui.menuBar->addMenu(tr("Script"));
 	pScriptMenu->addAction(m_pActionPreview);
 	pScriptMenu->addAction(m_pActionCheckScript);
 	pScriptMenu->addAction(m_pActionBenchmark);
@@ -692,7 +692,7 @@ void MainWindow::createActionsAndMenus()
 
 //------------------------------------------------------------------------------
 
-	QMenu * pHelpMenu = m_ui.menuBar->addMenu(trUtf8("Help"));
+	QMenu * pHelpMenu = m_ui.menuBar->addMenu(tr("Help"));
 	pHelpMenu->addAction(m_pActionAbout);
 }
 
@@ -795,8 +795,8 @@ bool MainWindow::safeToCloseFile()
 	QMessageBox::StandardButton choice = QMessageBox::NoButton;
 	if(m_scriptFilePath.isEmpty())
 	{
-		choice = QMessageBox::question(this, trUtf8("Save script?"),
-			trUtf8("Would you like to save your script before closing?"),
+		choice = QMessageBox::question(this, tr("Save script?"),
+			tr("Would you like to save your script before closing?"),
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
 		if(choice == QMessageBox::Yes)
@@ -808,8 +808,8 @@ bool MainWindow::safeToCloseFile()
 	}
 	else
 	{
-		choice = QMessageBox::question(this, trUtf8("Save script?"),
-			trUtf8("Would you like to save script \"%1\" before closing?")
+		choice = QMessageBox::question(this, tr("Save script?"),
+			tr("Would you like to save script \"%1\" before closing?")
 			.arg(m_scriptFilePath),
 			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 

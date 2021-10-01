@@ -99,8 +99,8 @@ void ScriptBenchmarkDialog::call()
 	Q_ASSERT(m_cpVideoInfo);
 
 	m_ui.feedbackTextEdit->clear();
-	setWindowTitle(trUtf8("Benchmark: %1").arg(scriptName()));
-	QString text = trUtf8("Ready to benchmark script %1").arg(scriptName());
+	setWindowTitle(tr("Benchmark: %1").arg(scriptName()));
+	QString text = tr("Ready to benchmark script %1").arg(scriptName());
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
 	int firstFrame = 0;
@@ -182,7 +182,7 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 
 	if(firstFrame > lastFrame)
 	{
-		m_ui.feedbackTextEdit->addEntry(trUtf8(
+		m_ui.feedbackTextEdit->addEntry(tr(
 			"First frame number is larger than the last frame number."),
 			LOG_STYLE_WARNING);
 			return;
@@ -190,8 +190,8 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 
 	m_framesTotal = lastFrame - firstFrame + 1;
 	m_ui.processingProgressBar->setMaximum(m_framesTotal);
-	m_ui.startStopBenchmarkButton->setText(trUtf8("Stop"));
-	setWindowTitle(trUtf8("0% Benchmark: %1").arg(scriptName()));
+	m_ui.startStopBenchmarkButton->setText(tr("Stop"));
+	setWindowTitle(tr("0% Benchmark: %1").arg(scriptName()));
 
 	m_lastFromFrame = firstFrame;
 	m_lastToFrame = lastFrame;
@@ -261,7 +261,7 @@ void ScriptBenchmarkDialog::stopProcessing()
 
 	m_processing = false;
 	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
-	m_ui.startStopBenchmarkButton->setText(trUtf8("Start"));
+	m_ui.startStopBenchmarkButton->setText(tr("Start"));
 
 #ifdef Q_OS_WIN
 	Q_ASSERT(m_pWinTaskbarProgress);
@@ -282,24 +282,24 @@ void ScriptBenchmarkDialog::updateMetrics()
 	double passed = duration_to_double(now - m_benchmarkStartTime);
 	QString passedString = vsedit::timeToString(passed);
 	double fps = (double)m_framesProcessed / passed;
-	QString text = trUtf8("Time elapsed: %1 - %2 FPS")
+	QString text = tr("Time elapsed: %1 - %2 FPS")
 		.arg(passedString).arg(QString::number(fps, 'f', 20));
 
 	if(m_framesFailed > 0)
-		text += trUtf8("; %1 frames failed").arg(m_framesFailed);
+		text += tr("; %1 frames failed").arg(m_framesFailed);
 
 	if(m_framesProcessed < m_framesTotal)
 	{
 		double estimated = (m_framesTotal - m_framesProcessed) / fps;
 		QString estimatedString = vsedit::timeToString(estimated);
-		text += trUtf8("; estimated time to finish: %1").arg(estimatedString);
+		text += tr("; estimated time to finish: %1").arg(estimatedString);
 	}
 
 	m_ui.metricsEdit->setText(text);
 
 	int percentage = (int)((double)m_framesProcessed * 100.0 /
 		(double)m_framesTotal);
-	setWindowTitle(trUtf8("%1% Benchmark: %2")
+	setWindowTitle(tr("%1% Benchmark: %2")
 		.arg(percentage).arg(scriptName()));
 
 #ifdef Q_OS_WIN
