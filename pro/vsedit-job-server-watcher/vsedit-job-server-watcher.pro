@@ -234,9 +234,9 @@ contains(QMAKE_COMPILER, msvc) {
 } else {
 	p2p.commands += -o ${QMAKE_FILE_OUT}
 	p2p.commands += -std=c++14
+	p2p.commands += -Wno-missing-field-initializers
 }
 macx {
-	p2p.commands += -Wno-missing-field-initializers
 	p2p.commands += -Wno-gnu
 }
 QMAKE_EXTRA_COMPILERS += p2p
@@ -253,9 +253,9 @@ contains(QMAKE_COMPILER, msvc) {
 	p2p_sse41.commands += -msse4.1
 	p2p_sse41.commands += -o ${QMAKE_FILE_OUT}
 	p2p_sse41.commands += -std=c++14
+	p2p_sse41.commands += -Wno-missing-field-initializers
 }
 macx {
-	p2p_sse41.commands += -Wno-missing-field-initializers
 	p2p_sse41.commands += -Wno-gnu
 }
 QMAKE_EXTRA_COMPILERS += p2p_sse41
