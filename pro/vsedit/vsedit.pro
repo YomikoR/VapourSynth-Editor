@@ -71,6 +71,10 @@ CONFIG(debug, debug|release) {
 		QMAKE_CXXFLAGS += -funit-at-a-time
 	}
 
+	macx {
+		QMAKE_CXXFLAGS -= -fexpensive-optimizations
+	}
+
 	contains(QMAKE_COMPILER, msvc) {
 		if($$ARCHITECTURE_64_BIT) {
 			DESTDIR = $${COMMON_DIRECTORY}/build/release-64bit-msvc
@@ -301,6 +305,11 @@ contains(QMAKE_COMPILER, msvc) {
 	p2p.commands += -Fo${QMAKE_FILE_OUT}
 } else {
 	p2p.commands += -o ${QMAKE_FILE_OUT}
+	p2p.commands += -std=c++14
+}
+macx {
+	p2p.commands += -Wno-missing-field-initializers
+	p2p.commands += -Wno-gnu
 }
 QMAKE_EXTRA_COMPILERS += p2p
 
@@ -315,6 +324,11 @@ contains(QMAKE_COMPILER, msvc) {
 } else {
 	p2p_sse41.commands += -msse4.1
 	p2p_sse41.commands += -o ${QMAKE_FILE_OUT}
+	p2p_sse41.commands += -std=c++14
+}
+macx {
+	p2p_sse41.commands += -Wno-missing-field-initializers
+	p2p_sse41.commands += -Wno-gnu
 }
 QMAKE_EXTRA_COMPILERS += p2p_sse41
 
