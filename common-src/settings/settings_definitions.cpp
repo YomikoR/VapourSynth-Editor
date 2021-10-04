@@ -24,7 +24,7 @@ const bool DEFAULT_COLOR_PICKER_VISIBLE = false;
 const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE =
 	PlayFPSLimitMode::FromVideo;
 const double DEFAULT_PLAY_FPS_LIMIT = 23.976;
-const bool DEFAULT_USE_SPACES_AS_TAB = false;
+const bool DEFAULT_USE_SPACES_AS_TAB = true;
 const int DEFAULT_SPACES_IN_TAB = 4;
 const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME = false;
 const int DEFAULT_LAST_PREVIEW_FRAME = 0;
