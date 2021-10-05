@@ -64,6 +64,7 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 
 int main(int argc, char *argv[])
 {
+	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 	QApplication application(argc, argv);
 	application.setQuitOnLastWindowClosed(false);
 
