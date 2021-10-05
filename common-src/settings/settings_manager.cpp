@@ -383,7 +383,7 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 		defaultColor = getColor(COLOR_ID_TEXT_BACKGROUND);
 		qreal lightness = defaultColor.lightnessF();
 		if(lightness >= 0.5)
-			return QColor(0, 0, 0, 255 - int(lightness * 127.5 + 63.25));
+			return QColor(0, 0, 0, 255 - int(lightness * 204 + 25.3));
 		else
 			return QColor(255, 255, 255, int(lightness * 127.5 + 63.25));
 	}
