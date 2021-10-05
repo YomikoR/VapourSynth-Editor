@@ -107,7 +107,7 @@ private:
 	VSScript * m_pVSScript;
 
 	const VSVideoInfo * m_cpVideoInfo;
-	const VSCoreInfo * m_cpCoreInfo;
+	VSCoreInfo m_cpCoreInfo;
 
 	std::deque<FrameTicket> m_frameTicketsQueue;
 	std::vector<FrameTicket> m_frameTicketsInProcess;

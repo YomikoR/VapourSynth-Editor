@@ -50,7 +50,6 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
 	, m_cpVideoInfo(nullptr)
-	, m_cpCoreInfo(nullptr)
 	, m_finalizing(false)
 {
 	Q_ASSERT(m_pSettingsManager);
@@ -108,9 +107,9 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
-	m_cpCoreInfo = m_cpVSAPI->getCoreInfo(pCore);
+	m_cpVSAPI->getCoreInfo2(pCore, &m_cpCoreInfo);
 
-	if(m_cpCoreInfo->core < 29)
+	if(m_cpCoreInfo.core < 29)
 	{
 		m_error = tr("VapourSynth R29+ required for preview.");
 		emit signalWriteLogMessage(mtCritical, m_error);
@@ -164,7 +163,6 @@ bool VapourSynthScriptProcessor::finalize()
 	m_nodePairForOutputIndex.clear();
 
 	m_cpVideoInfo = nullptr;
-	m_cpCoreInfo = nullptr;
 
 	if(m_pVSScript)
 	{
@@ -473,7 +471,7 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 	size_t oldInQueue = m_frameTicketsQueue.size();
 	size_t oldInProcess = m_frameTicketsInProcess.size();
 
-	while(((int)m_frameTicketsInProcess.size() < m_cpCoreInfo->numThreads) &&
+	while(((int)m_frameTicketsInProcess.size() < m_cpCoreInfo.numThreads) &&
 		(!m_frameTicketsQueue.empty()))
 	{
 		FrameTicket ticket = std::move(m_frameTicketsQueue.front());
@@ -523,7 +521,7 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 {
 	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
-	size_t maxThreads = m_cpCoreInfo->numThreads;
+	size_t maxThreads = m_cpCoreInfo.numThreads;
 	emit signalFrameQueueStateChanged(inQueue, inProcess, maxThreads);
 }
 
