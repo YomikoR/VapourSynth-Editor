@@ -109,9 +109,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 	m_cpVSAPI->getCoreInfo2(pCore, &m_cpCoreInfo);
 
-	if(m_cpCoreInfo.core < 29)
+	if(m_cpCoreInfo.core < 47)
 	{
-		m_error = tr("VapourSynth R29+ required for preview.");
+		m_error = tr("VapourSynth R47+ required for preview. "
+			"Or use official VapourSynth Editor R19 instead.");
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
 		return false;
