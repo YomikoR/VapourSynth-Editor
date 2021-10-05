@@ -290,11 +290,10 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 		commonScriptFont.setPointSize(12);
 		defaultFormat.setFont(commonScriptFont);
 
-		qreal bgLightness = getColor(COLOR_ID_TEXT_BACKGROUND).lightnessF();
-		if(bgLightness >= 0.5)
-			defaultFormat.setForeground(QColor(0, 0, 0, int(bgLightness * 255)));
-		else
-			defaultFormat.setForeground(QColor(255, 255, 255, int((1 - bgLightness) * 255)));
+		QColor defaultColor = getColor(COLOR_ID_TEXT_BACKGROUND);
+		int refColor = 255 - (defaultColor.red() + defaultColor.green() +
+			defaultColor.blue() + 64) * 0.25;
+		defaultFormat.setForeground(QColor(refColor, refColor, refColor));
 	}
 	else if(a_textFormatID == TEXT_FORMAT_ID_KEYWORD)
 	{
@@ -383,13 +382,10 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 	if(a_colorID == COLOR_ID_ACTIVE_LINE)
 	{
-		// TODO: find a better way to achieve default active line color?
 		defaultColor = getColor(COLOR_ID_TEXT_BACKGROUND);
-		qreal lightness = defaultColor.lightnessF();
-		if(lightness >= 0.5)
-			return QColor(0, 0, 0, 255 - int(lightness * 204 + 25.3));
-		else
-			return QColor(255, 255, 255, int(lightness * 204 + 25.3));
+		int refColor = (defaultColor.red() + defaultColor.green() +
+			defaultColor.blue() + 128) * 0.25;
+		return QColor(refColor, refColor, refColor);
 	}
 
 	if(a_colorID == COLOR_ID_SELECTION_MATCHES)
