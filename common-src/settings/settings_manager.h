@@ -216,9 +216,9 @@ public:
 
 	bool setLastSnapshotExtension(const QString & a_extension);
 
-	int getSnapshotCompressionLevel() const;
+	int getPNGSnapshotCompressionLevel() const;
 
-	bool setSnapshotCompressionLevel(int a_level);
+	bool setPNGSnapshotCompressionLevel(int a_level);
 
 private:
 
