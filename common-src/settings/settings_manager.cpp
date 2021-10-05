@@ -279,11 +279,15 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 	if(a_textFormatID == TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT)
 	{
 		QFont commonScriptFont = defaultFormat.font();
+#ifdef Q_OS_MACOS
+		commonScriptFont.setFamily("menlo");
+#else
 		commonScriptFont.setFamily("monospace");
+#endif
 		commonScriptFont.setStyleHint(QFont::Monospace);
 		commonScriptFont.setFixedPitch(true);
 		commonScriptFont.setKerning(false);
-		commonScriptFont.setPointSize(10);
+		commonScriptFont.setPointSize(12);
 		defaultFormat.setFont(commonScriptFont);
 
 		qreal bgLightness = getColor(COLOR_ID_TEXT_BACKGROUND).lightnessF();
