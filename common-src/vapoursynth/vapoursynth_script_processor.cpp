@@ -10,6 +10,7 @@
 #include <memory>
 #include <functional>
 #include <QPixmap>
+#include <QColormap>
 
 //==============================================================================
 
@@ -549,12 +550,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	const VSFormat * cpFormat = cpVideoInfo->format;
 
-	bool is_10_bits;
-#ifdef _WIN32
-	is_10_bits = false;
-#else
-	is_10_bits = (QPixmap::defaultDepth() == 30);
-#endif
+	bool is_10_bits = (QColormap::instance().depth() == 30);
 
 	VSMap * pResultMap = nullptr;
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
