@@ -73,7 +73,7 @@ bool VSScriptLibrary::initialize()
 		return false;
 	}
 
-	m_cpVSAPI->setMessageHandler(::vsMessageHandler,
+	m_cpVSAPI->addMessageHandler(::vsMessageHandler, nullptr,
 		static_cast<void *>(this));
 
 	m_initialized = true;
