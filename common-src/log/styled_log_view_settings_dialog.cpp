@@ -9,8 +9,8 @@
 //==============================================================================
 
 StyledLogViewSettingsDialog::StyledLogViewSettingsDialog(QWidget * a_pParent):
-	  QDialog(a_pParent, (Qt::WindowFlags)0
-		| Qt::Dialog
+	  QDialog(a_pParent, 
+		  Qt::Dialog
 		| Qt::CustomizeWindowHint
 		| Qt::WindowTitleHint
 		| Qt::WindowCloseButtonHint)

@@ -20,8 +20,7 @@
 EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
 	QDialog(a_pParent,
-	(Qt::WindowFlags)0
-		| Qt::Window
+		  Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
 		| Qt::WindowCloseButtonHint
