@@ -389,7 +389,7 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 		if(lightness >= 0.5)
 			return QColor(0, 0, 0, 255 - int(lightness * 204 + 25.3));
 		else
-			return QColor(255, 255, 255, int(lightness * 127.5 + 63.25));
+			return QColor(255, 255, 255, int(lightness * 204 + 25.3));
 	}
 
 	if(a_colorID == COLOR_ID_SELECTION_MATCHES)
