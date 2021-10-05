@@ -27,8 +27,7 @@ public:
 	VSScriptProcessorDialog(SettingsManager * a_pSettingsManager,
 		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr,
 		Qt::WindowFlags a_flags =
-		(Qt::WindowFlags)0
-		| Qt::Window
+		  Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
 		| Qt::WindowMaximizeButtonHint

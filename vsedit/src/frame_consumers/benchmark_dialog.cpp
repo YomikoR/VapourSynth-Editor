@@ -16,8 +16,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	SettingsManager * a_pSettingsManager, VSScriptLibrary * a_pVSScriptLibrary,
 	QWidget * a_pParent):
 	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent,
-	(Qt::WindowFlags)0
-		| Qt::Window
+	      Qt::Window
 		| Qt::CustomizeWindowHint
 		| Qt::WindowMinimizeButtonHint
 		| Qt::WindowCloseButtonHint
