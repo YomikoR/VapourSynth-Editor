@@ -286,7 +286,11 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 		commonScriptFont.setPointSize(10);
 		defaultFormat.setFont(commonScriptFont);
 
-		return defaultFormat;
+		qreal bgLightness = getColor(COLOR_ID_TEXT_BACKGROUND).lightnessF();
+		if(bgLightness >= 0.5)
+			defaultFormat.setForeground(QColor(0, 0, 0, int(bgLightness * 255)));
+		else
+			defaultFormat.setForeground(QColor(255, 255, 255, int((1 - bgLightness) * 255)));
 	}
 	else if(a_textFormatID == TEXT_FORMAT_ID_KEYWORD)
 	{
@@ -307,7 +311,7 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 	}
 	else if(a_textFormatID == TEXT_FORMAT_ID_COMMENT)
 	{
-		defaultFormat.setForeground(QColor("#808080"));
+		defaultFormat.setForeground(QColor("#387000"));
 	}
 	else if(a_textFormatID == TEXT_FORMAT_ID_VS_CORE)
 	{
@@ -379,9 +383,9 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 		defaultColor = getColor(COLOR_ID_TEXT_BACKGROUND);
 		qreal lightness = defaultColor.lightnessF();
 		if(lightness >= 0.5)
-			return defaultColor.darker(110);
+			return QColor(0, 0, 0, 255 - int(lightness * 127.5 + 63.25));
 		else
-			return defaultColor.lighter(150);
+			return QColor(255, 255, 255, int(lightness * 127.5 + 63.25));
 	}
 
 	if(a_colorID == COLOR_ID_SELECTION_MATCHES)
