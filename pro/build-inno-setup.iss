@@ -14,16 +14,19 @@ AppSupportURL=https://github.com/YomikoR/VapourSynth-Editor/issues
 AppUpdatesURL=https://github.com/YomikoR/VapourSynth-Editor/blob/master/CHANGELOG
 AppVerName={#AppName} {#Version}
 AppVersion={#Version}
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
 Compression=lzma2/max
 DefaultDirName={autopf}\{#AppName}
-LicenseFile=LICENSE
+DefaultGroupName={#AppName}
+LicenseFile=..\LICENSE
 ; Support disabled for <= Windows 7/Server 2008 R2 SP1. No documented reason, assumed.
 MinVersion=6.2
 OutputBaseFilename={#AppName}-{#Version}-setup
 OutputDir=dist
 OutputManifestFile={#AppName}-{#Version}-setup-manifest.txt
 PrivilegesRequiredOverridesAllowed=dialog commandline
-SetupIconFile={#ExeName}.ico
+SetupIconFile=..\resources\{#ExeName}.ico
 SolidCompression=yes
 VersionInfoVersion=1.0.0
 WizardStyle=modern
@@ -35,11 +38,12 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: *; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ..\build\release-64bit-msvc\*; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"
+Name: "{group}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"
+Name: "{group}\VapourSynth Jobs Server Watcher"; Filename: "{app}\{#ExeName}-job-server-watcher.exe"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"; Tasks: desktopicon
 
 [Run]
