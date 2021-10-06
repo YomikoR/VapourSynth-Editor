@@ -29,6 +29,7 @@ nmake.exe release -f Makefile
 @cd /d ../build/release-64bit-msvc
 @del vc_redist.x64.exe
 @7z a -y -m0=LZMA -mx9 "%~dp0/vsedit%NAME_BRANCH%.7z" "*"
+@iscc build-inno-setup.iss
 
 :: Clean up the environment
 @SET PATH=%ORIGINAL_PATH%
