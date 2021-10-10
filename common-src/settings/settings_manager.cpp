@@ -48,6 +48,7 @@ const char TIMELINE_PANEL_VISIBLE_KEY[] = "timeline_panel_visible";
 const char ALWAYS_KEEP_CURRENT_FRAME_KEY[] = "always_keep_current_frame";
 const char LAST_SNAPSHOT_EXTENSION_KEY[] = "last_snapshot_extension";
 const char PNG_COMPRESSION_LEVEL_KEY[] = "png_compression_level";
+const char RELOAD_BEFORE_EXECUTION_KEY[] = "reload_before_execution";
 
 //==============================================================================
 
@@ -1092,12 +1093,24 @@ bool SettingsManager::setLastSnapshotExtension(const QString & a_extension)
 
 int SettingsManager::getPNGSnapshotCompressionLevel() const
 {
-	return value(PNG_COMPRESSION_LEVEL_KEY, DEFAULT_PNG_COMPRESSION_LEVEL).toInt();
+	return value(PNG_COMPRESSION_LEVEL_KEY,
+		DEFAULT_PNG_COMPRESSION_LEVEL).toInt();
 }
 
 bool SettingsManager::setPNGSnapshotCompressionLevel(int a_level)
 {
 	return setValue(PNG_COMPRESSION_LEVEL_KEY, a_level);
+}
+
+bool SettingsManager::getReloadBeforeExecution() const
+{
+	return value(RELOAD_BEFORE_EXECUTION_KEY,
+		DEFAULT_RELOAD_BEFORE_EXECUTION).toBool();
+}
+
+bool SettingsManager::setReloadBeforeExecution(bool a_reload)
+{
+	return setValue(RELOAD_BEFORE_EXECUTION_KEY, a_reload);
 }
 
 //==============================================================================

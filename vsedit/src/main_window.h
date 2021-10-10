@@ -97,6 +97,8 @@ private:
 
 	void saveGeometryDelayed();
 
+	void reloadTexts();
+
 	Ui::MainWindow m_ui;
 
 	SettingsManager * m_pSettingsManager;

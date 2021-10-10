@@ -99,6 +99,7 @@ extern const double DEFAULT_TIMELINE_LABELS_HEIGHT;
 extern const char DEFAULT_DROP_FILE_TEMPLATE[];
 extern const int DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS;
 extern const int DEFAULT_PNG_COMPRESSION_LEVEL;
+extern const bool DEFAULT_RELOAD_BEFORE_EXECUTION;
 
 //==============================================================================
 

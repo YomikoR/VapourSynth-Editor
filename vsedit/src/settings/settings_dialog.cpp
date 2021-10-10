@@ -118,6 +118,8 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getRememberLastPreviewFrame());
 	m_ui.alwaysKeepCurrentFrameCheckBox->setChecked(
 		m_pSettingsManager->getAlwaysKeepCurrentFrame());
+	m_ui.reloadBeforeExecutionCheckBox->setChecked(
+		m_pSettingsManager->getReloadBeforeExecution());
 	m_ui.snapshotCompressionLevelSpinBox->setValue(
 		m_pSettingsManager->getPNGSnapshotCompressionLevel());
 
@@ -221,6 +223,8 @@ void SettingsDialog::slotApply()
 		m_ui.rememberLastPreviewFrameCheckBox->isChecked());
 	m_pSettingsManager->setAlwaysKeepCurrentFrame(
 		m_ui.alwaysKeepCurrentFrameCheckBox->isChecked());
+	m_pSettingsManager->setReloadBeforeExecution(
+		m_ui.reloadBeforeExecutionCheckBox->isChecked());
 	m_pSettingsManager->setPNGSnapshotCompressionLevel(
 		m_ui.snapshotCompressionLevelSpinBox->value());
 

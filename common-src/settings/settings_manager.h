@@ -220,6 +220,10 @@ public:
 
 	bool setPNGSnapshotCompressionLevel(int a_level);
 
+	bool getReloadBeforeExecution() const;
+
+	bool setReloadBeforeExecution(bool a_reload);
+
 private:
 
 	void initializeStandardActions();
