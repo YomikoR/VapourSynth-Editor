@@ -1,9 +1,18 @@
 r19-mod-4:
 -BUGFIX: Encode preset header not correctly loaded.
 -BUGFIX: Loading chapters for VFR video results in division by zero.
+-BUGFIX: Failure when building in a recent version of MacOS.
+-BUGFIX: Program crashes when launching from second screen in MacOS with Qt 5.12.
+-BUGFIX: Only the main screen's bit depth is reported.
+-BUGFIX: Settings are lost in current session when switching to portable mode while config file is not writable.
+-Add Inno build script for a Windows installer (by rlaphoenix).
+-Add a setting entry for reloading script from disk before execution.
+-Improve open-box experience of the text editor: using spaces as tabs, 12pt font size, adjusted colors for dark themes.
+-Raise minimum VapourSynth version requirement to R47 (API 3.6).
+-Remove a number of obsolete Qt methods (raising Qt version requirement to 5.8).
 -Frame numbers computed from chapter timestamps are rounded instead of ceiling.
--"Shell commands" in job server won't be executed with cmd /c or sh -c prefix.
--Remove a number of obsolete Qt methods.
+-"Shell commands" in job server won't be executed with cmd /c or sh -c prefix anymore.
+
 
 r19-mod-3:
 -BUGFIX: Crash on file drop setting menu.

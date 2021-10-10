@@ -256,7 +256,7 @@
          <item>
           <widget class="QLabel" name="snapshotCompressionLevelLabel">
            <property name="text">
-            <string>PNG snapshot compression level (0 - 100 for size factor)</string>
+            <string>PNG snapshot compression level (0-100 for size factor)</string>
            </property>
           </widget>
          </item>
