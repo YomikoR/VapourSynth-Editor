@@ -16,6 +16,7 @@ enum class ResamplingFilter : int
 	Bicubic,
 	Spline16,
 	Spline36,
+	Spline64,
 	Lanczos,
 };
 

@@ -8,12 +8,12 @@
 //==============================================================================
 
 const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER =
-	ResamplingFilter::Spline16;
+	ResamplingFilter::Bicubic;
 const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS =
 	YuvMatrixCoefficients::m709;
 const ChromaPlacement DEFAULT_CHROMA_PLACEMENT = ChromaPlacement::LEFT;
-const double DEFAULT_BICUBIC_FILTER_PARAMETER_B = 1.0 / 3.0;
-const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 1.0 / 3.0;
+const double DEFAULT_BICUBIC_FILTER_PARAMETER_B = 0.0;
+const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 0.5;
 const int DEFAULT_LANCZOS_FILTER_TAPS = 3;
 const EncodingType DEFAULT_ENCODING_TYPE = EncodingType::CLI;
 const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =

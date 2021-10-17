@@ -615,6 +615,8 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			case ResamplingFilter::Spline36:
 				resizeName = "Spline36";
 				break;
+			case ResamplingFilter::Spline64:
+				resizeName = "Spline64";
 			default:
 				Q_ASSERT(false);
 			}

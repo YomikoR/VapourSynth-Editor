@@ -37,6 +37,8 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 		(int)ResamplingFilter::Spline16);
 	m_ui.chromaResamplingFilterComboBox->addItem(tr("Spline36"),
 		(int)ResamplingFilter::Spline36);
+	m_ui.chromaResamplingFilterComboBox->addItem(tr("Spline64"),
+		(int)ResamplingFilter::Spline64);
 	m_ui.chromaResamplingFilterComboBox->addItem(tr("Lanczos"),
 		(int)ResamplingFilter::Lanczos);
 
