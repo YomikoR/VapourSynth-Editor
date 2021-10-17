@@ -30,9 +30,9 @@ enum class YuvMatrixCoefficients : int
 
 enum class ChromaPlacement : int
 {
-	MPEG1,
-	MPEG2,
-	DV,
+	LEFT,
+	CENTER,
+	TOP_LEFT,
 };
 
 enum class EncodingType

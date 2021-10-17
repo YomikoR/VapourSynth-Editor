@@ -667,13 +667,13 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			int64_t chromaLoc = 0;
 			switch(m_chromaPlacement)
 			{
-			case ChromaPlacement::MPEG1:
-				chromaLoc = 1;
-				break;
-			case ChromaPlacement::MPEG2:
+			case ChromaPlacement::LEFT:
 				chromaLoc = 0;
 				break;
-			case ChromaPlacement::DV:
+			case ChromaPlacement::CENTER:
+				chromaLoc = 1;
+				break;
+			case ChromaPlacement::TOP_LEFT:
 				chromaLoc = 2;
 				break;
 			default:

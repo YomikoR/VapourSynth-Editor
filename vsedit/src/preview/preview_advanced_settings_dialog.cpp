@@ -40,12 +40,12 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	m_ui.chromaResamplingFilterComboBox->addItem(tr("Lanczos"),
 		(int)ResamplingFilter::Lanczos);
 
-	m_ui.chromaPlacementComboBox->addItem(tr("MPEG1"),
-		(int)ChromaPlacement::MPEG1);
-	m_ui.chromaPlacementComboBox->addItem(tr("MPEG2"),
-		(int)ChromaPlacement::MPEG2);
-	m_ui.chromaPlacementComboBox->addItem(tr("DV"),
-		(int)ChromaPlacement::DV);
+	m_ui.chromaPlacementComboBox->addItem(tr("Left / MPEG2"),
+		(int)ChromaPlacement::LEFT);
+	m_ui.chromaPlacementComboBox->addItem(tr("Center / MPEG1 / JPEG"),
+		(int)ChromaPlacement::CENTER);
+	m_ui.chromaPlacementComboBox->addItem(tr("Top-left"),
+		(int)ChromaPlacement::TOP_LEFT);
 
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
