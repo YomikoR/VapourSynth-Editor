@@ -3,6 +3,7 @@
 #include "../helpers.h"
 #include "vs_script_library.h"
 #include "vs_pack_rgb.h"
+#include "vs_gray_frame_prop.h"
 
 #include <vector>
 #include <cmath>
@@ -578,8 +579,19 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		const char * resizeName = "Point";
 
 		VSMap * pArgumentMap = m_cpVSAPI->createMap();
-		m_cpVSAPI->propSetNode(pArgumentMap, "clip", a_nodePair.pOutputNode,
-			paReplace);
+		if (cpFormat->numPlanes == 1) // GRAY
+		{
+			VSMap * pTempMap = m_cpVSAPI->createMap();
+			m_cpVSAPI->propSetNode(pTempMap, "clip",
+				a_nodePair.pOutputNode, paReplace);
+			grayFramePropCreate(pTempMap, pArgumentMap, pCore, m_cpVSAPI);
+			m_cpVSAPI->freeMap(pTempMap);
+		}
+		else
+		{
+			m_cpVSAPI->propSetNode(pArgumentMap, "clip",
+				a_nodePair.pOutputNode, paReplace);
+		}
 		m_cpVSAPI->propSetInt(pArgumentMap, "format", (is_10_bits ?
 			pfRGB30 : pfRGB24), paReplace);
 
