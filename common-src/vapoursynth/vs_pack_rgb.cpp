@@ -47,7 +47,7 @@ const VSFrameRef * VS_CC packGetFrame(int n, int activationReason, void **instan
         p2p_pack_frame(&p, P2P_ALPHA_SET_ONE);
 
         VSMap *props = vsapi->getFramePropsRW(dst_frame);
-        vsapi->propSetInt(props, "_packingFormat", static_cast<int64_t>(d->packing_fmt), paReplace);
+        vsapi->propSetInt(props, "PackingFormat", static_cast<int64_t>(d->packing_fmt), paReplace);
         vsapi->freeFrame(src_frame);
         return dst_frame;
     }

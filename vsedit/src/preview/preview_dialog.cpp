@@ -2048,7 +2048,7 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 
 	const VSMap *props = m_cpVSAPI->getFramePropsRO(m_cpPreviewFrameRef);
 	enum p2p_packing packing_fmt =
-		static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props, "_packingFormat",
+		static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props, "PackingFormat",
 		0, nullptr));
 	bool is_10_bits = (packing_fmt == p2p_rgb30);
 	if (!is_10_bits)
@@ -2125,8 +2125,8 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	}
 
 	const VSMap *props = m_cpVSAPI->getFramePropsRO(a_cpFrameRef);
-	enum p2p_packing packing_fmt = static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props,
-		"_packingFormat", 0, nullptr));
+	enum p2p_packing packing_fmt = static_cast<p2p_packing>(
+		m_cpVSAPI->propGetInt(props, "PackingFormat", 0, nullptr));
 	bool is_10_bits;
 	if (packing_fmt == p2p_rgb30)
 	{
