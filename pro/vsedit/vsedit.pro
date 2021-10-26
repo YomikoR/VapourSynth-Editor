@@ -160,7 +160,7 @@ TEMPLATE = app
 
 RC_ICONS = $${COMMON_DIRECTORY}/resources/vsedit.ico
 QMAKE_TARGET_PRODUCT = 'VapourSynth Editor'
-QMAKE_TARGET_DESCRIPTION = 'VapourSynth script editor'
+QMAKE_TARGET_DESCRIPTION = 'VapourSynth Editor'
 
 #SUBDIRS
 

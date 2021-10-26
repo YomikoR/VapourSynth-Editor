@@ -134,7 +134,7 @@ TEMPLATE = app
 include($${COMMON_DIRECTORY}/pro/common.pri)
 
 QMAKE_TARGET_PRODUCT = 'VapourSynth Editor Job Server'
-QMAKE_TARGET_DESCRIPTION = 'VapourSynth Editor job server'
+QMAKE_TARGET_DESCRIPTION = 'VapourSynth Editor Job Server'
 
 #SUBDIRS
 

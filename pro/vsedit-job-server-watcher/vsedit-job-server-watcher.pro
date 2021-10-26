@@ -138,7 +138,7 @@ TEMPLATE = app
 
 RC_ICONS = $${COMMON_DIRECTORY}/resources/vsedit.ico
 QMAKE_TARGET_PRODUCT = 'VapourSynth Editor Job Server Watcher'
-QMAKE_TARGET_DESCRIPTION = 'VapourSynth Editor job server watcher'
+QMAKE_TARGET_DESCRIPTION = 'VapourSynth Editor Job Server Watcher'
 
 #SUBDIRS
 
