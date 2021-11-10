@@ -230,24 +230,6 @@ bool VSScriptLibrary::initLibrary()
 			loaded = m_vsScriptLibrary.load();
 		}
 	}
-
-	if(!loaded)
-	{
-		QProcessEnvironment environment =
-			QProcessEnvironment::systemEnvironment();
-		QString basePath;
-
-#ifdef Q_OS_WIN64
-		basePath = environment.value("ProgramFiles(x86)");
-		libraryFullPath = basePath + "\\VapourSynth\\core64\\vsscript.dll";
-#else
-		basePath = environment.value("ProgramFiles");
-		libraryFullPath = basePath + "\\VapourSynth\\core32\\vsscript.dll";
-#endif // Q_OS_WIN64
-
-		m_vsScriptLibrary.setFileName(libraryFullPath);
-		loaded = m_vsScriptLibrary.load();
-	}
 #endif // Q_OS_WIN
 
 	if(!loaded)
