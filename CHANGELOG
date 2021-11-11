@@ -1,3 +1,15 @@
+r19-mod-5
+-BUGFIX: Building fails in Ubuntu LTS with older Qt versions.
+-Let inno installer work with Windows 7 SP1.
+-Add .vpy file association in the inno installer.
+-Rename chroma location options by their position names and remove DV.
+-Set default chroma subsampling method to Bicubic b=0 c=0.5.
+-Let GRAY clip with RGB matrix be previewed as usual.
+-Edit program descriptions.
+-Don't search Program Files by path for finding vsscript.
+-Hotkeys for zoom modes changed from 1/2/3 to Alt + 1/2/3.
+-When previewing, switch output nodes 0-9 by hotkeys 0-9.
+
 r19-mod-4:
 -BUGFIX: Encode preset header not correctly loaded.
 -BUGFIX: Loading chapters for VFR video results in division by zero.
@@ -12,7 +24,6 @@ r19-mod-4:
 -Remove a number of obsolete Qt methods (raising Qt version requirement to 5.8).
 -Frame numbers computed from chapter timestamps are rounded instead of ceiling.
 -"Shell commands" in job server won't be executed with cmd /c or sh -c prefix anymore.
-
 
 r19-mod-3:
 -BUGFIX: Crash on file drop setting menu.
