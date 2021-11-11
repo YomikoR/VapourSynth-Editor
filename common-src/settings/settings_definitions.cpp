@@ -101,6 +101,16 @@ const char ACTION_ID_TOGGLE_COMMENT[] = "toggle_comment";
 const char ACTION_ID_SHUTDOWN_SERVER_AND_EXIT[] = "shutdown_server_and_exit";
 const char ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES[] =
 	"set_trusted_clients_addresses";
+const char ACTION_ID_SET_OUTPUT_INDEX_0[] = "switch_to_output_index_0";
+const char ACTION_ID_SET_OUTPUT_INDEX_1[] = "switch_to_output_index_1";
+const char ACTION_ID_SET_OUTPUT_INDEX_2[] = "switch_to_output_index_2";
+const char ACTION_ID_SET_OUTPUT_INDEX_3[] = "switch_to_output_index_3";
+const char ACTION_ID_SET_OUTPUT_INDEX_4[] = "switch_to_output_index_4";
+const char ACTION_ID_SET_OUTPUT_INDEX_5[] = "switch_to_output_index_5";
+const char ACTION_ID_SET_OUTPUT_INDEX_6[] = "switch_to_output_index_6";
+const char ACTION_ID_SET_OUTPUT_INDEX_7[] = "switch_to_output_index_7";
+const char ACTION_ID_SET_OUTPUT_INDEX_8[] = "switch_to_output_index_8";
+const char ACTION_ID_SET_OUTPUT_INDEX_9[] = "switch_to_output_index_9";
 
 //==============================================================================
 

@@ -73,7 +73,7 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 //==============================================================================
 
 bool VapourSynthScriptProcessor::initialize(const QString& a_script,
-	const QString& a_scriptName)
+	const QString& a_scriptName, int a_outputIndex)
 {
 	if(m_initialized || m_finalizing)
 	{
@@ -119,10 +119,12 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	VSNodeRef * pOutputNode = m_pVSScriptLibrary->getOutput(m_pVSScript, 0);
+	VSNodeRef * pOutputNode = m_pVSScriptLibrary->getOutput(
+		m_pVSScript, a_outputIndex);
 	if(!pOutputNode)
 	{
-		m_error = tr("Failed to get the script output node.");
+		m_error = tr("Failed to get the script output node with index %1.")
+			.arg(a_outputIndex);
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
 		return false;
@@ -144,7 +146,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 }
 
 // END OF bool VapourSynthScriptProcessor::initialize(const QString& a_script,
-//		const QString& a_scriptName)
+//		const QString& a_scriptName, int a_outputIndex)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::finalize()
@@ -216,7 +218,7 @@ const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
 		m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
 	if(!pNode)
 	{
-		m_error = tr("Couldn't resolve output node number %1.")
+		m_error = tr("Couldn't resolve output node index %1.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(mtCritical, m_error);
 		return nullptr;
@@ -784,7 +786,7 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 			m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
 		if(!nodePair.pOutputNode)
 		{
-			m_error = tr("Couldn't resolve output node number %1.")
+			m_error = tr("Couldn't resolve output node index %1.")
 				.arg(a_outputIndex);
 			emit signalWriteLogMessage(mtCritical, m_error);
 			return nodePair;

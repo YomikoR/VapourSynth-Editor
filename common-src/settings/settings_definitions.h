@@ -152,6 +152,16 @@ extern const char ACTION_ID_MOVE_TEXT_BLOCK_DOWN[];
 extern const char ACTION_ID_TOGGLE_COMMENT[];
 extern const char ACTION_ID_SHUTDOWN_SERVER_AND_EXIT[];
 extern const char ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_0[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_1[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_2[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_3[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_4[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_5[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_6[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_7[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_8[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_9[];
 
 //==============================================================================
 

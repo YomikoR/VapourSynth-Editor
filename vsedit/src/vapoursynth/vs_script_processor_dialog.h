@@ -89,11 +89,13 @@ protected:
 
 	const VSAPI * m_cpVSAPI;
 
-	const VSVideoInfo * m_cpVideoInfo;
+	const VSVideoInfo * m_cpVideoInfo[10];
 
-	size_t m_framesInQueue;
-	size_t m_framesInProcess;
+	size_t m_framesInQueue[10];
+	size_t m_framesInProcess[10];
 	size_t m_maxThreads;
+
+	int m_outputIndex;
 
 	bool m_wantToFinalize;
 	bool m_wantToClose;
@@ -105,7 +107,7 @@ protected:
 	QPixmap m_busyPixmap;
 	QPixmap m_errorPixmap;
 
-	std::list<Frame> m_framesCache;
+	std::list<Frame> m_framesCache[10];
 	size_t m_cachedFramesLimit;
 };
 

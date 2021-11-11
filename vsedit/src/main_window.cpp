@@ -436,7 +436,7 @@ void MainWindow::slotCheckScript()
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	bool correct = tempProcessor.initialize(m_ui.scriptEdit->text(),
-		m_scriptFilePath);
+		m_scriptFilePath, 0);
 	if(correct)
 	{
 		QString message = tr("Script was successfully evaluated. "

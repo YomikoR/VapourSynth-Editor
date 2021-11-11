@@ -22,10 +22,11 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 	, m_pVapourSynthScriptProcessor(nullptr)
 	, m_cpVSAPI(nullptr)
-	, m_cpVideoInfo(nullptr)
-	, m_framesInQueue(0)
-	, m_framesInProcess(0)
+	, m_cpVideoInfo()
+	, m_framesInQueue()
+	, m_framesInProcess()
 	, m_maxThreads(0)
+	, m_outputIndex(0)
 	, m_wantToFinalize(false)
 	, m_wantToClose(false)
 	, m_pStatusBar(nullptr)
@@ -101,7 +102,7 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	}
 
 	bool initialized = m_pVapourSynthScriptProcessor->initialize(a_script,
-		a_scriptName);
+		a_scriptName, m_outputIndex);
 	if(!initialized)
 	{
 		if(isVisible())
@@ -109,10 +110,11 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 		return false;
 	}
 
-	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
-	Q_ASSERT(m_cpVideoInfo);
+	m_cpVideoInfo[m_outputIndex] =
+		m_pVapourSynthScriptProcessor->videoInfo(m_outputIndex);
+	Q_ASSERT(m_cpVideoInfo[m_outputIndex]);
 
-	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo);
+	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo[m_outputIndex]);
 
 	return true;
 }
@@ -123,7 +125,8 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 
 bool VSScriptProcessorDialog::busy() const
 {
-	return ((m_framesInProcess + m_framesInQueue) != 0);
+	return ((m_framesInProcess[m_outputIndex]
+		+ m_framesInQueue[m_outputIndex]) != 0);
 }
 
 // END OF bool VSScriptProcessorDialog::busy()
@@ -167,12 +170,12 @@ void VSScriptProcessorDialog::slotWriteLogMessage(int a_messageType,
 void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 	size_t a_inProcess, size_t a_maxThreads)
 {
-	m_framesInQueue = a_inQueue;
-	m_framesInProcess = a_inProcess;
+	m_framesInQueue[m_outputIndex] = a_inQueue;
+	m_framesInProcess[m_outputIndex] = a_inProcess;
 	m_maxThreads = a_maxThreads;
 
-	m_pStatusBarWidget->setQueueState(m_framesInQueue, m_framesInProcess,
-		m_maxThreads);
+	m_pStatusBarWidget->setQueueState(m_framesInQueue[m_outputIndex],
+		m_framesInProcess[m_outputIndex], m_maxThreads);
 }
 
 // END OF void VSScriptProcessorDialog::slotFrameQueueStateChanged(
@@ -221,7 +224,8 @@ void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 void VSScriptProcessorDialog::stopAndCleanUp()
 {
 	clearFramesCache();
-	m_cpVideoInfo = nullptr;
+	for(int n = 0; n < 10; ++n)
+		m_cpVideoInfo[n] = nullptr;
 }
 
 // END OF void VSScriptProcessorDialog::stopAndCleanUp()
@@ -229,16 +233,18 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 
 void VSScriptProcessorDialog::clearFramesCache()
 {
-	if(m_framesCache.empty())
-		return;
-
 	Q_ASSERT(m_cpVSAPI);
-	for(Frame & frame : m_framesCache)
+	for(int n = 0; n < 10; ++n)
 	{
-		m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
-		m_cpVSAPI->freeFrame(frame.cpPreviewFrameRef);
+		if(m_framesCache[n].empty())
+			continue;
+		for(Frame & frame : m_framesCache[n])
+		{
+			m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
+			m_cpVSAPI->freeFrame(frame.cpPreviewFrameRef);
+		}
+		m_framesCache[n].clear();
 	}
-	m_framesCache.clear();
 }
 
 // END OF void VSScriptProcessorDialog::stopAndCleanUp()

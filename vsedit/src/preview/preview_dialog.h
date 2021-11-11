@@ -135,6 +135,19 @@ protected slots:
 
 	void slotSaveGeometry();
 
+	void slotSwitchOutputIndex(int a_outputIndex);
+
+	void slotSwitchOutputIndex0() { slotSwitchOutputIndex(0); }
+	void slotSwitchOutputIndex1() { slotSwitchOutputIndex(1); }
+	void slotSwitchOutputIndex2() { slotSwitchOutputIndex(2); }
+	void slotSwitchOutputIndex3() { slotSwitchOutputIndex(3); }
+	void slotSwitchOutputIndex4() { slotSwitchOutputIndex(4); }
+	void slotSwitchOutputIndex5() { slotSwitchOutputIndex(5); }
+	void slotSwitchOutputIndex6() { slotSwitchOutputIndex(6); }
+	void slotSwitchOutputIndex7() { slotSwitchOutputIndex(7); }
+	void slotSwitchOutputIndex8() { slotSwitchOutputIndex(8); }
+	void slotSwitchOutputIndex9() { slotSwitchOutputIndex(9); }
+
 protected:
 
 	virtual void stopAndCleanUp() override;
@@ -227,6 +240,16 @@ protected:
 	QAction * m_pActionGoToPreviousBookmark;
 	QAction * m_pActionGoToNextBookmark;
 	QAction * m_pActionPasteShownFrameNumberIntoScript;
+	QAction * m_pActionSwitchToOutputIndex0;
+	QAction * m_pActionSwitchToOutputIndex1;
+	QAction * m_pActionSwitchToOutputIndex2;
+	QAction * m_pActionSwitchToOutputIndex3;
+	QAction * m_pActionSwitchToOutputIndex4;
+	QAction * m_pActionSwitchToOutputIndex5;
+	QAction * m_pActionSwitchToOutputIndex6;
+	QAction * m_pActionSwitchToOutputIndex7;
+	QAction * m_pActionSwitchToOutputIndex8;
+	QAction * m_pActionSwitchToOutputIndex9;
 
 	std::map<QString, ZoomMode> m_actionIDToZoomModeMap;
 

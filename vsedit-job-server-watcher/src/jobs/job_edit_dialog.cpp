@@ -339,7 +339,7 @@ void JobEditDialog::slotEncodingFramesFromVideoButtonClicked()
 
 	VapourSynthScriptProcessor processor(m_pSettingsManager,
 		m_pVSScriptLibrary);
-	bool initialized = processor.initialize(script, scriptName);
+	bool initialized = processor.initialize(script, scriptName, 0);
 	if(!initialized)
 		return;
 

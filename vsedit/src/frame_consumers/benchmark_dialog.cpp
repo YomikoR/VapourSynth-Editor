@@ -103,10 +103,10 @@ void ScriptBenchmarkDialog::call()
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
 	int firstFrame = 0;
-	int lastFrame = m_cpVideoInfo->numFrames - 1;
+	int lastFrame = m_cpVideoInfo[0]->numFrames - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
 	m_ui.toFrameSpinBox->setMaximum(lastFrame);
-	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo->numFrames);
+	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo[0]->numFrames);
 	m_ui.processingProgressBar->setValue(0);
 
 	if(m_lastFromFrame >= 0)
@@ -158,7 +158,7 @@ void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
 {
 	Q_ASSERT(m_cpVideoInfo);
-	int lastFrame = m_cpVideoInfo->numFrames - 1;
+	int lastFrame = m_cpVideoInfo[0]->numFrames - 1;
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
 }
