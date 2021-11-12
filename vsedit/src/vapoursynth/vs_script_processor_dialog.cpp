@@ -235,11 +235,11 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 
 void VSScriptProcessorDialog::clearFramesCache()
 {
-	Q_ASSERT(m_cpVSAPI);
 	for(int n = 0; n < 10; ++n)
 	{
 		if(m_framesCache[n].empty())
 			continue;
+		Q_ASSERT(m_cpVSAPI);
 		for(Frame & frame : m_framesCache[n])
 		{
 			m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
