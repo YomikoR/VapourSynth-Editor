@@ -102,10 +102,13 @@ bool SettingsManagerCore::setPortableMode(bool a_portableMod)
 	bool portableExists = settingsFileInfo.exists();
 	bool currentModePortable = portableExists && settingsFileInfo.isWritable();
 
+	if(a_portableMod == currentModePortable)
+		return true;
+
 	// In Windows, even if a dir is not writable, a file in it may still be
 	// writable. Therefore, we should take a test by writing a file.
 	bool portableWritable = false;
-	if(!portableExists)
+	if(a_portableMod && !portableExists)
 	{
 		QFile portableFile(applicationDir + SETTINGS_FILE_NAME);
 		if((portableWritable = portableFile.open(QIODevice::WriteOnly)))
@@ -114,11 +117,8 @@ bool SettingsManagerCore::setPortableMode(bool a_portableMod)
 	else
 		portableWritable = currentModePortable;
 
-	if (a_portableMod && !portableWritable)
+	if(a_portableMod && !portableWritable)
 		return false;
-
-	if(a_portableMod == currentModePortable)
-		return true;
 
 	QString genericConfigDir = QStandardPaths::writableLocation(
 		QStandardPaths::GenericConfigLocation);
