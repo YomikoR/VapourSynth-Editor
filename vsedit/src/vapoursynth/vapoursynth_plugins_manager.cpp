@@ -127,24 +127,6 @@ void VapourSynthPluginsManager::getCorePlugins()
 			loaded = vsLibrary.load();
 		}
 	}
-
-	if(!loaded)
-	{
-		QProcessEnvironment environment =
-			QProcessEnvironment::systemEnvironment();
-		QString basePath;
-
-#ifdef Q_OS_WIN64
-		basePath = environment.value("ProgramFiles(x86)");
-		libraryFullPath = basePath + "\\VapourSynth\\core64\\vapoursynth.dll";
-#else
-		basePath = environment.value("ProgramFiles");
-		libraryFullPath = basePath + "\\VapourSynth\\core32\\vapoursynth.dll";
-#endif // Q_OS_WIN64
-
-		vsLibrary.setFileName(libraryFullPath);
-		loaded = vsLibrary.load();
-	}
 #endif // Q_OS_WIN
 
 	if(!loaded)
