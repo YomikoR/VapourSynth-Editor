@@ -1478,6 +1478,10 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	if(m_playing)
 		return;
 
+	// Don't switch when busy processing the current frame
+	if(busy())
+		return;
+
 	// Check if output index is available
 	const VSVideoInfo * vi = m_pVapourSynthScriptProcessor->
 		videoInfo(a_outputIndex);
