@@ -6,6 +6,8 @@
 #include "../vapoursynth/vs_script_processor_dialog.h"
 #include "../../../common-src/chrono.h"
 
+#include <QKeyEvent>
+
 #ifdef Q_OS_WIN
 	class QWinTaskbarButton;
 	class QWinTaskbarProgress;
@@ -54,6 +56,8 @@ protected:
 	void stopProcessing();
 
 	void updateMetrics();
+
+	void keyPressEvent(QKeyEvent * a_pEvent);
 
 	Ui::ScriptBenchmarkDialog m_ui;
 

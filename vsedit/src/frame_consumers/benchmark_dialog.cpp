@@ -312,3 +312,22 @@ void ScriptBenchmarkDialog::updateMetrics()
 
 // END OF void ScriptBenchmarkDialog::updateMetrics()
 //==============================================================================
+
+void ScriptBenchmarkDialog::keyPressEvent(QKeyEvent * a_pEvent)
+{
+	Qt::KeyboardModifiers modifiers = a_pEvent->modifiers();
+
+	if(modifiers != Qt::NoModifier)
+	{
+		QDialog::keyPressEvent(a_pEvent);
+		return;
+	}
+
+	if(a_pEvent->key() == Qt::Key_Escape)
+		close();
+	else
+		QDialog::keyPressEvent(a_pEvent);
+}
+
+// END OF void ScriptBenchmarkDialog::keyPressEvent(QKeyEvent * a_pEvent)
+//==============================================================================
