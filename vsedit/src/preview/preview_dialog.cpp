@@ -108,6 +108,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionSwitchToOutputIndex9(nullptr)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
+	, m_nativePlaybackRate(false)
 	, m_secondsBetweenFrames(0)
 	, m_pPlayTimer(nullptr)
 	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
@@ -1217,7 +1218,9 @@ void PreviewDialog::slotToggleColorPicker(bool a_colorPickerVisible)
 void PreviewDialog::slotSetPlayFPSLimit()
 {
 	double limit = m_ui.playFpsLimitSpinBox->value();
-
+	if(limit < 1e-3)
+		limit = 1e-3;
+	m_nativePlaybackRate = false;
 	PlayFPSLimitMode mode =
 		(PlayFPSLimitMode)m_ui.playFpsLimitModeComboBox->currentData().toInt();
 	if(mode == PlayFPSLimitMode::NoLimit)
@@ -1229,7 +1232,10 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		if(!m_cpVideoInfo[m_outputIndex])
 			m_secondsBetweenFrames = 0.0;
 		else if(m_cpVideoInfo[m_outputIndex]->fpsNum == 0ll)
+		{
+			m_nativePlaybackRate = true;
 			m_secondsBetweenFrames = 0.0;
+		}
 		else
 		{
 			m_secondsBetweenFrames =
@@ -1293,6 +1299,25 @@ void PreviewDialog::slotProcessPlayQueue()
 		if(it == m_framesCache[m_outputIndex].end())
 			break;
 
+		if(m_nativePlaybackRate)
+		{
+			Q_ASSERT(m_cpVSAPI);
+			const VSMap * frameProps = m_cpVSAPI->getFramePropsRO(
+				it->cpOutputFrameRef);
+			int err_num, err_den;
+			int64_t durNum = m_cpVSAPI->propGetInt(frameProps, "_DurationNum", 0, &err_num);
+			int64_t durDen = m_cpVSAPI->propGetInt(frameProps, "_DurationDen", 0, &err_den);
+			if(err_num || err_den || durNum <= 0 || durDen <= 0)
+			{
+				// Fallback to custom
+				double limit = m_ui.playFpsLimitSpinBox->value();
+				if(limit < 1e-3)
+					limit = 1e-3;
+				m_secondsBetweenFrames = 1.0 / limit;
+			}
+			else
+				m_secondsBetweenFrames = (double)durNum / (double)durDen;
+		}
 		hr_time_point now = hr_clock::now();
 		double passed = duration_to_double(now - m_lastFrameShowTime);
 		double secondsToNextFrame = m_secondsBetweenFrames - passed;

@@ -267,6 +267,7 @@ protected:
 
 	bool m_playing;
 	bool m_processingPlayQueue;
+	bool m_nativePlaybackRate;
 	double m_secondsBetweenFrames;
 	hr_time_point m_lastFrameShowTime;
 	QTimer * m_pPlayTimer;
