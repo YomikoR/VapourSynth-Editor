@@ -123,13 +123,13 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 //		const QString & a_scriptName)
 //==============================================================================
 
-bool VSScriptProcessorDialog::busy() const
+bool VSScriptProcessorDialog::busy(int a_outputIndex) const
 {
-	return ((m_framesInProcess[m_outputIndex]
-		+ m_framesInQueue[m_outputIndex]) != 0);
+	return ((m_framesInProcess[a_outputIndex]
+		+ m_framesInQueue[a_outputIndex]) != 0);
 }
 
-// END OF bool VSScriptProcessorDialog::busy()
+// END OF bool VSScriptProcessorDialog::busy(int a_outputIndex)
 //==============================================================================
 
 const QString & VSScriptProcessorDialog::script() const

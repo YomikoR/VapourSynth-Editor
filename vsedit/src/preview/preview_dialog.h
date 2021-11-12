@@ -42,6 +42,11 @@ public:
 	void previewScript(const QString& a_script,
 		const QString& a_scriptName);
 
+	bool busy() const
+	{
+		return VSScriptProcessorDialog::busy(m_outputIndex);
+	}
+
 signals:
 
 	void signalPasteIntoScriptAtNewLine(const QString& a_line);

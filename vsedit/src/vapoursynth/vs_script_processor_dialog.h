@@ -38,7 +38,7 @@ public:
 	virtual bool initialize(const QString & a_script,
 		const QString & a_scriptName);
 
-	virtual bool busy() const;
+	virtual bool busy(int a_outputIndex = 0) const;
 
 	virtual const QString & script() const;
 
