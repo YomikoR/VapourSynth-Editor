@@ -145,13 +145,13 @@ void SettingsManager::initializeStandardActions()
 			QIcon(":zoom.png"), QKeySequence(Qt::Key_Z)},
 		{ACTION_ID_SET_ZOOM_MODE_NO_ZOOM, tr("Zoom: No zoom"),
 			QIcon(":zoom_no_zoom.png"), QKeySequence(
-			Qt::Key_Alt | Qt::Key_1)},
+			Qt::ALT | Qt::Key_1)},
 		{ACTION_ID_SET_ZOOM_MODE_FIXED_RATIO, tr("Zoom: Fixed ratio"),
 			QIcon(":zoom_fixed_ratio.png"), QKeySequence(
-			Qt::Key_Alt | Qt::Key_2)},
+			Qt::ALT | Qt::Key_2)},
 		{ACTION_ID_SET_ZOOM_MODE_FIT_TO_FRAME, tr("Zoom: Fit to frame"),
 			QIcon(":zoom_fit_to_frame.png"), QKeySequence(
-			Qt::Key_Alt | Qt::Key_3)},
+			Qt::ALT | Qt::Key_3)},
 		{ACTION_ID_SET_ZOOM_SCALE_MODE_NEAREST, tr("Scale: Nearest"),
 			QIcon(), QKeySequence()},
 		{ACTION_ID_SET_ZOOM_SCALE_MODE_BILINEAR, tr("Scale: Bilinear"),

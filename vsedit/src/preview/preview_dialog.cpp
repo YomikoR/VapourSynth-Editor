@@ -363,7 +363,7 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 		QDialog::keyPressEvent(a_pEvent);
 		return;
 	}
-	Q_ASSERT(m_cpVideoInfo);
+	Q_ASSERT(m_cpVideoInfo[m_outputIndex]);
 
 	int key = a_pEvent->key();
 
@@ -1226,7 +1226,7 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		m_secondsBetweenFrames = 1.0 / limit;
 	else if(mode == PlayFPSLimitMode::FromVideo)
 	{
-		if(!m_cpVideoInfo)
+		if(!m_cpVideoInfo[m_outputIndex])
 			m_secondsBetweenFrames = 0.0;
 		else if(m_cpVideoInfo[m_outputIndex]->fpsNum == 0ll)
 			m_secondsBetweenFrames = 0.0;
@@ -1833,7 +1833,7 @@ void PreviewDialog::setUpZoomPanel()
 
 void PreviewDialog::setUpTimeLinePanel()
 {
-    m_ui.timeLinePanel->setVisible(
+	m_ui.timeLinePanel->setVisible(
 		m_pSettingsManager->getTimeLinePanelVisible());
 
     m_ui.playButton->setDefaultAction(m_pActionPlay);
