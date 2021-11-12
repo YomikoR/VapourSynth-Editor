@@ -226,6 +226,8 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 	clearFramesCache();
 	for(int n = 0; n < 10; ++n)
 		m_cpVideoInfo[n] = nullptr;
+
+	m_outputIndex = 0;
 }
 
 // END OF void VSScriptProcessorDialog::stopAndCleanUp()
