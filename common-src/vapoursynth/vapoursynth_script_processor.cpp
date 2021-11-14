@@ -636,7 +636,8 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			}
 		}
 
-		m_cpVSAPI->propSetInt(pArgumentMap, "prefer_props", 1, paReplace);
+		if(m_cpCoreInfo.core < 58)
+			m_cpVSAPI->propSetInt(pArgumentMap, "prefer_props", 1, paReplace);
 
 		if(isYUV)
 		{
@@ -799,7 +800,7 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 		if(!previewNodeCreated)
 		{
 			m_error = tr("Couldn't create preview node for output "
-				"number %1.").arg(a_outputIndex);
+				"index %1.").arg(a_outputIndex);
 			emit signalWriteLogMessage(mtCritical, m_error);
 			return nodePair;
 		}
