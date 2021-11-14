@@ -16,6 +16,14 @@ win32 {
 	}
 }
 
+equals(QT_MAJOR_VERSION, 6) {
+	QT += core5compat
+
+	contains(QMAKE_COMPILER, msvc) {
+		QMAKE_LFLAGS += '/entry:mainCRTStartup'
+	}
+}
+
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")
 ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
@@ -94,11 +102,15 @@ CONFIG(debug, debug|release) {
 S = $${DIR_SEPARATOR}
 
 D = $$DESTDIR
-D = $$replace(D, $$escape_expand(\\), $$S)
+equals(QT_MAJOR_VERSION, 5) {
+	D = $$replace(D, $$escape_expand(\\), $$S)
+}
 D = $$replace(D, /, $$S)
 
 SC = $${COMMON_DIRECTORY}/
-SC = $$replace(SC, $$escape_expand(\\), $$S)
+equals(QT_MAJOR_VERSION, 5) {
+	SC = $$replace(SC, $$escape_expand(\\), $$S)
+}
 SC = $$replace(SC, /, $$S)
 
 E = $$escape_expand(\n\t)
@@ -115,7 +127,9 @@ macx {
 }
 
 win32 {
-	QT += winextras
+	equals(QT_MAJOR_VERSION, 5) {
+		QT += winextras
+	}
 
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 

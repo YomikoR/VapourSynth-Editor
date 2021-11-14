@@ -5,7 +5,7 @@
 
 #include <vapoursynth/VapourSynth.h>
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	#include <QWinTaskbarButton>
 	#include <QWinTaskbarProgress>
 #endif
@@ -28,7 +28,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	, m_lastFromFrame(-1)
 	, m_lastToFrame(-1)
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
 #endif
@@ -119,7 +119,7 @@ void ScriptBenchmarkDialog::call()
 
 	show();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	if(!m_pWinTaskbarButton)
 	{
 		m_pWinTaskbarButton = new QWinTaskbarButton(this);
@@ -195,7 +195,7 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 	m_lastFromFrame = firstFrame;
 	m_lastToFrame = lastFrame;
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	Q_ASSERT(m_pWinTaskbarProgress);
 	m_pWinTaskbarProgress->setMaximum(m_framesTotal);
 	m_pWinTaskbarProgress->setValue(0);
@@ -262,7 +262,7 @@ void ScriptBenchmarkDialog::stopProcessing()
 	m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 	m_ui.startStopBenchmarkButton->setText(tr("Start"));
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	Q_ASSERT(m_pWinTaskbarProgress);
 	if(m_framesProcessed == m_framesTotal)
 		m_pWinTaskbarProgress->setVisible(false);
@@ -301,7 +301,7 @@ void ScriptBenchmarkDialog::updateMetrics()
 	setWindowTitle(tr("%1% Benchmark: %2")
 		.arg(percentage).arg(scriptName()));
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	Q_ASSERT(m_pWinTaskbarProgress);
 	m_pWinTaskbarProgress->setValue(m_framesProcessed);
 #endif

@@ -34,6 +34,7 @@
 #include <QTimer>
 #include <QImageWriter>
 #include <QFileInfo>
+#include <QRegExp>
 #include <algorithm>
 #include <cmath>
 

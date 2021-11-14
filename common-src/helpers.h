@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QByteArray>
 #include <QDataStream>
+#include <QIODevice>
 #include <algorithm>
 #include <functional>
 

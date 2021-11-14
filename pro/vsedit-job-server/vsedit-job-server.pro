@@ -16,6 +16,14 @@ win32 {
 	}
 }
 
+equals(QT_MAJOR_VERSION, 6) {
+	QT += core5compat
+
+	contains(QMAKE_COMPILER, msvc) {
+		QMAKE_LFLAGS += '/entry:mainCRTStartup'
+	}
+}
+
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")
 ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT

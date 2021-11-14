@@ -41,7 +41,7 @@
 #include <QLocalSocket>
 #include <map>
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	#include <QWinTaskbarButton>
 	#include <QWinTaskbarProgress>
 #endif
@@ -72,7 +72,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_nextServerAddress(QHostAddress::LocalHost)
 	, m_pTaskServer(nullptr)
 	, m_pGeometrySaveTimer(nullptr)
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	, m_pWinTaskbarButton(nullptr)
 	, m_pWinTaskbarProgress(nullptr)
 #endif
@@ -384,7 +384,7 @@ void MainWindow::showEvent(QShowEvent * a_pEvent)
 {
 	QMainWindow::showEvent(a_pEvent);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	if(!m_pWinTaskbarButton)
 	{
 		m_pWinTaskbarButton = new QWinTaskbarButton(this);
@@ -641,7 +641,7 @@ void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
 	}
 
 	// Windows taskbar progress
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	if(!m_pWinTaskbarProgress)
 		return;
 
@@ -680,7 +680,7 @@ void MainWindow::slotJobProgressChanged(int a_job, int a_progress,
 	JobProperties properties = m_pJobsModel->jobProperties(a_job);
 
 	// Windows taskbar progress
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	if(!m_pWinTaskbarProgress)
 		return;
 

@@ -22,6 +22,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMenu>
+#include <QRegExp>
 #include <algorithm>
 
 //==============================================================================

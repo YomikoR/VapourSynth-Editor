@@ -56,7 +56,7 @@ vsedit::Job::Job(const JobProperties & a_properties,
 		this, SLOT(slotProcessStarted()));
 	connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
 		this, SLOT(slotProcessFinished(int, QProcess::ExitStatus)));
-	connect(&m_process, SIGNAL(error(QProcess::ProcessError)),
+	connect(&m_process, SIGNAL(errorOccurred(QProcess::ProcessError)),
 		this, SLOT(slotProcessError(QProcess::ProcessError)));
 	connect(&m_process, SIGNAL(readChannelFinished()),
 		this, SLOT(slotProcessReadChannelFinished()));
