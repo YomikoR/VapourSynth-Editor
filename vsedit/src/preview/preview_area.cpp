@@ -45,11 +45,12 @@ PreviewArea::~PreviewArea()
 // END OF PreviewArea::~PreviewArea()
 //==============================================================================
 
-void PreviewArea::setPixmap(const QPixmap & a_pixmap)
+void PreviewArea::setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio)
 {
 	m_pPreviewLabel->setPixmap(a_pixmap);
 	m_pixmapWidth = a_pixmap.width();
 	m_pixmapHeight = a_pixmap.height();
+	m_devicePixelRatio = a_devicePixelRatio;
 }
 
 // END OF void PreviewArea::setPixmap(const QPixmap & a_pixmap)
@@ -66,11 +67,12 @@ void PreviewArea::checkMouseOverPreview(const QPoint & a_globalMousePos)
 	int pixmapHeight = this->pixmapHeight();
 
 	if((imagePoint.x() < 0) || (imagePoint.y() < 0) ||
-		(imagePoint.x() >= pixmapWidth) || (imagePoint.y() >= pixmapHeight))
+		(imagePoint.x() * m_devicePixelRatio >= pixmapWidth) ||
+		(imagePoint.y() * m_devicePixelRatio >= pixmapHeight))
 		return;
 
-	float normX = (float)imagePoint.x() / (float)pixmapWidth;
-	float normY = (float)imagePoint.y() / (float)pixmapHeight;
+	float normX = imagePoint.x() * m_devicePixelRatio / pixmapWidth;
+	float normY = imagePoint.y() * m_devicePixelRatio / pixmapHeight;
 
 	emit signalMouseOverPoint(normX, normY);
 }
