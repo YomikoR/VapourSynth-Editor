@@ -35,6 +35,8 @@
 #include <QImageWriter>
 #include <QFileInfo>
 #include <QRegExp>
+#include <QScreen>
+#include <QWindow>
 #include <algorithm>
 #include <cmath>
 
@@ -2036,6 +2038,9 @@ void PreviewDialog::setPreviewPixmap()
 
 	previewPixmap = m_framePixmap.scaled(frameWidth, frameHeight,
 		Qt::KeepAspectRatio, scaleMode);
+
+	previewPixmap.setDevicePixelRatio(
+		window()->windowHandle()->screen()->devicePixelRatio());
 	m_ui.previewArea->setPixmap(previewPixmap);
 }
 
