@@ -1,5 +1,11 @@
 r19-mod-5
 -BUGFIX: Building fails in Ubuntu LTS with older Qt versions.
+-BUGFIX: A blank .config file may be mistakenly created.
+-BUGFIX: Benchmark window doesn't normally stop and exit when pressing Escape.
+-Adapt to internal resizer changes since VS R58.
+-Support building with Qt 6 (with certain progress bar features disabled).
+-Enable HIDPI support.
+-Let playback rate respect frame durations (i.e. VFR).
 -Let inno installer work with Windows 7 SP1.
 -Add .vpy file association in the inno installer.
 -Rename chroma location options by their position names and remove DV.
@@ -7,7 +13,7 @@ r19-mod-5
 -Let GRAY clip with RGB matrix be previewed as usual.
 -Edit program descriptions.
 -Don't search Program Files by path for finding vsscript.
--Hotkeys for zoom modes changed from 1/2/3 to Alt + 1/2/3.
+-Default hotkeys for zoom modes changed from 1/2/3 to Alt + 1/2/3.
 -When previewing, switch output nodes 0-9 by hotkeys 0-9.
 
 r19-mod-4:
