@@ -1987,9 +1987,8 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 
 void PreviewDialog::setPreviewPixmap()
 {
-	if(m_devicePixelRatio < 0)
-		m_devicePixelRatio =
-			window()->windowHandle()->screen()->devicePixelRatio();
+	m_devicePixelRatio =
+		window()->windowHandle()->screen()->devicePixelRatio();
 	if(m_ui.cropPanel->isVisible())
 	{
 		int cropLeft = m_ui.cropLeftSpinBox->value();
