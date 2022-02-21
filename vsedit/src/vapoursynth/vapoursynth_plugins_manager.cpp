@@ -123,6 +123,7 @@ void VapourSynthPluginsManager::getCorePlugins()
 
 		if(!libraryFullPath.isEmpty())
 		{
+			vsLibrary.unload();
 			vsLibrary.setFileName(libraryFullPath);
 			loaded = vsLibrary.load();
 		}
@@ -135,6 +136,7 @@ void VapourSynthPluginsManager::getCorePlugins()
 			m_pSettingsManager->getVapourSynthLibraryPaths();
 		for(const QString & path : librarySearchPaths)
 		{
+			vsLibrary.unload();
 			libraryFullPath = vsedit::resolvePathFromApplication(path) +
 				QString("/") + libraryName;
 			vsLibrary.setFileName(libraryFullPath);

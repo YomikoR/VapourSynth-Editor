@@ -226,6 +226,7 @@ bool VSScriptLibrary::initLibrary()
 
 		if(!libraryFullPath.isEmpty())
 		{
+			m_vsScriptLibrary.unload();
 			m_vsScriptLibrary.setFileName(libraryFullPath);
 			loaded = m_vsScriptLibrary.load();
 		}
@@ -238,6 +239,7 @@ bool VSScriptLibrary::initLibrary()
 			m_pSettingsManager->getVapourSynthLibraryPaths();
 		for(const QString & path : librarySearchPaths)
 		{
+			m_vsScriptLibrary.unload();
 			libraryFullPath = vsedit::resolvePathFromApplication(path) +
 				QString("/") + libraryName;
 			m_vsScriptLibrary.setFileName(libraryFullPath);
