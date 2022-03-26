@@ -4,9 +4,9 @@ r19-mod-5
 -BUGFIX: Benchmark window doesn't normally stop and exit when pressing Escape.
 -Adapt to internal resizer changes since VS R58.
 -Support building with Qt 6 (with certain progress bar features disabled).
--Enable HIDPI support.
+-Enable HIDPI support (only with Qt 6).
 -Let playback rate respect frame durations (i.e. VFR).
--Let inno installer work with Windows 7 SP1.
+-Let inno installer work with Windows 7 SP1 and later.
 -Add .vpy file association in the inno installer.
 -Rename chroma location options by their position names and remove DV.
 -Set default chroma subsampling method to Bicubic b=0 c=0.5.
