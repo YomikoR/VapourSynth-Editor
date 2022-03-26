@@ -1987,8 +1987,12 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 
 void PreviewDialog::setPreviewPixmap()
 {
+#if QT_VERSION_MAJOR < 6:
+	m_devicePixelRatio = 1;
+#else
 	m_devicePixelRatio =
 		window()->windowHandle()->screen()->devicePixelRatio();
+#endif
 	if(m_ui.cropPanel->isVisible())
 	{
 		int cropLeft = m_ui.cropLeftSpinBox->value();
