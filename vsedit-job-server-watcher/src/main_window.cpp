@@ -81,6 +81,29 @@ MainWindow::MainWindow() : QMainWindow()
 	setWindowTitle(tr(WINDOW_TITLE));
 
 	m_pSettingsManager = new SettingsManager(this);
+#ifdef Q_OS_WIN
+	if(m_pSettingsManager->getDarkMode())
+	{
+		// Load qDarkStyle colors
+		QFile styleSheetDark(":/dark/style.qss");
+		if(!styleSheetDark.open(QFile::ReadOnly | QFile::Text))
+		{
+			QMessageBox::critical(this,
+				QString::fromUtf8("File open error"),
+				QString::fromUtf8("Failed to open stylesheet file ")
+					+ styleSheetDark.errorString());
+		}
+		qApp->setStyleSheet(styleSheetDark.readAll());
+		// With the current impl of the timeline slider
+		// we have to relaunch anyway
+		QPalette newPal(qApp->palette());
+		newPal.setColor(QPalette::Base, QColor(0, 0, 0));
+		newPal.setColor(QPalette::Highlight, QColor(128, 128, 128));
+		newPal.setColor(QPalette::Dark, QColor(192, 192, 192));
+		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
+		qApp->setPalette(newPal);
+	}
+#endif
 	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,
 		m_pVSScriptLibrary, this);

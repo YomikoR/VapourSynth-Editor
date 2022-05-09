@@ -161,6 +161,7 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 #TRANSLATIONS
 
 RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit-job-server-watcher.qrc
+RESOURCES += $${COMMON_DIRECTORY}/resources/dark/style.qrc
 
 FORMS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.ui
 FORMS += $${PROJECT_DIRECTORY}/src/jobs/job_edit_dialog.ui
