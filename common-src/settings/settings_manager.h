@@ -228,6 +228,14 @@ public:
 
 	bool setDarkMode(bool a_dark);
 
+	bool getSilentSnapshot() const;
+
+	bool setSilentSnapshot(bool a_set);
+
+	QString getSnapshotTemplate() const;
+
+	bool setSnapshotTemplate(const QString & a_template);
+
 private:
 
 	void initializeStandardActions();

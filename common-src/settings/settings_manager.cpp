@@ -50,6 +50,8 @@ const char LAST_SNAPSHOT_EXTENSION_KEY[] = "last_snapshot_extension";
 const char PNG_COMPRESSION_LEVEL_KEY[] = "png_compression_level";
 const char RELOAD_BEFORE_EXECUTION_KEY[] = "reload_before_execution";
 const char DARK_MODE_KEY[] = "dark_mode";
+const char SILENT_SNAPSHOT_KEY[] = "silent_snapshot";
+const char SNAPSHOT_TEMPLATE_KEY[] = "snapshot_template";
 
 //==============================================================================
 
@@ -1165,6 +1167,26 @@ bool SettingsManager::setDarkMode(bool a_dark)
 #else
 	return setValue(DARK_MODE_KEY, false);
 #endif
+}
+
+bool SettingsManager::getSilentSnapshot() const
+{
+	return value(SILENT_SNAPSHOT_KEY, DEFAULT_SILENT_SNAPSHOT).toBool();
+}
+
+bool SettingsManager::setSilentSnapshot(bool a_set)
+{
+	return setValue(SILENT_SNAPSHOT_KEY, a_set);
+}
+
+QString SettingsManager::getSnapshotTemplate() const
+{
+	return value(SNAPSHOT_TEMPLATE_KEY, DEFAULT_SNAPSHOT_TEMPLATE).toString();
+}
+
+bool SettingsManager::setSnapshotTemplate(const QString & a_template)
+{
+	return setValue(SNAPSHOT_TEMPLATE_KEY, a_template);
 }
 
 //==============================================================================

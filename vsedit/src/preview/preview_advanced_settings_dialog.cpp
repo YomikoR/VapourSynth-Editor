@@ -54,6 +54,8 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	connect(m_ui.resetToDefaultButton, SIGNAL(clicked()),
 		this, SLOT(slotResetToDefault()));
 	connect(m_ui.cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+	connect(m_ui.silentSnapshotCheckBox, SIGNAL(clicked()),
+		this, SLOT(slotSilentSnapshotChanged()));
 }
 
 // END OF PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
@@ -93,6 +95,12 @@ void PreviewAdvancedSettingsDialog::slotCall()
 	m_ui.lanczosFilterTapsSpinBox->setValue(
 		m_pSettingsManager->getLanczosFilterTaps());
 
+	bool silentSnapshotEnabled = m_pSettingsManager->getSilentSnapshot();
+	m_ui.silentSnapshotCheckBox->setChecked(silentSnapshotEnabled);
+	m_ui.saveSnapshotTemplateLineEdit->setText(
+		m_pSettingsManager->getSnapshotTemplate());
+	m_ui.saveSnapshotTemplateLineEdit->setEnabled(silentSnapshotEnabled);
+
 	show();
 }
 
@@ -122,6 +130,10 @@ void PreviewAdvancedSettingsDialog::slotApply()
 		m_ui.bicubicFilterParameterCSpinBox->value());
 	m_pSettingsManager->setLanczosFilterTaps(
 		m_ui.lanczosFilterTapsSpinBox->value());
+	m_pSettingsManager->setSilentSnapshot(
+		m_ui.silentSnapshotCheckBox->isChecked());
+	m_pSettingsManager->setSnapshotTemplate(
+		m_ui.saveSnapshotTemplateLineEdit->text());
 
 	emit signalSettingsChanged();
 }
@@ -152,7 +164,20 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 		DEFAULT_BICUBIC_FILTER_PARAMETER_C);
 	m_ui.lanczosFilterTapsSpinBox->setValue(
 		DEFAULT_LANCZOS_FILTER_TAPS);
+
+	m_ui.silentSnapshotCheckBox->setChecked(DEFAULT_SILENT_SNAPSHOT);
+	m_ui.saveSnapshotTemplateLineEdit->setText(DEFAULT_SNAPSHOT_TEMPLATE);
+	m_ui.saveSnapshotTemplateLineEdit->setEnabled(false);
 }
 
 // END OF void PreviewAdvancedSettingsDialog::slotResetToDefault()
 //==============================================================================
+
+void PreviewAdvancedSettingsDialog::slotSilentSnapshotChanged()
+{
+	bool silentSnapshotEnabled = m_ui.silentSnapshotCheckBox->isChecked();
+	m_pSettingsManager->setSilentSnapshot(silentSnapshotEnabled);
+	m_ui.saveSnapshotTemplateLineEdit->setEnabled(silentSnapshotEnabled);
+
+	emit signalSilentSnapshotChanged();
+}

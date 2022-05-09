@@ -24,6 +24,8 @@ signals:
 
 	void signalSettingsChanged();
 
+	void signalSilentSnapshotChanged();
+
 private slots:
 
 	void slotOk();
@@ -31,6 +33,8 @@ private slots:
 	void slotApply();
 
 	void slotResetToDefault();
+
+	void slotSilentSnapshotChanged();
 
 private:
 

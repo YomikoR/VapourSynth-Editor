@@ -101,6 +101,8 @@ extern const int DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS;
 extern const int DEFAULT_PNG_COMPRESSION_LEVEL;
 extern const bool DEFAULT_RELOAD_BEFORE_EXECUTION;
 extern const bool DEFAULT_DARK_MODE;
+extern const bool DEFAULT_SILENT_SNAPSHOT;
+extern const QString DEFAULT_SNAPSHOT_TEMPLATE;
 
 //==============================================================================
 

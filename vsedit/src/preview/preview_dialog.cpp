@@ -524,16 +524,70 @@ void PreviewDialog::slotSaveSnapshot()
 	if(webpSupported)
 		extensionToFilterMap["webp"] = tr("WebP image (*.webp)");
 
-	QString snapshotFilePath = scriptName();
-	if(snapshotFilePath.isEmpty())
+	QString currScriptName = scriptName();
+	bool currScriptNotSaved = currScriptName.isEmpty();
+
+	// Parse the template
+	QString snapshotTemplate = m_pSettingsManager->getSnapshotTemplate();
+	if(!currScriptNotSaved)
+	{
+		std::vector<vsedit::VariableToken> variables =
+		{
+			{"{f}", tr("script file path"),
+				[&]()
+				{
+					return currScriptName;
+				}
+			},
+
+			{"{d}", tr("script file directory"),
+				[&]()
+				{
+					QFileInfo file(currScriptName);
+					return QDir::toNativeSeparators(file.path());
+				}
+			},
+
+			{"{n}", tr("script file name"),
+				[&]()
+				{
+					QFileInfo file(currScriptName);
+					return file.completeBaseName();
+				}
+			},
+
+			{"{o}", tr("output index"),
+				[&]()
+				{
+					return QString::number(m_outputIndex);
+				}
+			},
+
+			{"{i}", tr("frame number"),
+				[&]()
+				{
+					return QString::number(m_frameShown);
+				}
+			},
+		};
+
+		for(const vsedit::VariableToken & var : variables)
+		{
+			snapshotTemplate = snapshotTemplate.replace(
+				var.token, var.evaluate());
+		}
+	}
+
+	bool silentSnapshot = m_pSettingsManager->getSilentSnapshot();
+
+	QString snapshotFilePath = snapshotTemplate;
+	if(currScriptNotSaved || snapshotFilePath.isEmpty())
 	{
 		snapshotFilePath =
 			QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
 		snapshotFilePath += QString("/%1.").arg(m_frameShown);
+		snapshotFilePath += fileExtension;
 	}
-	else
-		snapshotFilePath += QString(" - %1.").arg(m_frameShown);
-	snapshotFilePath += fileExtension;
 
 	QStringList saveFormatsList;
 	for(const std::pair<QString, QString> & pair : extensionToFilterMap)
@@ -541,9 +595,12 @@ void PreviewDialog::slotSaveSnapshot()
 
 	QString selectedFilter = extensionToFilterMap[fileExtension];
 
-	snapshotFilePath = QFileDialog::getSaveFileName(this,
-		tr("Save frame as image"), snapshotFilePath,
-		saveFormatsList.join(";;"), &selectedFilter);
+	if(currScriptNotSaved || !silentSnapshot)
+	{
+		snapshotFilePath = QFileDialog::getSaveFileName(this,
+			tr("Save frame as image"), snapshotFilePath,
+			saveFormatsList.join(";;"), &selectedFilter);
+	}
 
 	QFileInfo fileInfo(snapshotFilePath);
 	QString suffix = fileInfo.suffix().toLower();
@@ -551,6 +608,8 @@ void PreviewDialog::slotSaveSnapshot()
 	QByteArray format("png");
 	if((suffix == "webp") && webpSupported)
 		format = "webp";
+	else if(suffix != "png")
+		snapshotFilePath += ".png";
 
 	if(!snapshotFilePath.isEmpty())
 	{
