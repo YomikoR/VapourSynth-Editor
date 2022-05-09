@@ -122,6 +122,11 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getReloadBeforeExecution());
 	m_ui.snapshotCompressionLevelSpinBox->setValue(
 		m_pSettingsManager->getPNGSnapshotCompressionLevel());
+#ifdef Q_OS_WIN
+	m_ui.darkModeCheckBox->setChecked(m_pSettingsManager->getDarkMode());
+#else
+	m_ui.darkModeCheckBox->setVisible(false);
+#endif
 
 	m_ui.vsLibraryPathsListWidget->clear();
 	m_ui.vsLibraryPathsListWidget->addItems(
@@ -263,7 +268,9 @@ void SettingsDialog::slotApply()
 	m_pActionsHotkeyEditModel->slotSaveActionsHotkeys();
 
 	m_pThemeElementsModel->slotSaveThemeSettings();
-
+#ifdef Q_OS_WIN
+	m_pSettingsManager->setDarkMode(m_ui.darkModeCheckBox->isChecked());
+#endif
 	emit signalSettingsChanged();
 }
 

@@ -187,6 +187,7 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 #TRANSLATIONS
 
 RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit.qrc
+RESOURCES += $${COMMON_DIRECTORY}/resources/dark/style.qrc
 
 FORMS += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_settings_dialog.ui
 

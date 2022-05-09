@@ -224,6 +224,10 @@ public:
 
 	bool setReloadBeforeExecution(bool a_reload);
 
+	bool getDarkMode() const;
+
+	bool setDarkMode(bool a_dark);
+
 private:
 
 	void initializeStandardActions();

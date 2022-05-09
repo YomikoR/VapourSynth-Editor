@@ -289,6 +289,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="darkModeCheckBox">
+         <property name="text">
+          <string>Dark Mode (Windows only; relaunching required)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="delimiter">
          <property name="frameShape">
           <enum>QFrame::HLine</enum>

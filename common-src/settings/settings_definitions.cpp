@@ -39,6 +39,7 @@ const char DEFAULT_DROP_FILE_TEMPLATE[] = "r\'{f}\'";
 const int DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS = 5;
 const int DEFAULT_PNG_COMPRESSION_LEVEL = 0;
 const bool DEFAULT_RELOAD_BEFORE_EXECUTION = false;
+const bool DEFAULT_DARK_MODE = false;
 
 //==============================================================================
 

@@ -49,6 +49,7 @@ const char ALWAYS_KEEP_CURRENT_FRAME_KEY[] = "always_keep_current_frame";
 const char LAST_SNAPSHOT_EXTENSION_KEY[] = "last_snapshot_extension";
 const char PNG_COMPRESSION_LEVEL_KEY[] = "png_compression_level";
 const char RELOAD_BEFORE_EXECUTION_KEY[] = "reload_before_execution";
+const char DARK_MODE_KEY[] = "dark_mode";
 
 //==============================================================================
 
@@ -389,6 +390,9 @@ QTextCharFormat SettingsManager::getTextFormat(const QString & a_textFormatID)
 bool SettingsManager::setTextFormat(const QString & a_textFormatID,
 	const QTextCharFormat & a_format)
 {
+	// Only record to settings if it doesn't match the default
+	QTextCharFormat defaultFmt = getTextFormat(a_textFormatID);
+	if(defaultFmt == a_format) return true;
 	return setValueInGroup(THEME_GROUP, a_textFormatID,
 		vsedit::toByteArray(a_format));
 }
@@ -402,7 +406,13 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 	QPalette defaultPalette;
 
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
-		return defaultPalette.color(QPalette::Active, QPalette::Base);
+	{
+		if(getDarkMode())
+			return QColor(16, 16, 24);
+		else
+			return defaultPalette.color(
+				QPalette::Active, QPalette::Base);
+	}
 
 	if(a_colorID == COLOR_ID_ACTIVE_LINE)
 	{
@@ -432,6 +442,9 @@ QColor SettingsManager::getColor(const QString & a_colorID) const
 bool SettingsManager::setColor(const QString & a_colorID,
 	const QColor & a_color)
 {
+	// Only record to settings if it doesn't match the default
+	QColor defaultColor = getDefaultColor(a_colorID);
+	if(defaultColor == a_color) return true;
 	return setValueInGroup(THEME_GROUP, a_colorID, a_color.name());
 }
 
@@ -1134,6 +1147,24 @@ bool SettingsManager::getReloadBeforeExecution() const
 bool SettingsManager::setReloadBeforeExecution(bool a_reload)
 {
 	return setValue(RELOAD_BEFORE_EXECUTION_KEY, a_reload);
+}
+
+bool SettingsManager::getDarkMode() const
+{
+#ifdef Q_OS_WIN
+	return value(DARK_MODE_KEY, DEFAULT_DARK_MODE).toBool();
+#else
+	return false;
+#endif
+}
+
+bool SettingsManager::setDarkMode(bool a_dark)
+{
+#ifdef Q_OS_WIN
+	return setValue(DARK_MODE_KEY, a_dark);
+#else
+	return setValue(DARK_MODE_KEY, false);
+#endif
 }
 
 //==============================================================================
