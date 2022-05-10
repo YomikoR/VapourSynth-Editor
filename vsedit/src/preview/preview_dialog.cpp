@@ -581,11 +581,13 @@ void PreviewDialog::slotSaveSnapshot()
 	bool silentSnapshot = m_pSettingsManager->getSilentSnapshot();
 
 	QString snapshotFilePath = snapshotTemplate;
+	if(snapshotFilePath.isEmpty()) silentSnapshot = false;
 	if(currScriptNotSaved || snapshotFilePath.isEmpty())
 	{
 		snapshotFilePath =
 			QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-		snapshotFilePath += QString("/%1.").arg(m_frameShown);
+		snapshotFilePath += QString("/%1-%2").arg(
+			QString::number(m_frameShown), QString::number(m_outputIndex));
 		snapshotFilePath += fileExtension;
 	}
 
@@ -608,9 +610,8 @@ void PreviewDialog::slotSaveSnapshot()
 	QByteArray format("png");
 	if((suffix == "webp") && webpSupported)
 		format = "webp";
-	else if(suffix != "png")
+	else if(silentSnapshot && suffix != "png")
 		snapshotFilePath += ".png";
-
 	if(!snapshotFilePath.isEmpty())
 	{
 		bool success = m_framePixmap.save(snapshotFilePath, format,
