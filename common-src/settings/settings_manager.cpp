@@ -409,11 +409,11 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
 	{
-		if(getDarkMode())
-			return QColor(16, 16, 24);
-		else
-			return defaultPalette.color(
-				QPalette::Active, QPalette::Base);
+#ifdef Q_OS_WIN
+		return getDarkMode() ? QColor(16, 16, 24) : QColor(255, 255, 255);
+#else
+		return defaultPalette.color(QPalette::Active, QPalette::Base);
+#endif
 	}
 
 	if(a_colorID == COLOR_ID_ACTIVE_LINE)
