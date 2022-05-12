@@ -2063,7 +2063,7 @@ void PreviewDialog::setPreviewPixmap()
 			cropWidth, cropHeight);
 		int ratio = m_ui.cropZoomRatioSpinBox->value();
 
-		if(ratio == 1)
+		if(abs(ratio * m_devicePixelRatio - 1) < 1e-7)
 		{
 			m_ui.previewArea->setPixmap(croppedPixmap, m_devicePixelRatio);
 			return;
