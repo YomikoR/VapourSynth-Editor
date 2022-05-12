@@ -60,13 +60,16 @@ void PreviewArea::setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio)
 // END OF void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 //==============================================================================
 
-void PreviewArea::checkMouseOverPreview(const QPoint & a_globalMousePos)
+void PreviewArea::checkMouseOverPreview(const QPointF & a_globalMousePos)
 {
 	if(!m_pPreviewLabel->underMouse())
 		return;
-
-	QPoint imagePoint = m_pPreviewLabel->mapFromGlobal(a_globalMousePos);
-
+#if (QT_VERSION_MAJOR < 6)
+	QPointF imagePoint = m_pPreviewLabel->mapFromGlobal(
+		a_globalMousePos.toPoint());
+#else
+	QPointF imagePoint = m_pPreviewLabel->mapFromGlobal(a_globalMousePos);
+#endif
 	int pixmapWidth = this->pixmapWidth();
 	int pixmapHeight = this->pixmapHeight();
 
@@ -75,8 +78,8 @@ void PreviewArea::checkMouseOverPreview(const QPoint & a_globalMousePos)
 		(imagePoint.y() * m_devicePixelRatio >= pixmapHeight))
 		return;
 
-	float normX = imagePoint.x() * m_devicePixelRatio / pixmapWidth;
-	float normY = imagePoint.y() * m_devicePixelRatio / pixmapHeight;
+	double normX = imagePoint.x() * m_devicePixelRatio / pixmapWidth;
+	double normY = imagePoint.y() * m_devicePixelRatio / pixmapHeight;
 
 	emit signalMouseOverPoint(normX, normY);
 }
@@ -205,7 +208,7 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 		return;
 	}
 
-	QPoint globalPoint = a_pEvent->globalPos();
+	QPointF globalPoint = a_pEvent->globalPosition();
 	checkMouseOverPreview(globalPoint);
 
 	QScrollArea::mouseMoveEvent(a_pEvent);

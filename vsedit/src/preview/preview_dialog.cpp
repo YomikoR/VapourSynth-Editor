@@ -175,8 +175,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotPreviewAreaMouseMiddleButtonReleased()));
 	connect(m_ui.previewArea, SIGNAL(signalMouseRightButtonReleased()),
 		this, SLOT(slotPreviewAreaMouseRightButtonReleased()));
-	connect(m_ui.previewArea, SIGNAL(signalMouseOverPoint(float, float)),
-		this, SLOT(slotPreviewAreaMouseOverPoint(float, float)));
+	connect(m_ui.previewArea, SIGNAL(signalMouseOverPoint(double, double)),
+		this, SLOT(slotPreviewAreaMouseOverPoint(double, double)));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
 		this, SLOT(slotProcessPlayQueue()));
 
@@ -1135,7 +1135,7 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 // END OF void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 //==============================================================================
 
-void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
+void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_normX, double a_normY)
 {
 	if(!m_cpFrameRef)
 		return;
@@ -1151,8 +1151,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	size_t frameX = 0;
 	size_t frameY = 0;
 
-	frameX = (size_t)((float)m_framePixmap.width() * a_normX);
-	frameY = (size_t)((float)m_framePixmap.height() * a_normY);
+	frameX = (size_t)(m_framePixmap.width() * a_normX);
+	frameY = (size_t)(m_framePixmap.height() * a_normY);
 
 	int width = m_cpVSAPI->getFrameWidth(m_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(m_cpFrameRef, 0);

@@ -29,7 +29,7 @@ public:
 
 	void setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio);
 
-	void checkMouseOverPreview(const QPoint & a_globalMousePos);
+	void checkMouseOverPreview(const QPointF & a_globalMousePos);
 
 public slots:
 
@@ -53,7 +53,7 @@ signals:
 	void signalCtrlWheel(QPoint a_angleDelta);
 	void signalMouseMiddleButtonReleased();
 	void signalMouseRightButtonReleased();
-	void signalMouseOverPoint(float a_normX, float a_normY);
+	void signalMouseOverPoint(double a_normX, double a_normY);
 
 private:
 
