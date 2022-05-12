@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 
 	// Make text in message box selectable
 	application.setStyleSheet(
-		"QMessageBox { messagebox-text-interaction-flags: 5; }");
+		"QMessageBox { messagebox-text-interaction-flags: 5; }"
+		"QLabel { padding: 0px; }");
 
 	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
 	qRegisterMetaType<VSNodeRef *>("VSNodeRef *");
