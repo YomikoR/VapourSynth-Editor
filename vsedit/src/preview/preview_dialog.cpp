@@ -1143,8 +1143,6 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	if(!m_pStatusBarWidget->colorPickerVisible())
 		return;
 
-	double zoomRatio = m_ui.zoomRatioSpinBox->value();
-
 	double value1 = 0.0;
 	double value2 = 0.0;
 	double value3 = 0.0;
@@ -1153,8 +1151,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(float a_normX, float a_normY)
 	size_t frameX = 0;
 	size_t frameY = 0;
 
-	frameX = round(a_normX * m_devicePixelRatio / zoomRatio);
-	frameY = round(a_normY * m_devicePixelRatio / zoomRatio);
+	frameX = (size_t)((float)m_framePixmap.width() * a_normX);
+	frameY = (size_t)((float)m_framePixmap.height() * a_normY);
 
 	int width = m_cpVSAPI->getFrameWidth(m_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(m_cpFrameRef, 0);
@@ -2181,7 +2179,7 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	m_framePixmap = pixmapFromRGB(a_cpPreviewFrameRef);
 	m_cpPreviewFrameRef = a_cpPreviewFrameRef;
 	setPreviewPixmap();
-	//m_ui.previewArea->checkMouseOverPreview(QCursor::pos());
+	m_ui.previewArea->checkMouseOverPreview(QCursor::pos());
 }
 
 // END OF void PreviewDialog::setCurrentFrame(
