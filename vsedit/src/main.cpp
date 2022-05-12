@@ -67,6 +67,9 @@ int main(int argc, char *argv[])
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 #if (QT_VERSION_MAJOR < 6)
 	QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+#else
+	QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
+		Qt::HighDpiScaleFactorRoundingPolicy::Floor);
 #endif
 	QApplication application(argc, argv);
 
