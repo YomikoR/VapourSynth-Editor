@@ -45,17 +45,12 @@ PreviewArea::~PreviewArea()
 // END OF PreviewArea::~PreviewArea()
 //==============================================================================
 
-void PreviewArea::setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio)
+void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 {
 	m_pPreviewLabel->setPixmap(a_pixmap);
 	m_pixmapWidth = a_pixmap.width();
 	m_pixmapHeight = a_pixmap.height();
 	m_pPreviewLabel->move(0, 0);
-#if (QT_VERSION_MAJOR < 6)
-	m_devicePixelRatio = 1;
-#else
-	m_devicePixelRatio = a_devicePixelRatio;
-#endif
 }
 
 // END OF void PreviewArea::setPixmap(const QPixmap & a_pixmap)

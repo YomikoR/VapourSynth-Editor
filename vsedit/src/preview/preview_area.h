@@ -27,7 +27,7 @@ public:
 
 	int pixmapHeight() const { return m_pixmapHeight; }
 
-	void setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio);
+	void setPixmap(const QPixmap & a_pixmap);
 
 	void checkMouseOverPreview(const QPointF & a_pixelPos);
 
@@ -70,7 +70,6 @@ private:
 	int m_pixmapWidth = 0;
 	int m_pixmapHeight = 0;
 
-	qreal m_devicePixelRatio = 1;
 };
 
 #endif // PREVIEWAREA_H

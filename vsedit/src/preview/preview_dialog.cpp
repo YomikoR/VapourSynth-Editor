@@ -249,7 +249,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	if(scriptChanged && (!m_alwaysKeepCurrentFrame))
 	{
 		m_frameExpected = 0;
-		m_ui.previewArea->setPixmap(QPixmap(), 1);
+		m_ui.previewArea->setPixmap(QPixmap());
 	}
 
 	if(m_frameExpected > lastFrameNumber)
@@ -298,7 +298,7 @@ void PreviewDialog::stopAndCleanUp()
 	int pixmapHeight = m_ui.previewArea->pixmapHeight();
 	QPixmap blackPixmap(pixmapWidth, pixmapHeight);
 	blackPixmap.fill(Qt::black);
-	m_ui.previewArea->setPixmap(blackPixmap, 0);
+	m_ui.previewArea->setPixmap(blackPixmap);
 
 	if(m_cpFrameRef)
 	{
@@ -2072,6 +2072,8 @@ void PreviewDialog::setPreviewPixmap()
 #else
 	m_devicePixelRatio =
 		window()->windowHandle()->screen()->devicePixelRatio();
+	if(!m_framePixmap.isNull())
+		m_framePixmap.setDevicePixelRatio(m_devicePixelRatio);
 #endif
 	if(m_ui.cropPanel->isVisible())
 	{
@@ -2085,24 +2087,21 @@ void PreviewDialog::setPreviewPixmap()
 
 		if(abs(ratio * m_devicePixelRatio - 1) < 1e-7)
 		{
-			m_ui.previewArea->setPixmap(croppedPixmap, m_devicePixelRatio);
+			m_ui.previewArea->setPixmap(croppedPixmap);
 			return;
 		}
 
 		QPixmap zoomedPixmap = croppedPixmap.scaled(
 			croppedPixmap.width() * ratio, croppedPixmap.height() * ratio,
 			Qt::KeepAspectRatio, Qt::FastTransformation);
-		zoomedPixmap.setDevicePixelRatio(m_devicePixelRatio);
-		m_ui.previewArea->setPixmap(zoomedPixmap, m_devicePixelRatio);
+		m_ui.previewArea->setPixmap(zoomedPixmap);
 		return;
 	}
 
 	ZoomMode zoomMode = (ZoomMode)m_ui.zoomModeComboBox->currentData().toInt();
 	if(zoomMode == ZoomMode::NoZoom)
 	{
-		if(!m_framePixmap.isNull())
-			m_framePixmap.setDevicePixelRatio(m_devicePixelRatio);
-		m_ui.previewArea->setPixmap(m_framePixmap, m_devicePixelRatio);
+		m_ui.previewArea->setPixmap(m_framePixmap);
 		return;
 	}
 
@@ -2129,8 +2128,7 @@ void PreviewDialog::setPreviewPixmap()
 	previewPixmap = m_framePixmap.scaled(frameWidth, frameHeight,
 		Qt::KeepAspectRatio, scaleMode);
 
-	previewPixmap.setDevicePixelRatio(m_devicePixelRatio);
-	m_ui.previewArea->setPixmap(previewPixmap, m_devicePixelRatio);
+	m_ui.previewArea->setPixmap(previewPixmap);
 }
 
 // END OF bool void PreviewDialog::setPreviewPixmap()
