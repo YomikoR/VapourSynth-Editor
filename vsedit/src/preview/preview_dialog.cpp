@@ -1135,7 +1135,7 @@ void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 // END OF void PreviewDialog::slotPreviewAreaMouseRightButtonReleased()
 //==============================================================================
 
-void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_normX, double a_normY)
+void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 {
 	if(!m_cpFrameRef)
 		return;
@@ -1151,15 +1151,35 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_normX, double a_normY
 	size_t frameX = 0;
 	size_t frameY = 0;
 
-	frameX = (size_t)(m_framePixmap.width() * a_normX);
-	frameY = (size_t)(m_framePixmap.height() * a_normY);
+	double zoomRatio;
 
 	int width = m_cpVSAPI->getFrameWidth(m_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(m_cpFrameRef, 0);
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
 
-	if((frameX >= (size_t)width) || (frameY >= (size_t)height))
-		return;
+	if(m_ui.cropPanel->isVisible())
+	{
+		zoomRatio = m_ui.cropZoomRatioSpinBox->value();
+		int cropLeft = m_ui.cropLeftSpinBox->value();
+		int cropTop = m_ui.cropTopSpinBox->value();
+		int cropWidth = m_ui.cropWidthSpinBox->value();
+		int cropHeight = m_ui.cropHeightSpinBox->value();
+		frameX = (size_t)(a_pX * m_devicePixelRatio / zoomRatio + cropLeft);
+		frameY = (size_t)(a_pY * m_devicePixelRatio / zoomRatio + cropTop);
+		if(frameX >= (size_t)(cropLeft + cropWidth) ||
+			frameY >= (size_t)(cropTop + cropHeight))
+			return;
+	}
+	else
+	{
+		zoomRatio = m_ui.zoomRatioSpinBox->value();
+		if(zoomRatio <= 0)
+			return;
+		frameX = (size_t)(a_pX * m_devicePixelRatio / zoomRatio);
+		frameY = (size_t)(a_pY * m_devicePixelRatio / zoomRatio);
+		if((frameX >= (size_t)width) || (frameY >= (size_t)height))
+			return;
+	}
 
 	if(cpFormat->id == pfCompatBGR32)
 	{

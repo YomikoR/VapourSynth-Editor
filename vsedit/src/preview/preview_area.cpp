@@ -50,6 +50,7 @@ void PreviewArea::setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio)
 	m_pPreviewLabel->setPixmap(a_pixmap);
 	m_pixmapWidth = a_pixmap.width();
 	m_pixmapHeight = a_pixmap.height();
+	m_pPreviewLabel->move(0, 0);
 #if (QT_VERSION_MAJOR < 6)
 	m_devicePixelRatio = 1;
 #else
@@ -60,28 +61,18 @@ void PreviewArea::setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio)
 // END OF void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 //==============================================================================
 
-void PreviewArea::checkMouseOverPreview(const QPointF & a_globalMousePos)
+void PreviewArea::checkMouseOverPreview(const QPointF & a_pixelPos)
 {
 	if(!m_pPreviewLabel->underMouse())
 		return;
-#if (QT_VERSION_MAJOR < 6)
-	QPointF imagePoint = m_pPreviewLabel->mapFromGlobal(
-		a_globalMousePos.toPoint());
-#else
-	QPointF imagePoint = m_pPreviewLabel->mapFromGlobal(a_globalMousePos);
-#endif
-	int pixmapWidth = this->pixmapWidth();
-	int pixmapHeight = this->pixmapHeight();
 
-	if((imagePoint.x() < 0) || (imagePoint.y() < 0) ||
-		(imagePoint.x() * m_devicePixelRatio >= pixmapWidth) ||
-		(imagePoint.y() * m_devicePixelRatio >= pixmapHeight))
+	double pX = a_pixelPos.x();
+	double pY = a_pixelPos.y();
+	if(pX < 0 || pY < 0 ||
+		pX >= pixmapWidth() || pY >= pixmapHeight())
 		return;
 
-	double normX = imagePoint.x() * m_devicePixelRatio / pixmapWidth;
-	double normY = imagePoint.y() * m_devicePixelRatio / pixmapHeight;
-
-	emit signalMouseOverPoint(normX, normY);
+	emit signalMouseOverPoint(pX, pY);
 }
 
 // END OF void PreviewArea::checkMouseOverPreview(
@@ -207,9 +198,16 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 		a_pEvent->accept();
 		return;
 	}
-
-	QPointF globalPoint = a_pEvent->globalPosition();
-	checkMouseOverPreview(globalPoint);
+#if (QT_VERSION_MAJOR < 6)
+	QPointF wPos = a_pEvent->windowPos();
+#else
+	QPointF wPos = a_pEvent->scenePosition();
+#endif
+	QPoint lPos = m_pPreviewLabel->geometry().topLeft();
+	QMargins lMargin = contentsMargins();
+	QPoint mOffset = QPoint(lMargin.left(), lMargin.top());
+	QPointF pixelPos = wPos - lPos - mOffset;
+	checkMouseOverPreview(pixelPos);
 
 	QScrollArea::mouseMoveEvent(a_pEvent);
 }

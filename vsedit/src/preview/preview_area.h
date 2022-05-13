@@ -29,7 +29,7 @@ public:
 
 	void setPixmap(const QPixmap & a_pixmap, qreal a_devicePixelRatio);
 
-	void checkMouseOverPreview(const QPointF & a_globalMousePos);
+	void checkMouseOverPreview(const QPointF & a_pixelPos);
 
 public slots:
 

@@ -115,7 +115,7 @@ protected slots:
 
 	void slotPreviewAreaMouseRightButtonReleased();
 
-	void slotPreviewAreaMouseOverPoint(double a_normX, double a_normY);
+	void slotPreviewAreaMouseOverPoint(double a_pX, double a_pY);
 
 	void slotFrameToClipboard();
 
