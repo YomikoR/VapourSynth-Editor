@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QBrush>
 #include <QColor>
+#include <QWindow>
 
 //==============================================================================
 
@@ -66,17 +67,19 @@ void ScrollNavigator::paintEvent(QPaintEvent * a_pPaintEvent)
 		if(m > maxMeasure)
 			maxMeasure = m;
 
+	double dpr = window()->windowHandle()->screen()->devicePixelRatio();
+
 	int normalizedContentsWidth = int((double)m_contentsWidth * 100.0 /
 		(double)maxMeasure);
 	int normalizedContentsHeight = int((double)m_contentsHeight * 100.0 /
 		(double)maxMeasure);
-	int normalizedVieportX = int((double)m_viewportX * 100.0 /
+	int normalizedVieportX = int(m_viewportX * dpr * 100.0 /
 		(double)maxMeasure);
-	int normalizedViwportY = int((double)m_viewportY * 100.0 /
+	int normalizedViwportY = int(m_viewportY * dpr * 100.0 /
 		(double)maxMeasure);
-	int normalizedViewportWidth = int((double)m_viewportWidth * 100.0 /
+	int normalizedViewportWidth = int(m_viewportWidth * dpr * 100.0 /
 		(double)maxMeasure);
-	int normalizedViewportHeight = int((double)m_viewportHeight * 100.0 /
+	int normalizedViewportHeight = int(m_viewportHeight * dpr * 100.0 /
 		(double)maxMeasure);
 
 	int cX1 = 0;
