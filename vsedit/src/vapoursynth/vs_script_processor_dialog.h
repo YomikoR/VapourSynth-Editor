@@ -6,6 +6,7 @@
 
 #include <QDialog>
 #include <QPixmap>
+#include <QString>
 #include <list>
 
 class QCloseEvent;
@@ -109,6 +110,9 @@ protected:
 
 	std::list<Frame> m_framesCache[10];
 	size_t m_cachedFramesLimit;
+
+	QString m_clipName;
+	QString m_sceneName;
 };
 
 #endif // VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED

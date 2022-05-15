@@ -280,6 +280,8 @@ protected:
 	QByteArray m_windowGeometry;
 
 	qreal m_devicePixelRatio;
+
+	bool m_toChangeTitle;
 };
 
 #endif // PREVIEWDIALOG_H_INCLUDED

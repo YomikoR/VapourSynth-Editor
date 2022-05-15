@@ -35,6 +35,8 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_busyPixmap(":busy.png")
 	, m_errorPixmap(":cross.png")
 	, m_cachedFramesLimit(100)
+	, m_clipName("")
+	, m_sceneName("")
 {
 	Q_ASSERT(m_pSettingsManager);
 	Q_ASSERT(m_pVSScriptLibrary);

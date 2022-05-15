@@ -117,6 +117,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
 	, m_pGeometrySaveTimer(nullptr)
 	, m_devicePixelRatio(-1)
+	, m_toChangeTitle(false)
 {
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
@@ -1599,8 +1600,11 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	m_outputIndex = a_outputIndex;
 
 	// Update stuff
+	m_clipName = "";
+	m_sceneName = "";
+	m_toChangeTitle = true;
+
 	m_cpVideoInfo[m_outputIndex] = vi;
-	setTitle();
 	int lastFrameNumber = m_cpVideoInfo[m_outputIndex]->numFrames - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(
@@ -2189,6 +2193,29 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	Q_ASSERT(m_cpVSAPI);
 	m_cpVSAPI->freeFrame(m_cpFrameRef);
 	m_cpFrameRef = a_cpOutputFrameRef;
+	// Copy clip and scene names
+	const VSMap *props = m_cpVSAPI->getFramePropsRO(m_cpFrameRef);
+	int success;
+	bool toChangeTitle = m_toChangeTitle;
+	const char * clipName = m_cpVSAPI->propGetData(
+		props, "Name", 0, &success);
+	if(m_clipName != clipName) // can be nullptr?
+	{
+		m_clipName = QString(clipName ? clipName : "");
+		toChangeTitle = true;
+	}
+	const char * sceneName = m_cpVSAPI->propGetData(
+		props, "SceneName", 0, &success);
+	if(m_sceneName != sceneName)
+	{
+		m_sceneName = QString(sceneName ? sceneName : "");
+		toChangeTitle = true;
+	}
+	if(toChangeTitle)
+	{
+		m_toChangeTitle = false;
+		setTitle();
+	}
 	if (m_cpPreviewFrameRef)
 	{
 		m_cpVSAPI->freeFrame(m_cpPreviewFrameRef);
@@ -2387,8 +2414,12 @@ void PreviewDialog::setTitle()
 	QString l_scriptName = scriptName();
 	QString scriptNameTitle =
 		l_scriptName.isEmpty() ? tr("(Untitled)") : l_scriptName;
-	QString title = tr("Preview - Index %1 | ")
-		.arg(m_outputIndex) + scriptNameTitle;
+	QString title = tr("Preview - Index %1 | ").arg(m_outputIndex);
+	if(!m_clipName.isEmpty())
+		title = title + tr("Name: %1 | ").arg(m_clipName);
+	if(!m_sceneName.isEmpty())
+		title = title + tr("Scene: %1 | ").arg(m_sceneName);
+	title = title + scriptNameTitle;
 	setWindowTitle(title);
 }
 
