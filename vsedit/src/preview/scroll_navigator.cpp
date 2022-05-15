@@ -70,7 +70,7 @@ void ScrollNavigator::paintEvent(QPaintEvent * a_pPaintEvent)
 #if (QT_VERSION_MAJOR < 6)
 	double dpr = 1.0;
 #else
-	double dpr = window()->windowHandle()->screen()->devicePixelRatio();
+	double dpr = window()->devicePixelRatio();
 #endif
 
 	int normalizedContentsWidth = int((double)m_contentsWidth * 100.0 /

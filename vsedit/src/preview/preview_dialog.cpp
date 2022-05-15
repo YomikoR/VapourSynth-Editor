@@ -2071,7 +2071,7 @@ void PreviewDialog::setPreviewPixmap()
 	m_devicePixelRatio = 1;
 #else
 	m_devicePixelRatio =
-		window()->windowHandle()->screen()->devicePixelRatio();
+		window()->devicePixelRatio();
 	if(!m_framePixmap.isNull())
 		m_framePixmap.setDevicePixelRatio(m_devicePixelRatio);
 #endif
