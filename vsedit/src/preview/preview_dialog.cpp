@@ -580,7 +580,9 @@ void PreviewDialog::slotSaveSnapshot()
 					if(fpsden == 0 || fpsnum == 0)
 						return QString();
 					double fps = (double)fpsnum / (double)fpsden;
-					return vsedit::timeToString(m_frameShown / fps);
+					QString timeStr = vsedit::timeToString(
+						m_frameShown / fps, true).replace(":", ".");
+					return timeStr;
 				}
 			},
 
