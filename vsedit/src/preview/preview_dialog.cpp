@@ -119,6 +119,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_devicePixelRatio(-1)
 	, m_toChangeTitle(false)
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":preview.png"));
 
@@ -1735,6 +1736,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pPreviewContextMenu = new QMenu(this);
+	vsedit::disableFontKerning(m_pPreviewContextMenu);
 	m_pPreviewContextMenu->addAction(m_pActionFrameToClipboard);
 	m_pPreviewContextMenu->addAction(m_pActionSaveSnapshot);
 	m_pActionToggleZoomPanel->setChecked(
@@ -1744,6 +1746,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pMenuZoomModes = new QMenu(m_pPreviewContextMenu);
+	vsedit::disableFontKerning(m_pMenuZoomModes);
 	m_pMenuZoomModes->setTitle(tr("Zoom mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuZoomModes);
 
@@ -1778,6 +1781,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pMenuZoomScaleModes = new QMenu(m_pPreviewContextMenu);
+	vsedit::disableFontKerning(m_pMenuZoomScaleModes);
 	m_pMenuZoomScaleModes->setTitle(tr("Zoom scale mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuZoomScaleModes);
 
@@ -1821,6 +1825,7 @@ void PreviewDialog::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	m_pMenuTimeLineModes= new QMenu(m_pPreviewContextMenu);
+	vsedit::disableFontKerning(m_pMenuTimeLineModes);
 	m_pMenuTimeLineModes->setTitle(tr("Timeline display mode"));
 	m_pPreviewContextMenu->addMenu(m_pMenuTimeLineModes);
 

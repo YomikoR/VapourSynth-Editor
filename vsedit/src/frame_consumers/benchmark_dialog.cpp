@@ -33,6 +33,7 @@ ScriptBenchmarkDialog::ScriptBenchmarkDialog(
 	, m_pWinTaskbarProgress(nullptr)
 #endif
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":benchmark.png"));
 

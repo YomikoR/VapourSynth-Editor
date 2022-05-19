@@ -3,6 +3,7 @@
 #include "../../common-src/log/vs_editor_log.h"
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
+#include "../../common-src/helpers.h"
 
 #include <QApplication>
 #include <QLocalSocket>
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
 	QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
 #endif
 	QApplication application(argc, argv);
+	vsedit::disableFontKerning(qApp);
 	application.setQuitOnLastWindowClosed(false);
 
 	ApplicationInstanceFileGuard guard("vsedit_job_server_watcher_running");

@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
 #endif
 	QApplication application(argc, argv);
 
+	vsedit::disableFontKerning(qApp);
+
 	// Make text in message box selectable
 	application.setStyleSheet(
 		"QMessageBox { messagebox-text-interaction-flags: 5; }"

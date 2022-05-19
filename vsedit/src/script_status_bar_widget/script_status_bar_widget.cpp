@@ -11,6 +11,7 @@ ScriptStatusBarWidget::ScriptStatusBarWidget(QWidget * a_pParent) :
 	, m_readyPixmap(":tick.png")
 	, m_busyPixmap(":busy.png")
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 	m_ui.colorPickerWidget->setVisible(false);
 	m_ui.colorPickerIconLabel->setPixmap(QPixmap(":color_picker.png"));

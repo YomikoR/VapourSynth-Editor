@@ -77,6 +77,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pWinTaskbarProgress(nullptr)
 #endif
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 	setWindowTitle(tr(WINDOW_TITLE));
 
@@ -148,6 +149,7 @@ MainWindow::MainWindow() : QMainWindow()
 
 	pHorizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);
 	m_pJobsHeaderMenu = new QMenu(pHorizontalHeader);
+	vsedit::disableFontKerning(m_pJobsHeaderMenu);
 	for(int i = 0; i < m_pJobsModel->columnCount(); ++i)
 	{
 		QAction * pAction = new QAction(m_pJobsHeaderMenu);
@@ -156,6 +158,7 @@ MainWindow::MainWindow() : QMainWindow()
 		pAction->setData(i);
 		pAction->setCheckable(true);
 		pAction->setChecked(!pHorizontalHeader->isSectionHidden(i));
+		vsedit::disableFontKerning(pAction);
 		m_pJobsHeaderMenu->addAction(pAction);
 		connect(pAction, SIGNAL(toggled(bool)),
 			this, SLOT(slotShowJobsHeaderSection(bool)));
@@ -1251,6 +1254,7 @@ void MainWindow::createActionsAndMenus()
 	m_pActionSetTrustedClientsAddresses->setEnabled(false);
 
 	QMenu * pMainMenu = m_ui.menuBar->addMenu(tr("Main"));
+	vsedit::disableFontKerning(pMainMenu);
 	pMainMenu->addAction(m_pActionSetTrustedClientsAddresses);
 	pMainMenu->addAction(m_pActionExit);
 	pMainMenu->addAction(m_pActionShutdownServerAndExit);
@@ -1259,6 +1263,7 @@ void MainWindow::createActionsAndMenus()
 	{
 		Q_ASSERT(m_pTrayIcon);
 		m_pTrayMenu = new QMenu(this);
+		vsedit::disableFontKerning(m_pTrayMenu);
 		m_pTrayMenu->addAction(m_pActionExit);
 		m_pTrayMenu->addAction(m_pActionShutdownServerAndExit);
 		m_pTrayIcon->setContextMenu(m_pTrayMenu);

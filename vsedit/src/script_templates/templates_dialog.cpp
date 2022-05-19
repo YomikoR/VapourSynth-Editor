@@ -16,6 +16,7 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 	, m_pSaveAction(nullptr)
 {
 	Q_ASSERT(m_pSettingsManager);
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 
 	m_scriptEditors = {m_ui.snippetEdit, m_ui.newScriptTemplateEdit,

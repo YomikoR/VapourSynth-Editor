@@ -33,6 +33,7 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 	, m_pWinTaskbarProgress(nullptr)
 #endif
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 
 	m_pJob = new vsedit::Job(JobProperties(), a_pSettingsManager,

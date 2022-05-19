@@ -25,6 +25,7 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 
 	JobType jobTypes[] = {JobType::EncodeScriptCLI, JobType::RunProcess,

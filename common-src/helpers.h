@@ -125,6 +125,17 @@ union FP16
 
 FP32 halfToSingle(FP16 a_half);
 
+/* This is a patch for Qt 6 in Windows */
+template<typename T>
+void disableFontKerning(T * a_pWidget)
+{
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR == 6)
+	QFont font(a_pWidget->font());
+	font.setKerning(false);
+	a_pWidget->setFont(font);
+#endif
+}
+
 //------------------------------------------------------------------------------
 
 }

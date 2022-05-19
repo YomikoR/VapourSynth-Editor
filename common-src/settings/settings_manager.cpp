@@ -260,6 +260,8 @@ QAction * SettingsManager::createStandardAction(const QString & a_actionID,
 	pAction->setData(it->id);
 	pAction->setShortcut(hotkey);
 
+	vsedit::disableFontKerning(pAction);
+
 	return pAction;
 }
 

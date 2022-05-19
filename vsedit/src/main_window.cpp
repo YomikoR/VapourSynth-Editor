@@ -71,6 +71,7 @@ MainWindow::MainWindow() : QMainWindow()
 	, m_pGeometrySaveTimer(nullptr)
 {
 	loadFonts();
+	vsedit::disableFontKerning(this);
 
 	m_ui.setupUi(this);
 
@@ -548,7 +549,11 @@ void MainWindow::slotAbout()
 	QByteArray aboutData((const char *)aboutResource.data(),
 		aboutResource.size());
 	QString aboutString = QString::fromUtf8(aboutData);
-	QMessageBox::about(this, "VapourSynth Editor", aboutString);
+	QMessageBox msgBox(this);
+	msgBox.setText(aboutString);
+	msgBox.setWindowTitle("About VapourSynth Editor");
+	vsedit::disableFontKerning(&msgBox);
+	msgBox.exec();
 }
 
 // END OF void MainWindow::slotAbout()
@@ -694,6 +699,7 @@ void MainWindow::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	QMenu * pFileMenu = m_ui.menuBar->addMenu(tr("File"));
+	vsedit::disableFontKerning(pFileMenu);
 	pFileMenu->addAction(m_pActionNewScript);
 	pFileMenu->addAction(m_pActionOpenScript);
 	pFileMenu->addAction(m_pActionSaveScript);
@@ -701,6 +707,7 @@ void MainWindow::createActionsAndMenus()
 	pFileMenu->addSeparator();
 
 	m_pMenuRecentScripts = new QMenu(tr("Recent scripts"), this);
+	vsedit::disableFontKerning(m_pMenuRecentScripts);
 	pFileMenu->addMenu(m_pMenuRecentScripts);
 	fillRecentScriptsMenu();
 
@@ -710,6 +717,7 @@ void MainWindow::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	QMenu * pEditMenu = m_ui.menuBar->addMenu(tr("Edit"));
+	vsedit::disableFontKerning(pEditMenu);
 
 	std::vector<QAction *> editorActions = m_ui.scriptEdit->actionsForMenu();
 	for(QAction * pAction : editorActions)
@@ -722,6 +730,7 @@ void MainWindow::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	QMenu * pScriptMenu = m_ui.menuBar->addMenu(tr("Script"));
+	vsedit::disableFontKerning(pScriptMenu);
 	pScriptMenu->addAction(m_pActionPreview);
 	pScriptMenu->addAction(m_pActionCheckScript);
 	pScriptMenu->addAction(m_pActionBenchmark);
@@ -732,6 +741,7 @@ void MainWindow::createActionsAndMenus()
 //------------------------------------------------------------------------------
 
 	QMenu * pHelpMenu = m_ui.menuBar->addMenu(tr("Help"));
+	vsedit::disableFontKerning(pHelpMenu);
 	pHelpMenu->addAction(m_pActionAbout);
 }
 

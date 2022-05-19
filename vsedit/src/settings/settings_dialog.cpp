@@ -1,6 +1,8 @@
 #include "settings_dialog.h"
 
 #include "../../../common-src/settings/settings_manager.h"
+#include "../../../common-src/helpers.h"
+
 #include "item_delegate_for_hotkey.h"
 #include "theme_elements_model.h"
 
@@ -23,7 +25,10 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 	, m_pItemDelegateForHotkey(nullptr)
 	, m_pThemeElementsModel(nullptr)
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
+	vsedit::disableFontKerning(m_ui.hotkeysTable);
+	vsedit::disableFontKerning(m_ui.themeElementsList);
 	setWindowIcon(QIcon(":settings.png"));
 
 	m_ui.addVSLibraryPathButton->setIcon(QIcon(":folder_add.png"));

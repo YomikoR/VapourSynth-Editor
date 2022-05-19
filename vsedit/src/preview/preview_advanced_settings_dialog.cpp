@@ -1,6 +1,7 @@
 #include "preview_advanced_settings_dialog.h"
 
 #include "../../../common-src/settings/settings_manager.h"
+#include "../../../common-src/helpers.h"
 
 //==============================================================================
 
@@ -13,6 +14,7 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 		| Qt::WindowCloseButtonHint)
 	, m_pSettingsManager(a_pSettingsManager)
 {
+	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
 	setWindowIcon(QIcon(":settings.png"));
 
