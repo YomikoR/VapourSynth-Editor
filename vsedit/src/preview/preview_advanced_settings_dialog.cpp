@@ -178,7 +178,6 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 void PreviewAdvancedSettingsDialog::slotSilentSnapshotChanged()
 {
 	bool silentSnapshotEnabled = m_ui.silentSnapshotCheckBox->isChecked();
-	m_pSettingsManager->setSilentSnapshot(silentSnapshotEnabled);
 	m_ui.saveSnapshotTemplateLineEdit->setEnabled(silentSnapshotEnabled);
 
 	emit signalSilentSnapshotChanged();
