@@ -31,6 +31,8 @@ public:
 
 	void checkMouseOverPreview(const QPointF & a_pixelPos);
 
+	QPointF pixelPosition() const;
+
 public slots:
 
 	void slotScrollLeft();
@@ -66,6 +68,7 @@ private:
 	bool m_draggingPreview;
 	QPoint m_lastCursorPos;
 	QPoint m_lastPreviewLabelPos;
+	QPointF m_lastScenePos;
 
 	int m_pixmapWidth = 0;
 	int m_pixmapHeight = 0;

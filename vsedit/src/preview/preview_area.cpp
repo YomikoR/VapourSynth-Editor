@@ -17,6 +17,7 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 	, m_draggingPreview(false)
 	, m_lastCursorPos(0, 0)
 	, m_lastPreviewLabelPos(0, 0)
+	, m_lastScenePos(0.0, 0.0)
 {
 	m_pPreviewLabel = new QLabel(this);
 	m_pPreviewLabel->setPixmap(QPixmap());
@@ -194,15 +195,11 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 		return;
 	}
 #if (QT_VERSION_MAJOR < 6)
-	QPointF wPos = a_pEvent->windowPos();
+	m_lastScenePos = a_pEvent->windowPos();
 #else
-	QPointF wPos = a_pEvent->scenePosition();
+	m_lastScenePos = a_pEvent->scenePosition();
 #endif
-	QPoint lPos = m_pPreviewLabel->geometry().topLeft();
-	QMargins lMargin = contentsMargins();
-	QPoint mOffset = QPoint(lMargin.left(), lMargin.top());
-	QPointF pixelPos = wPos - lPos - mOffset;
-	checkMouseOverPreview(pixelPos);
+	checkMouseOverPreview(pixelPosition());
 
 	QScrollArea::mouseMoveEvent(a_pEvent);
 }
@@ -246,3 +243,11 @@ void PreviewArea::drawScrollNavigator()
 
 // END OF void PreviewArea::drawScrollNavigator()
 //==============================================================================
+
+QPointF PreviewArea::pixelPosition() const
+{
+	QPoint lPos = m_pPreviewLabel->geometry().topLeft();
+	QMargins lMargin = contentsMargins();
+	QPoint mOffset = QPoint(lMargin.left(), lMargin.top());
+	return m_lastScenePos - lPos - mOffset;
+}

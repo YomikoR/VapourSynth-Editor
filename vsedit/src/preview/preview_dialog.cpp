@@ -2224,7 +2224,8 @@ void PreviewDialog::setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
 	m_framePixmap = pixmapFromRGB(a_cpPreviewFrameRef);
 	m_cpPreviewFrameRef = a_cpPreviewFrameRef;
 	setPreviewPixmap();
-	m_ui.previewArea->checkMouseOverPreview(QCursor::pos());
+	QPointF pixelPos = m_ui.previewArea->pixelPosition();
+	m_ui.previewArea->checkMouseOverPreview(pixelPos);
 }
 
 // END OF void PreviewDialog::setCurrentFrame(
