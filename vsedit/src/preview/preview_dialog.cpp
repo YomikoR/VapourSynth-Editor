@@ -571,6 +571,32 @@ void PreviewDialog::slotSaveSnapshot()
 					return QString::number(m_frameShown);
 				}
 			},
+
+			{"{t}", tr("timestamp"),
+				[&]()
+				{
+					auto fpsden = m_cpVideoInfo[m_outputIndex]->fpsDen;
+					auto fpsnum = m_cpVideoInfo[m_outputIndex]->fpsNum;
+					if(fpsden == 0 || fpsnum == 0)
+						return QString();
+					double fps = (double)fpsnum / (double)fpsden;
+					return vsedit::timeToString(m_frameShown / fps);
+				}
+			},
+
+			{"{nm}", tr("clip name"),
+				[&]()
+				{
+					return m_clipName;
+				}
+			},
+
+			{"{sc}", tr("scene name"),
+				[&]()
+				{
+					return m_sceneName;
+				}
+			},
 		};
 
 		for(const vsedit::VariableToken & var : variables)

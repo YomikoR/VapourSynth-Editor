@@ -36,6 +36,8 @@ private slots:
 
 	void slotSilentSnapshotChanged();
 
+	void slotArgumentsHelpButtonPressed();
+
 private:
 
 	Ui::PreviewAdvancedSettingsDialog m_ui;

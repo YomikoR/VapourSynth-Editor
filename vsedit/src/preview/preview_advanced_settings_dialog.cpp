@@ -3,6 +3,8 @@
 #include "../../../common-src/settings/settings_manager.h"
 #include "../../../common-src/helpers.h"
 
+#include <QMessageBox>
+
 //==============================================================================
 
 PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
@@ -58,6 +60,8 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	connect(m_ui.cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 	connect(m_ui.silentSnapshotCheckBox, SIGNAL(clicked()),
 		this, SLOT(slotSilentSnapshotChanged()));
+	connect(m_ui.argumentsHelpButton, SIGNAL(clicked()),
+		this, SLOT(slotArgumentsHelpButtonPressed()));
 }
 
 // END OF PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
@@ -181,4 +185,31 @@ void PreviewAdvancedSettingsDialog::slotSilentSnapshotChanged()
 	m_ui.saveSnapshotTemplateLineEdit->setEnabled(silentSnapshotEnabled);
 
 	emit signalSilentSnapshotChanged();
+}
+
+void PreviewAdvancedSettingsDialog::slotArgumentsHelpButtonPressed()
+{
+	QString argumentsHelpString = tr("Use the following placeholders:");
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{f}")).arg(tr("script file path"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{d}")).arg(tr("script file directory"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{n}")).arg(tr("script file name"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{o}")).arg(tr("output index"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{i}")).arg(tr("frame number"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{t}")).arg(tr("timestamp"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{nm}")).arg(tr("clip name"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{sc}")).arg(tr("scene name"));
+	QString title = tr("Snapshot template arguments");
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle(title);
+	msgBox.setText(argumentsHelpString);
+	vsedit::disableFontKerning(&msgBox);
+	msgBox.exec();
 }

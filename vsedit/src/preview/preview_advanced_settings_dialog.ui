@@ -173,6 +173,16 @@
      </property>
     </widget>
    </item>
+   <item row="6" column="1">
+    <widget class="QToolButton" name="argumentsHelpButton">
+     <property name="text">
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/vsedit.qrc">
+      <normaloff>:/information.png</normaloff>:/information.png</iconset>
+     </property>
+    </widget>
+   </item>
    <item row="7" column="0" colspan="2">
     <widget class="QLineEdit" name="saveSnapshotTemplateLineEdit">
     </widget>
