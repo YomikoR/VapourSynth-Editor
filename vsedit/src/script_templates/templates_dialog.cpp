@@ -307,7 +307,11 @@ void TemplatesDialog::slotDeleteSelectedDropFileCategoryButtonClicked()
 		return;
 
 	int row = index.row();
-	DropFileCategory category = m_pDropFileCategoryModel->getCategories()[row];
+	std::vector<DropFileCategory> categories =
+		m_pDropFileCategoryModel->getCategories();
+	if(categories.empty())
+		return;
+	DropFileCategory category = categories[row];
 
 	QMessageBox::StandardButton result = QMessageBox::question(this,
 		tr("Delete category"), tr("Do you really want to delete "
