@@ -841,39 +841,34 @@ bool MainWindow::safeToCloseFile()
 	if(!needPrompt)
 		return true;
 
-	QMessageBox::StandardButton choice = QMessageBox::NoButton;
+	QMessageBox quesBox(this);
+	vsedit::disableFontKerning(&quesBox);
+	quesBox.setWindowTitle(tr("Save script?"));
 	if(m_scriptFilePath.isEmpty())
 	{
-		choice = QMessageBox::question(this, tr("Save script?"),
-			tr("Would you like to save your script before closing?"),
-			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-
-		if(choice == QMessageBox::Yes)
-		{
-			bool saved = slotSaveScriptAs();
-			if(!saved)
-				return false;
-		}
+		quesBox.setText(
+			tr("Would you like to save your script before closing?"));
 	}
 	else
 	{
-		choice = QMessageBox::question(this, tr("Save script?"),
+		quesBox.setText(
 			tr("Would you like to save script \"%1\" before closing?")
-			.arg(m_scriptFilePath),
-			QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-
-		if(choice == QMessageBox::Yes)
-		{
-			bool saved = slotSaveScript();
-			if(!saved)
-				return false;
-		}
+			.arg(m_scriptFilePath));
 	}
-
-	if(choice == QMessageBox::Cancel)
-		return false;
-
-	return true;
+	quesBox.setStandardButtons(
+		  QMessageBox::Yes
+		| QMessageBox::No
+		| QMessageBox::Cancel);
+	int ret = quesBox.exec();
+	switch(ret)
+	{
+	case QMessageBox::Yes:
+		return slotSaveScript();
+	case QMessageBox::Cancel:
+		return false;	
+	default:
+		return true;
+	}
 }
 
 // END OF bool MainWindow::safeToCloseFile()

@@ -1497,11 +1497,13 @@ void PreviewDialog::slotClearBookmarks()
 	if(m_playing)
 		return;
 
-	QMessageBox::StandardButton result = QMessageBox::question(this,
-		tr("Clear bookmards"), tr("Do you really want to clear "
-		"timeline bookmarks?"),
-		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
-		QMessageBox::No);
+	QMessageBox quesBox(this);
+	vsedit::disableFontKerning(&quesBox);
+	quesBox.setWindowTitle(tr("Clear Bookmarks"));
+	quesBox.setText(tr("Do you really want to clear timeline bookmarks?"));
+	quesBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	quesBox.setDefaultButton(QMessageBox::No);
+	int result = quesBox.exec();
 	if(result == QMessageBox::No)
 		return;
 

@@ -179,11 +179,14 @@ void TemplatesDialog::slotSnippetDeleteButtonClicked()
 	if(snippet.name.isEmpty())
 		return;
 
-	QMessageBox::StandardButton result = QMessageBox::question(this,
-		tr("Delete snippet"), tr("Do you really want to delete "
-		"snippet \'%1\'?").arg(snippet.name),
-		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
-		QMessageBox::No);
+	QMessageBox quesBox(this);
+	vsedit::disableFontKerning(&quesBox);
+	quesBox.setWindowTitle(tr("Delete snippet"));
+	quesBox.setText(tr("Do you really want to delete "
+		"snippet \'%1\'?").arg(snippet.name));
+	quesBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	quesBox.setDefaultButton(QMessageBox::No);
+	int result = quesBox.exec();
 	if(result == QMessageBox::No)
 		return;
 
@@ -313,11 +316,14 @@ void TemplatesDialog::slotDeleteSelectedDropFileCategoryButtonClicked()
 		return;
 	DropFileCategory category = categories[row];
 
-	QMessageBox::StandardButton result = QMessageBox::question(this,
-		tr("Delete category"), tr("Do you really want to delete "
-		"category \'%1\'?").arg(category.name),
-		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
-		QMessageBox::No);
+	QMessageBox quesBox(this);
+	vsedit::disableFontKerning(&quesBox);
+	quesBox.setWindowTitle(tr("Delete category"));
+	quesBox.setText(tr("Do you really want to delete "
+		"category \'%1\'?").arg(category.name));
+	quesBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	quesBox.setDefaultButton(QMessageBox::No);
+	int result = quesBox.exec();
 	if(result == QMessageBox::No)
 		return;
 

@@ -254,7 +254,11 @@ void EncodeDialog::slotArgumentsHelpButtonPressed()
 			.arg(variable.token).arg(variable.description);
 	}
 	QString title = tr("Encoder arguments");
-	QMessageBox::information(this, title, argumentsHelpString);
+	QMessageBox msgBox(this);
+	msgBox.setWindowTitle(title);
+	msgBox.setText(argumentsHelpString);
+	vsedit::disableFontKerning(&msgBox);
+	msgBox.exec();
 }
 
 // END OF void EncodeDialog::slotArgumentsHelpButtonPressed()
@@ -323,11 +327,14 @@ void EncodeDialog::slotEncodingPresetDeleteButtonPressed()
 	if(preset.name.isEmpty())
 		return;
 
-	QMessageBox::StandardButton result = QMessageBox::question(this,
-		tr("Delete preset"), tr("Do you really want to delete "
-		"preset \'%1\'?").arg(preset.name),
-		QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
-		QMessageBox::No);
+	QMessageBox quesBox(this);
+	vsedit::disableFontKerning(&quesBox);
+	quesBox.setWindowTitle(tr("Delete preset"));
+	quesBox.setText(tr("Do you really want to delete "
+		"preset \'%1\'?").arg(preset.name));
+	quesBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	quesBox.setDefaultButton(QMessageBox::No);
+	int result = quesBox.exec();
 	if(result == QMessageBox::No)
 		return;
 
