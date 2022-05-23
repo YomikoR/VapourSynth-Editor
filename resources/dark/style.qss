@@ -111,6 +111,7 @@ QToolTip {
   /* Remove padding, for fix combo box tooltip */
   padding: 0px;
   /* Remove opacity, fix #174 - may need to use RGBA */
+  font-kerning: none;
 }
 
 /* QStatusBar -------------------------------------------------------------

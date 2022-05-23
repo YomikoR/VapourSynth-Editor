@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 
 	// Make text in message box selectable
 	application.setStyleSheet(
+		"QToolTip { font-kerning: none; }"
 		"QMessageBox { messagebox-text-interaction-flags: 5; }"
 		"QLabel { padding: 0px; }");
 

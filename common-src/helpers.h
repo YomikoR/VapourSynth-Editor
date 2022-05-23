@@ -14,6 +14,10 @@
 #include <algorithm>
 #include <functional>
 
+#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR == 6)
+#define APPLY_FONT_KERNING_PATCH
+#endif
+
 namespace vsedit
 {
 struct VariableToken
@@ -129,7 +133,7 @@ FP32 halfToSingle(FP16 a_half);
 template<typename T>
 void disableFontKerning(T * a_pWidget)
 {
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR == 6)
+#if defined(APPLY_FONT_KERNING_PATCH)
 	QFont font(a_pWidget->font());
 	font.setKerning(false);
 	a_pWidget->setFont(font);
