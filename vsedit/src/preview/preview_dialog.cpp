@@ -1202,7 +1202,30 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	}
 	else
 	{
-		zoomRatio = m_ui.zoomRatioSpinBox->value();
+		ZoomMode zoomMode = (ZoomMode)m_ui.zoomModeComboBox->currentData().toInt();
+		if(zoomMode == ZoomMode::NoZoom)
+		{
+			zoomRatio = 1.0;
+		}
+		else if(zoomMode == ZoomMode::FixedRatio)
+		{
+			zoomRatio = m_ui.zoomRatioSpinBox->value();
+		}
+		else
+		{
+			if(m_framePixmap.isNull())
+			{
+				m_pStatusBarWidget->setColorPickerString(QString());
+				return;
+			}
+			QRect previewRect = m_ui.previewArea->geometry();
+			int cropSize = m_ui.previewArea->frameWidth() * 2;
+			int frameWidth = previewRect.width() * m_devicePixelRatio - cropSize;
+			int frameHeight = previewRect.height() * m_devicePixelRatio - cropSize;
+			double scaleW = (double)frameWidth / m_framePixmap.width();
+			double scaleH = (double)frameHeight / m_framePixmap.height();
+			zoomRatio = scaleW < scaleH ? scaleW : scaleH;
+		}
 		if(zoomRatio <= 0)
 			return;
 		frameX = (size_t)(a_pX * m_devicePixelRatio / zoomRatio);
@@ -2158,6 +2181,8 @@ void PreviewDialog::setPreviewPixmap()
 	}
 	else
 	{
+		if(m_framePixmap.isNull())
+			return;
 		QRect previewRect = m_ui.previewArea->geometry();
 		int cropSize = m_ui.previewArea->frameWidth() * 2;
 		frameWidth = previewRect.width() * m_devicePixelRatio - cropSize;
