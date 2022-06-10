@@ -1,3 +1,15 @@
+r19-mod-5.2
+-BUGFIX: VapourSynth lib searching not working in Qt6 on Windows. (SaltyChiang)
+-BUGFIX: Certain UI fonts look horrible in Qt6 on Windows with kerning enabled.
+-BUGFIX: Cursor pixelation in color panel in HIDPI.
+-BUGFIX: Wrong pipette info when cropping.
+-BUGFIX: Drop file template panel crashing when empty.
+-BUGFIX: Incorrect scroll navigator ratio in HIDPI.
+-Add dark theme (Windows only).
+-Introduce snapshot template with a silent mode (in preview advanced settings).
+-Slightly enlarged timeline bar.
+-Show "Name" and "SceneName" frame properties on window title.
+
 r19-mod-5
 -BUGFIX: Building fails in Ubuntu LTS with older Qt versions.
 -BUGFIX: A blank .config file may be mistakenly created.

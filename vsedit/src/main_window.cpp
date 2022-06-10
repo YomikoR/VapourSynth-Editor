@@ -547,6 +547,7 @@ void MainWindow::slotAbout()
 	QByteArray aboutData((const char *)aboutResource.data(),
 		aboutResource.size());
 	QString aboutString = QString::fromUtf8(aboutData);
+	aboutString.append(QString("\n\nBuilt with Qt %1").arg(QT_VERSION_STR));
 	QMessageBox msgBox(this);
 	msgBox.setText(aboutString);
 	msgBox.setWindowTitle("About VapourSynth Editor");

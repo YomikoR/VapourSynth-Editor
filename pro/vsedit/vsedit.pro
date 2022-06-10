@@ -135,7 +135,7 @@ win32 {
 
 	DEPLOY_COMMAND = windeployqt
 	DEPLOY_TARGET = $$shell_quote($$shell_path($${D}/$${TARGET}.exe))
-	QMAKE_POST_LINK += $${DEPLOY_COMMAND} --no-translations $${DEPLOY_TARGET} $${E}
+	QMAKE_POST_LINK += $${DEPLOY_COMMAND} --no-translations --no-svg --no-opengl-sw --no-system-d3d-compiler $${DEPLOY_TARGET} $${E}
 
 	if($$ARCHITECTURE_64_BIT) {
 		message("x86_64 build")
