@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
 
 public:
 
-	MainWindow();
+	MainWindow(SettingsManager *settings);
 
 	virtual ~MainWindow();
 

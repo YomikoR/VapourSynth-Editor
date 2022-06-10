@@ -1,6 +1,7 @@
 #include "main_window.h"
 
 #include "../../common-src/log/vs_editor_log.h"
+#include "../../common-src/settings/settings_manager.h"
 
 #include <QApplication>
 
@@ -73,6 +74,8 @@ int main(int argc, char *argv[])
 #endif
 	QApplication application(argc, argv);
 
+	SettingsManager *settings = new SettingsManager(qApp);
+
 	vsedit::disableFontKerning(qApp);
 
 	// Make text in message box selectable
@@ -84,10 +87,11 @@ int main(int argc, char *argv[])
 	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
 	qRegisterMetaType<VSNodeRef *>("VSNodeRef *");
 
-	pMainWindow = new MainWindow();
+	pMainWindow = new MainWindow(settings);
 	qInstallMessageHandler(handleQtMessage);
 	pMainWindow->show();
 	int exitCode = application.exec();
 	delete pMainWindow;
+	delete settings;
 	return exitCode;
 }

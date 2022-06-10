@@ -52,8 +52,8 @@ const char MainWindow::WINDOW_TITLE[] = "VapourSynth jobs server watcher";
 
 //==============================================================================
 
-MainWindow::MainWindow() : QMainWindow()
-	, m_pSettingsManager(nullptr)
+MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
+	, m_pSettingsManager(settings)
 	, m_pJobsModel(nullptr)
 	, m_pJobStateDelegate(nullptr)
 	, m_pJobDependenciesDelegate(nullptr)
@@ -81,7 +81,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.setupUi(this);
 	setWindowTitle(tr(WINDOW_TITLE));
 
-	m_pSettingsManager = new SettingsManager(this);
 #ifdef Q_OS_WIN
 	if(m_pSettingsManager->getDarkMode())
 	{

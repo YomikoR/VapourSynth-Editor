@@ -1,5 +1,6 @@
 #include "main_window.h"
 
+#include "../../common-src/settings/settings_manager.h"
 #include "../../common-src/log/vs_editor_log.h"
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
@@ -70,6 +71,9 @@ int main(int argc, char *argv[])
 	QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
 #endif
 	QApplication application(argc, argv);
+
+	SettingsManager *settings = new SettingsManager(qApp);
+
 	vsedit::disableFontKerning(qApp);
 	application.setQuitOnLastWindowClosed(false);
 
@@ -95,12 +99,13 @@ int main(int argc, char *argv[])
 		"QToolTip { font-kerning: none; }"
 		"QMessageBox { messagebox-text-interaction-flags: 5; }");
 
-	pMainWindow = new MainWindow();
+	pMainWindow = new MainWindow(settings);
 	qInstallMessageHandler(handleQtMessage);
 	pMainWindow->showAndConnect();
 	int exitCode = application.exec();
 
 	delete pMainWindow;
+	delete settings;
 	if(!guard.unlock())
 		qCritical("%s", guard.error().toLocal8Bit().data());
 

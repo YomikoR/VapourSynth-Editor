@@ -40,8 +40,8 @@
 
 //==============================================================================
 
-MainWindow::MainWindow() : QMainWindow()
-	, m_pSettingsManager(nullptr)
+MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
+	, m_pSettingsManager(settings)
 	, m_pVapourSynthPluginsManager(nullptr)
 	, m_pVSScriptLibrary(nullptr)
 	, m_pActionNewScript(nullptr)
@@ -76,8 +76,6 @@ MainWindow::MainWindow() : QMainWindow()
 	m_ui.setupUi(this);
 
 	setWindowIcon(QIcon(":vsedit.ico"));
-
-	m_pSettingsManager = new SettingsManager(this);
 
 #ifdef Q_OS_WIN
 	if(m_pSettingsManager->getDarkMode())
