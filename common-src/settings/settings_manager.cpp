@@ -63,6 +63,10 @@ const char THEME_GROUP[] = "theme";
 
 //==============================================================================
 
+const char DARK_THEME_GROUP[] = "dark_theme";
+
+//==============================================================================
+
 const char CODE_SNIPPETS_GROUP[] = "code_snippets";
 
 //==============================================================================
@@ -89,6 +93,7 @@ SettingsManager::SettingsManager(QObject * a_pParent) :
 	SettingsManagerCore(a_pParent)
 {
 	initializeStandardActions();
+	m_bInDarkMode = getDarkMode();
 }
 
 SettingsManager::~SettingsManager()
@@ -384,7 +389,8 @@ QTextCharFormat SettingsManager::getDefaultTextFormat(
 QTextCharFormat SettingsManager::getTextFormat(const QString & a_textFormatID)
 	const
 {
-	QVariant textFormatValue = valueInGroup(THEME_GROUP, a_textFormatID);
+	QVariant textFormatValue = valueInGroup(inDarkMode() ? DARK_THEME_GROUP
+		: THEME_GROUP, a_textFormatID);
 	if(textFormatValue.isNull())
 		return getDefaultTextFormat(a_textFormatID);
 	return vsedit::fromByteArray<QTextCharFormat>(
@@ -397,8 +403,8 @@ bool SettingsManager::setTextFormat(const QString & a_textFormatID,
 	// Only record to settings if it doesn't match the default
 	QTextCharFormat defaultFmt = getTextFormat(a_textFormatID);
 	if(defaultFmt == a_format) return true;
-	return setValueInGroup(THEME_GROUP, a_textFormatID,
-		vsedit::toByteArray(a_format));
+	return setValueInGroup(inDarkMode() ? DARK_THEME_GROUP
+		: THEME_GROUP, a_textFormatID, vsedit::toByteArray(a_format));
 }
 
 //==============================================================================
@@ -412,7 +418,7 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
 	{
 #ifdef Q_OS_WIN
-		return getDarkMode() ? QColor(16, 16, 24) : QColor(255, 255, 255);
+		return inDarkMode() ? QColor(16, 16, 24) : QColor(255, 255, 255);
 #else
 		return defaultPalette.color(QPalette::Active, QPalette::Base);
 #endif
@@ -437,7 +443,8 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 QColor SettingsManager::getColor(const QString & a_colorID) const
 {
-	QVariant colorValue = valueInGroup(THEME_GROUP, a_colorID);
+	QVariant colorValue = valueInGroup(inDarkMode() ? DARK_THEME_GROUP
+		: THEME_GROUP, a_colorID);
 	if(colorValue.isNull())
 		return getDefaultColor(a_colorID);
 	return QColor(colorValue.toString());
@@ -449,7 +456,8 @@ bool SettingsManager::setColor(const QString & a_colorID,
 	// Only record to settings if it doesn't match the default
 	QColor defaultColor = getDefaultColor(a_colorID);
 	if(defaultColor == a_color) return true;
-	return setValueInGroup(THEME_GROUP, a_colorID, a_color.name());
+	return setValueInGroup(inDarkMode() ? DARK_THEME_GROUP
+		: THEME_GROUP, a_colorID, a_color.name());
 }
 
 //==============================================================================

@@ -228,6 +228,8 @@ public:
 
 	bool setDarkMode(bool a_dark);
 
+	bool inDarkMode() const { return m_bInDarkMode; }
+
 	bool getSilentSnapshot() const;
 
 	bool setSilentSnapshot(bool a_set);
@@ -241,6 +243,8 @@ private:
 	void initializeStandardActions();
 
 	std::vector<StandardAction> m_standardActions;
+
+	bool m_bInDarkMode;
 };
 
 //==============================================================================

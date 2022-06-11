@@ -82,7 +82,7 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 	setWindowTitle(tr(WINDOW_TITLE));
 
 #ifdef Q_OS_WIN
-	if(m_pSettingsManager->getDarkMode())
+	if(m_pSettingsManager->inDarkMode())
 	{
 		// Load qDarkStyle colors
 		QFile styleSheetDark(":/dark/style.qss");
