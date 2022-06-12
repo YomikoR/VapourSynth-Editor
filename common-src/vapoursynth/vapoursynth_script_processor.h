@@ -46,6 +46,10 @@ public:
 
 	void setScriptName(const QString & a_scriptName);
 
+	const QString & ICMPath() const { return m_ICMPath; }
+
+	void setICMPath(const QString & a_ICM) { m_ICMPath = a_ICM; }
+
 public slots:
 
 	void slotResetSettings();
@@ -119,6 +123,8 @@ private:
 	double m_resamplingFilterParameterA;
 	double m_resamplingFilterParameterB;
 	YuvMatrixCoefficients m_yuvMatrix;
+
+	QString m_ICMPath;
 
 	bool m_finalizing;
 };

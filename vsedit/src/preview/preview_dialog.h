@@ -140,6 +140,8 @@ protected slots:
 
 	void slotSaveGeometry();
 
+	void slotCheckICM();
+
 	void slotSwitchOutputIndex(int a_outputIndex);
 
 	void slotSwitchOutputIndex0() { slotSwitchOutputIndex(0); }
@@ -278,6 +280,8 @@ protected:
 
 	QTimer * m_pGeometrySaveTimer;
 	QByteArray m_windowGeometry;
+
+	QTimer * m_pCheckICMTimer;
 
 	qreal m_devicePixelRatio;
 

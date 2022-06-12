@@ -3,6 +3,7 @@
 #include "../helpers.h"
 #include "vs_script_library.h"
 #include "vs_pack_rgb.h"
+#include "vs_icm.h"
 #include "vs_gray_frame_prop.h"
 
 #include <vector>
@@ -552,19 +553,13 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	const VSFormat * cpFormat = cpVideoInfo->format;
 
-	bool is_10_bits = (QColormap::instance().depth() == 30);
-
 	VSMap * pResultMap = nullptr;
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 
-	if (cpFormat->id == pfRGB24)
-	{
-		is_10_bits = false;
-		pResultMap = m_cpVSAPI->createMap();
-		m_cpVSAPI->propSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
-			paReplace);
-	}
-	else if (is_10_bits && cpFormat->id == pfRGB30)
+	bool applyCM = m_pSettingsManager->getApplyCM();
+	enum VSPresetFormat targetFmt = (applyCM ? pfRGB48 : pfRGB24);
+
+	if (cpFormat->id == targetFmt)
 	{
 		pResultMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->propSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
@@ -594,8 +589,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			m_cpVSAPI->propSetNode(pArgumentMap, "clip",
 				a_nodePair.pOutputNode, paReplace);
 		}
-		m_cpVSAPI->propSetInt(pArgumentMap, "format", (is_10_bits ?
-			pfRGB30 : pfRGB24), paReplace);
+		m_cpVSAPI->propSetInt(pArgumentMap, "format", targetFmt, paReplace);
 
 		const char * dither_type = "error_diffusion";
 		m_cpVSAPI->propSetData(pArgumentMap, "dither_type",
@@ -719,9 +713,17 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 	VSMap * pPackedMap = m_cpVSAPI->createMap();
 
-	is_10_bits ?
-		packCreateRGB30(pResultMap, pPackedMap, pCore, m_cpVSAPI):
+	if(applyCM)
+	{
+		m_cpVSAPI->propSetData(pResultMap, "icm", m_ICMPath.toStdString().c_str(),
+			m_ICMPath.length(), paReplace);
+
+		icmCreate(pResultMap, pPackedMap, pCore, m_cpVSAPI);
+	}
+	else
+	{
 		packCreateRGB24(pResultMap, pPackedMap, pCore, m_cpVSAPI);
+	}
 
 	m_cpVSAPI->freeMap(pResultMap);
 

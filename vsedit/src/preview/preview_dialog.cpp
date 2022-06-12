@@ -1,6 +1,7 @@
 #include "preview_dialog.h"
 
 #include "../../../common-src/helpers.h"
+#include "../../../common-src/helpers_gui.h"
 #include "../../../common-src/libp2p/p2p_api.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../../../common-src/settings/settings_manager.h"
@@ -116,6 +117,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pPlayTimer(nullptr)
 	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
 	, m_pGeometrySaveTimer(nullptr)
+	, m_pCheckICMTimer(nullptr)
 	, m_devicePixelRatio(-1)
 	, m_toChangeTitle(false)
 {
@@ -163,6 +165,11 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	if(!m_windowGeometry.isEmpty())
 		restoreGeometry(m_windowGeometry);
 
+	m_pCheckICMTimer = new QTimer(this);
+	connect(m_pCheckICMTimer, &QTimer::timeout,
+		this, &PreviewDialog::slotCheckICM);
+	m_pCheckICMTimer->start(1000);
+
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotAdvancedSettingsChanged()));
 	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
@@ -191,6 +198,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
 		setScriptName(m_pSettingsManager->getLastUsedPath());
 	}
+
+	m_pVapourSynthScriptProcessor->setICMPath(vsedit::getICM(this));
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
@@ -203,6 +212,10 @@ PreviewDialog::~PreviewDialog()
 	{
 		m_pGeometrySaveTimer->stop();
 		slotSaveGeometry();
+	}
+	if(m_pCheckICMTimer->isActive())
+	{
+		m_pCheckICMTimer->stop();
 	}
 }
 
@@ -1628,6 +1641,17 @@ void PreviewDialog::slotSaveGeometry()
 // END OF void PreviewDialog::slotSaveGeometry()
 //==============================================================================
 
+void PreviewDialog::slotCheckICM()
+{
+	QString icm = vsedit::getICM(this);
+	if(!icm.isEmpty() && m_pVapourSynthScriptProcessor->ICMPath() != icm)
+	{
+		m_pVapourSynthScriptProcessor->setICMPath(icm);
+		if(m_pSettingsManager->getApplyCM())
+			m_pVapourSynthScriptProcessor->slotResetSettings();
+	}
+}
+
 void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 {
 	// Assuming there's a change
@@ -2353,18 +2377,12 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 {
 	// Read RGB values on screen from packed Gray8
 
+	// TODO: should reimplement for CM
+
 	if(!m_cpPreviewFrameRef)
 		return;
 
-	const VSMap *props = m_cpVSAPI->getFramePropsRO(m_cpPreviewFrameRef);
-	enum p2p_packing packing_fmt =
-		static_cast<p2p_packing>(m_cpVSAPI->propGetInt(props, "PackingFormat",
-		0, nullptr));
-	bool is_10_bits = (packing_fmt == p2p_rgb30);
-	if (!is_10_bits)
-	{
-		Q_ASSERT(packing_fmt == p2p_argb32);
-	}
+	bool applyCM = m_pSettingsManager->getApplyCM();
 
     const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(m_cpPreviewFrameRef, 0);
 
@@ -2372,16 +2390,17 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 	size_t y = a_y;
 
 	int stride = m_cpVSAPI->getStride(m_cpPreviewFrameRef, 0);
-	const uint8_t * cpLoc = cpPlane + y * stride + x * 4;
+	const uint8_t * cpLoc = cpPlane + y * stride + x * (applyCM ? 8 : 4);
 
 	// libp2p will handle endianness
 	p2p_buffer_param p = {};
 	p.width = 1;
 	p.height = 1;
-	p.packing = packing_fmt;
+	p.packing = applyCM ? p2p_abgr64 : p2p_argb32;
 	p.src[0] = cpLoc;
 	p.src_stride[0] = 1;
-	if (is_10_bits)
+
+	if(applyCM)
 	{
 		uint16_t unpacked[3];
 		for (int plane = 0; plane < 3; ++plane)
@@ -2425,44 +2444,29 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	Q_ASSERT(cpFormat);
 	int wwidth = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 
-	if((cpFormat->id != pfGray8) || (wwidth % 4) )
+	bool applyCM = m_pSettingsManager->getApplyCM();
+	int wbits = applyCM ? 8 : 4;
+
+	if((cpFormat->id != pfGray8) || (wwidth % wbits) )
 	{
 		QString errorString = tr("Error forming pixmap from frame. "
-			"Expected format Gray8 with width divisible by 4. Instead got \'%1\'.")
-			.arg(cpFormat->name);
+			"Expected format Gray8 with width divisible by %1."
+			" Instead got \'%2\'.")
+			.arg(wbits).arg(cpFormat->name);
 		emit signalWriteLogMessage(mtCritical, errorString);
 		return QPixmap();
 	}
 
-	const VSMap *props = m_cpVSAPI->getFramePropsRO(a_cpFrameRef);
-	enum p2p_packing packing_fmt = static_cast<p2p_packing>(
-		m_cpVSAPI->propGetInt(props, "PackingFormat", 0, nullptr));
-	bool is_10_bits;
-	if (packing_fmt == p2p_rgb30)
-	{
-		is_10_bits = true;
-	}
-	else if (packing_fmt == p2p_argb32)
-	{
-		is_10_bits = false;
-	}
-	else
-	{
-		QString errorString = tr("Error forming pixmap from frame. "
-			"Expected frame being packed from RGB24 or RGB30.");
-		emit signalWriteLogMessage(mtCritical, errorString);
-		return QPixmap();
-	}
-
-	int width = wwidth / 4;
+	int width = wwidth / wbits;
 	int height = m_cpVSAPI->getFrameHeight(a_cpFrameRef, 0);
 	int stride = m_cpVSAPI->getStride(a_cpFrameRef, 0);
 
 	const uint8_t * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
 	QImage frameImage(reinterpret_cast<const uchar *>(pData),
-		width, height, stride, is_10_bits ?
-		QImage::Format_RGB30 : QImage::Format_RGB32);
-	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
+		width, height, stride,
+		applyCM ? QImage::Format_RGBX64 : QImage::Format_RGB32);
+	QPixmap framePixmap = QPixmap::fromImage(frameImage,
+		applyCM ? Qt::ColorOnly : Qt::NoFormatConversion);
 	return framePixmap;
 }
 

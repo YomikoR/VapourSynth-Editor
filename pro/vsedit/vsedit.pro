@@ -132,6 +132,8 @@ win32 {
 	}
 
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
+	INCLUDEPATH += $${COMMON_DIRECTORY}/3rdparty/lcms2/include
+	LIBS += $${COMMON_DIRECTORY}/3rdparty/lcms2/Lib/MS/lcms2_static.lib
 
 	DEPLOY_COMMAND = windeployqt
 	DEPLOY_TARGET = $$shell_quote($$shell_path($${D}/$${TARGET}.exe))
@@ -228,6 +230,7 @@ HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/simd/cpuinfo_x86.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_simd.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_icm.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_gray_frame_prop.h
 
 HEADERS += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.h
@@ -277,6 +280,7 @@ SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/jobs/job_variables.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/timeline_slider/timeline_slider.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_pack_rgb.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_icm.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/vapoursynth/vs_gray_frame_prop.cpp
 
 SOURCES += $${PROJECT_DIRECTORY}/src/settings/actions_hotkey_edit_model.cpp

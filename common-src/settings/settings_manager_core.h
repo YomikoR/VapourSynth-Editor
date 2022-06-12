@@ -55,6 +55,8 @@ public:
 
 	bool setLanczosFilterTaps(int a_taps);
 
+	bool getApplyCM() const { return true; }
+
 	std::vector<EncodingPreset> getAllEncodingPresets() const;
 
 	EncodingPreset getEncodingPreset(const QString & a_name) const;
