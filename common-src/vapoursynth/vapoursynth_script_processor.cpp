@@ -717,6 +717,8 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	{
 		m_cpVSAPI->propSetData(pResultMap, "icm", m_ICMPath.toStdString().c_str(),
 			m_ICMPath.length(), paReplace);
+		m_cpVSAPI->propSetInt(pResultMap, "mode",
+			(int64_t)m_pSettingsManager->getColorManagementMode(), paReplace);
 
 		icmCreate(pResultMap, pPackedMap, pCore, m_cpVSAPI);
 	}

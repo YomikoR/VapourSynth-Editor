@@ -55,7 +55,11 @@ public:
 
 	bool setLanczosFilterTaps(int a_taps);
 
-	bool getApplyCM() const { return true; }
+	ColorManagementMode getColorManagementMode() const;
+
+	bool setColorManagementMode(ColorManagementMode a_mode);
+
+	bool getApplyCM() const { return (int)getColorManagementMode() != 0; }
 
 	std::vector<EncodingPreset> getAllEncodingPresets() const;
 

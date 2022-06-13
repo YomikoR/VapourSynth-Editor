@@ -53,6 +53,13 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	m_ui.chromaPlacementComboBox->addItem(tr("Top-left"),
 		(int)ChromaPlacement::TOP_LEFT);
 
+	m_ui.colorManagementModeComboBox->addItem(tr("None"),
+		(int)ColorManagementMode::NONE);
+	m_ui.colorManagementModeComboBox->addItem(tr("sRGB"),
+		(int)ColorManagementMode::SRGB);
+	m_ui.colorManagementModeComboBox->addItem(tr("709"),
+		(int)ColorManagementMode::BT709);
+
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
 	connect(m_ui.resetToDefaultButton, SIGNAL(clicked()),
@@ -93,6 +100,11 @@ void PreviewAdvancedSettingsDialog::slotCall()
 	comboIndex = m_ui.chromaPlacementComboBox->findData((int)chromaPlacement);
 	if(comboIndex != -1)
 		m_ui.chromaPlacementComboBox->setCurrentIndex(comboIndex);
+
+	ColorManagementMode cmMode = m_pSettingsManager->getColorManagementMode();
+	comboIndex = m_ui.colorManagementModeComboBox->findData((int)cmMode);
+	if(comboIndex != -1)
+		m_ui.colorManagementModeComboBox->setCurrentIndex(comboIndex);
 
 	m_ui.bicubicFilterParameterBSpinBox->setValue(
 		m_pSettingsManager->getBicubicFilterParameterB());
@@ -136,6 +148,9 @@ void PreviewAdvancedSettingsDialog::slotApply()
 		m_ui.bicubicFilterParameterCSpinBox->value());
 	m_pSettingsManager->setLanczosFilterTaps(
 		m_ui.lanczosFilterTapsSpinBox->value());
+	m_pSettingsManager->setColorManagementMode(
+		(ColorManagementMode)m_ui.colorManagementModeComboBox->currentData()
+		.toInt());
 	m_pSettingsManager->setSilentSnapshot(
 		m_ui.silentSnapshotCheckBox->isChecked());
 	m_pSettingsManager->setSnapshotTemplate(
@@ -170,6 +185,11 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 		DEFAULT_BICUBIC_FILTER_PARAMETER_C);
 	m_ui.lanczosFilterTapsSpinBox->setValue(
 		DEFAULT_LANCZOS_FILTER_TAPS);
+
+	ColorManagementMode cmMode = DEFAULT_COLOR_MANAGEMENT_MODE;
+	comboIndex = m_ui.colorManagementModeComboBox->findData((int)cmMode);
+	if(comboIndex != -1)
+		m_ui.colorManagementModeComboBox->setCurrentIndex(comboIndex);
 
 	m_ui.silentSnapshotCheckBox->setChecked(DEFAULT_SILENT_SNAPSHOT);
 	m_ui.saveSnapshotTemplateLineEdit->setText(DEFAULT_SNAPSHOT_TEMPLATE);

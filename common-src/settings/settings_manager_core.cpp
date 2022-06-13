@@ -22,6 +22,7 @@ const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
 const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
 const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
+const char COLOR_MANAGEMENT_MODE_KEY[] = "color_management_mode";
 const char RECENT_JOB_SERVERS_KEY[] = "recent_job_servers";
 const char TRUSTED_CLIENTS_ADDRESSES_KEY[] = "trusted_clients_addresses";
 
@@ -306,6 +307,19 @@ int SettingsManagerCore::getLanczosFilterTaps() const
 bool SettingsManagerCore::setLanczosFilterTaps(int a_taps)
 {
 	return setValue(LANCZOS_FILTER_TAPS_KEY, a_taps);
+}
+
+//==============================================================================
+
+ColorManagementMode SettingsManagerCore::getColorManagementMode() const
+{
+	return (ColorManagementMode)value(COLOR_MANAGEMENT_MODE_KEY,
+		(int)DEFAULT_COLOR_MANAGEMENT_MODE).toInt();
+}
+
+bool SettingsManagerCore::setColorManagementMode(ColorManagementMode a_mode)
+{
+	return setValue(COLOR_MANAGEMENT_MODE_KEY, (int)a_mode);
 }
 
 //==============================================================================

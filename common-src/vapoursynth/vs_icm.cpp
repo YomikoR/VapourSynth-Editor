@@ -1,6 +1,8 @@
 #include "vs_icm.h"
 #include "../libp2p/p2p_api.h"
 
+#include <vapoursynth/VSHelper.h>
+
 #include <cmath>
 
 /* THE FORMATS
@@ -13,23 +15,7 @@
 #define CMS_NO_REGISTER_KEYWORD 1
 #include <lcms2.h>
 
-struct cspData
-{
-    cmsFloat64Number xw, yw, xr, yr, xg, yg, xb, yb;
-};
-
-static constexpr cspData csp_709 = {0.3127, 0.3290, 0.64, 0.33, 0.3, 0.6, 0.15, 0.06};
-
-// 170m
-static constexpr cspData csp_601_525 = {0.3127, 0.3290, 0.63, 0.34, 0.31, 0.595, 0.155, 0.07};
-
-// 2020-10
-static constexpr cspData csp_2020 = {0.3127, 0.3290, 0.708, 0.292, 0.17, 0.797, 0.131, 0.046};
-
-// NTSC
-static constexpr cspData csp_1953 = {0.31, 0.316, 0.67, 0.33, 0.21, 0.71, 0.14, 0.08};
-
-cmsHPROFILE gen_bt1886_profile(const cmsHPROFILE profile, const cspData &csp)
+cmsHPROFILE gen_bt1886_profile(const cmsHPROFILE profile)
 {
     cmsContext ctx = cmsCreateContext(nullptr, nullptr);
 
@@ -40,6 +26,7 @@ cmsHPROFILE gen_bt1886_profile(const cmsHPROFILE profile, const cspData &csp)
     double min_luma = bp.Y; // Should be sufficient for sane usage
 
     // Build tone curve
+    if (min_luma < 0.0) min_luma = 0.0;
     double binv = std::pow(min_luma, 1.0 / 2.4);
     cmsFloat64Number params[4] = {2.4, 1.0 - binv, binv, 0.0};
     cmsToneCurve *tone_curve[3];
@@ -48,12 +35,12 @@ cmsHPROFILE gen_bt1886_profile(const cmsHPROFILE profile, const cspData &csp)
     tone_curve[1] = tone_curve[0];
     tone_curve[2] = tone_curve[0];
 
-    // Create profile
-    cmsCIExyY wp_xyY = {csp.xw, csp.yw, 1.0};
-    cmsCIExyYTRIPLE prim_xyY = {
-        {csp.xr, csp.yr, 1.0},
-        {csp.xg, csp.yg, 1.0},
-        {csp.xb, csp.yb, 1.0}
+    // Create profile, 709 prim
+    constexpr cmsCIExyY wp_xyY = {0.3127, 0.3290, 1.0};
+    constexpr cmsCIExyYTRIPLE prim_xyY = {
+        {0.640, 0.330, 1.0},
+        {0.300, 0.600, 1.0},
+        {0.150, 0.060, 1.0}
     };
     cmsHPROFILE profile_dst = cmsCreateRGBProfile(&wp_xyY, &prim_xyY, tone_curve);
     cmsFreeToneCurve(tone_curve[0]);
@@ -159,18 +146,37 @@ void VS_CC icmCreate(const VSMap *in, VSMap *out, VSCore *core, const VSAPI *vsa
         return;
     }
 
-    cmsHPROFILE icm_dst = gen_bt1886_profile(icm, csp_709);
-    if(!icm_dst)
+    cmsHPROFILE icm_dst;
+    cmsUInt32Number intent;
+    cmsUInt32Number flags;
+
+    int mode = int64ToIntS(vsapi->propGetInt(in, "mode", 0, &err));
+    if (mode == 1)
+    {
+        icm_dst = cmsCreate_sRGBProfile();
+        intent = cmsGetHeaderRenderingIntent(icm);
+        flags = cmsFLAGS_HIGHRESPRECALC;
+    }
+    else if (mode == 2)
+    {
+        icm_dst = gen_bt1886_profile(icm);
+        if (!icm_dst)
+        {
+            vsapi->freeNode(d.node);
+            cmsCloseProfile(icm);
+            vsapi->setError(out, "icm: Unable to create target profile.");
+            return;
+        }
+        intent = INTENT_RELATIVE_COLORIMETRIC;
+        flags = cmsFLAGS_HIGHRESPRECALC | cmsFLAGS_BLACKPOINTCOMPENSATION;
+    }
+    else
     {
         vsapi->freeNode(d.node);
-        vsapi->setError(out, "icm: Unable to create BT.1886 profile.");
         cmsCloseProfile(icm);
+        vsapi->setError(out, "icm: Unexpected CM mode.");
         return;
     }
-
-    cmsUInt32Number intent = INTENT_RELATIVE_COLORIMETRIC;
-
-    cmsUInt32Number flags = cmsFLAGS_HIGHRESPRECALC | cmsFLAGS_BLACKPOINTCOMPENSATION;
 
     d.transform = cmsCreateTransform(icm_dst, icm_datatype, icm, icm_datatype, intent, flags);
     if (!d.transform)

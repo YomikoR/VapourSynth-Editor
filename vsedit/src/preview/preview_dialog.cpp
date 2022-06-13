@@ -1662,7 +1662,8 @@ void PreviewDialog::slotCheckICM()
 		if(m_pVapourSynthScriptProcessor->ICMPath() != icm)
 		{
 			m_pVapourSynthScriptProcessor->setICMPath(icm);
-			slotAdvancedSettingsChanged();
+			if(m_pSettingsManager->getApplyCM())
+				slotAdvancedSettingsChanged();
 		}
 	}
 }

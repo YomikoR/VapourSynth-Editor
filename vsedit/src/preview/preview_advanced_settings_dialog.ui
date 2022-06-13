@@ -118,7 +118,17 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="6" column="1">
+    <widget class="QComboBox" name="colorManagementModeComboBox"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_cm">
+     <property name="text">
+      <string>Color Management Mode:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="okButton">
@@ -166,14 +176,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QCheckBox" name="silentSnapshotCheckBox">
      <property name="text">
       <string>Silently save snapshots with template:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QToolButton" name="argumentsHelpButton">
      <property name="text">
      </property>
@@ -183,7 +193,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QLineEdit" name="saveSnapshotTemplateLineEdit">
     </widget>
    </item>

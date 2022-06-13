@@ -36,6 +36,13 @@ enum class ChromaPlacement : int
 	TOP_LEFT,
 };
 
+enum class ColorManagementMode : int
+{
+	NONE,
+	SRGB,
+	BT709,
+};
+
 enum class EncodingType
 {
 	CLI,
@@ -152,6 +159,7 @@ extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_B;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_C;
 extern const int DEFAULT_LANCZOS_FILTER_TAPS;
+extern const ColorManagementMode DEFAULT_COLOR_MANAGEMENT_MODE;
 extern const EncodingType DEFAULT_ENCODING_TYPE;
 extern const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE;
 extern const JobType DEFAULT_JOB_TYPE;
