@@ -199,6 +199,8 @@ protected:
 
 	void saveGeometryDelayed();
 
+	QString getICM() const;
+
 	Ui::PreviewDialog m_ui;
 
 	PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
@@ -282,6 +284,7 @@ protected:
 	QByteArray m_windowGeometry;
 
 	QTimer * m_pCheckICMTimer;
+	QString m_screenName;
 
 	qreal m_devicePixelRatio;
 

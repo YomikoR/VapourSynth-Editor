@@ -293,6 +293,7 @@ SOURCES += $${PROJECT_DIRECTORY}/src/preview/scroll_navigator.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_area.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_advanced_settings_dialog.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_dialog.cpp
+SOURCES += $${PROJECT_DIRECTORY}/src/preview/preview_dialog_win_util.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/number_matcher.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/syntax_highlighter.cpp
 SOURCES += $${PROJECT_DIRECTORY}/src/script_editor/script_completer_model.cpp

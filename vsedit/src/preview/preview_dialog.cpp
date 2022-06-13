@@ -1,7 +1,6 @@
 #include "preview_dialog.h"
 
 #include "../../../common-src/helpers.h"
-#include "../../../common-src/helpers_gui.h"
 #include "../../../common-src/libp2p/p2p_api.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../../../common-src/settings/settings_manager.h"
@@ -199,7 +198,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		setScriptName(m_pSettingsManager->getLastUsedPath());
 	}
 
-	m_pVapourSynthScriptProcessor->setICMPath(vsedit::getICM(this));
+	m_screenName = screen()->name();
+	m_pVapourSynthScriptProcessor->setICMPath(getICM());
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
@@ -1643,12 +1643,17 @@ void PreviewDialog::slotSaveGeometry()
 
 void PreviewDialog::slotCheckICM()
 {
-	QString icm = vsedit::getICM(this);
-	if(!icm.isEmpty() && m_pVapourSynthScriptProcessor->ICMPath() != icm)
+	QString screenName = screen()->name();
+	if(m_screenName != screenName)
 	{
-		m_pVapourSynthScriptProcessor->setICMPath(icm);
-		if(m_pSettingsManager->getApplyCM())
-			m_pVapourSynthScriptProcessor->slotResetSettings();
+		m_screenName = screenName;
+		QString icm = getICM();
+		if(m_pVapourSynthScriptProcessor->ICMPath() != icm)
+		{
+			m_pVapourSynthScriptProcessor->setICMPath(icm);
+			if(m_pSettingsManager->getApplyCM())
+				m_pVapourSynthScriptProcessor->slotResetSettings();
+		}
 	}
 }
 
