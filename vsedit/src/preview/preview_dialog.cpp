@@ -1348,8 +1348,13 @@ void PreviewDialog::slotFrameToClipboard()
 
 void PreviewDialog::slotAdvancedSettingsChanged()
 {
+	bool playing = m_playing;
+	if(playing)
+		slotPlay(false);
 	m_pVapourSynthScriptProcessor->slotResetSettings();
-	if(!m_playing)
+	if(playing)
+		slotPlay(true);
+	else
 		requestShowFrame(m_frameExpected);
 }
 
@@ -1643,6 +1648,8 @@ void PreviewDialog::slotSaveGeometry()
 
 void PreviewDialog::slotCheckICM()
 {
+	if(busy())
+		return;
 	QString screenName = screen()->name();
 	if(m_screenName != screenName)
 	{
@@ -1651,8 +1658,7 @@ void PreviewDialog::slotCheckICM()
 		if(m_pVapourSynthScriptProcessor->ICMPath() != icm)
 		{
 			m_pVapourSynthScriptProcessor->setICMPath(icm);
-			if(m_pSettingsManager->getApplyCM())
-				m_pVapourSynthScriptProcessor->slotResetSettings();
+			slotAdvancedSettingsChanged();
 		}
 	}
 }
