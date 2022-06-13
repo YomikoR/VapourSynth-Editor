@@ -1186,6 +1186,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	if(!m_pStatusBarWidget->colorPickerVisible())
 		return;
 
+	bool applyCM = m_pSettingsManager->getApplyCM();
+
 	double value1 = 0.0;
 	double value2 = 0.0;
 	double value3 = 0.0;
@@ -1282,7 +1284,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 			value3 = valueAtPoint(frameX, frameY, 2);
 	}
 
-	previewValueAtPoint(frameX, frameY, preview_values);
+	if(!applyCM)
+		previewValueAtPoint(frameX, frameY, preview_values);
 
 	QString l1("1");
 	QString l2("2");
@@ -1323,7 +1326,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	QString coordString = QString("    Position: X:%1|Y:%2")
 		.arg(frameX).arg(frameY);
 
-	QString dispString = QString("    Display: R:%1|G:%2|B:%3")
+	QString dispString = applyCM ? QString()
+		: QString("    Display: R:%1|G:%2|B:%3")
 		.arg(preview_values[0]).arg(preview_values[1]).arg(preview_values[2]);
 
 	m_pStatusBarWidget->setColorPickerString(colorString + coordString + 
@@ -2388,12 +2392,8 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 {
 	// Read RGB values on screen from packed Gray8
 
-	// TODO: should reimplement for CM
-
 	if(!m_cpPreviewFrameRef)
 		return;
-
-	bool applyCM = m_pSettingsManager->getApplyCM();
 
     const uint8_t * cpPlane = m_cpVSAPI->getReadPtr(m_cpPreviewFrameRef, 0);
 
@@ -2401,43 +2401,26 @@ void PreviewDialog::previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[])
 	size_t y = a_y;
 
 	int stride = m_cpVSAPI->getStride(m_cpPreviewFrameRef, 0);
-	const uint8_t * cpLoc = cpPlane + y * stride + x * (applyCM ? 8 : 4);
+	const uint8_t * cpLoc = cpPlane + y * stride + x * 4;
 
 	// libp2p will handle endianness
 	p2p_buffer_param p = {};
 	p.width = 1;
 	p.height = 1;
-	p.packing = applyCM ? p2p_abgr64 : p2p_argb32;
+	p.packing = p2p_argb32;
 	p.src[0] = cpLoc;
 	p.src_stride[0] = 1;
 
-	if(applyCM)
+	uint8_t unpacked[3];
+	for (int plane = 0; plane < 3; ++plane)
 	{
-		uint16_t unpacked[3];
-		for (int plane = 0; plane < 3; ++plane)
-		{
-			p.dst[plane] = &unpacked[plane];
-			p.dst_stride[plane] = 1;
-		}
-		p2p_unpack_frame(&p, 0);
-		for (int plane = 0; plane < 3; ++plane)
-		{
-			a_ret[plane] = static_cast<int>(unpacked[plane]);
-		}
+		p.dst[plane] = &unpacked[plane];
+		p.dst_stride[plane] = 1;
 	}
-	else
+	p2p_unpack_frame(&p, 0);
+	for (int plane = 0; plane < 3; ++plane)
 	{
-		uint8_t unpacked[3];
-		for (int plane = 0; plane < 3; ++plane)
-		{
-			p.dst[plane] = &unpacked[plane];
-			p.dst_stride[plane] = 1;
-		}
-		p2p_unpack_frame(&p, 0);
-		for (int plane = 0; plane < 3; ++plane)
-		{
-			a_ret[plane] = static_cast<int>(unpacked[plane]);
-		}
+		a_ret[plane] = static_cast<int>(unpacked[plane]);
 	}
 }
 
