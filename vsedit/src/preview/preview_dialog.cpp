@@ -1186,8 +1186,6 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	if(!m_pStatusBarWidget->colorPickerVisible())
 		return;
 
-	bool applyCM = m_pSettingsManager->getApplyCM();
-
 	double value1 = 0.0;
 	double value2 = 0.0;
 	double value3 = 0.0;
@@ -1201,6 +1199,10 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	int width = m_cpVSAPI->getFrameWidth(m_cpFrameRef, 0);
 	int height = m_cpVSAPI->getFrameHeight(m_cpFrameRef, 0);
 	const VSFormat * cpFormat = m_cpVSAPI->getFrameFormat(m_cpFrameRef);
+
+	bool applyCM = m_pSettingsManager->getApplyCM();
+	if(cpFormat->colorFamily == cmGray)
+		applyCM = false;
 
 	if(m_ui.cropPanel->isVisible())
 	{
@@ -2440,6 +2442,8 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	int wwidth = m_cpVSAPI->getFrameWidth(a_cpFrameRef, 0);
 
 	bool applyCM = m_pSettingsManager->getApplyCM();
+	if(m_cpVSAPI->getFrameFormat(m_cpFrameRef)->colorFamily == cmGray)
+		applyCM = false;
 	int wbits = applyCM ? 8 : 4;
 
 	if((cpFormat->id != pfGray8) || (wwidth % wbits) )

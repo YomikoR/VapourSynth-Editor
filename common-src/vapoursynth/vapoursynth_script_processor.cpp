@@ -557,6 +557,9 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 
 	bool applyCM = m_pSettingsManager->getApplyCM();
+	if(cpFormat->colorFamily == cmGray)
+		applyCM = false;
+
 	enum VSPresetFormat targetFmt = (applyCM ? pfRGB48 : pfRGB24);
 
 	if (cpFormat->id == targetFmt)
