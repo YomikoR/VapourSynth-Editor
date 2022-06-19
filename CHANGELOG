@@ -1,3 +1,9 @@
+r19-mod-5.3
+-BUGFIX: Flickering in playback due to a regression introduced with the dark theme.
+-BUGFIX: Image doesn't align to the top-left corner of the preview window in dark theme.
+-BUGFIX: Bright and dark themes were using the same setting groups.
+-Any change of switching between bright and dark themes will only take effect on program relaunching.
+
 r19-mod-5.2
 -BUGFIX: VapourSynth lib searching not working in Qt6 on Windows. (SaltyChiang)
 -BUGFIX: Certain UI fonts look horrible in Qt6 on Windows with kerning enabled.
@@ -9,6 +15,8 @@ r19-mod-5.2
 -Introduce snapshot template with a silent mode (in preview advanced settings).
 -Slightly enlarged timeline bar.
 -Show "Name" and "SceneName" frame properties on window title.
+-Show Qt version in About menu.
+-Color and font settings will be saved only when differing from default values.
 
 r19-mod-5
 -BUGFIX: Building fails in Ubuntu LTS with older Qt versions.
