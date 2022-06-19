@@ -8,6 +8,7 @@
 #include "scroll_navigator.h"
 #include "../../../common-src/timeline_slider/timeline_slider.h"
 #include "preview_advanced_settings_dialog.h"
+#include "zoom_ratio_spinbox.h"
 
 #include <vapoursynth/VapourSynth.h>
 
@@ -760,6 +761,7 @@ void PreviewDialog::slotScaleModeChanged()
 		m_ui.scaleModeComboBox->setCurrentIndex(scaleModeIndex);
 	}
 
+	m_ui.zoomRatioSpinBox->setScaleMode(scaleMode);
 	setPreviewPixmap();
 	m_pSettingsManager->setScaleMode(scaleMode);
 
@@ -1991,6 +1993,7 @@ void PreviewDialog::setUpZoomPanel()
 	m_ui.scaleModeComboBox->setEnabled(!noZoom);
 
 	Qt::TransformationMode scaleMode = m_pSettingsManager->getScaleMode();
+	m_ui.zoomRatioSpinBox->setScaleMode(scaleMode);
 	comboIndex = m_ui.scaleModeComboBox->findData((int)scaleMode);
 	if(comboIndex != -1)
 		m_ui.scaleModeComboBox->setCurrentIndex(comboIndex);

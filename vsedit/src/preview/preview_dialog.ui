@@ -178,7 +178,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="zoomRatioSpinBox">
+          <widget class="ZoomRatioSpinBox" name="zoomRatioSpinBox">
            <property name="keyboardTracking">
             <bool>false</bool>
            </property>
@@ -654,6 +654,12 @@
    <class>TimeLineSlider</class>
    <extends>QWidget</extends>
    <header>../../common-src/timeline_slider/timeline_slider.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZoomRatioSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>../../src/preview/zoom_ratio_spinbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
