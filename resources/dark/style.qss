@@ -537,7 +537,7 @@ QAbstractScrollArea {
   border: 1px solid #455364;
   border-radius: 4px;
   /* fix #159 */
-  padding: 2px;
+  padding: 0px;
   /* remove min-height to fix #244 */
   color: #E0E1E3;
 }
