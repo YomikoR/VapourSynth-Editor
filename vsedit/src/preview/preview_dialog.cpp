@@ -2466,8 +2466,10 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	QImage frameImage(reinterpret_cast<const uchar *>(pData),
 		width, height, stride,
 		applyCM ? QImage::Format_RGBX64 : QImage::Format_ARGB32);
-	QPixmap framePixmap = QPixmap::fromImage(frameImage,
-		applyCM ? Qt::ColorOnly : Qt::NoFormatConversion);
+	QPixmap framePixmap = QPixmap::fromImage(applyCM ?
+		frameImage.convertToFormat(QImage::Format_ARGB32, Qt::ColorOnly) :
+		frameImage,
+		Qt::NoFormatConversion);
 	return framePixmap;
 }
 
