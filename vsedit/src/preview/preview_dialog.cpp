@@ -8,6 +8,7 @@
 #include "scroll_navigator.h"
 #include "../../../common-src/timeline_slider/timeline_slider.h"
 #include "preview_advanced_settings_dialog.h"
+#include "zoom_ratio_spinbox.h"
 
 #include <vapoursynth/VapourSynth.h>
 
@@ -773,6 +774,7 @@ void PreviewDialog::slotScaleModeChanged()
 		m_ui.scaleModeComboBox->setCurrentIndex(scaleModeIndex);
 	}
 
+	m_ui.zoomRatioSpinBox->setScaleMode(scaleMode);
 	setPreviewPixmap();
 	m_pSettingsManager->setScaleMode(scaleMode);
 
@@ -2033,6 +2035,7 @@ void PreviewDialog::setUpZoomPanel()
 	m_ui.scaleModeComboBox->setEnabled(!noZoom);
 
 	Qt::TransformationMode scaleMode = m_pSettingsManager->getScaleMode();
+	m_ui.zoomRatioSpinBox->setScaleMode(scaleMode);
 	comboIndex = m_ui.scaleModeComboBox->findData((int)scaleMode);
 	if(comboIndex != -1)
 		m_ui.scaleModeComboBox->setCurrentIndex(comboIndex);
@@ -2174,8 +2177,7 @@ void PreviewDialog::setPreviewPixmap()
 #if (QT_VERSION_MAJOR < 6)
 	m_devicePixelRatio = 1;
 #else
-	m_devicePixelRatio =
-		window()->devicePixelRatio();
+	m_devicePixelRatio = window()->devicePixelRatioF();
 	if(!m_framePixmap.isNull())
 		m_framePixmap.setDevicePixelRatio(m_devicePixelRatio);
 #endif
@@ -2463,7 +2465,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	const uint8_t * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
 	QImage frameImage(reinterpret_cast<const uchar *>(pData),
 		width, height, stride,
-		applyCM ? QImage::Format_RGBX64 : QImage::Format_RGB32);
+		applyCM ? QImage::Format_RGBX64 : QImage::Format_ARGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage,
 		applyCM ? Qt::ColorOnly : Qt::NoFormatConversion);
 	return framePixmap;
