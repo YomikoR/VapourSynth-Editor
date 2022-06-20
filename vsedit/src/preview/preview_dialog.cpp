@@ -2463,7 +2463,7 @@ QPixmap PreviewDialog::pixmapFromRGB(
 	const uint8_t * pData = m_cpVSAPI->getReadPtr(a_cpFrameRef, 0);
 	QImage frameImage(reinterpret_cast<const uchar *>(pData),
 		width, height, stride, is_10_bits ?
-		QImage::Format_RGB30 : QImage::Format_RGB32);
+		QImage::Format_RGB30 : QImage::Format_ARGB32);
 	QPixmap framePixmap = QPixmap::fromImage(frameImage, Qt::NoFormatConversion);
 	return framePixmap;
 }
