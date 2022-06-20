@@ -2,6 +2,7 @@ r19-mod-5.3
 -BUGFIX: Flickering in playback due to a regression introduced with the dark theme.
 -BUGFIX: Image doesn't align to the top-left corner of the preview window in dark theme.
 -BUGFIX: Bright and dark themes were using the same setting groups.
+-BUGFIX: Image distortion with large zoom ratio.
 -Any change of switching between bright and dark themes will only take effect on program relaunching.
 -Modified zoom ratio step lengths when using fixed ratio.
 
