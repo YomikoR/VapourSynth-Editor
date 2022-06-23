@@ -3,7 +3,7 @@
 
 #include <ui_script_status_bar_widget.h>
 
-#include <vapoursynth/VSScript.h>
+#include <vapoursynth/VapourSynth4.h>
 #include <QPixmap>
 
 class ScriptStatusBarWidget: public QWidget
@@ -26,7 +26,8 @@ public slots:
 	virtual void setQueueState(size_t a_inQueue, size_t a_inProcess,
 		size_t a_maxThreads);
 
-	virtual void setVideoInfo(const VSVideoInfo * a_cpVideoInfo);
+	virtual void setVideoInfo(const VSVideoInfo * a_cpVideoInfo,
+		const VSAPI * a_cpVSAPI);
 
 protected:
 

@@ -455,6 +455,8 @@ void MainWindow::slotCheckScript()
 	VapourSynthScriptProcessor tempProcessor(m_pSettingsManager,
 		m_pVSScriptLibrary, this);
 
+	const VSAPI * cpVSAPI = m_pVSScriptLibrary->getVSAPI();
+
 	connect(&tempProcessor, SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
@@ -464,7 +466,7 @@ void MainWindow::slotCheckScript()
 	{
 		QString message = tr("Script was successfully evaluated. "
 			"Output video info:\n");
-		message += vsedit::videoInfoString(tempProcessor.videoInfo());
+		message += vsedit::videoInfoString(tempProcessor.videoInfo(), cpVSAPI);
 		m_ui.logView->addEntry(message, LOG_STYLE_POSITIVE);
 	}
 }

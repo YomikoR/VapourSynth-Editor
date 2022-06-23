@@ -4,6 +4,8 @@
 #include "vs_script_processor_structures.h"
 #include "../settings/settings_manager_core.h"
 
+#include <vapoursynth/VSScript4.h>
+
 #include <QObject>
 #include <deque>
 #include <vector>
@@ -55,8 +57,8 @@ signals:
 	void signalWriteLogMessage(int a_messageType, const QString & a_message);
 
 	void signalDistributeFrame(int a_frameNumber, int a_outputIndex,
-		const VSFrameRef * a_cpOutputFrameRef,
-		const VSFrameRef * a_cpPreviewFrameRef);
+		const VSFrame * a_cpOutputFrame,
+		const VSFrame * a_cpPreviewFrame);
 
 	void signalFrameRequestDiscarded(int a_frameNumber, int a_outputIndex,
 		const QString & a_reason);
@@ -69,13 +71,13 @@ signals:
 private slots:
 
 	void slotReceiveFrameAndProcessQueue(
-		const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-		VSNodeRef * a_pNodeRef, QString a_errorMessage);
+		const VSFrame * a_cpFrame, int a_frameNumber,
+		VSNode * a_pNode, QString a_errorMessage);
 
 private:
 
-	void receiveFrame(const VSFrameRef * a_cpFrameRef, int a_frameNumber,
-		VSNodeRef * a_pNodeRef, const QString & a_errorMessage);
+	void receiveFrame(const VSFrame * a_cpFrame, int a_frameNumber,
+		VSNode * a_pNode, const QString & a_errorMessage);
 
 	void processFrameTicketsQueue();
 
@@ -87,9 +89,9 @@ private:
 
 	NodePair & getNodePair(int a_outputIndex, bool a_needPreview);
 
-	QString framePropsString(const VSFrameRef * a_cpFrame) const;
+	QString framePropsString(const VSFrame * a_cpFrame) const;
 
-	void printFrameProps(const VSFrameRef * a_cpFrame);
+	void printFrameProps(const VSFrame * a_cpFrame);
 
 	SettingsManagerCore * m_pSettingsManager;
 

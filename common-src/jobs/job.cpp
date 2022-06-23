@@ -11,7 +11,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <algorithm>
-#include <vapoursynth/VSHelper.h>
+#include <vapoursynth/VSHelper4.h>
 
 #ifdef Q_OS_WIN
 	#ifndef NOMINMAX
@@ -533,10 +533,10 @@ bool vsedit::Job::initialize()
 		connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
 			this, SLOT(slotScriptProcessorFinalized()));
 		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
-				const VSFrameRef *)),
-			this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *,
-				const VSFrameRef *)));
+			SIGNAL(signalDistributeFrame(int, int, const VSFrame *,
+				const VSFrame *)),
+			this, SLOT(slotReceiveFrame(int, int, const VSFrame *,
+				const VSFrame *)));
 		connect(m_pVapourSynthScriptProcessor,
 			SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
 			this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
@@ -1017,7 +1017,7 @@ void vsedit::Job::slotProcessBytesWritten(qint64 a_bytes)
 			referenceFrame);
 		Q_ASSERT(it != m_framesCache.end());
 
-		m_cpVSAPI->freeFrame(it->cpOutputFrameRef);
+		m_cpVSAPI->freeFrame(it->cpOutputFrame);
 		m_framesCache.erase(it);
 		m_lastFrameProcessed++;
 		m_properties.framesProcessed++;
@@ -1085,8 +1085,8 @@ void vsedit::Job::slotScriptProcessorFinalized()
 //==============================================================================
 
 void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-	const VSFrameRef * a_cpOutputFrameRef,
-	const VSFrameRef * a_cpPreviewFrameRef)
+	const VSFrame * a_cpOutputFrame,
+	const VSFrame * a_cpPreviewFrameRef)
 {
 	(void)a_cpPreviewFrameRef;
 
@@ -1100,8 +1100,8 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		return;
 
 	Q_ASSERT(m_cpVSAPI);
-	const VSFrameRef * cpFrameRef =
-		m_cpVSAPI->cloneFrameRef(a_cpOutputFrameRef);
+	const VSFrame * cpFrameRef =
+		m_cpVSAPI->addFrameRef(a_cpOutputFrame);
 	Frame newFrame(a_frameNumber, a_outputIndex, cpFrameRef);
 	m_framesCache.push_back(newFrame);
 
@@ -1110,8 +1110,8 @@ void vsedit::Job::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 }
 
 // END OF void vsedit::Job::slotReceiveFrame(int a_frameNumber,
-//		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
-//		const VSFrameRef * a_cpPreviewFrameRef)
+//		int a_outputIndex, const VSFrame * a_cpOutputFrame,
+//		const VSFrame * a_cpPreviewFrameRef)
 //==============================================================================
 
 void vsedit::Job::slotFrameRequestDiscarded(int a_frameNumber,
@@ -1199,7 +1199,7 @@ void vsedit::Job::fillVariables()
 			{
 				if(!m_cpVideoInfo)
 					return TOKEN_BITDEPTH;
-				return QString::number(m_cpVideoInfo->format->bitsPerSample);
+				return QString::number(m_cpVideoInfo->format.bitsPerSample);
 			}
 		},
 
@@ -1231,9 +1231,7 @@ void vsedit::Job::fillVariables()
 			{
 				if(!m_cpVideoInfo)
 					return TOKEN_SUBSAMPLING;
-				const VSFormat * cpFormat = m_cpVideoInfo->format;
-				if(!cpFormat)
-					return QString();
+				const VSVideoFormat * cpFormat = &m_cpVideoInfo->format;
 				return vsedit::subsamplingString(cpFormat->subSamplingW,
 					cpFormat->subSamplingH);
 			}
@@ -1421,8 +1419,8 @@ void vsedit::Job::clearFramesCache()
 	Q_ASSERT(m_cpVSAPI);
 	for(Frame & frame : m_framesCache)
 	{
-		m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
-		m_cpVSAPI->freeFrame(frame.cpPreviewFrameRef);
+		m_cpVSAPI->freeFrame(frame.cpOutputFrame);
+		m_cpVSAPI->freeFrame(frame.cpPreviewFrame);
 	}
 	m_framesCache.clear();
 }
@@ -1462,7 +1460,7 @@ void vsedit::Job::processFramesQueue()
 	if(it == m_framesCache.end())
 		return;
 
-	frame.cpOutputFrameRef = it->cpOutputFrameRef;
+	frame.cpOutputFrame = it->cpOutputFrame;
 
 	// VapourSynth frames are padded so every line has aligned address.
 	// But encoder expects frames tightly packed. We pack frame lines
@@ -1472,13 +1470,12 @@ void vsedit::Job::processFramesQueue()
 	size_t currentDataSize = 0;
 
 	Q_ASSERT(m_cpVideoInfo);
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	Q_ASSERT(cpFormat);
+	const VSVideoFormat * cpFormat = &m_cpVideoInfo->format;
 
 	if(m_pFrameHeaderWriter->needFramePrefix())
 	{
 		QByteArray framePrefix =
-			m_pFrameHeaderWriter->framePrefix(frame.cpOutputFrameRef);
+			m_pFrameHeaderWriter->framePrefix(frame.cpOutputFrame);
 		int prefixSize = framePrefix.size();
 		if(prefixSize > 0)
 		{
@@ -1492,10 +1489,10 @@ void vsedit::Job::processFramesQueue()
 	for(int i = 0; i < cpFormat->numPlanes; ++i)
 	{
 		const uint8_t * cpPlane =
-			m_cpVSAPI->getReadPtr(frame.cpOutputFrameRef, i);
-		int stride = m_cpVSAPI->getStride(frame.cpOutputFrameRef, i);
-		int width = m_cpVSAPI->getFrameWidth(frame.cpOutputFrameRef, i);
-		int height = m_cpVSAPI->getFrameHeight(frame.cpOutputFrameRef, i);
+			m_cpVSAPI->getReadPtr(frame.cpOutputFrame, i);
+		int stride = m_cpVSAPI->getStride(frame.cpOutputFrame, i);
+		int width = m_cpVSAPI->getFrameWidth(frame.cpOutputFrame, i);
+		int height = m_cpVSAPI->getFrameHeight(frame.cpOutputFrame, i);
 		int bytes = cpFormat->bytesPerSample;
 
 		size_t planeSize = width * bytes * height;
@@ -1504,7 +1501,7 @@ void vsedit::Job::processFramesQueue()
 			m_framebuffer.resize(neededFramebufferSize);
 		int framebufferStride = width * bytes;
 
-		vs_bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
+		vsh::bitblt(m_framebuffer.data() + currentDataSize, framebufferStride,
 			cpPlane, stride, framebufferStride, height);
 
 		currentDataSize += planeSize;
@@ -1513,7 +1510,7 @@ void vsedit::Job::processFramesQueue()
 	if(m_pFrameHeaderWriter->needFramePostfix())
 	{
 		QByteArray framePostfix =
-			m_pFrameHeaderWriter->framePostfix(frame.cpOutputFrameRef);
+			m_pFrameHeaderWriter->framePostfix(frame.cpOutputFrame);
 		int postfixSize = framePostfix.size();
 		if(postfixSize > 0)
 		{

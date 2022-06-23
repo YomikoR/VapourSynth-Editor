@@ -17,7 +17,7 @@ class VSScriptLibrary;
 class VapourSynthScriptProcessor;
 struct VSAPI;
 struct VSVideoInfo;
-struct VSFrameRef;
+struct VSFrame;
 
 class VSScriptProcessorDialog : public QDialog
 {
@@ -58,8 +58,8 @@ protected slots:
 	virtual void slotScriptProcessorFinalized();
 
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-		const VSFrameRef * a_cpOutputFrameRef,
-		const VSFrameRef * a_cpPreviewFrameRef) = 0;
+		const VSFrame * a_cpOutputFrame,
+		const VSFrame * a_cpPreviewFrame) = 0;
 
 	virtual void slotFrameRequestDiscarded(int a_frameNumber,
 		int a_outputIndex, const QString & a_reason) = 0;

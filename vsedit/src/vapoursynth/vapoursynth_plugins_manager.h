@@ -3,7 +3,7 @@
 
 #include "vs_plugin_data.h"
 
-#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VapourSynth4.h>
 
 #include <QObject>
 #include <QStringList>
@@ -62,6 +62,8 @@ private:
 	bool m_pluginAlreadyLoaded;
 
 	SettingsManager * m_pSettingsManager;
+
+	VSPLUGINAPI m_VSPAPI;
 };
 
 #endif // VAPOURSYNTHPLUGINSMANAGER_H

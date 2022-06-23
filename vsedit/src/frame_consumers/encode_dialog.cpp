@@ -3,8 +3,8 @@
 #include "../../../common-src/helpers.h"
 #include "../../../common-src/settings/settings_manager.h"
 
-#include <vapoursynth/VapourSynth.h>
-#include <vapoursynth/VSHelper.h>
+#include <vapoursynth/VapourSynth4.h>
+#include <vapoursynth/VSHelper4.h>
 
 #include <QMessageBox>
 #include <QFileDialog>

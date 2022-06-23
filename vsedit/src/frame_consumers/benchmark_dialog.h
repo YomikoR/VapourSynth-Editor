@@ -39,8 +39,8 @@ protected slots:
 		const QString & a_message) override;
 
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-		const VSFrameRef * a_cpOutputFrameRef,
-		const VSFrameRef * a_cpPreviewFrameRef) override;
+		const VSFrame * a_cpOutputFrame,
+		const VSFrame * a_cpPreviewFrame) override;
 
 	virtual void slotFrameRequestDiscarded(int a_frameNumber,
 	int a_outputIndex, const QString & a_reason) override;

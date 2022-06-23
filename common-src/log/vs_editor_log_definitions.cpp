@@ -2,7 +2,7 @@
 
 #include "styled_log_view_core.h"
 
-#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VapourSynth4.h>
 #include <map>
 #include <algorithm>
 

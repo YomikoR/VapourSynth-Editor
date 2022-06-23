@@ -1,7 +1,7 @@
 #ifndef HELPERS_H_INCLUDED
 #define HELPERS_H_INCLUDED
 
-#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VapourSynth4.h>
 
 #include <QString>
 #include <QTime>
@@ -31,7 +31,8 @@ QString timeToString(double a_seconds, bool a_fullFormat = false);
 
 int mod(int a_value);
 
-QString videoInfoString(const VSVideoInfo * a_cpVideoInfo);
+QString videoInfoString(const VSVideoInfo * a_cpVideoInfo,
+	const VSAPI * a_cpVSAPI);
 
 double qtimeToSeconds(const QTime & a_qtime);
 
@@ -41,7 +42,7 @@ void wait(int a_msec);
 
 QString subsamplingString(int a_subsamplingW, int a_subsamplingH);
 
-QString subsamplingString(const VSFormat * a_cpFormat);
+QString subsamplingString(const VSVideoFormat * a_cpFormat);
 
 QString resolvePathFromApplication(const QString & a_relativePath);
 

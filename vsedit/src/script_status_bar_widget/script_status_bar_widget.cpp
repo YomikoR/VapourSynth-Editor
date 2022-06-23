@@ -75,9 +75,10 @@ void ScriptStatusBarWidget::setQueueState(size_t a_inQueue, size_t a_inProcess,
 //		size_t a_inProcess, size_t a_maxThreads)
 //==============================================================================
 
-void ScriptStatusBarWidget::setVideoInfo(const VSVideoInfo * a_cpVideoInfo)
+void ScriptStatusBarWidget::setVideoInfo(const VSVideoInfo * a_cpVideoInfo,
+	const VSAPI * a_cpVSAPI)
 {
-	QString infoString = vsedit::videoInfoString(a_cpVideoInfo);
+	QString infoString = vsedit::videoInfoString(a_cpVideoInfo, a_cpVSAPI);
 	m_ui.videoInfoLabel->setText(infoString);
 }
 

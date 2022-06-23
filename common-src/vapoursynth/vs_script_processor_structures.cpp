@@ -3,12 +3,12 @@
 //==============================================================================
 
 Frame::Frame(int a_number, int a_outputIndex,
-	const VSFrameRef * a_cpOutputFrameRef,
-	const VSFrameRef * a_cpPreviewFrameRef):
+	const VSFrame * a_cpOutputFrame,
+	const VSFrame * a_cpPreviewFrame):
 	  number(a_number)
 	, outputIndex(a_outputIndex)
-	, cpOutputFrameRef(a_cpOutputFrameRef)
-	, cpPreviewFrameRef(a_cpPreviewFrameRef)
+	, cpOutputFrame(a_cpOutputFrame)
+	, cpPreviewFrame(a_cpPreviewFrame)
 {
 }
 
@@ -20,15 +20,15 @@ bool Frame::operator==(const Frame & a_other) const
 //==============================================================================
 
 FrameTicket::FrameTicket(int a_frameNumber, int a_outputIndex,
-		VSNodeRef * a_pOutputNode, bool a_needPreview,
-		VSNodeRef * a_pPreviewNode):
+		VSNode * a_pOutputNode, bool a_needPreview,
+		VSNode * a_pPreviewNode):
 	frameNumber(a_frameNumber)
 	, outputIndex(a_outputIndex)
 	, pOutputNode(a_pOutputNode)
 	, needPreview(a_needPreview)
 	, pPreviewNode(a_pPreviewNode)
-	, cpOutputFrameRef(nullptr)
-	, cpPreviewFrameRef(nullptr)
+	, cpOutputFrame(nullptr)
+	, cpPreviewFrame(nullptr)
 	, discard(false)
 {
 }
@@ -37,9 +37,9 @@ FrameTicket::FrameTicket(int a_frameNumber, int a_outputIndex,
 
 bool FrameTicket::isComplete() const
 {
-	bool complete = (cpOutputFrameRef != nullptr);
+	bool complete = (cpOutputFrame != nullptr);
 	if(needPreview)
-		complete = complete && (cpPreviewFrameRef != nullptr);
+		complete = complete && (cpPreviewFrame != nullptr);
 	return complete;
 }
 
@@ -54,8 +54,8 @@ NodePair::NodePair():
 
 //==============================================================================
 
-NodePair::NodePair(int a_outputIndex, VSNodeRef * a_pOutputNode,
-	VSNodeRef * a_pPreviewNode):
+NodePair::NodePair(int a_outputIndex, VSNode * a_pOutputNode,
+	VSNode * a_pPreviewNode):
 	  outputIndex(a_outputIndex)
 	, pOutputNode(a_pOutputNode)
 	, pPreviewNode(a_pPreviewNode)

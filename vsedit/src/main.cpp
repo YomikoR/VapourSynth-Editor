@@ -5,8 +5,8 @@
 
 #include <QApplication>
 
-Q_DECLARE_OPAQUE_POINTER(const VSFrameRef *)
-Q_DECLARE_OPAQUE_POINTER(VSNodeRef *)
+Q_DECLARE_OPAQUE_POINTER(const VSFrame *)
+Q_DECLARE_OPAQUE_POINTER(VSNode *)
 
 MainWindow * pMainWindow = nullptr;
 
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
 		"QMessageBox { messagebox-text-interaction-flags: 5; }"
 		"QLabel { padding: 0px; }");
 
-	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
-	qRegisterMetaType<VSNodeRef *>("VSNodeRef *");
+	qRegisterMetaType<const VSFrame *>("const VSFrame *");
+	qRegisterMetaType<VSNode *>("VSNode *");
 
 	pMainWindow = new MainWindow(settings);
 	qInstallMessageHandler(handleQtMessage);

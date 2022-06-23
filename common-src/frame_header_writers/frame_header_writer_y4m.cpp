@@ -23,11 +23,9 @@ bool FrameHeaderWriterY4M::isCompatible()
     if(!m_cpVideoInfo)
 		return false;
 
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	if(!cpFormat)
-		return false;
+	const VSVideoFormat * cpFormat = &m_cpVideoInfo->format;
 
-	int compatibleColorFamily[] = {cmGray, cmYUV};
+	int compatibleColorFamily[] = {cfGray, cfYUV};
 	if(!vsedit::contains(compatibleColorFamily, cpFormat->colorFamily))
 		return false;
 
@@ -63,20 +61,19 @@ QByteArray FrameHeaderWriterY4M::videoHeader(int a_totalFrames)
 {
 	Q_ASSERT(m_cpVideoInfo);
 	Q_ASSERT(isCompatible());
-	const VSFormat * cpFormat = m_cpVideoInfo->format;
-	Q_ASSERT(cpFormat);
+	const VSVideoFormat * cpFormat = &m_cpVideoInfo->format;
 
 	std::string header;
 
 	header += "YUV4MPEG2 C";
 
-	if(cpFormat->colorFamily == cmGray)
+	if(cpFormat->colorFamily == cfGray)
 	{
 		header += "mono";
 		if(cpFormat->bitsPerSample > 8)
 			header += std::to_string(cpFormat->bitsPerSample);
 	}
-	else if(cpFormat->colorFamily == cmYUV)
+	else if(cpFormat->colorFamily == cfYUV)
 	{
 		std::map<std::pair<int, int>, std::string> subsamplingStringMap =
 		{
@@ -141,16 +138,16 @@ bool FrameHeaderWriterY4M::needFramePrefix()
 // END OF bool FrameHeaderWriterY4M::needFramePrefix()
 //==============================================================================
 
-QByteArray FrameHeaderWriterY4M::framePrefix(const VSFrameRef * a_cpFrameRef)
+QByteArray FrameHeaderWriterY4M::framePrefix(const VSFrame * a_cpFrame)
 {
-	(void)a_cpFrameRef;
+	(void)a_cpFrame;
 	std::string prefix = "FRAME\n";
 	QByteArray prefixData(prefix.c_str());
 	return prefixData;
 }
 
 // END OF QByteArray FrameHeaderWriterY4M::framePrefix(
-//		const VSFrameRef * a_cpFrameRef)
+//		const VSFrame * a_cpFrame)
 //==============================================================================
 
 bool FrameHeaderWriterY4M::needFramePostfix()
@@ -161,12 +158,12 @@ bool FrameHeaderWriterY4M::needFramePostfix()
 // END OF bool FrameHeaderWriterY4M::needFramePostfix()
 //==============================================================================
 
-QByteArray FrameHeaderWriterY4M::framePostfix(const VSFrameRef * a_cpFrameRef)
+QByteArray FrameHeaderWriterY4M::framePostfix(const VSFrame * a_cpFrame)
 {
-	(void)a_cpFrameRef;
+	(void)a_cpFrame;
 	return QByteArray();
 }
 
 // END OF QByteArray FrameHeaderWriterY4M::framePostfix(
-//		const VSFrameRef * a_cpFrameRef)
+//		const VSFrame * a_cpFrame)
 //==============================================================================

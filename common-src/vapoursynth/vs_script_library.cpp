@@ -12,7 +12,7 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 	void * a_pUserData)
 {
 	VSScriptLibrary * pVSScriptLibrary =
-		static_cast<VSScriptLibrary *>(a_pUserData);
+		reinterpret_cast<VSScriptLibrary *>(a_pUserData);
 	pVSScriptLibrary->handleVSMessage(a_msgType, a_message);
 }
 
@@ -25,8 +25,8 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	QObject(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_vsScriptLibrary(this)
-	, m_vsScriptInitialized(false)
 	, m_initialized(false)
+	, m_cpVSSAPI(nullptr)
 	, m_cpVSAPI(nullptr)
 {
 	Q_ASSERT(m_pSettingsManager);
@@ -53,18 +53,8 @@ bool VSScriptLibrary::initialize()
 	if(!libraryInitialized)
 		return false;
 
-	int opresult = vssInit();
-	if(!opresult)
-	{
-		QString errorString = tr("Failed to initialize "
-			"VapourSynth environment!");
-		emit signalWriteLogMessage(mtCritical, errorString);
-		finalize();
-		return false;
-	}
-	m_vsScriptInitialized = true;
-
-	m_cpVSAPI = vssGetVSApi();
+	// VSAPI version: 4.0
+	m_cpVSAPI = m_cpVSSAPI->getVSAPI(VS_MAKE_VERSION(4, 0));
 	if(!m_cpVSAPI)
 	{
 		QString errorString = tr("Failed to get VapourSynth API!");
@@ -72,9 +62,6 @@ bool VSScriptLibrary::initialize()
 		finalize();
 		return false;
 	}
-
-	m_cpVSAPI->addMessageHandler(::vsMessageHandler, nullptr,
-		static_cast<void *>(this));
 
 	m_initialized = true;
 
@@ -87,12 +74,6 @@ bool VSScriptLibrary::initialize()
 bool VSScriptLibrary::finalize()
 {
 	m_cpVSAPI = nullptr;
-
-	if(m_vsScriptInitialized)
-	{
-		vssFinalize();
-		m_vsScriptInitialized = false;
-	}
 
 	freeLibrary();
 	m_initialized = false;
@@ -122,18 +103,34 @@ const VSAPI * VSScriptLibrary::getVSAPI()
 // END OF const VSAPI * VSScriptLibrary::getVSAPI()
 //==============================================================================
 
-int VSScriptLibrary::evaluateScript(VSScript ** a_ppScript,
-	const char * a_scriptText, const char * a_scriptFilename, int a_flags)
+VSScript * VSScriptLibrary::createScript()
 {
+	if(!initialize())
+		return nullptr;
+
+	VSScript * pScript = m_cpVSSAPI->createScript(nullptr);
+	if(pScript)
+		m_cpVSSAPI->evalSetWorkingDir(pScript, 1);
+
+	return pScript;
+}
+
+// END OF VSScript * VSScriptLibrary::createScript()
+//==============================================================================
+
+int VSScriptLibrary::evaluateScript(VSScript * a_pScript,
+	const char * a_scriptText, const char * a_scriptFilename)
+{
+
 	if(!initialize())
 		return 1;
 
-	return vssEvaluateScript(a_ppScript, a_scriptText,
-		a_scriptFilename, a_flags);
+	return m_cpVSSAPI->evaluateBuffer(a_pScript, a_scriptText,
+		a_scriptFilename);
 }
 
-// END OF int VSScriptLibrary::evaluateScript(VSScript ** a_ppScript,
-//		const char * a_scriptText, const char * a_scriptFilename, int a_flags)
+// END OF int VSScriptLibrary::evaluateScript(VSScript * a_ppScript,
+//		const char * a_scriptText, const char * a_scriptFilename)
 //==============================================================================
 
 const char * VSScriptLibrary::getError(VSScript * a_pScript)
@@ -141,7 +138,7 @@ const char * VSScriptLibrary::getError(VSScript * a_pScript)
 	if(!initialize())
 		return nullptr;
 
-	return vssGetError(a_pScript);
+	return m_cpVSSAPI->getError(a_pScript);
 }
 
 // END OF const char * VSScriptLibrary::getError(VSScript * a_pScript)
@@ -152,21 +149,30 @@ VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 	if(!initialize())
 		return nullptr;
 
-	return vssGetCore(a_pScript);
+	VSCore *pCore = m_cpVSSAPI->getCore(a_pScript);
+	if (!pCore) {
+		QString errorString = tr("Failed to get VapourSynth Core!");
+		emit signalWriteLogMessage(mtCritical, errorString);
+		finalize();
+		return nullptr;
+	}
+
+	m_cpVSAPI->addLogHandler(vsMessageHandler, nullptr, this, pCore);
+	return pCore;
 }
 
 // END OF VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 //==============================================================================
 
-VSNodeRef * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
+VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
 {
 	if(!initialize())
 		return nullptr;
 
-	return vssGetOutput(a_pScript, a_index);
+	return m_cpVSSAPI->getOutputNode(a_pScript, a_index);
 }
 
-// END OF VSNodeRef * VSScriptLibrary::getOutput(VSScript * a_pScript,
+// END OF VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript,
 //		int a_index)
 //==============================================================================
 
@@ -175,7 +181,7 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	if(!initialize())
 		return false;
 
-	vssFreeScript(a_pScript);
+	m_cpVSSAPI->freeScript(a_pScript);
 
 	return true;
 }
@@ -187,14 +193,7 @@ bool VSScriptLibrary::initLibrary()
 {
 	if(m_vsScriptLibrary.isLoaded())
 	{
-		Q_ASSERT(vssInit);
-		Q_ASSERT(vssGetVSApi);
-		Q_ASSERT(vssEvaluateScript);
-		Q_ASSERT(vssGetError);
-		Q_ASSERT(vssGetCore);
-		Q_ASSERT(vssGetOutput);
-		Q_ASSERT(vssFreeScript);
-		Q_ASSERT(vssFinalize);
+		Q_ASSERT(vssGetAPI);
 		return true;
 	}
 
@@ -266,22 +265,8 @@ bool VSScriptLibrary::initLibrary()
 
 	Entry vssEntries[] =
 	{
-		  {(QFunctionPointer *)&vssInit, "vsscript_init",
-			"_vsscript_init@0"}
-		, {(QFunctionPointer *)&vssGetVSApi, "vsscript_getVSApi",
-			"_vsscript_getVSApi@0"}
-		, {(QFunctionPointer *)&vssEvaluateScript, "vsscript_evaluateScript",
-			"_vsscript_evaluateScript@16"}
-		, {(QFunctionPointer *)&vssGetError, "vsscript_getError",
-			"_vsscript_getError@4"}
-		, {(QFunctionPointer *)&vssGetCore, "vsscript_getCore",
-			"_vsscript_getCore@4"}
-		, {(QFunctionPointer *)&vssGetOutput, "vsscript_getOutput",
-			"_vsscript_getOutput@8"}
-		, {(QFunctionPointer *)&vssFreeScript, "vsscript_freeScript",
-			"_vsscript_freeScript@4"}
-		, {(QFunctionPointer *)&vssFinalize, "vsscript_finalize",
-			"_vsscript_finalize@0"}
+		  {(QFunctionPointer *)&vssGetAPI, "getVSScriptAPI",
+			"getVSScriptAPI"}
 	};
 
 	for(Entry & entry : vssEntries)
@@ -302,6 +287,15 @@ bool VSScriptLibrary::initLibrary()
 		}
 	}
 
+	m_cpVSSAPI = vssGetAPI(VSSCRIPT_API_VERSION);
+	if(!m_cpVSSAPI)
+	{
+		QString errorStr = tr("Failed to get VSScript API!");
+		emit signalWriteLogMessage(mtCritical, errorStr);
+		freeLibrary();
+		return false;
+	}
+
 	return true;
 }
 
@@ -310,14 +304,7 @@ bool VSScriptLibrary::initLibrary()
 
 void VSScriptLibrary::freeLibrary()
 {
-	vssInit = nullptr;
-	vssGetVSApi = nullptr;
-	vssEvaluateScript = nullptr;
-	vssGetError = nullptr;
-	vssGetCore = nullptr;
-	vssGetOutput = nullptr;
-	vssFreeScript = nullptr;
-	vssFinalize = nullptr;
+	vssGetAPI = nullptr;
 
 	if(m_vsScriptLibrary.isLoaded())
 		m_vsScriptLibrary.unload();

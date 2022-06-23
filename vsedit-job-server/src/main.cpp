@@ -2,19 +2,19 @@
 
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
-#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VapourSynth4.h>
 
 #include <QCoreApplication>
 
-Q_DECLARE_OPAQUE_POINTER(const VSFrameRef *)
-Q_DECLARE_OPAQUE_POINTER(VSNodeRef *)
+Q_DECLARE_OPAQUE_POINTER(const VSFrame *)
+Q_DECLARE_OPAQUE_POINTER(VSNode *)
 
 int main(int argc, char *argv[])
 {
 	QCoreApplication application(argc, argv);
 
-	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
-	qRegisterMetaType<VSNodeRef *>("VSNodeRef *");
+	qRegisterMetaType<const VSFrame *>("const VSFrame *");
+	qRegisterMetaType<VSNode *>("VSNode *");
 
 	ApplicationInstanceFileGuard guard("vsedit_job_server_running");
 	if(!guard.isLocked())

@@ -19,10 +19,10 @@ public:
 	virtual QByteArray videoHeader(int a_totalFrames = -1) override;
 
 	virtual bool needFramePrefix() override;
-	virtual QByteArray framePrefix(const VSFrameRef * a_cpFrameRef) override;
+	virtual QByteArray framePrefix(const VSFrame * a_cpFrame) override;
 
 	virtual bool needFramePostfix() override;
-	virtual QByteArray framePostfix(const VSFrameRef * a_cpFrameRef) override;
+	virtual QByteArray framePostfix(const VSFrame * a_cpFrame) override;
 };
 
 #endif // FRAME_HEADER_WRITER_NULL_H_INCLUDED

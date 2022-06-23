@@ -55,8 +55,8 @@ signals:
 protected slots:
 
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-		const VSFrameRef * a_cpOutputFrameRef,
-		const VSFrameRef * a_cpPreviewFrameRef) override;
+		const VSFrame * a_cpOutputFrame,
+		const VSFrame * a_cpPreviewFrame) override;
 
 	virtual void slotFrameRequestDiscarded(int a_frameNumber,
 		int a_outputIndex, const QString & a_reason) override;
@@ -181,14 +181,14 @@ protected:
 
 	void resetCropSpinBoxes();
 
-	void setCurrentFrame(const VSFrameRef * a_cpOutputFrameRef,
-		const VSFrameRef * a_cpPreviewFrameRef);
+	void setCurrentFrame(const VSFrame * a_cpOutputFrame,
+		const VSFrame * a_cpPreviewFrame);
 
 	double valueAtPoint(size_t a_x, size_t a_y, int a_plane);
 
 	void previewValueAtPoint(size_t a_x, size_t a_y, int a_ret[]);
 
-	QPixmap pixmapFromRGB(const VSFrameRef * a_cpFrameRef);
+	QPixmap pixmapFromRGB(const VSFrame * a_cpFrame);
 
 	void setTitle();
 
@@ -207,8 +207,8 @@ protected:
 
 	int m_bigFrameStep;
 
-	const VSFrameRef * m_cpFrameRef;
-	const VSFrameRef * m_cpPreviewFrameRef;
+	const VSFrame * m_cpFrame;
+	const VSFrame * m_cpPreviewFrame;
 	QPixmap m_framePixmap;
 
 	bool m_changingCropValues;

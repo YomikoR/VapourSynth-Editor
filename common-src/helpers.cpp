@@ -58,7 +58,8 @@ int vsedit::mod(int a_value)
 // END OF int vsedit::mod(int a_value)
 //==============================================================================
 
-QString vsedit::videoInfoString(const VSVideoInfo * a_cpVideoInfo)
+QString vsedit::videoInfoString(const VSVideoInfo * a_cpVideoInfo,
+	const VSAPI * a_cpVSAPI)
 {
 	double fps = 0.0;
 	double time = 0.0;
@@ -78,7 +79,9 @@ QString vsedit::videoInfoString(const VSVideoInfo * a_cpVideoInfo)
 	infoString.replace("%fpsnum%", QString::number(a_cpVideoInfo->fpsNum));
 	infoString.replace("%fpsden%", QString::number(a_cpVideoInfo->fpsDen));
 	infoString.replace("%fps%", QString::number(fps));
-	infoString.replace("%format%", a_cpVideoInfo->format->name);
+	char formatName[32];
+	a_cpVSAPI->getVideoFormatName(&a_cpVideoInfo->format, formatName);
+	infoString.replace("%format%", formatName);
 
 	return infoString;
 }
@@ -165,7 +168,7 @@ QString vsedit::subsamplingString(int a_subsamplingW, int a_subsamplingH)
 //		int a_subsamplingH)
 //==============================================================================
 
-QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
+QString vsedit::subsamplingString(const VSVideoFormat * a_cpFormat)
 {
 	if(!a_cpFormat)
 		return QString();
@@ -174,7 +177,7 @@ QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
 		a_cpFormat->subSamplingH);
 }
 
-// END OF QString vsedit::subsamplingString(const VSFormat * a_cpFormat)
+// END OF QString vsedit::subsamplingString(const VSVideoFormat * a_cpFormat)
 //==============================================================================
 
 QString vsedit::resolvePathFromApplication(const QString & a_relativePath)

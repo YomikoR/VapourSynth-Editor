@@ -1,25 +1,20 @@
 #include "vs_pack_rgb.h"
+#include "../libp2p/p2p_api.h"
+
+#include <vapoursynth/VSHelper4.h>
+
+#include <memory>
 
 struct packData
 {
-    VSNodeRef *node = nullptr;
-    const VSVideoInfo *vi = nullptr;
+    VSNode *node;
+    VSVideoInfo vi;
     enum p2p_packing packing_fmt;
 };
 
-void VS_CC packInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi)
+const VSFrame * VS_CC packGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
-    packData *d = reinterpret_cast<packData *>(*instanceData);
-    VSVideoInfo new_vi = (VSVideoInfo) * (d->vi);
-    new_vi.format = vsapi->registerFormat(cmGray, stInteger, 8, 0, 0, core);
-    new_vi.width = d->vi->width * 4;
-    new_vi.height = d->vi->height;
-    vsapi->setVideoInfo(&new_vi, 1, node);
-}
-
-const VSFrameRef * VS_CC packGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
-{
-    packData *d = reinterpret_cast<packData *>(*instanceData);
+    packData *d = reinterpret_cast<packData *>(instanceData);
 
     if (activationReason == arInitial)
     {
@@ -27,11 +22,10 @@ const VSFrameRef * VS_CC packGetFrame(int n, int activationReason, void **instan
     }
     else if (activationReason == arAllFramesReady)
     {
-        const VSFrameRef *src_frame = vsapi->getFrameFilter(n, d->node, frameCtx);
+        const VSFrame *src_frame = vsapi->getFrameFilter(n, d->node, frameCtx);
         int width = vsapi->getFrameWidth(src_frame, 0);
         int height = vsapi->getFrameHeight(src_frame, 0);
-        const VSFormat *dstfmt = vsapi->registerFormat(cmGray, stInteger, 8, 0, 0, core);
-        VSFrameRef *dst_frame = vsapi->newVideoFrame(dstfmt, width * 4, height, nullptr, core);
+        VSFrame *dst_frame = vsapi->newVideoFrame(&d->vi.format, width * 4, height, nullptr, core);
 
         p2p_buffer_param p = {};
         p.width = width;
@@ -46,8 +40,8 @@ const VSFrameRef * VS_CC packGetFrame(int n, int activationReason, void **instan
         p.dst_stride[0] = vsapi->getStride(dst_frame, 0);
         p2p_pack_frame(&p, P2P_ALPHA_SET_ONE);
 
-        VSMap *props = vsapi->getFramePropsRW(dst_frame);
-        vsapi->propSetInt(props, "PackingFormat", static_cast<int64_t>(d->packing_fmt), paReplace);
+        VSMap *props = vsapi->getFramePropertiesRW(dst_frame);
+        vsapi->mapSetInt(props, "PackingFormat", static_cast<int64_t>(d->packing_fmt), maReplace);
         vsapi->freeFrame(src_frame);
         return dst_frame;
     }
@@ -63,20 +57,36 @@ void VS_CC packFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
 
 void VS_CC packCreateRGB24(const VSMap *in, VSMap *out, VSCore *core, const VSAPI *vsapi)
 {
-    packData d;
-    d.node = vsapi->propGetNode(in, "clip", 0, nullptr);
-    d.vi = vsapi->getVideoInfo(d.node);
-    d.packing_fmt = p2p_argb32;
-    packData *data = new packData(d);
-    vsapi->createFilter(in, out, "PackRGB24", packInit, packGetFrame, packFree, fmParallel, 0, data, core);
+    std::unique_ptr<packData> d(new packData());
+
+    d->node = vsapi->mapGetNode(in, "clip", 0, nullptr);
+
+    const VSVideoInfo *vi = vsapi->getVideoInfo(d->node);
+    d->vi = *vi;
+    d->vi.width *= 4;
+    vsapi->getVideoFormatByID(&d->vi.format, pfGray8, core);
+
+    d->packing_fmt = p2p_argb32;
+
+    VSFilterDependency deps[] = {{d->node, rpStrictSpatial}};
+
+    vsapi->createVideoFilter(out, "PackRGB24", &d->vi, packGetFrame, packFree, fmParallel, deps, 1, d.get(), core);
+
+    d.release();
 }
 
 void VS_CC packCreateRGB30(const VSMap *in, VSMap *out, VSCore *core, const VSAPI *vsapi)
 {
-    packData d;
-    d.node = vsapi->propGetNode(in, "clip", 0, nullptr);
-    d.vi = vsapi->getVideoInfo(d.node);
-    d.packing_fmt = p2p_rgb30;
-    packData *data = new packData(d);
-    vsapi->createFilter(in, out, "PackRGB30", packInit, packGetFrame, packFree, fmParallel, 0, data, core);
+    std::unique_ptr<packData> d(new packData());
+
+    d->node = vsapi->mapGetNode(in, "clip", 0, nullptr);
+    vsapi->getVideoFormatByID(&d->vi.format, pfGray8, core);
+    d->vi.width *= 4;
+    d->packing_fmt = p2p_rgb30;
+
+    VSFilterDependency deps[] = {{d->node, rpStrictSpatial}};
+
+    vsapi->createVideoFilter(out, "PackRGB30", &d->vi, packGetFrame, packFree, fmParallel, deps, 1, d.get(), core);
+
+    d.release();
 }

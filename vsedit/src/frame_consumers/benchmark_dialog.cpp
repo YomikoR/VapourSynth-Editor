@@ -3,7 +3,7 @@
 #include "../../../common-src/helpers.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 
-#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VapourSynth4.h>
 
 #if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
 	#include <QWinTaskbarButton>
@@ -215,13 +215,13 @@ void ScriptBenchmarkDialog::slotStartStopBenchmarkButtonPressed()
 //==============================================================================
 
 void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
-	int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
-	const VSFrameRef * a_cpPreviewFrameRef)
+	int a_outputIndex, const VSFrame * a_cpOutputFrame,
+	const VSFrame * a_cpPreviewFrame)
 {
 	(void)a_frameNumber;
 	(void)a_outputIndex;
-	(void)a_cpOutputFrameRef;
-	(void)a_cpPreviewFrameRef;
+	(void)a_cpOutputFrame;
+	(void)a_cpPreviewFrame;
 
 	if(!m_processing)
 		return;
@@ -231,8 +231,8 @@ void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
 }
 
 // END OF void ScriptBenchmarkDialog::slotReceiveFrame(int a_frameNumber,
-//		int a_outputIndex, const VSFrameRef * a_cpOutputFrameRef,
-//		const VSFrameRef * a_cpPreviewFrameRef)
+//		int a_outputIndex, const VSFrame * a_cpOutputFrame,
+//		const VSFrame * a_cpPreviewFrame)
 //==============================================================================
 
 void ScriptBenchmarkDialog::slotFrameRequestDiscarded(int a_frameNumber,

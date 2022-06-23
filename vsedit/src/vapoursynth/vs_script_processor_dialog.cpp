@@ -5,7 +5,7 @@
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../../../common-src/vapoursynth/vs_script_library.h"
 
-#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VapourSynth4.h>
 
 #include <QCloseEvent>
 #include <QStatusBar>
@@ -59,10 +59,10 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
 		this, SLOT(slotScriptProcessorFinalized()));
 	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalDistributeFrame(int, int, const VSFrameRef *,
-			const VSFrameRef *)),
-		this, SLOT(slotReceiveFrame(int, int, const VSFrameRef *,
-			const VSFrameRef *)));
+		SIGNAL(signalDistributeFrame(int, int, const VSFrame *,
+			const VSFrame *)),
+		this, SLOT(slotReceiveFrame(int, int, const VSFrame *,
+			const VSFrame *)));
 	connect(m_pVapourSynthScriptProcessor,
 		SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
 		this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
@@ -116,7 +116,7 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 		m_pVapourSynthScriptProcessor->videoInfo(m_outputIndex);
 	Q_ASSERT(m_cpVideoInfo[m_outputIndex]);
 
-	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo[m_outputIndex]);
+	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo[m_outputIndex], m_cpVSAPI);
 
 	return true;
 }
@@ -244,8 +244,8 @@ void VSScriptProcessorDialog::clearFramesCache()
 		Q_ASSERT(m_cpVSAPI);
 		for(Frame & frame : m_framesCache[n])
 		{
-			m_cpVSAPI->freeFrame(frame.cpOutputFrameRef);
-			m_cpVSAPI->freeFrame(frame.cpPreviewFrameRef);
+			m_cpVSAPI->freeFrame(frame.cpOutputFrame);
+			m_cpVSAPI->freeFrame(frame.cpPreviewFrame);
 		}
 		m_framesCache[n].clear();
 	}

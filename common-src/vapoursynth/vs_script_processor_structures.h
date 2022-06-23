@@ -1,7 +1,7 @@
 #ifndef VS_SCRIPT_PROCESSOR_STRUCTURES_H_INCLUDED
 #define VS_SCRIPT_PROCESSOR_STRUCTURES_H_INCLUDED
 
-#include <vapoursynth/VSScript.h>
+#include <vapoursynth/VapourSynth4.h>
 
 //==============================================================================
 
@@ -9,12 +9,12 @@ struct Frame
 {
 	int number;
 	int outputIndex;
-	const VSFrameRef * cpOutputFrameRef;
-	const VSFrameRef * cpPreviewFrameRef;
+	const VSFrame * cpOutputFrame;
+	const VSFrame * cpPreviewFrame;
 
 	Frame(int a_number, int a_outputIndex,
-		const VSFrameRef * a_cpOutputFrameRef,
-		const VSFrameRef * a_cpPreviewFrameRef = nullptr);
+		const VSFrame * a_cpOutputFrame,
+		const VSFrame * a_cpPreviewFrame = nullptr);
 	bool operator==(const Frame & a_other) const;
 };
 
@@ -24,16 +24,16 @@ struct FrameTicket
 {
 	int frameNumber;
 	int outputIndex;
-	VSNodeRef * pOutputNode;
+	VSNode * pOutputNode;
 	bool needPreview;
-	VSNodeRef * pPreviewNode;
-	const VSFrameRef * cpOutputFrameRef;
-	const VSFrameRef * cpPreviewFrameRef;
+	VSNode * pPreviewNode;
+	const VSFrame * cpOutputFrame;
+	const VSFrame * cpPreviewFrame;
 	bool discard;
 
 	FrameTicket(int a_frameNumber, int a_outputIndex,
-		VSNodeRef * a_pOutputNode, bool a_needPreview = false,
-		VSNodeRef * a_pPreviewNode = nullptr);
+		VSNode * a_pOutputNode, bool a_needPreview = false,
+		VSNode * a_pPreviewNode = nullptr);
 
 	bool isComplete() const;
 };
@@ -43,12 +43,12 @@ struct FrameTicket
 struct NodePair
 {
 	int outputIndex;
-	VSNodeRef * pOutputNode;
-	VSNodeRef * pPreviewNode;
+	VSNode * pOutputNode;
+	VSNode * pPreviewNode;
 
 	NodePair();
-	NodePair(int a_outputIndex, VSNodeRef * a_pOutputNode,
-		VSNodeRef * a_pPreviewNode);
+	NodePair(int a_outputIndex, VSNode * a_pOutputNode,
+		VSNode * a_pPreviewNode);
 
 	bool isNull() const;
 	bool isValid() const;
