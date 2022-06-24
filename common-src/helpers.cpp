@@ -42,7 +42,7 @@ static uint64_t genAudioChannelFlag(std::vector<VSAudioChannels> channels)
 	uint64_t flag = 0;
 	for(VSAudioChannels c : channels)
 	{
-		flag |= (1ULL << c);
+		flag |= (static_cast<uint64_t>(1) << c);
 	}
 	return flag;
 }
@@ -185,7 +185,7 @@ QString vsedit::audioInfoString(const VSAudioInfo * a_cpAudioInfo,
 	}
 	for(auto it : audioChannelToString)
 	{
-		if((1ULL << it.first) & channelLayoutFlag)
+		if((static_cast<uint64_t>(1) << it.first) & channelLayoutFlag)
 		{
 			channelsString += QString("%1 ").arg(it.second);
 		}
