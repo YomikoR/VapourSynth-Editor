@@ -4,6 +4,80 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <cmath>
+#include <functional>
+#include <vector>
+
+/* https://www.ffmpeg.org/ffmpeg-utils.html#Channel-Layout */
+static std::map<VSAudioChannels, QString> audioChannelToString =
+{
+	{acFrontLeft, "FL"},
+	{acFrontRight, "FR"},
+	{acFrontCenter, "FC"},
+	{acLowFrequency, "LFE"},
+	{acBackLeft, "BL"},
+	{acBackRight, "BR"},
+	{acFrontLeftOFCenter, "FLC"},
+	{acFrontRightOFCenter, "FRC"},
+	{acBackCenter, "BC"},
+	{acSideLeft, "SL"},
+	{acSideRight, "SR"},
+	{acTopCenter, "TC"},
+	{acTopFrontLeft, "TFL"},
+	{acTopFrontCenter, "TFC"},
+	{acTopFrontRight, "TFR"},
+	{acTopBackLeft, "TBL"},
+	{acTopBackCenter, "TBC"},
+	{acTopBackRight, "TBR"},
+	{acStereoLeft, "DL"}, // "downmix left"
+	{acStereoRight, "DR"}, // "downmix right"
+	{acWideLeft, "WL"},
+	{acWideRight, "WR"},
+	{acSurroundDirectLeft, "SDL"},
+	{acSurroundDirectRight, "SDR"},
+	{acLowFrequency2, "LFE2"}
+};
+
+static uint64_t genAudioChannelFlag(std::vector<VSAudioChannels> channels)
+{
+	uint64_t flag = 0;
+	for(VSAudioChannels c : channels)
+	{
+		flag |= (1ULL << c);
+	}
+	return flag;
+}
+
+#define gACF genAudioChannelFlag
+
+static std::map<uint64_t, QString> audioChannelToPreset =
+{
+	{gACF({acFrontCenter}), "mono"},
+	{gACF({acFrontLeft, acFrontRight}), "stereo"},
+	{gACF({acFrontLeft, acFrontRight, acLowFrequency}), "2.1"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter}), "3.0"},
+	{gACF({acFrontLeft, acFrontRight, acBackCenter}), "3.0(back)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acBackCenter}), "4.0"},
+	{gACF({acFrontLeft, acFrontRight, acBackLeft, acBackRight}), "quad"},
+	{gACF({acFrontLeft, acFrontRight, acSideLeft, acSideRight}), "quad(side)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency}), "3.1"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acSideLeft, acSideRight}), "5.0"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acBackCenter}), "4.1"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acBackLeft, acBackRight}), "5.1"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acSideLeft, acSideRight}), "5.1(side)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acBackCenter, acSideLeft, acSideRight}), "6.0"},
+	{gACF({acFrontLeft, acFrontRight, acFrontLeftOFCenter, acFrontRightOFCenter, acSideLeft, acSideRight}), "6.0(front)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acBackLeft, acBackRight, acBackCenter}), "hexagonal"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acBackLeft, acBackRight, acBackCenter}), "6.1"},
+	{gACF({acFrontLeft, acFrontRight, acLowFrequency, acFrontLeftOFCenter, acFrontRightOFCenter, acSideLeft, acSideRight}), "6.1(front)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acBackLeft, acBackRight, acSideLeft, acSideRight}), "7.0"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acFrontLeftOFCenter, acFrontRightOFCenter, acSideLeft, acSideRight}), "7.0(front)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acBackLeft, acBackRight, acSideLeft, acSideRight}), "7.1"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acBackLeft, acBackRight, acFrontLeftOFCenter, acFrontRightOFCenter}), "7.1(wide)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acLowFrequency, acFrontLeftOFCenter, acFrontRightOFCenter, acSideLeft, acSideRight}), "7.1(wide-side)"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acBackLeft, acBackRight, acBackCenter, acSideLeft, acSideRight}), "octagonal"},
+	{gACF({acFrontLeft, acFrontRight, acFrontCenter, acBackLeft, acBackRight, acBackCenter, acSideLeft, acSideRight, acWideLeft, acWideRight, acTopBackLeft, acTopBackRight, acTopBackCenter, acTopFrontCenter, acTopFrontLeft, acTopFrontRight}), "hexadecagonal"},
+	{gACF({acStereoLeft, acStereoRight}), "downmix"}
+};
 
 //==============================================================================
 
@@ -87,6 +161,66 @@ QString vsedit::videoInfoString(const VSVideoInfo * a_cpVideoInfo,
 }
 
 // END OF QString vsedit::videoInfoString(const VSVideoInfo * a_cpVideoInfo)
+//==============================================================================
+
+QString vsedit::audioInfoString(const VSAudioInfo * a_cpAudioInfo,
+	const VSAPI * a_cpVSAPI)
+{
+	QString infoString = QString("Frames: %frames% | Time: %time% | "
+		"Sample Rate: %srate% Hz | Num Samples: %ns% | "
+		"Channels: %channels%| Format: %format%");
+	infoString.replace("%frames%", QString::number(a_cpAudioInfo->numFrames));
+	infoString.replace("%time%", vsedit::timeToString(
+		double(a_cpAudioInfo->numSamples) / a_cpAudioInfo->sampleRate, true));
+	infoString.replace("%srate%", QString::number(a_cpAudioInfo->sampleRate));
+	infoString.replace("%ns%", QString::number(a_cpAudioInfo->numSamples));
+
+	QString channelsString("");
+	uint64_t channelLayoutFlag = a_cpAudioInfo->format.channelLayout;
+	auto found = audioChannelToPreset.find(channelLayoutFlag);
+	if(found != audioChannelToPreset.end())
+	{
+		channelsString += QString("[%1] ")
+			.arg(audioChannelToPreset.at(channelLayoutFlag));
+	}
+	for(auto it : audioChannelToString)
+	{
+		if((1ULL << it.first) & channelLayoutFlag)
+		{
+			channelsString += QString("%1 ").arg(it.second);
+		}
+	}
+	infoString.replace("%channels%", channelsString);
+
+	char formatName[32];
+	a_cpVSAPI->getAudioFormatName(&a_cpAudioInfo->format, formatName);
+	infoString.replace("%format%", formatName);
+
+	return infoString;
+}
+
+// END OF QString vsedit::audioInfoString(const VSAudioInfo * a_cpAudioInfo,
+//	const VSAPI * a_cpVSAPI)
+//==============================================================================
+
+QString vsedit::nodeInfoString(const VSNodeInfo & a_nodeInfo,
+	const VSAPI * a_cpVSAPI)
+{
+	if(a_nodeInfo.isInvalid())
+		return QString("");
+	else if(a_nodeInfo.isAudio())
+		return vsedit::audioInfoString(a_nodeInfo.getAsAudio(),
+			a_cpVSAPI);
+	else
+	{
+		Q_ASSERT(a_cpVSAPI);
+		return vsedit::videoInfoString(a_nodeInfo.getAsVideo(),
+			a_cpVSAPI);
+	}
+}
+
+// END OF QString vsedit::nodeInfoString(const VSNodeInfo & a_nodeInfo,
+//	const VSAPI * a_cpVSAPI)
 //==============================================================================
 
 double vsedit::qtimeToSeconds(const QTime & a_qtime)

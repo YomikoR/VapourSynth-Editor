@@ -351,7 +351,7 @@ void JobEditDialog::slotEncodingFramesFromVideoButtonClicked()
 	if(!initialized)
 		return;
 
-	const VSVideoInfo * cpVideoInfo = processor.videoInfo();
+	const VSVideoInfo * cpVideoInfo = processor.nodeInfo().getAsVideo();
 	m_ui.encodingFirstFrameSpinBox->setValue(0);
 	m_ui.encodingLastFrameSpinBox->setValue(cpVideoInfo->numFrames - 1);
 }

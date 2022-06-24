@@ -234,17 +234,21 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	setTitle();
 
-	int lastFrameNumber = m_cpVideoInfo[m_outputIndex]->numFrames - 1;
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	if(!vi)
+		return;
+
+	int lastFrameNumber = vi->numFrames - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
-	m_ui.frameNumberSlider->setFramesNumber(
-		m_cpVideoInfo[m_outputIndex]->numFrames);
-	if(m_cpVideoInfo[m_outputIndex]->fpsDen == 0)
+	m_ui.frameNumberSlider->setFramesNumber(vi->numFrames);
+	if(vi->fpsDen == 0)
+	{
 		m_ui.frameNumberSlider->setFPS(0.0);
+	}
 	else
 	{
 		m_ui.frameNumberSlider->setFPS(
-			(double)m_cpVideoInfo[m_outputIndex]->fpsNum /
-			(double)m_cpVideoInfo[m_outputIndex]->fpsDen);
+			(double)vi->fpsNum / (double)vi->fpsDen);
 	}
 
 	bool scriptChanged = ((previousScript != a_script) &&
@@ -372,7 +376,8 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 		QDialog::keyPressEvent(a_pEvent);
 		return;
 	}
-	Q_ASSERT(m_cpVideoInfo[m_outputIndex]);
+	if(!m_nodeInfo[m_outputIndex].isVideo())
+		return;
 
 	int key = a_pEvent->key();
 
@@ -380,20 +385,20 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 		(m_frameExpected > 0))
 		slotShowFrame(m_frameExpected - 1);
 	else if(((key == Qt::Key_Right) || (key == Qt::Key_Up)) &&
-		(m_frameExpected < (m_cpVideoInfo[m_outputIndex]->numFrames - 1)))
+		(m_frameExpected < (m_nodeInfo[m_outputIndex].numFrames() - 1)))
 		slotShowFrame(m_frameExpected + 1);
 	else if((key == Qt::Key_PageDown) && (m_frameExpected > 0))
 		slotShowFrame(std::max(0, m_frameExpected - m_bigFrameStep));
 	else if((key == Qt::Key_PageUp) &&
-		(m_frameExpected < (m_cpVideoInfo[m_outputIndex]->numFrames - 1)))
+		(m_frameExpected < (m_nodeInfo[m_outputIndex].numFrames() - 1)))
 	{
-		slotShowFrame(std::min(m_cpVideoInfo[m_outputIndex]->numFrames - 1,
+		slotShowFrame(std::min(m_nodeInfo[m_outputIndex].numFrames() - 1,
 			m_frameExpected + m_bigFrameStep));
 	}
 	else if(key == Qt::Key_Home)
 		slotShowFrame(0);
 	else if(key == Qt::Key_End)
-		slotShowFrame(m_cpVideoInfo[m_outputIndex]->numFrames - 1);
+		slotShowFrame(m_nodeInfo[m_outputIndex].numFrames() - 1);
 	else if(key == Qt::Key_Escape)
 		close();
 	else
@@ -515,6 +520,9 @@ void PreviewDialog::slotSaveSnapshot()
 	if((m_frameShown < 0) || m_framePixmap.isNull())
 		return;
 
+	if(!m_nodeInfo[m_outputIndex].isVideo())
+		return;
+
 	std::map<QString, QString> extensionToFilterMap =
 	{
 		{"png", tr("PNG image (*.png)")},
@@ -577,8 +585,8 @@ void PreviewDialog::slotSaveSnapshot()
 			{"{t}", tr("timestamp"),
 				[&]()
 				{
-					auto fpsden = m_cpVideoInfo[m_outputIndex]->fpsDen;
-					auto fpsnum = m_cpVideoInfo[m_outputIndex]->fpsNum;
+					auto fpsden = m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen;
+					auto fpsnum = m_nodeInfo[m_outputIndex].getAsVideo()->fpsNum;
 					if(fpsden == 0 || fpsnum == 0)
 						return QString();
 					double fps = (double)fpsnum / (double)fpsden;
@@ -810,7 +818,10 @@ void PreviewDialog::slotCropLeftValueChanged(int a_value)
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	int remainder = m_cpVideoInfo[m_outputIndex]->width - a_value;
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	int remainder = vi->width - a_value;
 	m_ui.cropWidthSpinBox->setMaximum(remainder);
 	m_ui.cropRightSpinBox->setMaximum(remainder - 1);
 
@@ -846,7 +857,10 @@ void PreviewDialog::slotCropTopValueChanged(int a_value)
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	int remainder = m_cpVideoInfo[m_outputIndex]->height - a_value;
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	int remainder = vi->height - a_value;
 	m_ui.cropHeightSpinBox->setMaximum(remainder);
 	m_ui.cropBottomSpinBox->setMaximum(remainder - 1);
 
@@ -882,7 +896,10 @@ void PreviewDialog::slotCropWidthValueChanged(int a_value)
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	m_ui.cropRightSpinBox->setValue(m_cpVideoInfo[m_outputIndex]->width -
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	m_ui.cropRightSpinBox->setValue(vi->width -
 		m_ui.cropLeftSpinBox->value() - a_value);
 
 	recalculateCropMods();
@@ -901,7 +918,10 @@ void PreviewDialog::slotCropHeightValueChanged(int a_value)
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	m_ui.cropBottomSpinBox->setValue(m_cpVideoInfo[m_outputIndex]->height -
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	m_ui.cropBottomSpinBox->setValue(vi->height -
 		m_ui.cropTopSpinBox->value() - a_value);
 
 	recalculateCropMods();
@@ -920,7 +940,10 @@ void PreviewDialog::slotCropRightValueChanged(int a_value)
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	m_ui.cropWidthSpinBox->setValue(m_cpVideoInfo[m_outputIndex]->width -
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	m_ui.cropWidthSpinBox->setValue(vi->width -
 		m_ui.cropLeftSpinBox->value() - a_value);
 
 	recalculateCropMods();
@@ -939,7 +962,10 @@ void PreviewDialog::slotCropBottomValueChanged(int a_value)
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	m_ui.cropHeightSpinBox->setValue(m_cpVideoInfo[m_outputIndex]->height -
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	m_ui.cropHeightSpinBox->setValue(vi->height -
 		m_ui.cropTopSpinBox->value() - a_value);
 
 	recalculateCropMods();
@@ -1173,6 +1199,9 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	if(!m_cpFrame)
 		return;
 
+	if(m_cpVSAPI->getFrameType(m_cpFrame) == mtAudio)
+		return;
+
 	if(!m_pStatusBarWidget->colorPickerVisible())
 		return;
 
@@ -1249,7 +1278,8 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	QString l2("2");
 	QString l3("3");
 
-	int colorFamily = m_cpVideoInfo[m_outputIndex]->format.colorFamily;
+	int colorFamily = m_nodeInfo[m_outputIndex].getAsVideo()->
+		format.colorFamily;
 
 	if(colorFamily == cfYUV)
 	{
@@ -1333,9 +1363,10 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		m_secondsBetweenFrames = 1.0 / limit;
 	else if(mode == PlayFPSLimitMode::FromVideo)
 	{
-		if(!m_cpVideoInfo[m_outputIndex])
+		const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+		if(!vi)
 			m_secondsBetweenFrames = 0.0;
-		else if(m_cpVideoInfo[m_outputIndex]->fpsNum == 0ll)
+		else if(vi->fpsNum == 0ll)
 		{
 			m_nativePlaybackRate = true;
 			m_secondsBetweenFrames = 0.0;
@@ -1343,8 +1374,8 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		else
 		{
 			m_secondsBetweenFrames =
-				(double)m_cpVideoInfo[m_outputIndex]->fpsDen /
-				(double)m_cpVideoInfo[m_outputIndex]->fpsNum;
+				(double)vi->fpsDen /
+				(double)vi->fpsNum;
 		}
 	}
 	else
@@ -1391,7 +1422,11 @@ void PreviewDialog::slotProcessPlayQueue()
 		return;
 	m_processingPlayQueue = true;
 
-	int nextFrame = (m_frameShown + 1) % m_cpVideoInfo[m_outputIndex]->numFrames;
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	if(!vi)
+		return;
+
+	int nextFrame = (m_frameShown + 1) % vi->numFrames;
 	Frame referenceFrame(nextFrame, m_outputIndex, nullptr);
 
 	while(!m_framesCache[m_outputIndex].empty())
@@ -1440,12 +1475,11 @@ void PreviewDialog::slotProcessPlayQueue()
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected);
 		m_framesCache[m_outputIndex].erase(it);
-		nextFrame = (m_frameShown + 1) % m_cpVideoInfo[m_outputIndex]->numFrames;
+		nextFrame = (m_frameShown + 1) % vi->numFrames;
 		referenceFrame.number = nextFrame;
 	}
 
-	nextFrame = (m_lastFrameRequestedForPlay + 1) %
-		m_cpVideoInfo[m_outputIndex]->numFrames;
+	nextFrame = (m_lastFrameRequestedForPlay + 1) % vi->numFrames;
 
 	while(((m_framesInQueue[m_outputIndex] + m_framesInProcess[m_outputIndex]) <
 		m_maxThreads) &&
@@ -1454,7 +1488,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame,
 			m_outputIndex, true);
 		m_lastFrameRequestedForPlay = nextFrame;
-		nextFrame = (nextFrame + 1) % m_cpVideoInfo[m_outputIndex]->numFrames;
+		nextFrame = (nextFrame + 1) % vi->numFrames;
 	}
 
 	m_processingPlayQueue = false;
@@ -1476,17 +1510,22 @@ void PreviewDialog::slotLoadChapters()
 	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 
-	const VSVideoInfo * cpVideoInfo =
-		m_pVapourSynthScriptProcessor->videoInfo(m_outputIndex);
-	if (cpVideoInfo->fpsDen == 0)
+	VSNodeInfo nodeInfo =
+		m_pVapourSynthScriptProcessor->nodeInfo(m_outputIndex);
+
+	if(!nodeInfo.isVideo())
+		return;
+
+	const VSVideoInfo * vi = nodeInfo.getAsVideo();
+
+	if (vi->fpsDen == 0)
 	{
 		QString infoString = tr(
 			"Warning: Load chapters requires clip having constant frame rate. Skipped");
 		emit signalWriteLogMessage(mtWarning, infoString);
 		return;
 	}
-	const double fps = (double)cpVideoInfo->fpsNum /
-		(double)cpVideoInfo->fpsDen;
+	const double fps = (double)vi->fpsNum / (double)vi->fpsDen;
 
 	static const QRegExp regExp(R"((\d{2}):(\d{2}):(\d{2})[\.:](\d{3})?)");
 	while(!chaptersFile.atEnd())
@@ -1614,10 +1653,17 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		return;
 
 	// Check if output index is available
-	const VSVideoInfo * vi = m_pVapourSynthScriptProcessor->
-		videoInfo(a_outputIndex);
-	if(!vi)
+	VSNodeInfo ni = m_pVapourSynthScriptProcessor->nodeInfo(a_outputIndex);
+	if(ni.isInvalid())
 		return;
+	if(ni.isAudio())
+	{
+		QString errorString = tr("Output node #%1 is an audio clip. "
+			"Previewing and encoding audio are not supported.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, errorString);
+		return;
+	}
 	m_outputIndex = a_outputIndex;
 
 	// Update stuff
@@ -1625,21 +1671,23 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	m_sceneName = "";
 	m_toChangeTitle = true;
 
-	m_cpVideoInfo[m_outputIndex] = vi;
-	int lastFrameNumber = m_cpVideoInfo[m_outputIndex]->numFrames - 1;
+	m_nodeInfo[m_outputIndex] = ni;
+	int lastFrameNumber = m_nodeInfo[m_outputIndex].numFrames() - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(
-		m_cpVideoInfo[m_outputIndex]->numFrames);
-	if(m_cpVideoInfo[m_outputIndex]->fpsDen == 0)
+		m_nodeInfo[m_outputIndex].numFrames());
+	if(m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen == 0)
+	{
 		m_ui.frameNumberSlider->setFPS(0.0);
+	}
 	else
 	{
 		m_ui.frameNumberSlider->setFPS(
-			(double)m_cpVideoInfo[m_outputIndex]->fpsNum /
-			(double)m_cpVideoInfo[m_outputIndex]->fpsDen);
+			(double)m_nodeInfo[m_outputIndex].getAsVideo()->fpsNum /
+			(double)m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen);
 	}
 
-	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo[m_outputIndex], m_cpVSAPI);
+	m_pStatusBarWidget->setNodeInfo(m_nodeInfo[m_outputIndex], m_cpVSAPI);
 
 	if(m_frameExpected > lastFrameNumber)
 		m_frameExpected = lastFrameNumber;
@@ -2191,19 +2239,22 @@ void PreviewDialog::resetCropSpinBoxes()
 {
 	BEGIN_CROP_VALUES_CHANGE
 
-	m_ui.cropLeftSpinBox->setMaximum(m_cpVideoInfo[m_outputIndex]->width - 1);
+	const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
+	Q_ASSERT(vi);
+
+	m_ui.cropLeftSpinBox->setMaximum(vi->width - 1);
 	m_ui.cropLeftSpinBox->setValue(0);
-	m_ui.cropTopSpinBox->setMaximum(m_cpVideoInfo[m_outputIndex]->height - 1);
+	m_ui.cropTopSpinBox->setMaximum(vi->height - 1);
 	m_ui.cropTopSpinBox->setValue(0);
 
-	m_ui.cropWidthSpinBox->setMaximum(m_cpVideoInfo[m_outputIndex]->width);
-	m_ui.cropWidthSpinBox->setValue(m_cpVideoInfo[m_outputIndex]->width);
-	m_ui.cropHeightSpinBox->setMaximum(m_cpVideoInfo[m_outputIndex]->height);
-	m_ui.cropHeightSpinBox->setValue(m_cpVideoInfo[m_outputIndex]->height);
+	m_ui.cropWidthSpinBox->setMaximum(vi->width);
+	m_ui.cropWidthSpinBox->setValue(vi->width);
+	m_ui.cropHeightSpinBox->setMaximum(vi->height);
+	m_ui.cropHeightSpinBox->setValue(vi->height);
 
-	m_ui.cropRightSpinBox->setMaximum(m_cpVideoInfo[m_outputIndex]->width - 1);
+	m_ui.cropRightSpinBox->setMaximum(vi->width - 1);
 	m_ui.cropRightSpinBox->setValue(0);
-	m_ui.cropBottomSpinBox->setMaximum(m_cpVideoInfo[m_outputIndex]->height - 1);
+	m_ui.cropBottomSpinBox->setMaximum(vi->height - 1);
 	m_ui.cropBottomSpinBox->setValue(0);
 
 	recalculateCropMods();

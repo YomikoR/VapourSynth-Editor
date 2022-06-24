@@ -52,7 +52,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_initialized(false)
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
-	, m_cpVideoInfo(nullptr)
+	, m_nodeInfo()
 	, m_finalizing(false)
 {
 	Q_ASSERT(m_pSettingsManager);
@@ -75,7 +75,7 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 //==============================================================================
 
 bool VapourSynthScriptProcessor::initialize(const QString& a_script,
-	const QString& a_scriptName, int a_outputIndex)
+	const QString& a_scriptName, int a_outputIndex, bool a_checkOnly)
 {
 	if(m_initialized || m_finalizing)
 	{
@@ -131,18 +131,19 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		finalize();
 		return false;
 	}
-	else if(m_cpVSAPI->getNodeType(pOutputNode) == mtAudio)
+
+	m_nodeInfo = VSNodeInfo(pOutputNode, m_cpVSAPI);
+
+	if(!a_checkOnly && m_nodeInfo.isAudio())
 	{
 		m_cpVSAPI->freeNode(pOutputNode);
-		m_error = tr("Output node #%1 is an audio node, "
-			"which is not yet supported.")
+		m_error = tr("Output node #%1 is an audio clip. "
+			"Previewing and encoding audio are not supported.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
 		return false;
 	}
-
-	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(pOutputNode);
 
 	m_cpVSAPI->freeNode(pOutputNode);
 
@@ -158,7 +159,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 }
 
 // END OF bool VapourSynthScriptProcessor::initialize(const QString& a_script,
-//		const QString& a_scriptName, int a_outputIndex)
+//		const QString& a_scriptName, int a_outputIndex, bool a_checkOnly)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::finalize()
@@ -177,8 +178,6 @@ bool VapourSynthScriptProcessor::finalize()
 			m_cpVSAPI->freeNode(nodePair.pPreviewNode);
 	}
 	m_nodePairForOutputIndex.clear();
-
-	m_cpVideoInfo = nullptr;
 
 	if(m_pVSScript)
 	{
@@ -218,10 +217,10 @@ QString VapourSynthScriptProcessor::error() const
 // END OF QString VapourSynthScriptProcessor::error() const
 //==============================================================================
 
-const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
+VSNodeInfo VapourSynthScriptProcessor::nodeInfo(int a_outputIndex)
 {
 	if(!m_initialized)
-		return nullptr;
+		return VSNodeInfo();
 
 	Q_ASSERT(m_cpVSAPI);
 	Q_ASSERT(m_pVSScript);
@@ -233,27 +232,17 @@ const VSVideoInfo * VapourSynthScriptProcessor::videoInfo(int a_outputIndex)
 		m_error = tr("Couldn't resolve output node #%1.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(mtCritical, m_error);
-		return nullptr;
-	}
-	else if(m_cpVSAPI->getNodeType(pNode) == mtAudio)
-	{
-		m_cpVSAPI->freeNode(pNode);
-		m_error = tr("Output node #%1 is an audio node, "
-			"which is not yet supported.")
-			.arg(a_outputIndex);
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return nullptr;
+		return VSNodeInfo();
 	}
 
-	const VSVideoInfo * cpVideoInfo = m_cpVSAPI->getVideoInfo(pNode);
-	Q_ASSERT(cpVideoInfo);
+	VSNodeInfo nodeInfo(pNode, m_cpVSAPI);
 
 	m_cpVSAPI->freeNode(pNode);
 
-	return cpVideoInfo;
+	return nodeInfo;
 }
 
-// END OF const VSVideoInfo * VapourSynthScriptProcessor::videoInfo() const
+// END OF VSNodeInfo VapourSynthScriptProcessor::nodeInfo(int a_outputIndex)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
@@ -276,11 +265,22 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	if(!nodePair.pOutputNode)
 		return false;
 
-	const VSVideoInfo * cpVideoInfo =
-		m_cpVSAPI->getVideoInfo(nodePair.pOutputNode);
-	Q_ASSERT(cpVideoInfo);
+	int numFrames;
+	int mediaType = m_cpVSAPI->getNodeType(nodePair.pOutputNode);
+	if(mediaType == mtAudio)
+	{
+		auto *info = m_cpVSAPI->getAudioInfo(nodePair.pOutputNode);
+		Q_ASSERT(info);
+		numFrames = info->numFrames;
+	}
+	else
+	{
+		auto *info = m_cpVSAPI->getVideoInfo(nodePair.pOutputNode);
+		Q_ASSERT(info);
+		numFrames = info->numFrames;
+	}
 
-	if(a_frameNumber >= cpVideoInfo->numFrames)
+	if(a_frameNumber >= numFrames)
 	{
 		m_error = tr("Requested frame number %1 is outside the frame "
 			"range.").arg(a_outputIndex);
@@ -567,6 +567,14 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		a_nodePair.pPreviewNode = nullptr;
 	}
 
+	int outputMediaType = m_cpVSAPI->getNodeType(a_nodePair.pOutputNode);
+	if(outputMediaType == mtAudio)
+	{
+		m_error = tr("Audio playback is not supported.");
+		emit signalWriteLogMessage(mtCritical, m_error);
+		return false;
+	}
+
 	const VSVideoInfo * cpVideoInfo =
 		m_cpVSAPI->getVideoInfo(a_nodePair.pOutputNode);
 	if(!cpVideoInfo)
@@ -809,15 +817,6 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 		if(!nodePair.pOutputNode)
 		{
 			m_error = tr("Couldn't resolve output node #%1.")
-				.arg(a_outputIndex);
-			emit signalWriteLogMessage(mtCritical, m_error);
-			return nodePair;
-		}
-		else if(m_cpVSAPI->getNodeType(nodePair.pOutputNode) == mtAudio)
-		{
-			m_cpVSAPI->freeNode(nodePair.pOutputNode);
-			m_error = tr("Output node #%1 is an audio node, "
-				"which is not yet supported.")
 				.arg(a_outputIndex);
 			emit signalWriteLogMessage(mtCritical, m_error);
 			return nodePair;

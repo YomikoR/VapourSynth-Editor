@@ -22,7 +22,6 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
 	, m_pVapourSynthScriptProcessor(nullptr)
 	, m_cpVSAPI(nullptr)
-	, m_cpVideoInfo()
 	, m_framesInQueue()
 	, m_framesInProcess()
 	, m_maxThreads(0)
@@ -84,7 +83,7 @@ VSScriptProcessorDialog::~VSScriptProcessorDialog()
 //==============================================================================
 
 bool VSScriptProcessorDialog::initialize(const QString & a_script,
-	const QString & a_scriptName)
+	const QString & a_scriptName, bool a_checkOnly)
 {
 	Q_ASSERT(m_pVapourSynthScriptProcessor);
 
@@ -104,7 +103,7 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	}
 
 	bool initialized = m_pVapourSynthScriptProcessor->initialize(a_script,
-		a_scriptName, m_outputIndex);
+		a_scriptName, m_outputIndex, a_checkOnly);
 	if(!initialized)
 	{
 		if(isVisible())
@@ -112,11 +111,11 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 		return false;
 	}
 
-	m_cpVideoInfo[m_outputIndex] =
-		m_pVapourSynthScriptProcessor->videoInfo(m_outputIndex);
-	Q_ASSERT(m_cpVideoInfo[m_outputIndex]);
+	m_nodeInfo[m_outputIndex] =
+		m_pVapourSynthScriptProcessor->nodeInfo(m_outputIndex);
+	Q_ASSERT(!m_nodeInfo[m_outputIndex].isInvalid());
 
-	m_pStatusBarWidget->setVideoInfo(m_cpVideoInfo[m_outputIndex], m_cpVSAPI);
+	m_pStatusBarWidget->setNodeInfo(m_nodeInfo[m_outputIndex], m_cpVSAPI);
 
 	return true;
 }
@@ -227,7 +226,7 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 {
 	clearFramesCache();
 	for(int n = 0; n < 10; ++n)
-		m_cpVideoInfo[n] = nullptr;
+		m_nodeInfo[n].setNull();
 
 	m_outputIndex = 0;
 }

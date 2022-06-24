@@ -3,6 +3,8 @@
 
 #include <vapoursynth/VapourSynth4.h>
 
+#include "helpers_vs.h"
+
 #include <QString>
 #include <QTime>
 #include <QJsonObject>
@@ -32,6 +34,12 @@ QString timeToString(double a_seconds, bool a_fullFormat = false);
 int mod(int a_value);
 
 QString videoInfoString(const VSVideoInfo * a_cpVideoInfo,
+	const VSAPI * a_cpVSAPI);
+
+QString audioInfoString(const VSAudioInfo * a_cpAudioInfo,
+	const VSAPI * a_cpVSAPI);
+
+QString nodeInfoString(const VSNodeInfo &a_nodeInfo,
 	const VSAPI * a_cpVSAPI);
 
 double qtimeToSeconds(const QTime & a_qtime);

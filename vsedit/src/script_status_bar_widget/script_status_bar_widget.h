@@ -6,6 +6,8 @@
 #include <vapoursynth/VapourSynth4.h>
 #include <QPixmap>
 
+class VSNodeInfo;
+
 class ScriptStatusBarWidget: public QWidget
 {
 	Q_OBJECT
@@ -26,7 +28,7 @@ public slots:
 	virtual void setQueueState(size_t a_inQueue, size_t a_inProcess,
 		size_t a_maxThreads);
 
-	virtual void setVideoInfo(const VSVideoInfo * a_cpVideoInfo,
+	virtual void setNodeInfo(const VSNodeInfo & a_nodeInfo,
 		const VSAPI * a_cpVSAPI);
 
 protected:

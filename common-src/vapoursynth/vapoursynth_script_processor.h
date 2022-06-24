@@ -3,6 +3,7 @@
 
 #include "vs_script_processor_structures.h"
 #include "../settings/settings_manager_core.h"
+#include "../helpers_vs.h"
 
 #include <vapoursynth/VSScript4.h>
 
@@ -27,7 +28,7 @@ public:
 	virtual ~VapourSynthScriptProcessor();
 
 	bool initialize(const QString& a_script, const QString& a_scriptName,
-		int a_outputIndex);
+		int a_outputIndex, bool a_checkOnly = false);
 
 	bool finalize();
 
@@ -35,7 +36,7 @@ public:
 
 	QString error() const;
 
-	const VSVideoInfo * videoInfo(int a_outputIndex = 0);
+	VSNodeInfo nodeInfo(int a_outputIndex = 0);
 
 	bool requestFrameAsync(int a_frameNumber, int a_outputIndex = 0,
 		bool a_needPreview = false);
@@ -109,7 +110,7 @@ private:
 
 	VSScript * m_pVSScript;
 
-	const VSVideoInfo * m_cpVideoInfo;
+	VSNodeInfo m_nodeInfo;
 	VSCoreInfo m_cpCoreInfo;
 
 	std::deque<FrameTicket> m_frameTicketsQueue;

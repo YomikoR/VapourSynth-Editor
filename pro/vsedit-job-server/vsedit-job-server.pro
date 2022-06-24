@@ -156,6 +156,7 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 #RESOURCES = $${COMMON_DIRECTORY}/resources/vsedit-job-server.qrc
 
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/helpers_vs.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/chrono.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.h

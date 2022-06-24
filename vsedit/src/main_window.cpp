@@ -461,12 +461,13 @@ void MainWindow::slotCheckScript()
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	bool correct = tempProcessor.initialize(m_ui.scriptEdit->text(),
-		m_scriptFilePath, 0);
+		m_scriptFilePath, 0, true);
 	if(correct)
 	{
+		VSNodeInfo info = tempProcessor.nodeInfo();
 		QString message = tr("Script was successfully evaluated. "
-			"Output video info:\n");
-		message += vsedit::videoInfoString(tempProcessor.videoInfo(), cpVSAPI);
+			"Output %1 info:\n").arg(info.isAudio() ? "audio" : "video");
+		message += vsedit::nodeInfoString(info, cpVSAPI);
 		m_ui.logView->addEntry(message, LOG_STYLE_POSITIVE);
 	}
 }

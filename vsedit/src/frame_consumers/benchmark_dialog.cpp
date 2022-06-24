@@ -62,10 +62,10 @@ ScriptBenchmarkDialog::~ScriptBenchmarkDialog()
 //==============================================================================
 
 bool ScriptBenchmarkDialog::initialize(const QString & a_script,
-	const QString & a_scriptName)
+	const QString & a_scriptName, bool a_checkOnly)
 {
-	bool initialized =
-		VSScriptProcessorDialog::initialize(a_script, a_scriptName);
+	bool initialized = VSScriptProcessorDialog::initialize(a_script,
+		a_scriptName, a_checkOnly);
 	if(!initialized)
 		emit signalWriteLogMessage(mtCritical,
 			m_pVapourSynthScriptProcessor->error());
@@ -96,7 +96,7 @@ void ScriptBenchmarkDialog::call()
 	if((!m_pVapourSynthScriptProcessor->isInitialized()) || m_wantToFinalize)
 		return;
 
-	Q_ASSERT(m_cpVideoInfo);
+	Q_ASSERT(!m_nodeInfo[0].isInvalid());
 
 	m_ui.feedbackTextEdit->clear();
 	setWindowTitle(tr("Benchmark: %1").arg(scriptName()));
@@ -104,10 +104,10 @@ void ScriptBenchmarkDialog::call()
 	m_ui.feedbackTextEdit->addEntry(text);
 	m_ui.metricsEdit->clear();
 	int firstFrame = 0;
-	int lastFrame = m_cpVideoInfo[0]->numFrames - 1;
+	int lastFrame = m_nodeInfo[0].numFrames() - 1;
 	m_ui.fromFrameSpinBox->setMaximum(lastFrame);
 	m_ui.toFrameSpinBox->setMaximum(lastFrame);
-	m_ui.processingProgressBar->setMaximum(m_cpVideoInfo[0]->numFrames);
+	m_ui.processingProgressBar->setMaximum(m_nodeInfo[0].numFrames());
 	m_ui.processingProgressBar->setValue(0);
 
 	if(m_lastFromFrame >= 0)
@@ -158,8 +158,8 @@ void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 
 void ScriptBenchmarkDialog::slotWholeVideoButtonPressed()
 {
-	Q_ASSERT(m_cpVideoInfo);
-	int lastFrame = m_cpVideoInfo[0]->numFrames - 1;
+	Q_ASSERT(!m_nodeInfo[0].isInvalid());
+	int lastFrame = m_nodeInfo[0].numFrames() - 1;
 	m_ui.fromFrameSpinBox->setValue(0);
 	m_ui.toFrameSpinBox->setValue(lastFrame);
 }

@@ -473,7 +473,7 @@ const VSVideoInfo * vsedit::Job::videoInfo() const
 		return nullptr;
 	if(!m_pVapourSynthScriptProcessor)
 		return nullptr;
-	return m_pVapourSynthScriptProcessor->videoInfo();
+	return m_pVapourSynthScriptProcessor->nodeInfo().getAsVideo();
 }
 
 // END OF const VSVideoInfo * vsedit::Job::videoInfo() const
@@ -562,8 +562,15 @@ bool vsedit::Job::initialize()
 		}
 	}
 
-	m_cpVideoInfo = m_pVapourSynthScriptProcessor->videoInfo();
-	Q_ASSERT(m_cpVideoInfo);
+	VSNodeInfo info = m_pVapourSynthScriptProcessor->nodeInfo();
+	Q_ASSERT(!info.isInvalid());
+	if(info.isAudio())
+	{
+		emit signalLogMessage(tr("Audio encoding is not supported."));
+		changeStateAndNotify(JobState::Failed);
+		return false;
+	}
+	m_cpVideoInfo = info.getAsVideo();
 
 	m_properties.framesProcessed = 0;
 	m_properties.firstFrameReal = m_properties.firstFrame;

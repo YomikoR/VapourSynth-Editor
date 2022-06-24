@@ -1,6 +1,7 @@
 #ifndef VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 #define VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED
 
+#include "../../../common-src/helpers.h"
 #include "../../../common-src/vapoursynth/vs_script_processor_structures.h"
 #include "../script_status_bar_widget/script_status_bar_widget.h"
 
@@ -37,7 +38,7 @@ public:
 	virtual ~VSScriptProcessorDialog();
 
 	virtual bool initialize(const QString & a_script,
-		const QString & a_scriptName);
+		const QString & a_scriptName, bool a_checkOnly = false);
 
 	virtual bool busy(int a_outputIndex = 0) const;
 
@@ -90,7 +91,7 @@ protected:
 
 	const VSAPI * m_cpVSAPI;
 
-	const VSVideoInfo * m_cpVideoInfo[10];
+	VSNodeInfo m_nodeInfo[10];
 
 	size_t m_framesInQueue[10];
 	size_t m_framesInProcess[10];
