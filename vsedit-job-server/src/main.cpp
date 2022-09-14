@@ -2,6 +2,7 @@
 
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
+#include "../../common-src/version_info.h"
 #include <vapoursynth/VapourSynth.h>
 
 #include <QCoreApplication>
@@ -11,6 +12,15 @@ Q_DECLARE_OPAQUE_POINTER(VSNodeRef *)
 
 int main(int argc, char *argv[])
 {
+	if(argc > 1)
+	{
+		if(strcmp(argv[1], "-v") == 0 ||
+			strcmp(argv[1], "--version") == 0)
+		{
+			print_version();
+			return 0;
+		}
+	}
 	QCoreApplication application(argc, argv);
 
 	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
