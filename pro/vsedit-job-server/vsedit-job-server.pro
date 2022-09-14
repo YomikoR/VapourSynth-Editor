@@ -1,5 +1,4 @@
 CONFIG += qt
-CONFIG += console
 
 QT += websockets
 QT += widgets
@@ -7,6 +6,8 @@ QT += widgets
 QT_VERSION_WARNING = "WARNING: Linking against Qt version lower than 5.6.1 is likely to cause CLI tools video encoding to crash due to I/O but in Qt."
 
 win32 {
+	CONFIG += console
+
 	equals(QT_MAJOR_VERSION, 5) {
 		equals(QT_MINOR_VERSION, 6):lessThan(QT_PATCH_VERSION, 1)) {
 			message($$QT_VERSION_WARNING)
@@ -19,10 +20,6 @@ win32 {
 
 equals(QT_MAJOR_VERSION, 6) {
 	QT += core5compat
-
-	contains(QMAKE_COMPILER, msvc) {
-		QMAKE_LFLAGS += '/entry:mainCRTStartup'
-	}
 }
 
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
@@ -185,6 +182,7 @@ HEADERS += $${PROJECT_DIRECTORY}/src/jobs/jobs_manager.h
 HEADERS += $${PROJECT_DIRECTORY}/src/job_server.h
 
 SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/version_info.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/log/styled_log_view_core.cpp

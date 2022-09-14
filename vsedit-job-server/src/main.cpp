@@ -21,6 +21,11 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	}
+
+#if defined(Q_OS_WIN)
+ 	hide_tty();
+#endif
+
 	QCoreApplication application(argc, argv);
 
 	qRegisterMetaType<const VSFrameRef *>("const VSFrameRef *");
