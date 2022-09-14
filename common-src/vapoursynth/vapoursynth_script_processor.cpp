@@ -132,6 +132,16 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	m_cpVideoInfo = m_cpVSAPI->getVideoInfo(pOutputNode);
 
+	if(!m_cpVideoInfo || !m_cpVideoInfo->format)
+	{
+		m_error = tr("Script was successfully evaluated, "
+			"but the resulting video node has invalid format!");
+		emit signalWriteLogMessage(mtCritical, m_error);
+		m_cpVSAPI->freeNode(pOutputNode);
+		finalize();
+		return false;
+	}
+
 	m_cpVSAPI->freeNode(pOutputNode);
 
 	m_script = a_script;
