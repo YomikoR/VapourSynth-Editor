@@ -20,4 +20,5 @@ pro/*/Makefile
 pro/dist
 pro/.qmake.stash
 pro/Makefile
+pro/local_quirks.pri
 */generated
