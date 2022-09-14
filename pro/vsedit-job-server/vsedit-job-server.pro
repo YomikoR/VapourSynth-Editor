@@ -1,4 +1,5 @@
 CONFIG += qt
+CONFIG += console
 
 QT += websockets
 QT += widgets
@@ -157,6 +158,7 @@ RCC_DIR = $${PROJECT_DIRECTORY}/generated/rcc
 
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers_vs.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/version_info.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/chrono.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.h

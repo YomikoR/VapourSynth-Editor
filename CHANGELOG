@@ -1,3 +1,7 @@
+r19-mod-5.4
+-BUGFIX: Reject problematic output nodes with invalid format.
+-Binaries print version and exit with -v or --version.
+
 r19-mod-5.3
 -BUGFIX: Flickering in playback due to a regression introduced with the dark theme.
 -BUGFIX: Image doesn't align to the top-left corner of the preview window in dark theme.

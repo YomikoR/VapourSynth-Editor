@@ -145,6 +145,13 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
+	if(m_nodeInfo.isVideo() &&
+		m_nodeInfo.getAsVideo()->format.colorFamily == cfUndefined)
+	{
+		emit signalWriteLogMessage(mtWarning,
+			tr("The video output node has Undefined format."));
+	}
+
 	m_cpVSAPI->freeNode(pOutputNode);
 
 	m_script = a_script;

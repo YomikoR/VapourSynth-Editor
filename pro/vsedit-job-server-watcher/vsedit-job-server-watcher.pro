@@ -1,4 +1,5 @@
 CONFIG += qt
+CONFIG += console
 
 QT += widgets
 QT += websockets
@@ -172,6 +173,7 @@ FORMS += $${PROJECT_DIRECTORY}/src/main_window.ui
 HEADERS += $${COMMON_DIRECTORY}/common-src/application_instance_file_guard/application_instance_file_guard.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers_vs.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/version_info.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/ipc_defines.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions.h

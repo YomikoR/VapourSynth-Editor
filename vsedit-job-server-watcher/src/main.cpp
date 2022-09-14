@@ -5,7 +5,7 @@
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
 #include "../../common-src/helpers.h"
-
+#include "../../common-src/version_info.h"
 #include <QApplication>
 #include <QLocalSocket>
 
@@ -66,6 +66,15 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 
 int main(int argc, char *argv[])
 {
+	if(argc > 1)
+	{
+		if(strcmp(argv[1], "-v") == 0 ||
+			strcmp(argv[1], "--version") == 0)
+		{
+			print_version();
+			return 0;
+		}
+	}
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 #if (QT_VERSION_MAJOR < 6)
 	QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
