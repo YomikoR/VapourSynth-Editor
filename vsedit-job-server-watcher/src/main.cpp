@@ -75,6 +75,11 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	}
+
+#if defined(Q_OS_WIN)
+ 	hide_tty();
+#endif
+
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 #if (QT_VERSION_MAJOR < 6)
 	QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);

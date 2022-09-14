@@ -3,11 +3,10 @@
 
 #define VSE_VERSION_STR "R19-mod-5.4"
 
-#include <iostream>
+void print_version();
 
-void print_version()
-{
-    std::cout << "VapourSynth Editor " << VSE_VERSION_STR << std::endl;
-}
+#if defined(Q_OS_WIN)
+void hide_tty();
+#endif
 
 #endif
