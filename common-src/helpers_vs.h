@@ -3,9 +3,6 @@
 
 #include <vapoursynth/VapourSynth4.h>
 
-#include <type_traits>
-#include <cassert>
-
 template <typename TV, typename TA>
 class VSMediaTypePicker
 {
@@ -19,12 +16,7 @@ public:
 		: m_pTV(nullptr)
 		, m_pTA(nullptr)
 		, m_mediaType(-1)
-	{
-		assert(!std::is_convertible_v(const TV *, const TA *));
-		assert(!std::is_convertible_v(const TA *, const TV *));
-		assert(!std::is_convertible_v(const void *, const TV *));
-		assert(!std::is_convertible_v(const void *, const TA *));
-	}
+	{}
 
 	VSMediaTypePicker(const TV * a_pTV) : VSMediaTypePicker()
 	{
