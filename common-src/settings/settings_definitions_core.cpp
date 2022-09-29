@@ -7,6 +7,7 @@
 
 //==============================================================================
 
+const bool DEFAULT_PREFER_VS_LIBRARIES_FROM_LIST = false;
 const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER =
 	ResamplingFilter::Bicubic;
 const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS =

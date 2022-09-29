@@ -15,7 +15,6 @@ const CropMode DEFAULT_CROP_MODE = CropMode::Relative;
 const int DEFAULT_CROP_ZOOM_RATIO = 1;
 const bool DEFAULT_PROMPT_TO_SAVE_CHANGES = true;
 const unsigned int DEFAULT_MAX_RECENT_FILES_NUMBER = 10;
-const QStringList DEFAULT_DOCUMENTATION_PATHS("./documentation");
 const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION = 2;
 const double DEFAULT_TIME_STEP = 5.0;
 const TimeLineSlider::DisplayMode DEFAULT_TIMELINE_MODE =

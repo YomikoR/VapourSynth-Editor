@@ -27,8 +27,6 @@ const char CROP_ZOOM_RATIO_KEY[] = "crop_zoom_ratio";
 const char PROMPT_TO_SAVE_CHANGES_KEY[] = "prompt_to_save_changes";
 const char RECENT_FILES_LIST_KEY[] = "recent_files_list";
 const char MAX_RECENT_FILES_NUMBER_KEY[] = "max_recent_files_number";
-const char VAPOURSYNTH_DOCUMENTATION_PATHS_KEY[] =
-	"vapoursynth_documentation_paths";
 const char CHARACTERS_TYPED_TO_START_COMPLETION_KEY[] =
 	"characters_typed_to_start_completion";
 const char TIMELINE_MODE_KEY[] = "timeline_mode";
@@ -697,22 +695,6 @@ bool SettingsManager::setMaxRecentFilesNumber(
 	unsigned int a_maxRecentFilesNumber)
 {
 	return setValue(MAX_RECENT_FILES_NUMBER_KEY, a_maxRecentFilesNumber);
-}
-
-//==============================================================================
-
-QStringList SettingsManager::getVapourSynthDocumentationPaths() const
-{
-	QStringList paths = value(VAPOURSYNTH_DOCUMENTATION_PATHS_KEY,
-		DEFAULT_DOCUMENTATION_PATHS).toStringList();
-	paths.removeDuplicates();
-	return paths;
-}
-
-bool SettingsManager::setVapourSynthDocumentationPaths(
-	const QStringList & a_pathsList)
-{
-	return setValue(VAPOURSYNTH_DOCUMENTATION_PATHS_KEY, a_pathsList);
 }
 
 //==============================================================================
