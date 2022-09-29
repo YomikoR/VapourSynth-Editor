@@ -146,6 +146,7 @@ struct EncodingPreset
 
 //==============================================================================
 
+extern const bool DEFAULT_PREFER_VS_LIBRARIES_FROM_LIST;
 extern const ResamplingFilter DEFAULT_CHROMA_RESAMPLING_FILTER;
 extern const YuvMatrixCoefficients DEFAULT_YUV_MATRIX_COEFFICIENTS;
 extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;

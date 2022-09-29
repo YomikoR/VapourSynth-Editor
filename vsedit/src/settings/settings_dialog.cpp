@@ -37,9 +37,6 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 	m_ui.addVSPluginsPathButton->setIcon(QIcon(":folder_add.png"));
 	m_ui.removeVSPluginsPathButton->setIcon(QIcon(":folder_remove.png"));
 	m_ui.selectVSPluginsPathButton->setIcon(QIcon(":folder.png"));
-	m_ui.addVSDocumentationPathButton->setIcon(QIcon(":folder_add.png"));
-	m_ui.removeVSDocumentationPathButton->setIcon(QIcon(":folder_remove.png"));
-	m_ui.selectVSDocumentationPathButton->setIcon(QIcon(":folder.png"));
 
 	m_pActionsHotkeyEditModel = new ActionsHotkeyEditModel(m_pSettingsManager,
 		this);
@@ -71,13 +68,6 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotRemoveVSPluginsPath()));
 	connect(m_ui.selectVSPluginsPathButton, SIGNAL(clicked()),
 		this, SLOT(slotSelectVSPluginsPath()));
-
-	connect(m_ui.addVSDocumentationPathButton, SIGNAL(clicked()),
-		this, SLOT(slotAddVSDocumentationPath()));
-	connect(m_ui.removeVSDocumentationPathButton, SIGNAL(clicked()),
-		this, SLOT(slotRemoveVSDocumentationPath()));
-	connect(m_ui.selectVSDocumentationPathButton, SIGNAL(clicked()),
-		this, SLOT(slotSelectVSDocumentationPath()));
 
 	connect(m_ui.themeElementsList, SIGNAL(clicked(const QModelIndex &)),
 		this, SLOT(slotThemeElementSelected(const QModelIndex &)));
@@ -127,6 +117,8 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getReloadBeforeExecution());
 	m_ui.snapshotCompressionLevelSpinBox->setValue(
 		m_pSettingsManager->getPNGSnapshotCompressionLevel());
+	m_ui.preferLibraryFromListCheckBox->setChecked(
+		m_pSettingsManager->getPreferVSLibrariesFromList());
 #ifdef Q_OS_WIN
 	m_ui.darkModeCheckBox->setChecked(m_pSettingsManager->getDarkMode());
 #else
@@ -142,11 +134,6 @@ void SettingsDialog::slotCall()
 	m_ui.vsPluginsPathsListWidget->addItems(
 		m_pSettingsManager->getVapourSynthPluginsPaths());
 	m_ui.vsPluginsPathEdit->clear();
-
-	m_ui.vsDocumentationPathsListWidget->clear();
-	m_ui.vsDocumentationPathsListWidget->addItems(
-		m_pSettingsManager->getVapourSynthDocumentationPaths());
-	m_ui.vsDocumentationPathEdit->clear();
 
 	m_ui.settingsTabWidget->setCurrentIndex(0);
 
@@ -237,6 +224,8 @@ void SettingsDialog::slotApply()
 		m_ui.reloadBeforeExecutionCheckBox->isChecked());
 	m_pSettingsManager->setPNGSnapshotCompressionLevel(
 		m_ui.snapshotCompressionLevelSpinBox->value());
+	m_pSettingsManager->setPreferVSLibrariesFromList(
+		m_ui.preferLibraryFromListCheckBox->isChecked());
 
 	QStringList vapourSynthLibraryPaths;
 	int vsLibraryPathsNumber = m_ui.vsLibraryPathsListWidget->count();
@@ -257,18 +246,6 @@ void SettingsDialog::slotApply()
 	}
 	vapourSynthPluginsPaths.removeDuplicates();
 	m_pSettingsManager->setVapourSynthPluginsPaths(vapourSynthPluginsPaths);
-
-	QStringList vapourSynthDocumentationPaths;
-	int vsDocumentationPathsNumber =
-		m_ui.vsDocumentationPathsListWidget->count();
-	for(int i = 0; i < vsDocumentationPathsNumber; ++i)
-	{
-		QString path = m_ui.vsDocumentationPathsListWidget->item(i)->text();
-		vapourSynthDocumentationPaths.append(path);
-	}
-	vapourSynthDocumentationPaths.removeDuplicates();
-	m_pSettingsManager->setVapourSynthDocumentationPaths(
-		vapourSynthDocumentationPaths);
 
 	m_pActionsHotkeyEditModel->slotSaveActionsHotkeys();
 
@@ -368,48 +345,6 @@ void SettingsDialog::slotSelectVSPluginsPath()
 // END OF void SettingsDialog::slotSelectVSPluginsPath()
 //==============================================================================
 
-void SettingsDialog::slotAddVSDocumentationPath()
-{
-	QString newPath = m_ui.vsDocumentationPathEdit->text();
-	if(newPath.isEmpty())
-		return;
-	int pathsNumber = m_ui.vsDocumentationPathsListWidget->count();
-	for(int i = 0; i < pathsNumber; ++i)
-	{
-		QString path = m_ui.vsDocumentationPathsListWidget->item(i)->text();
-		if(path == newPath)
-			return;
-	}
-	QListWidgetItem * pListItem = new QListWidgetItem(newPath,
-		m_ui.vsDocumentationPathsListWidget);
-	pListItem->setToolTip(newPath);
-}
-
-// END OF void SettingsDialog::slotAddVSDocumentationPath()
-//==============================================================================
-
-void SettingsDialog::slotRemoveVSDocumentationPath()
-{
-	QListWidgetItem * pCurrentItem =
-		m_ui.vsDocumentationPathsListWidget->currentItem();
-	if(pCurrentItem)
-		delete pCurrentItem;
-}
-
-// END OF void SettingsDialog::slotRemoveVSDocumentationPath()
-//==============================================================================
-
-void SettingsDialog::slotSelectVSDocumentationPath()
-{
-	QString path = QFileDialog::getExistingDirectory(this,
-		tr("Select documentation path"),
-		m_ui.vsDocumentationPathEdit->text());
-	if(!path.isEmpty())
-		m_ui.vsDocumentationPathEdit->setText(path);
-}
-
-// END OF void SettingsDialog::slotSelectVSDocumentationPath()
-//==============================================================================
 
 void SettingsDialog::slotThemeElementSelected(const QModelIndex & a_index)
 {

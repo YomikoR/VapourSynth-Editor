@@ -27,6 +27,10 @@ public:
 
 	bool setVapourSynthLibraryPaths(const QStringList & a_pathsList);
 
+	bool getPreferVSLibrariesFromList() const;
+
+	bool setPreferVSLibrariesFromList(bool a_prior);
+
 	QStringList getVapourSynthPluginsPaths() const;
 
 	bool setVapourSynthPluginsPaths(const QStringList & a_pathsList);

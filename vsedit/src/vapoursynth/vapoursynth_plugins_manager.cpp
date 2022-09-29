@@ -49,11 +49,11 @@ void VapourSynthPluginsManager::getCorePlugins()
 	QString libraryName("vapoursynth");
 	QString libraryFullPath;
 	QLibrary vsLibrary(libraryName);
-	bool loaded = vsLibrary.load();
+	bool loaded = false;
 
-#ifdef Q_OS_WIN
-	if(!loaded)
+	auto load_from_registry = [&]()
 	{
+#ifdef Q_OS_WIN
 		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
 			QSettings::NativeFormat);
 		libraryFullPath =
@@ -70,10 +70,17 @@ void VapourSynthPluginsManager::getCorePlugins()
 			vsLibrary.setFileName(libraryFullPath);
 			loaded = vsLibrary.load();
 		}
-	}
 #endif // Q_OS_WIN
+	};
 
-	if(!loaded)
+	auto load_from_path = [&]()
+	{
+		vsLibrary.unload();
+		vsLibrary.setFileName(libraryName);
+		loaded = vsLibrary.load();
+	};
+
+	auto load_from_list = [&]()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
@@ -87,6 +94,19 @@ void VapourSynthPluginsManager::getCorePlugins()
 			if(loaded)
 				break;
 		}
+	};
+
+	if(m_pSettingsManager->getPreferVSLibrariesFromList())
+	{
+		if(!loaded) load_from_list();
+		if(!loaded) load_from_registry();
+		if(!loaded) load_from_path();
+	}
+	else
+	{
+		if(!loaded) load_from_registry();
+		if(!loaded) load_from_path();
+		if(!loaded) load_from_list();
 	}
 
 	if(!loaded)

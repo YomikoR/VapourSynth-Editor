@@ -15,6 +15,7 @@ const char SETTINGS_FILE_NAME[] = "/vsedit.config";
 const char COMMON_GROUP[] = "common";
 
 const char VAPOURSYNTH_LIBRARY_PATHS_KEY[] = "vapoursynth_library_paths";
+const char PREFER_VS_LIBRARIES_FROM_LIST_KEY[] = "prefer_vs_libs_from_list";
 const char VAPOURSYNTH_PLUGINS_PATHS_KEY[] = "vapoursynth_plugins_paths";
 const char CHROMA_RESAMPLING_FILTER_KEY[] = "chroma_resampling_filter";
 const char YUV_MATRIX_COEFFICIENTS_KEY[] = "yuv_matrix_coefficients";
@@ -153,6 +154,18 @@ bool SettingsManagerCore::setPortableMode(bool a_portableMod)
 
 	return false;
 }
+
+bool SettingsManagerCore::getPreferVSLibrariesFromList() const
+{
+	return value(PREFER_VS_LIBRARIES_FROM_LIST_KEY,
+		DEFAULT_PREFER_VS_LIBRARIES_FROM_LIST).toBool();
+}
+
+bool SettingsManagerCore::setPreferVSLibrariesFromList(bool a_prior)
+{
+	return setValue(PREFER_VS_LIBRARIES_FROM_LIST_KEY, a_prior);
+}
+
 
 //==============================================================================
 

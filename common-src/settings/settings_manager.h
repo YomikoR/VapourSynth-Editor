@@ -124,10 +124,6 @@ public:
 
 	bool setMaxRecentFilesNumber(unsigned int a_maxRecentFilesNumber);
 
-	QStringList getVapourSynthDocumentationPaths() const;
-
-	bool setVapourSynthDocumentationPaths(const QStringList & a_pathsList);
-
 	int getCharactersTypedToStartCompletion() const;
 
 	bool setCharactersTypedToStartCompletion(int a_charactersNumber);

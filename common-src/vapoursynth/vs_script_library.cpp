@@ -206,13 +206,12 @@ bool VSScriptLibrary::initLibrary()
 	);
 
 	QString libraryFullPath;
-	m_vsScriptLibrary.setFileName(libraryName);
+	bool loaded = false;
 	m_vsScriptLibrary.setLoadHints(QLibrary::ExportExternalSymbolsHint);
-	bool loaded = m_vsScriptLibrary.load();
 
-#ifdef Q_OS_WIN
-	if(!loaded)
+	auto load_from_registry = [&]()
 	{
+#ifdef Q_OS_WIN
 		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
 			QSettings::NativeFormat);
 		libraryFullPath =
@@ -229,10 +228,17 @@ bool VSScriptLibrary::initLibrary()
 			m_vsScriptLibrary.setFileName(libraryFullPath);
 			loaded = m_vsScriptLibrary.load();
 		}
-	}
 #endif // Q_OS_WIN
+	};
 
-	if(!loaded)
+	auto load_from_path = [&]()
+	{
+		m_vsScriptLibrary.unload();
+		m_vsScriptLibrary.setFileName(libraryName);
+		loaded = m_vsScriptLibrary.load();
+	};
+
+	auto load_from_list = [&]()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
@@ -246,6 +252,19 @@ bool VSScriptLibrary::initLibrary()
 			if(loaded)
 				break;
 		}
+	};
+
+	if(m_pSettingsManager->getPreferVSLibrariesFromList())
+	{
+		if(!loaded) load_from_list();
+		if(!loaded) load_from_registry();
+		if(!loaded) load_from_path();
+	}
+	else
+	{
+		if(!loaded) load_from_registry();
+		if(!loaded) load_from_path();
+		if(!loaded) load_from_list();
 	}
 
 	if(!loaded)

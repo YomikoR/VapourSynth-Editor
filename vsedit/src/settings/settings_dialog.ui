@@ -441,6 +441,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="preferLibraryFromListCheckBox">
+         <property name="text">
+          <string>Libraries from this list are loaded prior to Windows registry or system PATH</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="vsPluginsPathsGroupBox">
          <property name="title">
           <string>VapourSynth plugins paths</string>
@@ -512,89 +519,6 @@
           </item>
           <item row="3" column="1">
            <widget class="QToolButton" name="selectVSPluginsPathButton">
-            <property name="toolTip">
-             <string>Select path</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="vsDocumentationPathsGroupBox">
-         <property name="title">
-          <string>Documentation paths</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <property name="spacing">
-           <number>2</number>
-          </property>
-          <item row="0" column="0" rowspan="3">
-           <widget class="QListWidget" name="vsDocumentationPathsListWidget">
-            <property name="horizontalScrollBarPolicy">
-             <enum>Qt::ScrollBarAlwaysOff</enum>
-            </property>
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-            <property name="textElideMode">
-             <enum>Qt::ElideNone</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QToolButton" name="removeVSDocumentationPathButton">
-            <property name="toolTip">
-             <string>Remove VapourSynth documentation path</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>124</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1">
-           <widget class="QToolButton" name="addVSDocumentationPathButton">
-            <property name="toolTip">
-             <string>Add VapourSynth documentation path</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLineEdit" name="vsDocumentationPathEdit"/>
-          </item>
-          <item row="3" column="1">
-           <widget class="QToolButton" name="selectVSDocumentationPathButton">
             <property name="toolTip">
              <string>Select path</string>
             </property>
