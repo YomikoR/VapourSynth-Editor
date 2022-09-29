@@ -145,4 +145,22 @@ public:
 	}
 };
 
+inline bool isVariableSize(const VSVideoInfo *vi)
+{
+	return vi->width == 0 && vi->height == 0;
+}
+
+inline bool isVariableFPS(const VSVideoInfo *vi)
+{
+	return vi->fpsDen == 0 && vi->fpsNum == 0;
+}
+
+inline bool isVariableFormat(const VSVideoInfo *vi)
+{
+	return vi->format.colorFamily == cfUndefined ||
+		vi->format.bitsPerSample == 0 ||
+		vi->format.bytesPerSample == 0 ||
+		vi->format.numPlanes == 0;
+}
+
 #endif
