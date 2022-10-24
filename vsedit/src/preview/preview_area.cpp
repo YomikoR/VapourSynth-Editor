@@ -194,11 +194,7 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 		a_pEvent->accept();
 		return;
 	}
-#if (QT_VERSION_MAJOR < 6)
-	m_lastScenePos = a_pEvent->windowPos();
-#else
 	m_lastScenePos = a_pEvent->scenePosition();
-#endif
 	checkMouseOverPreview(pixelPosition());
 
 	QScrollArea::mouseMoveEvent(a_pEvent);

@@ -41,11 +41,6 @@
 #include <QLocalSocket>
 #include <map>
 
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	#include <QWinTaskbarButton>
-	#include <QWinTaskbarProgress>
-#endif
-
 //==============================================================================
 
 const char MainWindow::WINDOW_TITLE[] = "VapourSynth jobs server watcher";
@@ -72,10 +67,6 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 	, m_nextServerAddress(QHostAddress::LocalHost)
 	, m_pTaskServer(nullptr)
 	, m_pGeometrySaveTimer(nullptr)
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	, m_pWinTaskbarButton(nullptr)
-	, m_pWinTaskbarProgress(nullptr)
-#endif
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
@@ -408,15 +399,6 @@ void MainWindow::changeEvent(QEvent * a_pEvent)
 void MainWindow::showEvent(QShowEvent * a_pEvent)
 {
 	QMainWindow::showEvent(a_pEvent);
-
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(!m_pWinTaskbarButton)
-	{
-		m_pWinTaskbarButton = new QWinTaskbarButton(this);
-		m_pWinTaskbarButton->setWindow(windowHandle());
-		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
-	}
-#endif
 }
 
 // END OF void MainWindow::showEvent(QShowEvent * a_pEvent)
@@ -664,32 +646,6 @@ void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
 
 		m_pTrayIcon->showMessage(WINDOW_TITLE, message, icon);
 	}
-
-	// Windows taskbar progress
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(!m_pWinTaskbarProgress)
-		return;
-
-	if(!m_pJobsModel->hasActiveJobs())
-	{
-		m_pWinTaskbarProgress->hide();
-		return;
-	}
-
-	m_pWinTaskbarProgress->show();
-
-	JobState greenStates[] = {JobState::Running, JobState::Pausing,
-		JobState::Aborting, JobState::Completed, JobState::CompletedCleanUp};
-	JobState redStates[] = {JobState::Aborted, JobState::FailedCleanUp,
-		JobState::Failed, JobState::DependencyNotMet};
-
-	if(vsedit::contains(greenStates, a_state))
-		m_pWinTaskbarProgress->resume();
-	else if(a_state == JobState::Paused)
-		m_pWinTaskbarProgress->pause();
-	else if(vsedit::contains(redStates, a_state))
-		m_pWinTaskbarProgress->stop();
-#endif
 }
 
 // END OF void MainWindow::slotJobStateChanged(int a_job, JobState a_state)
@@ -703,23 +659,6 @@ void MainWindow::slotJobProgressChanged(int a_job, int a_progress,
 	resetWindowTitle(a_job);
 
 	JobProperties properties = m_pJobsModel->jobProperties(a_job);
-
-	// Windows taskbar progress
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(!m_pWinTaskbarProgress)
-		return;
-
-	if(properties.type == JobType::EncodeScriptCLI)
-	{
-		m_pWinTaskbarProgress->setMaximum(a_progressMax);
-		m_pWinTaskbarProgress->setValue(a_progress);
-	}
-	else
-	{
-		m_pWinTaskbarProgress->setMaximum(1);
-		m_pWinTaskbarProgress->setValue(1);
-	}
-#endif
 }
 
 // END OF void MainWindow::slotJobProgressChanged(int a_job, int a_progress,

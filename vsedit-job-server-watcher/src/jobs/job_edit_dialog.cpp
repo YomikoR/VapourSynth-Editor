@@ -50,11 +50,7 @@ JobEditDialog::JobEditDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotJobTypeChanged(int)));
 	connect(m_ui.encodingScriptBrowseButton, SIGNAL(clicked()),
 		this, SLOT(slotEncodingScriptBrowseButtonClicked()));
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 	connect(m_ui.encodingPresetComboBox, SIGNAL(textActivated(const QString &)),
-#else
-	connect(m_ui.encodingPresetComboBox, SIGNAL(activated(const QString &)),
-#endif
 		this, SLOT(slotEncodingPresetComboBoxActivated(const QString &)));
 	connect(m_ui.encodingPresetSaveButton, SIGNAL(clicked()),
 		this, SLOT(slotEncodingPresetSaveButtonClicked()));

@@ -10,11 +10,6 @@
 #include <QFileDialog>
 #include <algorithm>
 
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	#include <QWinTaskbarButton>
-	#include <QWinTaskbarProgress>
-#endif
-
 //==============================================================================
 
 EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
@@ -27,11 +22,6 @@ EncodeDialog::EncodeDialog(SettingsManager * a_pSettingsManager,
 		)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pJob(nullptr)
-
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	, m_pWinTaskbarButton(nullptr)
-	, m_pWinTaskbarProgress(nullptr)
-#endif
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
@@ -112,11 +102,6 @@ bool EncodeDialog::initialize(const QString & a_script,
 
 	setUiEnabled();
 
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(m_pWinTaskbarProgress)
-		m_pWinTaskbarProgress->hide();
-#endif
-
 	return true;
 }
 
@@ -147,15 +132,6 @@ void EncodeDialog::showActive()
 void EncodeDialog::showEvent(QShowEvent * a_pEvent)
 {
 	QDialog::showEvent(a_pEvent);
-
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(!m_pWinTaskbarButton)
-	{
-		m_pWinTaskbarButton = new QWinTaskbarButton(this);
-		m_pWinTaskbarButton->setWindow(windowHandle());
-		m_pWinTaskbarProgress = m_pWinTaskbarButton->progress();
-	}
-#endif
 }
 
 // END OF void EncodeDialog::showEvent(QShowEvent * a_pEvent)
@@ -229,10 +205,6 @@ void EncodeDialog::slotExecutableBrowseButtonPressed()
 	QFileDialog fileDialog;
 	fileDialog.setWindowTitle(tr("Choose encoder executable"));
 	fileDialog.setDirectory(applicationPath);
-
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	fileDialog.setNameFilter("*.exe");
-#endif
 
 	if(!fileDialog.exec())
 		return;
@@ -424,14 +396,6 @@ void EncodeDialog::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 
 	if(a_newState == JobState::Running)
 	{
-		if(a_oldState == JobState::Paused)
-		{
-		#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-			if(m_pWinTaskbarProgress)
-				m_pWinTaskbarProgress->resume();
-		#endif
-		}
-
 		JobState idleStates[] = {JobState::Waiting, JobState::Failed,
 			JobState::Aborted, JobState::Completed};
 		if(!vsedit::contains(idleStates, a_oldState))
@@ -441,37 +405,6 @@ void EncodeDialog::slotJobStateChanged(JobState a_newState, JobState a_oldState)
 
 		m_ui.processingProgressBar->setMaximum(properties.framesTotal());
 		m_ui.processingProgressBar->setValue(0);
-
-	#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-		if(m_pWinTaskbarProgress)
-		{
-			m_pWinTaskbarProgress->setMaximum(properties.framesTotal());
-			m_pWinTaskbarProgress->setValue(0);
-			m_pWinTaskbarProgress->resume();
-			m_pWinTaskbarProgress->show();
-		}
-	#endif
-	}
-	else if(vsedit::contains(pauseStates, a_newState))
-	{
-	#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-		if(m_pWinTaskbarProgress)
-			m_pWinTaskbarProgress->pause();
-	#endif
-	}
-	else if(vsedit::contains(failStates, a_newState))
-	{
-	#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-		if(m_pWinTaskbarProgress)
-			m_pWinTaskbarProgress->stop();
-	#endif
-	}
-	else if(a_newState == JobState::Completed)
-	{
-	#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-		if(m_pWinTaskbarProgress)
-			m_pWinTaskbarProgress->hide();
-	#endif
 	}
 }
 
@@ -509,11 +442,6 @@ void EncodeDialog::slotJobProgressChanged()
 		(double)properties.framesTotal());
 	setWindowTitle(tr("%1% Encode: %2")
 		.arg(percentage).arg(properties.scriptName));
-
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(m_pWinTaskbarProgress)
-		m_pWinTaskbarProgress->setValue(properties.framesProcessed);
-#endif
 }
 
 // END OF void EncodeDialog::slotJobProgressChanged()
@@ -523,10 +451,6 @@ void EncodeDialog::slotJobPropertiesChanged()
 {
 	JobProperties properties = m_pJob->properties();
 	m_ui.processingProgressBar->setMaximum(properties.framesTotal());
-#if defined(Q_OS_WIN) && (QT_VERSION_MAJOR < 6)
-	if(m_pWinTaskbarProgress)
-		m_pWinTaskbarProgress->setMaximum(properties.framesTotal());
-#endif
 }
 
 // END OF void EncodeDialog::slotJobPropertiesChanged()
@@ -560,11 +484,7 @@ void EncodeDialog::setUpEncodingPresets()
 		this, SLOT(slotEncodingPresetSaveButtonPressed()));
 	connect(m_ui.encodingPresetDeleteButton, SIGNAL(clicked()),
 		this, SLOT(slotEncodingPresetDeleteButtonPressed()));
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 	connect(m_ui.encodingPresetComboBox, SIGNAL(textActivated(const QString &)),
-#else
-	connect(m_ui.encodingPresetComboBox, SIGNAL(activated(const QString &)),
-#endif
 		this, SLOT(slotEncodingPresetComboBoxActivated(const QString &)));
 
 	m_ui.encodingPresetComboBox->setCurrentIndex(0);

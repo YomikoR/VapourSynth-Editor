@@ -2,24 +2,10 @@ CONFIG += qt
 
 QT += widgets
 QT += websockets
-
-QT_VERSION_WARNING = "WARNING: Linking against Qt version lower than 5.6.1 is likely to cause CLI tools video encoding to crash due to I/O but in Qt."
+QT += core5compat
 
 win32 {
 	CONFIG += console
-
-	equals(QT_MAJOR_VERSION, 5) {
-		equals(QT_MINOR_VERSION, 6):lessThan(QT_PATCH_VERSION, 1)) {
-			message($$QT_VERSION_WARNING)
-		}
-		lessThan(QT_MINOR_VERSION, 6) {
-			message($$QT_VERSION_WARNING)
-		}
-	}
-}
-
-equals(QT_MAJOR_VERSION, 6) {
-	QT += core5compat
 }
 
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
@@ -99,10 +85,6 @@ macx {
 }
 
 win32 {
-	equals(QT_MAJOR_VERSION, 5) {
-		QT += winextras
-	}
-
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt

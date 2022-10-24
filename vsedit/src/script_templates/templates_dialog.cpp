@@ -53,11 +53,7 @@ TemplatesDialog::TemplatesDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotSnippetSaveButtonClicked()));
 	connect(m_ui.snippetDeleteButton, SIGNAL(clicked()),
 		this, SLOT(slotSnippetDeleteButtonClicked()));
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
 	connect(m_ui.snippetNameComboBox, SIGNAL(textActivated(const QString &)),
-#else
-	connect(m_ui.snippetNameComboBox, SIGNAL(activated(const QString &)),
-#endif
 		this, SLOT(slotSnippetNameComboBoxActivated(const QString &)));
 	connect(m_ui.newScriptTemplateRevertButton, SIGNAL(clicked()),
 		this, SLOT(slotNewScriptTemplateRevertButtonClicked()));

@@ -1,3 +1,7 @@
+lessThan(QT_MAJOR_VERSION, 6) {
+	error(You must build with Qt 6 or later)
+}
+
 TEMPLATE = subdirs
 
 SUBDIRS += vsedit

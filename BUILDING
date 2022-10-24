@@ -1,37 +1,27 @@
 THIS MANUAL IS A DRAFT. PLEASE REPORT ANY MISTAKES OR ADDITIONS AT https://github.com/YomikoR/VapourSynth-Editor/issues
 
-Building VapourSynth Editor from source:
+## Prerequisites
 
-1) make sure you meet the prerequisites explained below;
+You need C++17 (or higher) compiler and Qt 6 development distribution.
+In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev and libqt6websockets6-dev are required.
+
+## Building VapourSynth Editor from source:
+
+1) make sure you meet the above prerequisites;
 2) open the system terminal and change working directory to the "pro" directory in the source tree;
 3) execute following command to generate the Makefile and other intermediate files
 
     `qmake -norecursive pro.pro CONFIG+=release`
+    
+    In some distros you may use `qmake6` instead of `qmake`;
+4) "make" the Makefile with platform specific make-tool, e.g. `nmake` for MS Visual Studio.
 
-4) "make" the Makefile with the specific make-tool:
-"make" if you are on Linux or using MSys on Windows;
-"mingw32-make" for MinGW;
-"nmake" for MS Visual Studio;
-program files will be built in compiler specific sub-directory in the "build" directory in source tree and ready to use.
+The program files will be built in compiler specific sub-directory in the "build" directory in source tree and ready to use.
 
-Each compiler you choose for build targets must specify "QT5BINPATH" custom environment variable with the directory of Qt5 toolchain executables.
+If you encounter path issues during the building related to missing headers, etc., you may include them in the file "pro/local_quirks.pri".
 
-Prerequisites
+Below are some tested compilers:
 
-You need C++17 (or higher) compiler and Qt5 development distribution with version no less than 5.8 corresponding to the compiler.
-Make sure the executable directories of both tools are included in PATH system environment variable.
-
-Windows:
-
-- get compiler of your choice (MinGW and MSVC are fully supported);
-- if you use MSVC - you might also need to install Windows SDK. If you experience any problems during the building related to missing headers or "unresolved externals", you may consider opening the file "pro/local_quirks.pri" with text editor or your IDE and change the paths to headers and libraries to those that correspond to your MSVC and Windows SDK installation paths.
-- get Qt5 distribution (https://www.qt.io).
-
-Linux:
-
-- install following packages: build-essential, qtbase5-dev; also be aware that in some cases QtWebSockets is a standalone package.
-- if your Linux distribution has Qt4 development packages installed - you might want to install package qt5-default.
-
-MacOS:
-
- - if you are a user of brew, install qt@5.
+    Windows     MSVC
+    Linux       GCC
+    MacOS       clang (within brew)

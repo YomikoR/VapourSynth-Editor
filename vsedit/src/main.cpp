@@ -23,12 +23,10 @@ void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 		prefix = "Qt debug";
 		style = LOG_STYLE_QT_DEBUG;
 		break;
-#if(QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
 	case QtInfoMsg:
 		prefix = "Qt info";
 		style = LOG_STYLE_QT_INFO;
 		break;
-#endif
 	case QtWarningMsg:
 		prefix = "Qt warning";
 		style = LOG_STYLE_QT_WARNING;
@@ -81,12 +79,8 @@ int main(int argc, char *argv[])
 #endif
 
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
-#if (QT_VERSION_MAJOR < 6)
-	QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
-#else
 	QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
 		Qt::HighDpiScaleFactorRoundingPolicy::Floor);
-#endif
 	QApplication application(argc, argv);
 
 	SettingsManager *settings = new SettingsManager(qApp);
