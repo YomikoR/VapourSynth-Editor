@@ -17,6 +17,7 @@ pro/*/*.rc
 pro/*/Makefile.Release
 pro/*/Makefile.Debug
 pro/*/Makefile
+pro/*/*.cpp
 pro/dist
 pro/.qmake.stash
 pro/Makefile
