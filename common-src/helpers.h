@@ -13,6 +13,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QIODevice>
+#include <QFont>
 #include <algorithm>
 #include <functional>
 

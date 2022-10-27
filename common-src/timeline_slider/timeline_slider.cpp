@@ -476,7 +476,7 @@ void TimeLineSlider::mouseMoveEvent(QMouseEvent * a_pEvent)
 			tipString += " - ";
 			tipString += vsedit::timeToString(((double)l_frame) / m_fps);
 		}
-		QToolTip::showText(a_pEvent->globalPos(), tipString);
+		QToolTip::showText(a_pEvent->globalPosition().toPoint(), tipString);
 	}
 
 	QWidget::mouseMoveEvent(a_pEvent);

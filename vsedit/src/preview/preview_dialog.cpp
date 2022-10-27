@@ -632,7 +632,7 @@ void PreviewDialog::slotSaveSnapshot()
 	}
 
 	QStringList saveFormatsList;
-	for(const std::pair<QString, QString> & pair : extensionToFilterMap)
+	for(const std::pair<const QString, QString> & pair : extensionToFilterMap)
 		saveFormatsList << pair.second;
 
 	QString selectedFilter = extensionToFilterMap[fileExtension];

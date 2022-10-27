@@ -145,7 +145,7 @@ void JobEditDialog::slotJobTypeChanged(int a_index)
 
 	JobType jobType = (JobType)m_ui.jobTypeComboBox->itemData(a_index).toInt();
 
-	for(const std::pair<JobType, QWidget *> & pair : panels)
+	for(const std::pair<const JobType, QWidget *> & pair : panels)
 	{
 		if(pair.first == jobType)
 			pair.second->setVisible(true);

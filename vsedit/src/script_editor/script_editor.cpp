@@ -727,7 +727,7 @@ void ScriptEditor::dragMoveEvent(QDragMoveEvent * a_pEvent)
 		return;
 	}
 
-	QTextCursor cursor = cursorForPosition(a_pEvent->pos());
+	QTextCursor cursor = cursorForPosition(a_pEvent->position().toPoint());
 	setTextCursor(cursor);
 	a_pEvent->acceptProposedAction();
 }

@@ -164,7 +164,7 @@ void PreviewArea::mousePressEvent(QMouseEvent * a_pEvent)
 	if(a_pEvent->buttons() == Qt::LeftButton)
 	{
 		m_draggingPreview = true;
-		m_lastCursorPos = a_pEvent->globalPos();
+		m_lastCursorPos = a_pEvent->globalPosition().toPoint();
 		m_lastPreviewLabelPos = m_pPreviewLabel->pos();
 		m_pScrollNavigator->setVisible(true);
 		drawScrollNavigator();
@@ -182,7 +182,7 @@ void PreviewArea::mouseMoveEvent(QMouseEvent * a_pEvent)
 {
 	if((a_pEvent->buttons() & Qt::LeftButton) && m_draggingPreview)
 	{
-		QPoint newCursorPos = a_pEvent->globalPos();
+		QPoint newCursorPos = a_pEvent->globalPosition().toPoint();
 		QPoint posDifference = newCursorPos - m_lastCursorPos;
 		QPoint newPreviewLabelPos = m_lastPreviewLabelPos +
 			posDifference;
