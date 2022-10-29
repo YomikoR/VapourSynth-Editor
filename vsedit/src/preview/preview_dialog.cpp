@@ -228,7 +228,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	stopAndCleanUp();
 
-	bool initialized = initialize(a_script, a_scriptName);
+	bool initialized = initialize(a_script, a_scriptName,
+		ProcessReason::Preview);
 	if(!initialized)
 		return;
 

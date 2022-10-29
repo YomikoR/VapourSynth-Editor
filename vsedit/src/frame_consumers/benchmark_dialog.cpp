@@ -52,10 +52,10 @@ ScriptBenchmarkDialog::~ScriptBenchmarkDialog()
 //==============================================================================
 
 bool ScriptBenchmarkDialog::initialize(const QString & a_script,
-	const QString & a_scriptName, bool a_checkOnly)
+	const QString & a_scriptName, ProcessReason a_reason)
 {
 	bool initialized = VSScriptProcessorDialog::initialize(a_script,
-		a_scriptName, a_checkOnly);
+		a_scriptName, a_reason);
 	if(!initialized)
 		emit signalWriteLogMessage(mtCritical,
 			m_pVapourSynthScriptProcessor->error());

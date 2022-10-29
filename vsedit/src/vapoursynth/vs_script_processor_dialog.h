@@ -3,6 +3,7 @@
 
 #include "../../../common-src/helpers.h"
 #include "../../../common-src/vapoursynth/vs_script_processor_structures.h"
+#include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../script_status_bar_widget/script_status_bar_widget.h"
 
 #include <QDialog>
@@ -38,7 +39,7 @@ public:
 	virtual ~VSScriptProcessorDialog();
 
 	virtual bool initialize(const QString & a_script,
-		const QString & a_scriptName, bool a_checkOnly = false);
+		const QString & a_scriptName, ProcessReason a_reason);
 
 	virtual bool busy(int a_outputIndex = 0) const;
 

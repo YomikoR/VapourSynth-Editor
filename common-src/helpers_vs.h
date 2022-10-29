@@ -3,6 +3,14 @@
 
 #include <vapoursynth/VapourSynth4.h>
 
+enum class ProcessReason
+{
+	Preview,
+	Check,
+	Benchmark,
+	Encode,
+};
+
 template <typename TV, typename TA>
 class VSMediaTypePicker
 {

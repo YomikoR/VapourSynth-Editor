@@ -28,7 +28,7 @@ public:
 	virtual ~VapourSynthScriptProcessor();
 
 	bool initialize(const QString& a_script, const QString& a_scriptName,
-		int a_outputIndex, bool a_checkOnly = false);
+		int a_outputIndex, ProcessReason a_reason);
 
 	bool finalize();
 

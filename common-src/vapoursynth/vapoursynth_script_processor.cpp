@@ -76,7 +76,7 @@ VapourSynthScriptProcessor::~VapourSynthScriptProcessor()
 //==============================================================================
 
 bool VapourSynthScriptProcessor::initialize(const QString& a_script,
-	const QString& a_scriptName, int a_outputIndex, bool a_checkOnly)
+	const QString& a_scriptName, int a_outputIndex, ProcessReason a_reason)
 {
 	if(m_initialized || m_finalizing)
 	{
@@ -135,7 +135,8 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	m_nodeInfo = VSNodeInfo(pOutputNode, m_cpVSAPI);
 
-	if(!a_checkOnly && m_nodeInfo.isAudio())
+	if((a_reason == ProcessReason::Preview
+		|| a_reason == ProcessReason::Encode) && m_nodeInfo.isAudio())
 	{
 		m_cpVSAPI->freeNode(pOutputNode);
 		m_error = tr("Output node #%1 is an audio clip. "
@@ -167,7 +168,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 }
 
 // END OF bool VapourSynthScriptProcessor::initialize(const QString& a_script,
-//		const QString& a_scriptName, int a_outputIndex, bool a_checkOnly)
+//		const QString& a_scriptName, int a_outputIndex, ProcessReason a_reason)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::finalize()

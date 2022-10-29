@@ -461,7 +461,7 @@ void MainWindow::slotCheckScript()
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	bool correct = tempProcessor.initialize(m_ui.scriptEdit->text(),
-		m_scriptFilePath, 0, true);
+		m_scriptFilePath, 0, ProcessReason::Check);
 	if(correct)
 	{
 		VSNodeInfo info = tempProcessor.nodeInfo();

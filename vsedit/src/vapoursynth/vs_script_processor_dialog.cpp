@@ -83,7 +83,7 @@ VSScriptProcessorDialog::~VSScriptProcessorDialog()
 //==============================================================================
 
 bool VSScriptProcessorDialog::initialize(const QString & a_script,
-	const QString & a_scriptName, bool a_checkOnly)
+	const QString & a_scriptName, ProcessReason a_reason)
 {
 	Q_ASSERT(m_pVapourSynthScriptProcessor);
 
@@ -103,7 +103,7 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	}
 
 	bool initialized = m_pVapourSynthScriptProcessor->initialize(a_script,
-		a_scriptName, m_outputIndex, a_checkOnly);
+		a_scriptName, m_outputIndex, a_reason);
 	if(!initialized)
 	{
 		if(isVisible())

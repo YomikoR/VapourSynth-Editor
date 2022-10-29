@@ -25,7 +25,8 @@ public:
 	virtual ~ScriptBenchmarkDialog();
 
 	virtual bool initialize(const QString & a_script,
-		const QString & a_scriptName, bool a_checkOnly = true) override;
+		const QString & a_scriptName,
+		ProcessReason a_reason = ProcessReason::Benchmark) override;
 
 	void resetSavedRange();
 
