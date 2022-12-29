@@ -42,6 +42,7 @@ Source: ..\build\release-64bit-msvc\*; DestDir: {app}; Flags: ignoreversion recu
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"
+Name: "{group}\{#AppName} (Console Mode)"; Filename: "cmd"; Parameters: "/c """"{app}\{#ExeName}.exe"""""; Tasks: desktopicon
 Name: "{group}\VapourSynth Jobs Server Watcher"; Filename: "{app}\{#ExeName}-job-server-watcher.exe"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"; Tasks: desktopicon
 
