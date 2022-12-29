@@ -1695,6 +1695,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 
 	slotSetPlayFPSLimit();
 
+	resetCropSpinBoxes();
+
 	m_pVapourSynthScriptProcessor->requestFrameAsync(m_frameExpected,
 		m_outputIndex, true);
 }

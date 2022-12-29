@@ -1,3 +1,11 @@
+r19-mod-5.5
+-BUGFIX: Wrong dimensions in cropping when there are multiple video outputs.
+-Binaries are now working as console applications (instead of GUI apps) in Windows.
+-Binaries print version in Windows if the console is not automatically hidden on start.
+-A shortcut launching VSEditor in CMD is added to the installer.
+-Unused doc path options are removed.
+-Added an option to prefer loading VS libs from settings (other than Windows registry or sys PATH).
+
 r19-mod-5.4
 -BUGFIX: Reject problematic output nodes with invalid format.
 -Binaries print version and exit with -v or --version.

@@ -21,5 +21,7 @@ void hide_tty()
 	GetWindowThreadProcessId(console, &pid);
 	if(GetCurrentProcessId() == pid)
 		ShowWindow(console, SW_HIDE);
+	else
+		print_version();
 }
 #endif
