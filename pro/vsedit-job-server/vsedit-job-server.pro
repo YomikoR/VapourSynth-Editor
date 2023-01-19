@@ -228,23 +228,27 @@ macx {
 }
 QMAKE_EXTRA_COMPILERS += p2p
 
-p2p_sse41.name = p2p_sse41
-p2p_sse41.input = SOURCES_P2P_SSE41
-p2p_sse41.dependency_type = TYPE_C
-p2p_sse41.variable_out = OBJECTS
-p2p_sse41.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
-p2p_sse41.commands = $${QMAKE_CXX} $(CXXFLAGS) -DP2P_SIMD $(INCPATH) -c ${QMAKE_FILE_IN}
-contains(QMAKE_COMPILER, msvc) {
-	p2p_sse41.commands += -Fo${QMAKE_FILE_OUT}
-} else {
-	p2p_sse41.commands += -msse4.1
-	p2p_sse41.commands += -o ${QMAKE_FILE_OUT}
-	p2p_sse41.commands += -std=c++14
-	p2p_sse41.commands += -Wno-missing-field-initializers
+if($$ARCHITECTURE_64_BIT) {
+	p2p_sse41.name = p2p_sse41
+	p2p_sse41.input = SOURCES_P2P_SSE41
+	p2p_sse41.dependency_type = TYPE_C
+	p2p_sse41.variable_out = OBJECTS
+	p2p_sse41.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+	p2p_sse41.commands = $${QMAKE_CXX} $(CXXFLAGS) -DP2P_SIMD $(INCPATH) -c ${QMAKE_FILE_IN}
+	contains(QMAKE_COMPILER, msvc) {
+		p2p_sse41.commands += -Fo${QMAKE_FILE_OUT}
+	} else {
+		p2p_sse41.commands += -msse4.1
+		p2p_sse41.commands += -o ${QMAKE_FILE_OUT}
+		p2p_sse41.commands += -std=c++14
+		p2p_sse41.commands += -Wno-missing-field-initializers
+	}
 }
 macx {
 	p2p_sse41.commands += -Wno-gnu
 }
-QMAKE_EXTRA_COMPILERS += p2p_sse41
+if($$ARCHITECTURE_64_BIT) {
+	QMAKE_EXTRA_COMPILERS += p2p_sse41
+}
 
 include($${COMMON_DIRECTORY}/pro/local_quirks.pri)
