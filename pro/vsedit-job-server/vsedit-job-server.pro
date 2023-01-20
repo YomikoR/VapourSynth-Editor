@@ -208,7 +208,9 @@ SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/p2p_api.cpp
 SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/v210.cpp
 SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/simd/cpuinfo_x86.cpp
 SOURCES_P2P += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_simd.cpp
-SOURCES_P2P_SSE41 += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_sse41.cpp
+if($$ARCHITECTURE_64_BIT) {
+	SOURCES_P2P_SSE41 += $${COMMON_DIRECTORY}/common-src/libp2p/simd/p2p_sse41.cpp
+}
 
 p2p.name = p2p
 p2p.input = SOURCES_P2P
