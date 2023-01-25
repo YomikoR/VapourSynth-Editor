@@ -706,7 +706,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			default:
 				Q_ASSERT(false);
 			}
-			m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc",
+			m_cpVSAPI->propSetInt(pArgumentMap, "chromaloc_in",
 				chromaLoc, paReplace);
 		}
 
