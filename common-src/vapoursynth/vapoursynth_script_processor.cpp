@@ -672,7 +672,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		default:
 			Q_ASSERT(false);
 		}
-		m_cpVSAPI->mapSetInt(pArgumentMap, "chromaloc", chromaLoc, maReplace);
+		m_cpVSAPI->mapSetInt(pArgumentMap, "chromaloc_in", chromaLoc, maReplace);
 
 		VSMap *pTempMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->copyMap(pArgumentMap, pTempMap);

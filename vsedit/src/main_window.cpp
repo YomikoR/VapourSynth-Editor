@@ -950,8 +950,10 @@ void MainWindow::saveGeometryDelayed()
 
 void MainWindow::reloadTexts()
 {
+	QPoint pos = m_ui.scriptEdit->cursorPosition();
 	if(!loadScriptFromFile(m_scriptFilePath))
 		m_ui.scriptEdit->setModified(true);
+	m_ui.scriptEdit->setCursorPosition(pos);
 }
 
 // END OF void MainWindow::reloadTexts()
