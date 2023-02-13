@@ -101,6 +101,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionGoToPreviousBookmark(nullptr)
 	, m_pActionGoToNextBookmark(nullptr)
 	, m_pActionPasteShownFrameNumberIntoScript(nullptr)
+	, m_pActionToggleFramePropsPanel(nullptr)
 	, m_pActionSwitchToOutputIndex0(nullptr)
 	, m_pActionSwitchToOutputIndex1(nullptr)
 	, m_pActionSwitchToOutputIndex2(nullptr)
@@ -120,6 +121,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pGeometrySaveTimer(nullptr)
 	, m_devicePixelRatio(-1)
 	, m_toChangeTitle(false)
+	, m_pFramePropsPanel(nullptr)
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
@@ -134,6 +136,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	m_pPlayTimer = new QTimer(this);
 	m_pPlayTimer->setTimerType(Qt::PreciseTimer);
 	m_pPlayTimer->setSingleShot(true);
+
+	m_pFramePropsPanel = new FramePropsPanel(a_pSettingsManager, this);
 
 	createActionsAndMenus();
 
@@ -206,6 +210,7 @@ PreviewDialog::~PreviewDialog()
 		m_pGeometrySaveTimer->stop();
 		slotSaveGeometry();
 	}
+	delete m_pFramePropsPanel;
 }
 
 // END OF PreviewDialog::~PreviewDialog()
@@ -360,6 +365,15 @@ void PreviewDialog::changeEvent(QEvent * a_pEvent)
 }
 
 // END OF void PreviewDialog::changeEvent(QEvent * a_pEvent)
+//==============================================================================
+
+void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
+{
+	m_pFramePropsPanel->setVisible(false);
+	QDialog::closeEvent(a_pEvent);
+}
+
+// END OF void PreviewDialog::closeEvent(QCloseEvent * a_pEvent)
 //==============================================================================
 
 void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
@@ -1635,6 +1649,21 @@ void PreviewDialog::slotSaveGeometry()
 // END OF void PreviewDialog::slotSaveGeometry()
 //==============================================================================
 
+void PreviewDialog::slotToggleFrameProps()
+{
+	if(m_pFramePropsPanel->isVisible())
+	{
+		m_pFramePropsPanel->setVisible(false);
+	}
+	else
+	{
+		updateFrameProps(true);
+		m_pFramePropsPanel->setVisible(true);
+	}
+}
+// END OF void PreviewDialog::slotToggleFrameProps()
+//==============================================================================
+
 void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 {
 	// Assuming there's a change
@@ -1773,6 +1802,8 @@ void PreviewDialog::createActionsAndMenus()
 		{&m_pActionPasteShownFrameNumberIntoScript,
 			ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT,
 			false, SLOT(slotPasteShownFrameNumberIntoScript())},
+		{&m_pActionToggleFramePropsPanel, ACTION_ID_TOGGLE_FRAME_PROPS,
+			false, SLOT(slotToggleFrameProps())},
 		{&m_pActionSwitchToOutputIndex0, ACTION_ID_SET_OUTPUT_INDEX_0,
 			false, SLOT(slotSwitchOutputIndex0())},
 		{&m_pActionSwitchToOutputIndex1, ACTION_ID_SET_OUTPUT_INDEX_1,
@@ -1950,6 +1981,7 @@ void PreviewDialog::createActionsAndMenus()
 	addAction(m_pActionPasteShownFrameNumberIntoScript);
 	m_pPreviewContextMenu->addAction(m_pActionPasteShownFrameNumberIntoScript);
 
+	addAction(m_pActionToggleFramePropsPanel);
 //------------------------------------------------------------------------------
 
 	addAction(m_pActionSwitchToOutputIndex0);
@@ -2303,11 +2335,27 @@ void PreviewDialog::setCurrentFrame(const VSFrame * a_cpOutputFrame,
 	setPreviewPixmap();
 	QPointF pixelPos = m_ui.previewArea->pixelPosition();
 	m_ui.previewArea->checkMouseOverPreview(pixelPos);
+	updateFrameProps(false);
 }
 
 // END OF void PreviewDialog::setCurrentFrame(
 //		const VSFrame * a_cpOutputFrame,
 //		const VSFrame * a_cpPreviewFrame)
+//==============================================================================
+
+void PreviewDialog::updateFrameProps(bool a_forced)
+{
+	if(a_forced || (isVisible() && m_cpFrame))
+	{
+		QString props = m_pVapourSynthScriptProcessor->
+			framePropsString(m_cpFrame);
+		QString info = QString("Index %1 | Frame %2 \n\n")
+			.arg(m_outputIndex).arg(m_frameExpected);
+		m_pFramePropsPanel->setText(info + props + QString("\n"));
+	}
+}
+
+// END OF void PreviewDialog::updateFrameProps(bool a_forced)
 //==============================================================================
 
 double PreviewDialog::valueAtPoint(size_t a_x, size_t a_y, int a_plane)
@@ -2580,3 +2628,56 @@ void PreviewDialog::saveGeometryDelayed()
 
 // END OF void PreviewDialog::saveGeometryDelayed()
 //==============================================================================
+
+FramePropsPanel::FramePropsPanel(SettingsManager * a_pSettingsManager,
+	PreviewDialog * a_pFakeParent)
+{
+	m_pFakeParent = a_pFakeParent;
+
+	setWindowModality(Qt::NonModal);
+	setWindowTitle(QString("Frame Properties"));
+	QFont font = a_pSettingsManager->
+		getTextFormat(TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT).font();
+	setFont(font);
+	vsedit::disableFontKerning(this);
+	setAlignment(Qt::AlignmentFlag::AlignTop);
+	setTextInteractionFlags(Qt::TextSelectableByMouse);
+	setCursor(QCursor(Qt::IBeamCursor));
+
+	setVisible(false);
+
+	setHideAction(a_pSettingsManager);	
+}
+
+void FramePropsPanel::keyPressEvent(QKeyEvent * a_pEvent)
+{
+	int key = a_pEvent->key();
+	if(key == Qt::Key_Escape)
+		setVisible(false);
+	else
+		m_pFakeParent->keyPressEvent(a_pEvent);
+}
+
+void FramePropsPanel::setHideAction(SettingsManager * a_pSettingsManager)
+{
+	m_pActionHide = a_pSettingsManager->createStandardAction(
+		ACTION_ID_TOGGLE_FRAME_PROPS, this);
+	m_pActionHide->setCheckable(false);
+	QKeySequence hotkey = a_pSettingsManager->
+		getHotkey(m_pActionHide->data().toString());
+	m_pActionHide->setShortcut(hotkey);
+	connect(m_pActionHide, SIGNAL(triggered()), this, SLOT(slotHide()));
+	addAction(m_pActionHide);
+}
+
+void FramePropsPanel::setVisible(bool visible)
+{
+	if(visible)
+		resize(m_widgetWidth, m_widgetHeight);
+	else
+	{
+		m_widgetWidth = width();
+		m_widgetHeight = height();
+	}
+	QWidget::setVisible(visible);
+}
