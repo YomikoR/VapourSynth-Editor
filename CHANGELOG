@@ -1,3 +1,12 @@
+r19-mod-6
+-Drop Qt 5 support.
+-Switch to VapourSynth API4 (won't work with API3 VSScript libraries).
+-Add support for previewing video nodes with variational format or dimensions.
+
+r19-mod-5.6
+-BUGFIX: Chroma location parameter ignored when resampling to RGB for preview.
+-A panel is added for displaying frame properties.
+
 r19-mod-5.5
 -BUGFIX: Wrong dimensions in cropping when there are multiple video outputs.
 -Binaries are now working as console applications (instead of GUI apps) in Windows.

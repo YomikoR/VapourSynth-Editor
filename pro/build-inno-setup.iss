@@ -2,16 +2,16 @@
 
 #define AppName "VapourSynth Editor"
 #define ExeName "vsedit"
-#define Version "r19-mod-5.5"
+#define Version "r19-mod-6"
 
 [Setup]
 AppId={#AppName}
 AppName={#AppName}
 AppPublisher=YomikoR
 AppPublisherURL=https://github.com/YomikoR/VapourSynth-Editor
-AppReadmeFile=https://github.com/YomikoR/VapourSynth-Editor/blob/master/README
+AppReadmeFile=https://github.com/YomikoR/VapourSynth-Editor/blob/vs-api4/README
 AppSupportURL=https://github.com/YomikoR/VapourSynth-Editor/issues
-AppUpdatesURL=https://github.com/YomikoR/VapourSynth-Editor/blob/master/CHANGELOG
+AppUpdatesURL=https://github.com/YomikoR/VapourSynth-Editor/blob/vs-api4/CHANGELOG
 AppVerName={#AppName} {#Version}
 AppVersion={#Version}
 ArchitecturesAllowed=x64
