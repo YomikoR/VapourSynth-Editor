@@ -2655,3 +2655,15 @@ void FramePropsPanel::setHideAction(SettingsManager * a_pSettingsManager)
 	connect(m_pActionHide, SIGNAL(triggered()), this, SLOT(slotHide()));
 	addAction(m_pActionHide);
 }
+
+void FramePropsPanel::setVisible(bool visible)
+{
+	if(visible)
+		resize(m_widgetWidth, m_widgetHeight);
+	else
+	{
+		m_widgetWidth = width();
+		m_widgetHeight = height();
+	}
+	QWidget::setVisible(visible);
+}

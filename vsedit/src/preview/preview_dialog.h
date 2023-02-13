@@ -8,7 +8,7 @@
 #include "../../../common-src/chrono.h"
 
 #include <QPixmap>
-#include <QLabel>
+#include <QTextEdit>
 #include <QIcon>
 #include <map>
 #include <vector>
@@ -297,13 +297,15 @@ protected:
 	bool m_toChangeTitle;
 };
 
-class FramePropsPanel: public QLabel
+class FramePropsPanel: public QTextEdit
 {
 	Q_OBJECT
 
 public:
 	FramePropsPanel(SettingsManager * a_pSettingsManager,
 		PreviewDialog * a_pFakeParent);
+
+	void setVisible(bool visible) override;
 
 	void keyPressEvent(QKeyEvent * a_pEvent) override;
 
@@ -313,6 +315,8 @@ public slots:
 private:
 	PreviewDialog * m_pFakeParent;
 	QAction * m_pActionHide;
+	int m_widgetWidth = 400;
+	int m_widgetHeight = 400;
 
 	void setHideAction(SettingsManager * a_pSettingsManager);
 };
