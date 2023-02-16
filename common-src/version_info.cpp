@@ -7,7 +7,7 @@
 
 void print_version()
 {
-	std::cout << "VapourSynth Editor " << VSE_VERSION_STR << std::endl;
+	std::cerr << "VapourSynth Editor " << VSE_VERSION_STR << std::endl;
 }
 
 #if defined(_WIN32)
