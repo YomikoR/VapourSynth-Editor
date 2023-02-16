@@ -4,8 +4,8 @@
 
 //==============================================================================
 
-const char LOG_STYLE_DEFAULT[] = "default";
-const char LOG_STYLE_TITLE_DEFAULT[] = "Common message";
+const char LOG_STYLE_DEFAULT[] = "info";
+const char LOG_STYLE_TITLE_DEFAULT[] = "Info message";
 
 const char LE_IS_DIVIDER[] = "isDivider";
 const char LE_TIME[] = "time";
