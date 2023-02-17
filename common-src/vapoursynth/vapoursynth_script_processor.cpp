@@ -725,9 +725,6 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			}
 		}
 
-		if(m_cpCoreInfo.core < 58)
-			m_cpVSAPI->mapSetInt(pArgumentMap, "prefer_props", 1, maReplace);
-
 		pResultMap = m_cpVSAPI->invoke(pResizePlugin, resizeName, pArgumentMap);
 
 		m_cpVSAPI->freeMap(pArgumentMap);

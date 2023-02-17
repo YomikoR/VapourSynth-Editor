@@ -53,8 +53,7 @@ bool VSScriptLibrary::initialize()
 	if(!libraryInitialized)
 		return false;
 
-	// VSAPI version: 4.0
-	m_cpVSAPI = m_cpVSSAPI->getVSAPI(VS_MAKE_VERSION(4, 0));
+	m_cpVSAPI = m_cpVSSAPI->getVSAPI(VAPOURSYNTH_API_VERSION);
 	if(!m_cpVSAPI)
 	{
 		QString errorString = tr("Failed to get VapourSynth API!");
@@ -152,6 +151,16 @@ VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 	VSCore *pCore = m_cpVSSAPI->getCore(a_pScript);
 	if (!pCore) {
 		QString errorString = tr("Failed to get VapourSynth Core!");
+		emit signalWriteLogMessage(mtCritical, errorString);
+		finalize();
+		return nullptr;
+	}
+
+	VSCoreInfo info;
+	m_cpVSAPI->getCoreInfo(pCore, &info);
+	if(info.core < 58)
+	{
+		QString errorString = "VapourSynth version 58 or later is required.";
 		emit signalWriteLogMessage(mtCritical, errorString);
 		finalize();
 		return nullptr;
