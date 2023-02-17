@@ -37,7 +37,8 @@ class PreviewDialog : public VSScriptProcessorDialog
 public:
 
 	PreviewDialog(SettingsManager * a_pSettingsManager,
-		VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent = nullptr);
+		VSScriptLibrary * a_pVSScriptLibrary, bool a_inPreviewer = false,
+		QWidget * a_pParent = nullptr);
 	virtual ~PreviewDialog();
 
 	virtual void setScriptName(const QString & a_scriptName) override;
@@ -296,6 +297,8 @@ protected:
 	FramePropsPanel * m_pFramePropsPanel;
 
 	bool m_toChangeTitle;
+
+	bool m_inPreviewer;
 };
 
 class FramePropsPanel: public QTextEdit

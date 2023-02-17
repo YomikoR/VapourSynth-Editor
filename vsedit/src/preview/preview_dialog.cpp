@@ -59,7 +59,7 @@ const char TIMELINE_BOOKMARKS_FILE_SUFFIX[] = ".bookmarks";
 //==============================================================================
 
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
+	VSScriptLibrary * a_pVSScriptLibrary, bool a_inPreviewer, QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent)
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_frameExpected(0)
@@ -121,6 +121,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pGeometrySaveTimer(nullptr)
 	, m_devicePixelRatio(-1)
 	, m_toChangeTitle(false)
+	, m_inPreviewer(a_inPreviewer)
 	, m_pFramePropsPanel(nullptr)
 {
 	vsedit::disableFontKerning(this);
@@ -195,7 +196,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	if(rememberLastPreviewFrame)
 	{
 		m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
-		setScriptName(m_pSettingsManager->getLastUsedPath());
+		if(!m_inPreviewer)
+			setScriptName(m_pSettingsManager->getLastUsedPath());
 	}
 }
 
@@ -231,7 +233,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 	QString previousScript = script();
 	QString previousScriptName = scriptName();
 
-	stopAndCleanUp();
+	if(!m_inPreviewer)
+		stopAndCleanUp();
 
 	bool initialized = initialize(a_script, a_scriptName,
 		ProcessReason::Preview);
@@ -299,9 +302,8 @@ void PreviewDialog::stopAndCleanUp()
 	bool rememberLastPreviewFrame =
 		m_pSettingsManager->getRememberLastPreviewFrame();
 	if(rememberLastPreviewFrame && (!scriptName().isEmpty()) &&
-		(m_frameShown > -1))
-		m_pSettingsManager->setLastPreviewFrame(m_frameShown);
-
+		(m_frameExpected > -1))
+		m_pSettingsManager->setLastPreviewFrame(m_frameExpected);
 	m_frameShown = -1;
 	m_framePixmap = QPixmap();
 	// Replace shown image with a blank one of the same dimension:
@@ -370,6 +372,13 @@ void PreviewDialog::changeEvent(QEvent * a_pEvent)
 void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 {
 	m_pFramePropsPanel->setVisible(false);
+	if(m_inPreviewer)
+	{
+		bool rememberLastPreviewFrame =
+			m_pSettingsManager->getRememberLastPreviewFrame();
+		if(rememberLastPreviewFrame && (m_frameExpected > -1))
+			m_pSettingsManager->setLastPreviewFrame(m_frameExpected);
+	}
 	QDialog::closeEvent(a_pEvent);
 }
 
@@ -1006,6 +1015,8 @@ void PreviewDialog::slotCropZoomRatioValueChanged(int a_cropZoomRatio)
 
 void PreviewDialog::slotPasteCropSnippetIntoScript()
 {
+	if(m_inPreviewer)
+		return;
 	if(!m_ui.cropPanel->isVisible())
 		return;
 

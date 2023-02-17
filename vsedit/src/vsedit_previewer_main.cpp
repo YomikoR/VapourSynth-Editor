@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 	QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
 
-	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary);
+	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary, true);
 	pPreviewDialog->moveToThread(qApp->thread());
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,
 		writeLogMessage);
