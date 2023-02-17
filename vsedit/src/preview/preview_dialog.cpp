@@ -1699,7 +1699,7 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		return;
 	if(ni.isAudio())
 	{
-		QString errorString = tr("Output node #%1 is an audio clip. "
+		QString errorString = tr("Output node #%1 is audio. "
 			"Previewing and encoding audio are not supported.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(

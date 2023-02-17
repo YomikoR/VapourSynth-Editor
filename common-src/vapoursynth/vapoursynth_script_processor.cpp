@@ -126,7 +126,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		m_pVSScript, a_outputIndex);
 	if(!pOutputNode)
 	{
-		m_error = tr("Failed to get the script output node with index %1.")
+		m_error = tr("Failed to get output node #%1.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
@@ -139,7 +139,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		|| a_reason == ProcessReason::Encode) && m_nodeInfo.isAudio())
 	{
 		m_cpVSAPI->freeNode(pOutputNode);
-		m_error = tr("Output node #%1 is an audio clip. "
+		m_error = tr("Output node #%1 is audio. "
 			"Previewing and encoding audio are not supported.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(
@@ -152,7 +152,8 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		m_nodeInfo.getAsVideo()->format.colorFamily == cfUndefined)
 	{
 		emit signalWriteLogMessage(mtWarning,
-			tr("The video output node has Undefined format."));
+			tr("Video output node #%1 has Undefined format.")
+			.arg(a_outputIndex));
 	}
 
 	m_cpVSAPI->freeNode(pOutputNode);
@@ -523,7 +524,7 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 		if(!validPair)
 		{
 			QString reason = tr("No nodes to produce the frame "
-				"%1 at output index %2.").arg(ticket.frameNumber)
+				"%1 at output #%2.").arg(ticket.frameNumber)
 				.arg(ticket.outputIndex);
 			emit signalFrameRequestDiscarded(ticket.frameNumber,
 				ticket.outputIndex, reason);
@@ -826,7 +827,7 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 		if(!previewNodeCreated)
 		{
 			m_error = tr("Couldn't create preview node for output "
-				"index %1.").arg(a_outputIndex);
+				"#%1.").arg(a_outputIndex);
 			emit signalWriteLogMessage(mtCritical, m_error);
 			return nodePair;
 		}
