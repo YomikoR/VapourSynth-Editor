@@ -2,9 +2,7 @@
 
 #include <QPaintEvent>
 #include <QPainter>
-#include <QBrush>
 #include <QColor>
-#include <QWindow>
 
 //==============================================================================
 

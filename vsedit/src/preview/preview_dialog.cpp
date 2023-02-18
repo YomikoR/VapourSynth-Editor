@@ -18,15 +18,10 @@
 #include <QMoveEvent>
 #include <QResizeEvent>
 #include <QKeyEvent>
-#include <QWheelEvent>
-#include <QStatusBar>
-#include <QLabel>
-#include <QToolTip>
 #include <QCursor>
 #include <QStandardPaths>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QScrollBar>
 #include <QPoint>
 #include <QMenu>
 #include <QActionGroup>
@@ -37,8 +32,6 @@
 #include <QImageWriter>
 #include <QFileInfo>
 #include <QRegExp>
-#include <QScreen>
-#include <QWindow>
 #include <algorithm>
 #include <cmath>
 
