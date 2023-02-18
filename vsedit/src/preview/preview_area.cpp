@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QWheelEvent>
 #include <QMouseEvent>
+#include <QEnterEvent>
 #include <QScrollBar>
 #include <QCoreApplication>
 
@@ -32,6 +33,7 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 		QPoint(scrollFrameWidth, scrollFrameWidth));
 	m_pScrollNavigator->setVisible(false);
 
+	setAttribute(Qt::WA_Hover, true);
 	setMouseTracking(true);
 	m_pPreviewLabel->setMouseTracking(true);
 }
@@ -219,6 +221,14 @@ void PreviewArea::mouseReleaseEvent(QMouseEvent * a_pEvent)
 		emit signalMouseRightButtonReleased();
 
 	QScrollArea::mouseReleaseEvent(a_pEvent);
+}
+
+void PreviewArea::enterEvent(QEnterEvent *a_pEvent)
+{
+	m_lastScenePos = a_pEvent->scenePosition();
+	checkMouseOverPreview(pixelPosition());
+	QScrollArea::enterEvent(a_pEvent);
+	setAttribute(Qt::WA_Hover, false);
 }
 
 // END OF void PreviewArea::mouseReleaseEvent(QMouseEvent * a_pEvent)
