@@ -10,6 +10,7 @@ class ScrollNavigator;
 class QKeyEvent;
 class QWheelEvent;
 class QMouseEvent;
+class QEnterEvent;
 
 class PreviewArea : public QScrollArea
 {
@@ -48,6 +49,7 @@ protected:
 	void mousePressEvent(QMouseEvent * a_pEvent) override;
 	void mouseMoveEvent(QMouseEvent * a_pEvent) override;
 	void mouseReleaseEvent(QMouseEvent * a_pEvent) override;
+	void enterEvent(QEnterEvent * a_pEvent) override;
 
 signals:
 
