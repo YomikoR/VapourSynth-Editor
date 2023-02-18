@@ -39,6 +39,7 @@ void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 		msgBox->setText(a_msg);
 		msgBox->setWindowTitle(a_style.toUpper());
 		vsedit::disableFontKerning(msgBox);
+		msgBox->setTextInteractionFlags(Qt::TextSelectableByMouse);
 		msgBox->exec();
 
 		// Handle fatal errors and save to current dir
