@@ -37,8 +37,24 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: ..\build\release-64bit-msvc\*; DestDir: {app}; Flags: ignoreversion recursesubdirs createallsubdirs
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+Source: ..\build\release-64bit-msvc\vsedit.exe; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\vsedit-job-server.exe; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\vsedit-job-server-watcher.exe; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\vsedit-previewer.exe; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\vsedit.ico; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\vsedit.svg; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\README; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\LICENSE; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\CHANGELOG; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6Core.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6Core5Compat.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6Gui.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6Network.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6WebSockets.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6Widgets.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\imageformats\qwebp.dll; DestDir: {app}\imageformats; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\platforms\qwindows.dll; DestDir: {app}\platforms; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\styles\qwindowsvistastyle.dll; DestDir: {app}\styles; Flags: ignoreversion uninsrestartdelete restartreplace
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"
