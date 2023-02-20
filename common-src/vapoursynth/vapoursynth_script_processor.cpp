@@ -936,12 +936,28 @@ QString VapourSynthScriptProcessor::framePropsString(
 					{
 						int len = m_cpVSAPI->mapGetDataSize(cpProps,
 							propKey, j, &error);
-						elementString = QString("<binary with %1 bytes>")
-							.arg(len);
+						if(error)
+							elementString = "<error>";
+						else
+							elementString = QString("<binary with %1 bytes>")
+								.arg(len);
 					}
 					else
 					{
-						elementString = "<unknown type>";
+						const char * element = m_cpVSAPI->mapGetData(cpProps,
+							propKey, j, &error);
+						if(error)
+							elementString = "<error>";
+						else
+						{
+							elementString = QString::fromUtf8(element);
+							QByteArray elementAsUtf8 = elementString.toUtf8();
+							int len = m_cpVSAPI->mapGetDataSize(cpProps,
+								propKey, j, &error);
+							if(elementAsUtf8.length() != len ||
+								elementAsUtf8.toStdString() != element)
+								elementString = "<unknown type>";
+						}
 					}
 				}
 
