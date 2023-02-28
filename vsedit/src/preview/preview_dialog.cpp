@@ -184,13 +184,14 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 
 	slotSettingsChanged();
 
-	bool rememberLastPreviewFrame =
-		m_pSettingsManager->getRememberLastPreviewFrame();
-	if(rememberLastPreviewFrame)
+	if(m_inPreviewer)
+	{
+		m_frameExpected = m_pSettingsManager->getLastPreviewFrame(true);
+	}
+	else if (m_pSettingsManager->getRememberLastPreviewFrame())
 	{
 		m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
-		if(!m_inPreviewer)
-			setScriptName(m_pSettingsManager->getLastUsedPath());
+		setScriptName(m_pSettingsManager->getLastUsedPath());
 	}
 }
 
@@ -292,11 +293,11 @@ void PreviewDialog::stopAndCleanUp()
 	if(m_ui.cropCheckButton->isChecked())
 		m_ui.cropCheckButton->click();
 
-	bool rememberLastPreviewFrame =
+	bool rememberLastPreviewFrame = m_inPreviewer ||
 		m_pSettingsManager->getRememberLastPreviewFrame();
 	if(rememberLastPreviewFrame && (!scriptName().isEmpty()) &&
 		(m_frameExpected > -1))
-		m_pSettingsManager->setLastPreviewFrame(m_frameExpected);
+		m_pSettingsManager->setLastPreviewFrame(m_frameExpected, m_inPreviewer);
 	m_frameShown = -1;
 	m_framePixmap = QPixmap();
 	// Replace shown image with a blank one of the same dimension:
@@ -367,10 +368,10 @@ void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 	m_pFramePropsPanel->setVisible(false);
 	if(m_inPreviewer)
 	{
-		bool rememberLastPreviewFrame =
+		bool rememberLastPreviewFrame = m_inPreviewer ||
 			m_pSettingsManager->getRememberLastPreviewFrame();
 		if(rememberLastPreviewFrame && (m_frameExpected > -1))
-			m_pSettingsManager->setLastPreviewFrame(m_frameExpected);
+			m_pSettingsManager->setLastPreviewFrame(m_frameExpected, m_inPreviewer);
 	}
 	QDialog::closeEvent(a_pEvent);
 }

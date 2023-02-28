@@ -65,6 +65,10 @@ const char DARK_THEME_GROUP[] = "dark_theme";
 
 //==============================================================================
 
+const char PREVIEWER_GROUP[] = "previewer";
+
+//==============================================================================
+
 const char CODE_SNIPPETS_GROUP[] = "code_snippets";
 
 //==============================================================================
@@ -831,13 +835,23 @@ bool SettingsManager::setRememberLastPreviewFrame(bool a_remember)
 
 //==============================================================================
 
-int SettingsManager::getLastPreviewFrame() const
+int SettingsManager::getLastPreviewFrame(bool a_inPreviewer) const
 {
+	if(a_inPreviewer)
+	{
+		return valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_FRAME_KEY,
+			DEFAULT_LAST_PREVIEW_FRAME).toInt();
+	}
 	return value(LAST_PREVIEW_FRAME_KEY, DEFAULT_LAST_PREVIEW_FRAME).toInt();
 }
 
-bool SettingsManager::setLastPreviewFrame(int a_frameNumber)
+bool SettingsManager::setLastPreviewFrame(int a_frameNumber, bool a_inPreviewer)
 {
+	if(a_inPreviewer)
+	{
+		return setValueInGroup(PREVIEWER_GROUP,
+			LAST_PREVIEW_FRAME_KEY, a_frameNumber);
+	}
 	return setValue(LAST_PREVIEW_FRAME_KEY, a_frameNumber);
 }
 

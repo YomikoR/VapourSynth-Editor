@@ -162,9 +162,9 @@ public:
 
 	bool setRememberLastPreviewFrame(bool a_remember);
 
-	int getLastPreviewFrame() const;
+	int getLastPreviewFrame(bool a_inPreviewer = false) const;
 
-	bool setLastPreviewFrame(int a_frameNumber);
+	bool setLastPreviewFrame(int a_frameNumber, bool a_inPreviewer = false);
 
 	QString getDefaultNewScriptTemplate();
 
