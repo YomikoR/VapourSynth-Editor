@@ -158,6 +158,16 @@ protected slots:
 	void slotSwitchOutputIndex7() { slotSwitchOutputIndex(7); }
 	void slotSwitchOutputIndex8() { slotSwitchOutputIndex(8); }
 	void slotSwitchOutputIndex9() { slotSwitchOutputIndex(9); }
+	void slotSwitchOutputIndex10() { slotSwitchOutputIndex(10); }
+	void slotSwitchOutputIndex11() { slotSwitchOutputIndex(11); }
+	void slotSwitchOutputIndex12() { slotSwitchOutputIndex(12); }
+	void slotSwitchOutputIndex13() { slotSwitchOutputIndex(13); }
+	void slotSwitchOutputIndex14() { slotSwitchOutputIndex(14); }
+	void slotSwitchOutputIndex15() { slotSwitchOutputIndex(15); }
+	void slotSwitchOutputIndex16() { slotSwitchOutputIndex(16); }
+	void slotSwitchOutputIndex17() { slotSwitchOutputIndex(17); }
+	void slotSwitchOutputIndex18() { slotSwitchOutputIndex(18); }
+	void slotSwitchOutputIndex19() { slotSwitchOutputIndex(19); }
 
 protected:
 
@@ -268,6 +278,16 @@ protected:
 	QAction * m_pActionSwitchToOutputIndex7;
 	QAction * m_pActionSwitchToOutputIndex8;
 	QAction * m_pActionSwitchToOutputIndex9;
+	QAction * m_pActionSwitchToOutputIndex10;
+	QAction * m_pActionSwitchToOutputIndex11;
+	QAction * m_pActionSwitchToOutputIndex12;
+	QAction * m_pActionSwitchToOutputIndex13;
+	QAction * m_pActionSwitchToOutputIndex14;
+	QAction * m_pActionSwitchToOutputIndex15;
+	QAction * m_pActionSwitchToOutputIndex16;
+	QAction * m_pActionSwitchToOutputIndex17;
+	QAction * m_pActionSwitchToOutputIndex18;
+	QAction * m_pActionSwitchToOutputIndex19;
 
 	std::map<QString, ZoomMode> m_actionIDToZoomModeMap;
 

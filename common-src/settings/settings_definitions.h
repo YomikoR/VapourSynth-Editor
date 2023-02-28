@@ -166,6 +166,16 @@ extern const char ACTION_ID_SET_OUTPUT_INDEX_6[];
 extern const char ACTION_ID_SET_OUTPUT_INDEX_7[];
 extern const char ACTION_ID_SET_OUTPUT_INDEX_8[];
 extern const char ACTION_ID_SET_OUTPUT_INDEX_9[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_10[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_11[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_12[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_13[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_14[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_15[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_16[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_17[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_18[];
+extern const char ACTION_ID_SET_OUTPUT_INDEX_19[];
 
 //==============================================================================
 

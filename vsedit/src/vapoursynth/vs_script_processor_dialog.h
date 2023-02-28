@@ -21,6 +21,8 @@ struct VSAPI;
 struct VSVideoInfo;
 struct VSFrame;
 
+#define MAX_VS_OUTPUT 20
+
 class VSScriptProcessorDialog : public QDialog
 {
 	Q_OBJECT
@@ -92,10 +94,10 @@ protected:
 
 	const VSAPI * m_cpVSAPI;
 
-	VSNodeInfo m_nodeInfo[10];
+	VSNodeInfo m_nodeInfo[MAX_VS_OUTPUT];
 
-	size_t m_framesInQueue[10];
-	size_t m_framesInProcess[10];
+	size_t m_framesInQueue[MAX_VS_OUTPUT];
+	size_t m_framesInProcess[MAX_VS_OUTPUT];
 	size_t m_maxThreads;
 
 	int m_outputIndex;
@@ -110,7 +112,7 @@ protected:
 	QPixmap m_busyPixmap;
 	QPixmap m_errorPixmap;
 
-	std::list<Frame> m_framesCache[10];
+	std::list<Frame> m_framesCache[MAX_VS_OUTPUT];
 	size_t m_cachedFramesLimit;
 
 	QString m_clipName;

@@ -105,6 +105,16 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionSwitchToOutputIndex7(nullptr)
 	, m_pActionSwitchToOutputIndex8(nullptr)
 	, m_pActionSwitchToOutputIndex9(nullptr)
+	, m_pActionSwitchToOutputIndex10(nullptr)
+	, m_pActionSwitchToOutputIndex11(nullptr)
+	, m_pActionSwitchToOutputIndex12(nullptr)
+	, m_pActionSwitchToOutputIndex13(nullptr)
+	, m_pActionSwitchToOutputIndex14(nullptr)
+	, m_pActionSwitchToOutputIndex15(nullptr)
+	, m_pActionSwitchToOutputIndex16(nullptr)
+	, m_pActionSwitchToOutputIndex17(nullptr)
+	, m_pActionSwitchToOutputIndex18(nullptr)
+	, m_pActionSwitchToOutputIndex19(nullptr)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
 	, m_nativePlaybackRate(false)
@@ -1830,6 +1840,26 @@ void PreviewDialog::createActionsAndMenus()
 			false, SLOT(slotSwitchOutputIndex8())},
 		{&m_pActionSwitchToOutputIndex9, ACTION_ID_SET_OUTPUT_INDEX_9,
 			false, SLOT(slotSwitchOutputIndex9())},
+		{&m_pActionSwitchToOutputIndex10, ACTION_ID_SET_OUTPUT_INDEX_10,
+			false, SLOT(slotSwitchOutputIndex10())},
+		{&m_pActionSwitchToOutputIndex11, ACTION_ID_SET_OUTPUT_INDEX_11,
+			false, SLOT(slotSwitchOutputIndex11())},
+		{&m_pActionSwitchToOutputIndex12, ACTION_ID_SET_OUTPUT_INDEX_12,
+			false, SLOT(slotSwitchOutputIndex12())},
+		{&m_pActionSwitchToOutputIndex13, ACTION_ID_SET_OUTPUT_INDEX_13,
+			false, SLOT(slotSwitchOutputIndex13())},
+		{&m_pActionSwitchToOutputIndex14, ACTION_ID_SET_OUTPUT_INDEX_14,
+			false, SLOT(slotSwitchOutputIndex14())},
+		{&m_pActionSwitchToOutputIndex15, ACTION_ID_SET_OUTPUT_INDEX_15,
+			false, SLOT(slotSwitchOutputIndex15())},
+		{&m_pActionSwitchToOutputIndex16, ACTION_ID_SET_OUTPUT_INDEX_16,
+			false, SLOT(slotSwitchOutputIndex16())},
+		{&m_pActionSwitchToOutputIndex17, ACTION_ID_SET_OUTPUT_INDEX_17,
+			false, SLOT(slotSwitchOutputIndex17())},
+		{&m_pActionSwitchToOutputIndex18, ACTION_ID_SET_OUTPUT_INDEX_18,
+			false, SLOT(slotSwitchOutputIndex18())},
+		{&m_pActionSwitchToOutputIndex19, ACTION_ID_SET_OUTPUT_INDEX_19,
+			false, SLOT(slotSwitchOutputIndex19())},
 	};
 
 	for(ActionToCreate & item : actionsToCreate)
@@ -2000,6 +2030,16 @@ void PreviewDialog::createActionsAndMenus()
 	addAction(m_pActionSwitchToOutputIndex7);
 	addAction(m_pActionSwitchToOutputIndex8);
 	addAction(m_pActionSwitchToOutputIndex9);
+	addAction(m_pActionSwitchToOutputIndex10);
+	addAction(m_pActionSwitchToOutputIndex11);
+	addAction(m_pActionSwitchToOutputIndex12);
+	addAction(m_pActionSwitchToOutputIndex13);
+	addAction(m_pActionSwitchToOutputIndex14);
+	addAction(m_pActionSwitchToOutputIndex15);
+	addAction(m_pActionSwitchToOutputIndex16);
+	addAction(m_pActionSwitchToOutputIndex17);
+	addAction(m_pActionSwitchToOutputIndex18);
+	addAction(m_pActionSwitchToOutputIndex19);
 
 //------------------------------------------------------------------------------
 
