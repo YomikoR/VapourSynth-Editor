@@ -28,11 +28,15 @@ public:
 
 	int pixmapHeight() const { return m_pixmapHeight; }
 
-	void setPixmap(const QPixmap & a_pixmap);
+	void setPixmap(const QPixmap & a_pixmap, bool a_isVideoFrame = false);
 
 	void checkMouseOverPreview(const QPointF & a_pixelPos);
 
 	QPointF pixelPosition() const;
+
+	QPoint getScrollBarPositions() const;
+
+	void getScrollBarPositionsFromPreviewer(const QPoint & pos);
 
 public slots:
 
@@ -40,6 +44,8 @@ public slots:
 	void slotScrollRight();
 	void slotScrollTop();
 	void slotScrollBottom();
+	void slotSetScrollBarPositions();
+
 
 protected:
 
@@ -75,6 +81,8 @@ private:
 	int m_pixmapWidth = 0;
 	int m_pixmapHeight = 0;
 
+	bool m_newToPreviewer;
+	QPoint m_lastScrollBarPos;
 };
 
 #endif // PREVIEWAREA_H

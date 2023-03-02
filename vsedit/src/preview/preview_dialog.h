@@ -219,6 +219,9 @@ protected:
 
 	void saveGeometryDelayed();
 
+	QPoint loadLastScrollBarPositions() const;
+	void saveLastScrollBarPositions();
+
 	Ui::PreviewDialog m_ui;
 
 	PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;

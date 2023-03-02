@@ -12,6 +12,8 @@
 
 const char MAIN_WINDOW_GEOMETRY_KEY[] = "main_window_geometry";
 const char PREVIEW_DIALOG_GEOMETRY_KEY[] = "prewiew_dialog_geometry";
+const char LAST_PREVIEW_SCROLLBAR_POS_X[] = "last_preview_scrollbar_position_x";
+const char LAST_PREVIEW_SCROLLBAR_POS_Y[] = "last_preview_scrollbar_position_y";
 const char JOB_SERVER_WATCHER_GEOMETRY_KEY[] = "job_server_watcher_geometry";
 const char MAIN_WINDOW_MAXIMIZED_KEY[] = "main_window_maximized";
 const char PREVIEW_DIALOG_MAXIMIZED_KEY[] = "preview_dialog_maximized";
@@ -550,6 +552,21 @@ bool SettingsManager::getPreviewDialogMaximized() const
 bool SettingsManager::setPreviewDialogMaximized(bool a_previewDialogMaximized)
 {
 	return setValue(PREVIEW_DIALOG_MAXIMIZED_KEY, a_previewDialogMaximized);
+}
+
+QPoint SettingsManager::getLastPreviewScrollBarPositions() const
+{
+	int x = valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_X, 0).toInt();
+	int y = valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_Y, 0).toInt();
+	return QPoint(x, y);
+}
+
+bool SettingsManager::setLastPreviewScrollBarPositions(const QPoint &pos)
+{
+	int x = pos.x();
+	int y = pos.y();
+    return setValueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_X, x)
+		&& setValueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_Y, y);
 }
 
 //==============================================================================

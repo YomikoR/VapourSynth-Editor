@@ -197,6 +197,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	if(m_inPreviewer)
 	{
 		m_frameExpected = m_pSettingsManager->getLastPreviewFrame(true);
+		QPoint scrollBarPos = loadLastScrollBarPositions();
+		m_ui.previewArea->getScrollBarPositionsFromPreviewer(scrollBarPos);
 	}
 	else if (m_pSettingsManager->getRememberLastPreviewFrame())
 	{
@@ -383,6 +385,7 @@ void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 			m_pSettingsManager->getRememberLastPreviewFrame();
 		if(rememberLastPreviewFrame && (m_frameExpected > -1))
 			m_pSettingsManager->setLastPreviewFrame(m_frameExpected, m_inPreviewer);
+		saveLastScrollBarPositions();
 	}
 	QDialog::closeEvent(a_pEvent);
 }
@@ -1662,6 +1665,17 @@ void PreviewDialog::slotSaveGeometry()
 	m_pSettingsManager->setPreviewDialogGeometry(m_windowGeometry);
 }
 
+QPoint PreviewDialog::loadLastScrollBarPositions() const
+{
+	return m_pSettingsManager->getLastPreviewScrollBarPositions();
+}
+
+void PreviewDialog::saveLastScrollBarPositions()
+{
+	QPoint pos = m_ui.previewArea->getScrollBarPositions();
+	m_pSettingsManager->setLastPreviewScrollBarPositions(pos);
+}
+
 // END OF void PreviewDialog::slotSaveGeometry()
 //==============================================================================
 
@@ -2256,7 +2270,7 @@ void PreviewDialog::setPreviewPixmap()
 	ZoomMode zoomMode = (ZoomMode)m_ui.zoomModeComboBox->currentData().toInt();
 	if(zoomMode == ZoomMode::NoZoom)
 	{
-		m_ui.previewArea->setPixmap(m_framePixmap);
+		m_ui.previewArea->setPixmap(m_framePixmap, true);
 		return;
 	}
 
@@ -2285,7 +2299,7 @@ void PreviewDialog::setPreviewPixmap()
 	previewPixmap = m_framePixmap.scaled(frameWidth, frameHeight,
 		Qt::KeepAspectRatio, scaleMode);
 
-	m_ui.previewArea->setPixmap(previewPixmap);
+	m_ui.previewArea->setPixmap(previewPixmap, true);
 }
 
 // END OF bool void PreviewDialog::setPreviewPixmap()

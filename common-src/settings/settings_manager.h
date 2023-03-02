@@ -72,6 +72,10 @@ public:
 
 	bool setPreviewDialogMaximized(bool a_previewDialogMaximized);
 
+	QPoint getLastPreviewScrollBarPositions() const;
+
+	bool setLastPreviewScrollBarPositions(const QPoint &pos);
+
 	QByteArray getJobServerWatcherGeometry() const;
 
 	bool setJobServerWatcherGeometry(const QByteArray & a_geometry);

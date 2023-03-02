@@ -9,6 +9,7 @@
 #include <QEnterEvent>
 #include <QScrollBar>
 #include <QCoreApplication>
+#include <QTimer>
 
 //==============================================================================
 
@@ -19,6 +20,7 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 	, m_lastCursorPos(0, 0)
 	, m_lastPreviewLabelPos(0, 0)
 	, m_lastScenePos(0.0, 0.0)
+	, m_newToPreviewer(false)
 {
 	m_pPreviewLabel = new QLabel(this);
 	m_pPreviewLabel->setPixmap(QPixmap());
@@ -49,19 +51,25 @@ PreviewArea::~PreviewArea()
 // END OF PreviewArea::~PreviewArea()
 //==============================================================================
 
-void PreviewArea::setPixmap(const QPixmap & a_pixmap)
+void PreviewArea::setPixmap(const QPixmap & a_pixmap, bool a_isVideoFrame)
 {
 	m_pPreviewLabel->setPixmap(a_pixmap);
 	m_pixmapWidth = a_pixmap.width();
 	m_pixmapHeight = a_pixmap.height();
+	if(a_isVideoFrame && m_newToPreviewer)
+	{
+		m_newToPreviewer = false;
+		QCoreApplication::processEvents();
+		QTimer::singleShot(0, this, SLOT(slotSetScrollBarPositions()));
+	}
 }
 
 // END OF void PreviewArea::setPixmap(const QPixmap & a_pixmap)
 //==============================================================================
 
-void PreviewArea::checkMouseOverPreview(const QPointF & a_pixelPos)
+void PreviewArea::checkMouseOverPreview(const QPointF & a_pixelPos) 
 {
-	if(!m_pPreviewLabel->underMouse())
+        if(!m_pPreviewLabel->underMouse())
 		return;
 
 	double pX = a_pixelPos.x();
@@ -256,4 +264,23 @@ QPointF PreviewArea::pixelPosition() const
 	QMargins lMargin = contentsMargins();
 	QPoint mOffset = QPoint(lMargin.left(), lMargin.top());
 	return m_lastScenePos - lPos - mOffset;
+}
+
+QPoint PreviewArea::getScrollBarPositions() const
+{
+	int x = horizontalScrollBar()->value();
+	int y = verticalScrollBar()->value();
+	return QPoint(x, y);
+}
+
+void PreviewArea::slotSetScrollBarPositions()
+{
+	horizontalScrollBar()->setValue(m_lastScrollBarPos.x());
+	verticalScrollBar()->setValue(m_lastScrollBarPos.y());
+}
+
+void PreviewArea::getScrollBarPositionsFromPreviewer(const QPoint & pos)
+{
+	m_newToPreviewer = true;
+	m_lastScrollBarPos = pos;
 }
