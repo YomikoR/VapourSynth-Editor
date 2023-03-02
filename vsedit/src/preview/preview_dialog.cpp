@@ -378,6 +378,7 @@ void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 	m_pFramePropsPanel->setVisible(false);
 	if(m_inPreviewer)
 	{
+		slotSaveGeometry();
 		bool rememberLastPreviewFrame = m_inPreviewer ||
 			m_pSettingsManager->getRememberLastPreviewFrame();
 		if(rememberLastPreviewFrame && (m_frameExpected > -1))
