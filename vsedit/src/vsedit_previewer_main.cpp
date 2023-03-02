@@ -121,7 +121,7 @@ void handleQtMessage(QtMsgType a_type,
 int main(int argc, char *argv[])
 {
 	QString scriptFilePath;
-	if(argc == 2)
+	if(argc > 1)
 	{
 		if(strcmp(argv[1], "-v") == 0 ||
 			strcmp(argv[1], "--version") == 0)
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		std::cerr << "vsedit-previewer: Requiring exactly one argument as script path." << std::endl;
+		std::cerr << "vsedit-previewer: Please provide the path to your script." << std::endl;
 		return -2;
 	}
 
@@ -208,7 +208,6 @@ int main(int argc, char *argv[])
 		writeLogMessage);
 
 	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary, true);
-	pPreviewDialog->moveToThread(qApp->thread());
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,
 		writeLogMessage);
 
