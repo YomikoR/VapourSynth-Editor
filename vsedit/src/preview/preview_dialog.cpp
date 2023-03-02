@@ -2712,8 +2712,9 @@ FramePropsPanel::FramePropsPanel(SettingsManager * a_pSettingsManager,
 
 void FramePropsPanel::keyPressEvent(QKeyEvent * a_pEvent)
 {
-	int key = a_pEvent->key();
-	if(key == Qt::Key_Escape)
+	if(a_pEvent->modifiers() != Qt::NoModifier)
+		QTextEdit::keyPressEvent(a_pEvent);
+	else if(a_pEvent->key() == Qt::Key_Escape)
 		setVisible(false);
 	else
 		m_pFakeParent->keyPressEvent(a_pEvent);
