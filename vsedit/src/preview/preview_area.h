@@ -49,7 +49,9 @@ protected:
 	void mousePressEvent(QMouseEvent * a_pEvent) override;
 	void mouseMoveEvent(QMouseEvent * a_pEvent) override;
 	void mouseReleaseEvent(QMouseEvent * a_pEvent) override;
+#if (QT_VERSION_MAJOR >= 6)
 	void enterEvent(QEnterEvent * a_pEvent) override;
+#endif
 
 signals:
 

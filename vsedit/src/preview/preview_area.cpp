@@ -32,8 +32,9 @@ PreviewArea::PreviewArea(QWidget * a_pParent) : QScrollArea(a_pParent)
 	m_pScrollNavigator->move(pos() +
 		QPoint(scrollFrameWidth, scrollFrameWidth));
 	m_pScrollNavigator->setVisible(false);
-
+#if (QT_VERSION_MAJOR >= 6)
 	setAttribute(Qt::WA_Hover, true);
+#endif
 	setMouseTracking(true);
 	m_pPreviewLabel->setMouseTracking(true);
 }
@@ -227,6 +228,7 @@ void PreviewArea::mouseReleaseEvent(QMouseEvent * a_pEvent)
 	QScrollArea::mouseReleaseEvent(a_pEvent);
 }
 
+#if (QT_VERSION_MAJOR >= 6)
 void PreviewArea::enterEvent(QEnterEvent *a_pEvent)
 {
 	m_lastScenePos = a_pEvent->scenePosition();
@@ -234,6 +236,7 @@ void PreviewArea::enterEvent(QEnterEvent *a_pEvent)
 	QScrollArea::enterEvent(a_pEvent);
 	setAttribute(Qt::WA_Hover, false);
 }
+#endif
 
 // END OF void PreviewArea::mouseReleaseEvent(QMouseEvent * a_pEvent)
 //==============================================================================
