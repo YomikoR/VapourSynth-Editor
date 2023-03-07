@@ -364,7 +364,7 @@ void PreviewDialog::changeEvent(QEvent * a_pEvent)
 void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 {
 	m_pFramePropsPanel->setVisible(false);
-	QDialog::closeEvent(a_pEvent);
+	VSScriptProcessorDialog::closeEvent(a_pEvent);
 }
 
 // END OF void PreviewDialog::closeEvent(QCloseEvent * a_pEvent)
