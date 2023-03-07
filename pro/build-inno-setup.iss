@@ -2,7 +2,7 @@
 
 #define AppName "VapourSynth Editor"
 #define ExeName "vsedit"
-#define Version "r19-mod-5.6"
+#define Version "r19-mod-5.7"
 
 [Setup]
 AppId={#AppName}
