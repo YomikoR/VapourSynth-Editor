@@ -13,6 +13,7 @@
 #include <QResource>
 
 #include <iostream>
+#include <string>
 
 Q_DECLARE_OPAQUE_POINTER(const VSFrame *)
 Q_DECLARE_OPAQUE_POINTER(VSNode *)
@@ -23,7 +24,8 @@ PreviewDialog * pPreviewDialog = nullptr;
 
 void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 {
-	std::cerr << "[" << a_style.toUpper().toStdString() << "] " << a_msg.toStdString() << std::endl;
+	std::cerr << "[" << a_style.toUpper().toStdString() << "] "
+		<< std::string(a_msg.toLocal8Bit()) << std::endl;
 
 	QString breakingTypes[] = {
 		LOG_STYLE_VS_CRITICAL,
@@ -130,7 +132,7 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 		else
-			scriptFilePath = argv[1];
+			scriptFilePath = QString::fromLocal8Bit(argv[1], -1);
 	}
 	else
 	{
