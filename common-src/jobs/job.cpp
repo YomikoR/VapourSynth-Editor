@@ -1342,7 +1342,7 @@ void vsedit::Job::startEncodeScriptCLI()
 	emit signalLogMessage(tr("Checking the encoder sanity."));
 	m_encodingState = EncodingState::CheckingEncoderSanity;
 
-	m_process.start(commandLine, QStringList());
+	m_process.startCommand(commandLine);
 	if(!m_process.waitForStarted(3000))
 	{
 		emit signalLogMessage(tr("Encoder wouldn't start."),
@@ -1366,7 +1366,7 @@ void vsedit::Job::startEncodeScriptCLI()
 
 	emit signalLogMessage(tr("Encoder seems sane. Starting."));
 	m_encodingState = EncodingState::StartingEncoder;
-	m_process.start(commandLine, QStringList());
+	m_process.startCommand(commandLine);
 }
 
 // END OF void vsedit::Job::startEncodeScriptCLI()
@@ -1384,7 +1384,7 @@ void vsedit::Job::startRunProcess()
 	emit signalLogMessage(tr("Command line:"));
 	emit signalLogMessage(commandLine);
 
-	m_process.start(commandLine, QStringList());
+	m_process.startCommand(commandLine);
 }
 
 // END OF void vsedit::Job::startRunProcess()
