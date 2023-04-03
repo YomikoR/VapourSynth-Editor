@@ -14,14 +14,13 @@ void print_version()
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
-void hide_tty()
+void hide_conhost()
 {
+	print_version();
 	HWND console = GetConsoleWindow();
 	DWORD pid;
 	GetWindowThreadProcessId(console, &pid);
 	if(GetCurrentProcessId() == pid)
 		ShowWindow(console, SW_HIDE);
-	else
-		print_version();
 }
 #endif

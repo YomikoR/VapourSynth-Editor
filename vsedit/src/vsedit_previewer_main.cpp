@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 	}
 
 #if defined(Q_OS_WIN)
- 	hide_tty();
+ 	hide_conhost();
 #endif
 
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);

@@ -6,7 +6,7 @@
 void print_version();
 
 #if defined(Q_OS_WIN)
-void hide_tty();
+void hide_conhost();
 #endif
 
 #endif
