@@ -22,10 +22,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-#if defined(Q_OS_WIN)
- 	hide_conhost();
-#endif
-
 	QCoreApplication application(argc, argv);
 
 	qRegisterMetaType<const VSFrame *>("const VSFrame *");

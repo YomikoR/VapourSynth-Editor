@@ -117,6 +117,7 @@ extern const char ACTION_ID_CHECK_SCRIPT[];
 extern const char ACTION_ID_BENCHMARK[];
 extern const char ACTION_ID_CLI_ENCODE[];
 extern const char ACTION_ID_ENQUEUE_ENCODE_JOB[];
+extern const char ACTION_ID_TOGGLE_CONSOLE[];
 extern const char ACTION_ID_JOBS[];
 extern const char ACTION_ID_EXIT[];
 extern const char ACTION_ID_ABOUT[];

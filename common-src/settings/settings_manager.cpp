@@ -146,6 +146,10 @@ void SettingsManager::initializeStandardActions()
 			QIcon(":jobs.png"), QKeySequence(Qt::Key_F9)},
 		{ACTION_ID_JOBS, tr("Jobs"),
 			QIcon(":jobs.png"), QKeySequence(Qt::Key_F10)},
+#if defined(Q_OS_WIN)
+		{ACTION_ID_TOGGLE_CONSOLE, tr("Toggle console"),
+			QIcon(), QKeySequence(Qt::CTRL | Qt::Key_T)},
+#endif
 		{ACTION_ID_ABOUT, tr("About..."), QIcon(), QKeySequence()},
 		{ACTION_ID_AUTOCOMPLETE, tr("Autocomplete"), QIcon(),
 			QKeySequence(Qt::CTRL | Qt::Key_Space)},

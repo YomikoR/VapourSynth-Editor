@@ -3,13 +3,28 @@
 #include "../../common-src/log/vs_editor_log.h"
 #include "../../common-src/settings/settings_manager.h"
 #include "../../common-src/version_info.h"
+#include "../../common-src/win32_console.h"
 
 #include <QApplication>
+
+#include <iostream>
 
 Q_DECLARE_OPAQUE_POINTER(const VSFrame *)
 Q_DECLARE_OPAQUE_POINTER(VSNode *)
 
 MainWindow * pMainWindow = nullptr;
+
+#if defined(Q_OS_WIN)
+AttachedConsole * pConsole = nullptr;
+
+void toggleAttachedConsole()
+{
+	if(pConsole->visible())
+		pConsole->hide();
+	else
+		pConsole->show();
+}
+#endif
 
 void handleQtMessage(QtMsgType a_type, const QMessageLogContext & a_context,
 	const QString & a_message)
@@ -75,7 +90,9 @@ int main(int argc, char *argv[])
 	}
 
 #if defined(Q_OS_WIN)
- 	hide_conhost();
+	pConsole = new AttachedConsole();
+	print_version();
+	std::cerr << "Do not close this window unless you are ready to quit!" << std::endl;
 #endif
 
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
@@ -98,9 +115,20 @@ int main(int argc, char *argv[])
 
 	pMainWindow = new MainWindow(settings);
 	qInstallMessageHandler(handleQtMessage);
+#if defined(Q_OS_WIN)
+	QObject::connect(pMainWindow, &MainWindow::signalToggleAttachedConsole,
+		toggleAttachedConsole);
+#endif
 	pMainWindow->show();
 	int exitCode = application.exec();
 	delete pMainWindow;
 	delete settings;
+#if defined(Q_OS_WIN)
+	if(pConsole)
+	{
+		pConsole->destroy();
+		delete pConsole;
+	}
+#endif
 	return exitCode;
 }

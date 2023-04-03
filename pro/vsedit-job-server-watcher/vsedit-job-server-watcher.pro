@@ -4,9 +4,6 @@ QT += widgets
 QT += websockets
 QT += core5compat
 
-win32 {
-	CONFIG += console
-}
 
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")
@@ -85,6 +82,8 @@ macx {
 }
 
 win32 {
+	QMAKE_LFLAGS += '/entry:mainCRTStartup'
+
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt

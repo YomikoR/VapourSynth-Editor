@@ -56,6 +56,7 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 	, m_pActionEncode(nullptr)
 	, m_pActionEnqueueEncodeJob(nullptr)
 	, m_pActionJobs(nullptr)
+	, m_pActionConsole(nullptr)
 	, m_pActionExit(nullptr)
 	, m_pActionAbout(nullptr)
 	, m_settableActionsList()
@@ -544,6 +545,13 @@ void MainWindow::slotJobs()
 // END OF void MainWindow::slotJobs()
 //==============================================================================
 
+void MainWindow::slotToggleConsole()
+{
+#if defined(Q_OS_WIN)
+	emit signalToggleAttachedConsole();
+#endif
+}
+
 void MainWindow::slotAbout()
 {
 	QResource aboutResource(":readme");
@@ -684,6 +692,10 @@ void MainWindow::createActionsAndMenus()
 			this, SLOT(slotEnqueueEncodeJob())},
 		{&m_pActionJobs, ACTION_ID_JOBS,
 			this, SLOT(slotJobs())},
+#if defined(Q_OS_WIN)
+		{&m_pActionConsole, ACTION_ID_TOGGLE_CONSOLE,
+			this, SLOT(slotToggleConsole())},
+#endif
 		{&m_pActionAbout, ACTION_ID_ABOUT,
 			this, SLOT(slotAbout())},
 	};
@@ -739,6 +751,10 @@ void MainWindow::createActionsAndMenus()
 	pScriptMenu->addAction(m_pActionEncode);
 	pScriptMenu->addAction(m_pActionEnqueueEncodeJob);
 	pScriptMenu->addAction(m_pActionJobs);
+#if defined(Q_OS_WIN)
+	pScriptMenu->addSeparator();
+	pScriptMenu->addAction(m_pActionConsole);
+#endif
 
 //------------------------------------------------------------------------------
 

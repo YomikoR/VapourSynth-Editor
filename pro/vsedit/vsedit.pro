@@ -5,10 +5,6 @@ QT += network
 QT += core5compat
 
 
-win32 {
-	CONFIG += console
-}
-
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")
 ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
@@ -106,6 +102,8 @@ macx {
 }
 
 win32 {
+	QMAKE_LFLAGS += '/entry:mainCRTStartup'
+
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt
@@ -178,6 +176,7 @@ FORMS += $${PROJECT_DIRECTORY}/src/main_window.ui
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/helpers_vs.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/version_info.h
+HEADERS += $${COMMON_DIRECTORY}/common-src/win32_console.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/aligned_vector.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/chrono.h
 HEADERS += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.h
@@ -235,6 +234,7 @@ HEADERS += $${PROJECT_DIRECTORY}/src/main_window.h
 
 SOURCES += $${COMMON_DIRECTORY}/common-src/helpers.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/version_info.cpp
+SOURCES += $${COMMON_DIRECTORY}/common-src/win32_console.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions_core.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_definitions.cpp
 SOURCES += $${COMMON_DIRECTORY}/common-src/settings/settings_manager_core.cpp

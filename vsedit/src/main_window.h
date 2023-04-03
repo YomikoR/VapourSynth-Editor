@@ -35,6 +35,10 @@ public slots:
 	void slotInsertTextIntoScriptAtNewLine(const QString & a_text);
 	void slotInsertTextIntoScriptAtCursor(const QString & a_text);
 
+signals:
+
+	void signalToggleAttachedConsole();
+
 protected:
 
 	void closeEvent(QCloseEvent * a_pEvent) override;
@@ -60,6 +64,7 @@ private slots:
 	void slotEncode();
 	void slotEnqueueEncodeJob();
 	void slotJobs();
+	void slotToggleConsole();
 
 	void slotAbout();
 
@@ -117,6 +122,7 @@ private:
 	QAction * m_pActionEncode;
 	QAction * m_pActionEnqueueEncodeJob;
 	QAction * m_pActionJobs;
+	QAction * m_pActionConsole;
 	QAction * m_pActionExit;
 	QAction * m_pActionAbout;
 

@@ -140,10 +140,6 @@ int main(int argc, char *argv[])
 		return -2;
 	}
 
-#if defined(Q_OS_WIN)
- 	hide_conhost();
-#endif
-
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 	QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
 		Qt::HighDpiScaleFactorRoundingPolicy::Floor);
