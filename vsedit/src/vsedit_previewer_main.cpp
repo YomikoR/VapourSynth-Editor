@@ -168,7 +168,6 @@ int main(int argc, char *argv[])
 		digitalMiniFontResource.size());
 	QFontDatabase::addApplicationFontFromData(digitalMiniFontData);
 
-#ifdef Q_OS_WIN
 	if(pSettings->inDarkMode())
 	{
 		// Load qDarkStyle colors
@@ -188,6 +187,7 @@ int main(int argc, char *argv[])
 		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
 		qApp->setPalette(newPal);
 	}
+#ifdef Q_OS_WIN
 	else
 		qApp->setStyle("fusion");
 #endif

@@ -119,11 +119,7 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getPNGSnapshotCompressionLevel());
 	m_ui.preferLibraryFromListCheckBox->setChecked(
 		m_pSettingsManager->getPreferVSLibrariesFromList());
-#ifdef Q_OS_WIN
 	m_ui.darkModeCheckBox->setChecked(m_pSettingsManager->getDarkMode());
-#else
-	m_ui.darkModeCheckBox->setVisible(false);
-#endif
 
 	m_ui.vsLibraryPathsListWidget->clear();
 	m_ui.vsLibraryPathsListWidget->addItems(
@@ -250,9 +246,7 @@ void SettingsDialog::slotApply()
 	m_pActionsHotkeyEditModel->slotSaveActionsHotkeys();
 
 	m_pThemeElementsModel->slotSaveThemeSettings();
-#ifdef Q_OS_WIN
 	m_pSettingsManager->setDarkMode(m_ui.darkModeCheckBox->isChecked());
-#endif
 	emit signalSettingsChanged();
 }
 

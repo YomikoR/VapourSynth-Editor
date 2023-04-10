@@ -72,7 +72,6 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 	m_ui.setupUi(this);
 	setWindowTitle(tr(WINDOW_TITLE));
 
-#ifdef Q_OS_WIN
 	if(m_pSettingsManager->inDarkMode())
 	{
 		// Load qDarkStyle colors
@@ -94,6 +93,7 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
 		qApp->setPalette(newPal);
 	}
+#ifdef Q_OS_WIN
 	else
 		qApp->setStyle("fusion");
 #endif

@@ -447,11 +447,13 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
 	{
+		if(inDarkMode())
+			return QColor(16, 16, 24);
 #ifdef Q_OS_WIN
 		static bool inWindowsDarkMode =
 			defaultPalette.color(QPalette::WindowText).lightness()
 			 > defaultPalette.color(QPalette::Window).lightness();
-		if(inDarkMode() || inWindowsDarkMode)
+		if(inWindowsDarkMode)
 			return QColor(16, 16, 24);
 		else
 			return QColor(255, 255, 255);
@@ -1208,20 +1210,12 @@ bool SettingsManager::setReloadBeforeExecution(bool a_reload)
 
 bool SettingsManager::getDarkMode() const
 {
-#ifdef Q_OS_WIN
 	return value(DARK_MODE_KEY, DEFAULT_DARK_MODE).toBool();
-#else
-	return false;
-#endif
 }
 
 bool SettingsManager::setDarkMode(bool a_dark)
 {
-#ifdef Q_OS_WIN
 	return setValue(DARK_MODE_KEY, a_dark);
-#else
-	return setValue(DARK_MODE_KEY, false);
-#endif
 }
 
 bool SettingsManager::getSilentSnapshot() const

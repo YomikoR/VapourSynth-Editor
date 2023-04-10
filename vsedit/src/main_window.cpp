@@ -78,7 +78,6 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 
 	setWindowIcon(QIcon(":vsedit.ico"));
 
-#ifdef Q_OS_WIN
 	if(m_pSettingsManager->inDarkMode())
 	{
 		// Load qDarkStyle colors
@@ -100,6 +99,7 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
 		qApp->setPalette(newPal);
 	}
+#ifdef Q_OS_WIN
 	else
 		qApp->setStyle("fusion");
 #endif

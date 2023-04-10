@@ -291,7 +291,7 @@
        <item>
         <widget class="QCheckBox" name="darkModeCheckBox">
          <property name="text">
-          <string>Dark theme (relaunching required)</string>
+          <string>Dark theme (overriding OS theme; relaunching required)</string>
          </property>
         </widget>
        </item>
