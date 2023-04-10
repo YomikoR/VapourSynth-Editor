@@ -1,3 +1,10 @@
+r19-mod-6.2
+-BUGFIX: Encoding CLI won't start in Linux.
+-BUGFIX: Script is not loaded when file path encoding is not UTF-8.
+-VSEditor is a GUI app again with an option to toggle console window.
+-Adapt to Windows dark theme.
+-Offer qdarkstyle theme for all platforms.
+
 r19-mod-6.1
 -BUGFIX: Memory leak when closing preview window (regression from mod-6).
 -Support switching to output indices 10-19.
