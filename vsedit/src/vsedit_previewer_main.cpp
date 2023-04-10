@@ -140,6 +140,8 @@ int main(int argc, char *argv[])
 		return -2;
 	}
 
+	print_version();
+
 	QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
 	QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
 		Qt::HighDpiScaleFactorRoundingPolicy::Floor);
