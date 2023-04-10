@@ -100,6 +100,8 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
 		qApp->setPalette(newPal);
 	}
+	else
+		qApp->setStyle("fusion");
 #endif
 	m_pSettingsDialog = new SettingsDialog(m_pSettingsManager, nullptr);
 

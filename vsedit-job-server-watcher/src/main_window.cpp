@@ -94,6 +94,8 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
 		qApp->setPalette(newPal);
 	}
+	else
+		qApp->setStyle("fusion");
 #endif
 	m_pVSScriptLibrary = new VSScriptLibrary(m_pSettingsManager, this);
 	m_pJobEditDialog = new JobEditDialog(m_pSettingsManager,

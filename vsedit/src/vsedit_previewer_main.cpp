@@ -188,6 +188,8 @@ int main(int argc, char *argv[])
 		newPal.setColor(QPalette::Text, QColor(64, 192, 0));
 		qApp->setPalette(newPal);
 	}
+	else
+		qApp->setStyle("fusion");
 #endif
 
 	QFileInfo fileInfo(scriptFilePath);

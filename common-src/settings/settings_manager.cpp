@@ -443,12 +443,18 @@ QColor SettingsManager::getDefaultColor(const QString & a_colorID) const
 {
 	QColor defaultColor;
 
-	QPalette defaultPalette;
+	const QPalette defaultPalette;
 
 	if(a_colorID == COLOR_ID_TEXT_BACKGROUND)
 	{
 #ifdef Q_OS_WIN
-		return inDarkMode() ? QColor(16, 16, 24) : QColor(255, 255, 255);
+		static bool inWindowsDarkMode =
+			defaultPalette.color(QPalette::WindowText).lightness()
+			 > defaultPalette.color(QPalette::Window).lightness();
+		if(inDarkMode() || inWindowsDarkMode)
+			return QColor(16, 16, 24);
+		else
+			return QColor(255, 255, 255);
 #else
 		return defaultPalette.color(QPalette::Active, QPalette::Base);
 #endif
