@@ -19,12 +19,12 @@ void AttachedConsole::init()
     freopen_s(&file, "CONOUT$", "w", stderr);
     freopen_s(&file, "CONOUT$", "w", stdout);
 
-    HANDLE handle = CreateFile(L"CONOUT$", GENERIC_READ | GENERIC_WRITE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL, NULL);
-
-    SetStdHandle(STD_OUTPUT_HANDLE, handle);
-    SetStdHandle(STD_ERROR_HANDLE, handle);
+    HANDLE handle = GetStdHandle(STD_ERROR_HANDLE);
+    DWORD mode;
+    GetConsoleMode(handle, &mode);
+    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    mode |= DISABLE_NEWLINE_AUTO_RETURN;
+    SetConsoleMode(handle, mode);
 }
 
 AttachedConsole::AttachedConsole() : console(NULL), file(nullptr)
