@@ -1678,7 +1678,6 @@ void PreviewDialog::slotJumpToFrame()
 	if(busy())
 		return;
 
-	// TODO
 	int currFrameNumber = m_frameExpected;
 	int lastFrameNumber = m_nodeInfo[m_outputIndex].numFrames() - 1;
 	int frame = QInputDialog::getInt(this, "Jump to...",
@@ -2426,6 +2425,12 @@ void PreviewDialog::setCurrentFrame(const VSFrame * a_cpOutputFrame,
 			m_absoluteTime = absTimeStr;
 			toChangeTitle = true;
 		}
+	}
+	else
+	{
+		if(!m_absoluteTime.isEmpty())
+			m_toChangeTitle = true;
+		m_absoluteTime = "";
 	}
 	if(toChangeTitle)
 	{
