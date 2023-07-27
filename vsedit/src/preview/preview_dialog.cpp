@@ -1536,14 +1536,6 @@ void PreviewDialog::slotLoadChapters()
 	if(m_playing)
 		return;
 
-	const QString lastUsedPath = m_pSettingsManager->getLastUsedPath();
-	const QString filePath = QFileDialog::getOpenFileName(this,
-		tr("Load chapters"), lastUsedPath,
-		tr("Chapters file (*.txt;*.xml);;All files (*)"));
-	QFile chaptersFile(filePath);
-	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
-		return;
-
 	VSNodeInfo nodeInfo =
 		m_pVapourSynthScriptProcessor->nodeInfo(m_outputIndex);
 
@@ -1559,6 +1551,15 @@ void PreviewDialog::slotLoadChapters()
 		emit signalWriteLogMessage(mtWarning, infoString);
 		return;
 	}
+
+	const QString lastUsedPath = m_pSettingsManager->getLastUsedPath();
+	const QString filePath = QFileDialog::getOpenFileName(this,
+		tr("Load chapters"), lastUsedPath,
+		tr("Chapters file (*.txt;*.xml);;All files (*)"));
+	QFile chaptersFile(filePath);
+	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
+		return;
+
 	const double fps = (double)vi->fpsNum / (double)vi->fpsDen;
 
 	static const QRegExp regExp(R"((\d{2}):(\d{2}):(\d{2})[\.:](\d{3})?)");
