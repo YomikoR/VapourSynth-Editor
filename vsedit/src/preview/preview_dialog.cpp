@@ -2366,21 +2366,32 @@ void PreviewDialog::setCurrentFrame(const VSFrame * a_cpOutputFrame,
 	m_cpFrame = a_cpOutputFrame;
 	// Copy clip and scene names
 	const VSMap *props = m_cpVSAPI->getFramePropertiesRO(m_cpFrame);
-	int success;
+	int err;
 	bool toChangeTitle = m_toChangeTitle;
 	const char * clipName = m_cpVSAPI->mapGetData(
-		props, "Name", 0, &success);
+		props, "Name", 0, &err);
 	if(m_clipName != clipName) // can be nullptr?
 	{
 		m_clipName = QString(clipName ? clipName : "");
 		toChangeTitle = true;
 	}
 	const char * sceneName = m_cpVSAPI->mapGetData(
-		props, "SceneName", 0, &success);
+		props, "SceneName", 0, &err);
 	if(m_sceneName != sceneName)
 	{
 		m_sceneName = QString(sceneName ? sceneName : "");
 		toChangeTitle = true;
+	}
+	double absoluteTime = m_cpVSAPI->mapGetFloat(
+		props, "_AbsoluteTime", 0, &err);
+	if(!err)
+	{
+		QString absTimeStr = vsedit::timeToString(absoluteTime);
+		if(m_absoluteTime != absTimeStr)
+		{
+			m_absoluteTime = absTimeStr;
+			toChangeTitle = true;
+		}
 	}
 	if(toChangeTitle)
 	{
@@ -2608,6 +2619,8 @@ void PreviewDialog::setTitle()
 		title = title + tr("Name: %1 | ").arg(m_clipName);
 	if(!m_sceneName.isEmpty())
 		title = title + tr("Scene: %1 | ").arg(m_sceneName);
+	if(!m_absoluteTime.isEmpty())
+		title = title + tr("Abs Time: %1 | ").arg(m_absoluteTime);
 	title = title + scriptNameTitle;
 	setWindowTitle(title);
 }

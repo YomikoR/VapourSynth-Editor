@@ -36,6 +36,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_cachedFramesLimit(100)
 	, m_clipName("")
 	, m_sceneName("")
+	, m_absoluteTime("")
 {
 	Q_ASSERT(m_pSettingsManager);
 	Q_ASSERT(m_pVSScriptLibrary);
