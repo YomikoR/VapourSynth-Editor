@@ -105,6 +105,7 @@ const char ACTION_ID_TOGGLE_COMMENT[] = "toggle_comment";
 const char ACTION_ID_SHUTDOWN_SERVER_AND_EXIT[] = "shutdown_server_and_exit";
 const char ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES[] =
 	"set_trusted_clients_addresses";
+const char ACTION_ID_JUMP_TO_FRAME[] = "jump_to_frame";
 const char ACTION_ID_TOGGLE_FRAME_PROPS[] = "toggle_frame_props_panel";
 const char ACTION_ID_SET_OUTPUT_INDEX_0[] = "switch_to_output_index_0";
 const char ACTION_ID_SET_OUTPUT_INDEX_1[] = "switch_to_output_index_1";

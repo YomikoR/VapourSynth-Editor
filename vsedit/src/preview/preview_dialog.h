@@ -144,6 +144,8 @@ protected slots:
 
 	void slotSaveGeometry();
 
+	void slotJumpToFrame();
+
 	void slotToggleFrameProps();
 
 	void slotSwitchOutputIndex(int a_outputIndex);
@@ -270,6 +272,7 @@ protected:
 	QAction * m_pActionGoToPreviousBookmark;
 	QAction * m_pActionGoToNextBookmark;
 	QAction * m_pActionPasteShownFrameNumberIntoScript;
+	QAction * m_pActionJumpToFrame;
 	QAction * m_pActionToggleFramePropsPanel;
 	QAction * m_pActionSwitchToOutputIndex0;
 	QAction * m_pActionSwitchToOutputIndex1;

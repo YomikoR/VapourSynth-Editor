@@ -229,6 +229,8 @@ void SettingsManager::initializeStandardActions()
 			QIcon(":exit.png"), QKeySequence()},
 		{ACTION_ID_SET_TRUSTED_CLIENTS_ADDRESSES,
 			tr("Set trusted clients addresses"), QIcon(), QKeySequence()},
+		{ACTION_ID_JUMP_TO_FRAME, tr("Jump to frame..."),
+			QIcon(), QKeySequence(Qt::Key_J)},
 		{ACTION_ID_TOGGLE_FRAME_PROPS, tr("Toggle frame properties panel"),
 			QIcon(), QKeySequence(Qt::Key_P)},
 		{ACTION_ID_SET_OUTPUT_INDEX_0, tr("Switch to output index 0"),

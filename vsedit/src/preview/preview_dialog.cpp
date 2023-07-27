@@ -31,6 +31,7 @@
 #include <QTimer>
 #include <QImageWriter>
 #include <QFileInfo>
+#include <QInputDialog>
 #include <QRegExp>
 #include <algorithm>
 #include <cmath>
@@ -94,6 +95,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionGoToPreviousBookmark(nullptr)
 	, m_pActionGoToNextBookmark(nullptr)
 	, m_pActionPasteShownFrameNumberIntoScript(nullptr)
+	, m_pActionJumpToFrame(nullptr)
 	, m_pActionToggleFramePropsPanel(nullptr)
 	, m_pActionSwitchToOutputIndex0(nullptr)
 	, m_pActionSwitchToOutputIndex1(nullptr)
@@ -1666,6 +1668,31 @@ void PreviewDialog::slotSaveGeometry()
 	m_pSettingsManager->setPreviewDialogGeometry(m_windowGeometry);
 }
 
+void PreviewDialog::slotJumpToFrame()
+{
+	if(m_playing)
+		return;
+
+	if(busy())
+		return;
+
+	// TODO
+	int currFrameNumber = m_frameExpected;
+	int lastFrameNumber = m_nodeInfo[m_outputIndex].numFrames() - 1;
+	int frame = QInputDialog::getInt(this, "Jump to...",
+		"Jump to frame...", currFrameNumber);
+	if(frame < 0) // Allowing -1, for example
+		frame = lastFrameNumber + frame + 1;
+	if(frame < 0)
+		frame = 0;
+	if(frame > lastFrameNumber)
+		frame = lastFrameNumber;
+	if(frame != currFrameNumber)
+	{
+		slotShowFrame(frame);
+	}
+}
+
 QPoint PreviewDialog::loadLastScrollBarPositions() const
 {
 	return m_pSettingsManager->getLastPreviewScrollBarPositions();
@@ -1834,6 +1861,8 @@ void PreviewDialog::createActionsAndMenus()
 		{&m_pActionPasteShownFrameNumberIntoScript,
 			ACTION_ID_PASTE_SHOWN_FRAME_NUMBER_INTO_SCRIPT,
 			false, SLOT(slotPasteShownFrameNumberIntoScript())},
+		{&m_pActionJumpToFrame, ACTION_ID_JUMP_TO_FRAME,
+			false, SLOT(slotJumpToFrame())},
 		{&m_pActionToggleFramePropsPanel, ACTION_ID_TOGGLE_FRAME_PROPS,
 			false, SLOT(slotToggleFrameProps())},
 		{&m_pActionSwitchToOutputIndex0, ACTION_ID_SET_OUTPUT_INDEX_0,
@@ -1896,6 +1925,8 @@ void PreviewDialog::createActionsAndMenus()
 	m_pActionToggleZoomPanel->setChecked(
 		m_pSettingsManager->getZoomPanelVisible());
 	m_pPreviewContextMenu->addAction(m_pActionToggleZoomPanel);
+
+	m_pPreviewContextMenu->addAction(m_pActionJumpToFrame);
 
 //------------------------------------------------------------------------------
 
@@ -2033,6 +2064,7 @@ void PreviewDialog::createActionsAndMenus()
 	addAction(m_pActionPasteShownFrameNumberIntoScript);
 	m_pPreviewContextMenu->addAction(m_pActionPasteShownFrameNumberIntoScript);
 
+	addAction(m_pActionJumpToFrame);
 	addAction(m_pActionToggleFramePropsPanel);
 //------------------------------------------------------------------------------
 
