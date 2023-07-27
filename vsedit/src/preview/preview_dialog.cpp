@@ -388,6 +388,8 @@ void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 		if(rememberLastPreviewFrame && (m_frameExpected > -1))
 			m_pSettingsManager->setLastPreviewFrame(m_frameExpected, m_inPreviewer);
 		saveLastScrollBarPositions();
+
+		reject();
 	}
 	VSScriptProcessorDialog::closeEvent(a_pEvent);
 }
