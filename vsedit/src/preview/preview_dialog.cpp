@@ -1920,13 +1920,13 @@ void PreviewDialog::createActionsAndMenus()
 
 	m_pPreviewContextMenu = new QMenu(this);
 	vsedit::disableFontKerning(m_pPreviewContextMenu);
+	m_pPreviewContextMenu->addAction(m_pActionJumpToFrame);
 	m_pPreviewContextMenu->addAction(m_pActionFrameToClipboard);
 	m_pPreviewContextMenu->addAction(m_pActionSaveSnapshot);
+	m_pPreviewContextMenu->addAction(m_pActionToggleFramePropsPanel);
 	m_pActionToggleZoomPanel->setChecked(
 		m_pSettingsManager->getZoomPanelVisible());
 	m_pPreviewContextMenu->addAction(m_pActionToggleZoomPanel);
-
-	m_pPreviewContextMenu->addAction(m_pActionJumpToFrame);
 
 //------------------------------------------------------------------------------
 
