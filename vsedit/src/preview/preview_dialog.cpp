@@ -123,9 +123,9 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_alwaysKeepCurrentFrame(DEFAULT_ALWAYS_KEEP_CURRENT_FRAME)
 	, m_pGeometrySaveTimer(nullptr)
 	, m_devicePixelRatio(-1)
+	, m_pFramePropsPanel(nullptr)
 	, m_toChangeTitle(false)
 	, m_inPreviewer(a_inPreviewer)
-	, m_pFramePropsPanel(nullptr)
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
