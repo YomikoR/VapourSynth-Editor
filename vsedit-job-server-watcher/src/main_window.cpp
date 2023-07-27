@@ -323,7 +323,16 @@ void MainWindow::slotWriteLogMessage(int a_messageType,
 void MainWindow::slotWriteLogMessage(const QString & a_message,
 	const QString & a_style)
 {
-	m_ui.logView->addEntry(a_message, a_style);
+	QString debugTypes[] = {
+		LOG_STYLE_DEBUG,
+		LOG_STYLE_QT_DEBUG,
+		LOG_STYLE_VS_DEBUG,
+	};
+	if(m_pSettingsManager->getShowDebugMessages() ||
+		!vsedit::contains(debugTypes, a_style))
+	{
+		m_ui.logView->addEntry(a_message, a_style);
+	}
 
 	QString fatalTypes[] = {LOG_STYLE_VS_FATAL, LOG_STYLE_QT_FATAL};
 	if(!vsedit::contains(fatalTypes, a_style))

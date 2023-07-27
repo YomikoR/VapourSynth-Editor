@@ -462,7 +462,18 @@ void EncodeDialog::slotWriteLogMessage(const QString & a_message,
 	if(!isVisible())
 		emit signalWriteLogMessage(a_message, a_style);
 	else
-		m_ui.feedbackTextEdit->addEntry(a_message, a_style);
+	{
+		QString debugTypes[] = {
+			LOG_STYLE_DEBUG,
+			LOG_STYLE_QT_DEBUG,
+			LOG_STYLE_VS_DEBUG,
+		};
+		if(m_pSettingsManager->getShowDebugMessages() ||
+			!vsedit::contains(debugTypes, a_style))
+		{
+			m_ui.feedbackTextEdit->addEntry(a_message, a_style);
+		}
+	}
 }
 
 // END OF void EncodeDialog::slotWriteLogMessage(const QString & a_message,

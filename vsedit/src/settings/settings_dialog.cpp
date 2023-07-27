@@ -115,6 +115,8 @@ void SettingsDialog::slotCall()
 		m_pSettingsManager->getAlwaysKeepCurrentFrame());
 	m_ui.reloadBeforeExecutionCheckBox->setChecked(
 		m_pSettingsManager->getReloadBeforeExecution());
+	m_ui.debugMsgCheckBox->setChecked(
+		m_pSettingsManager->getShowDebugMessages());
 	m_ui.snapshotCompressionLevelSpinBox->setValue(
 		m_pSettingsManager->getPNGSnapshotCompressionLevel());
 	m_ui.preferLibraryFromListCheckBox->setChecked(
@@ -218,6 +220,8 @@ void SettingsDialog::slotApply()
 		m_ui.alwaysKeepCurrentFrameCheckBox->isChecked());
 	m_pSettingsManager->setReloadBeforeExecution(
 		m_ui.reloadBeforeExecutionCheckBox->isChecked());
+	m_pSettingsManager->setShowDebugMessages(
+		m_ui.debugMsgCheckBox->isChecked());
 	m_pSettingsManager->setPNGSnapshotCompressionLevel(
 		m_ui.snapshotCompressionLevelSpinBox->value());
 	m_pSettingsManager->setPreferVSLibrariesFromList(

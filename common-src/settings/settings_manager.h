@@ -224,6 +224,10 @@ public:
 
 	bool setReloadBeforeExecution(bool a_reload);
 
+	bool getShowDebugMessages() const;
+
+	bool setShowDebugMessages(bool a_debug);
+
 	bool getDarkMode() const;
 
 	bool setDarkMode(bool a_dark);

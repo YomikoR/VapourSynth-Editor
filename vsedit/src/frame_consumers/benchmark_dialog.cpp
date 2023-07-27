@@ -2,6 +2,7 @@
 
 #include "../../../common-src/helpers.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
+#include "../../../common-src/settings/settings_manager.h"
 
 #include <vapoursynth/VapourSynth4.h>
 
@@ -128,7 +129,17 @@ void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
 	QString style = vsMessageTypeToStyleName(a_messageType);
-	m_ui.feedbackTextEdit->addEntry(a_message, style);
+
+	QString debugTypes[] = {
+		LOG_STYLE_DEBUG,
+		LOG_STYLE_QT_DEBUG,
+		LOG_STYLE_VS_DEBUG,
+	};
+	if(m_pSettingsManager->getShowDebugMessages() ||
+		!vsedit::contains(debugTypes, style))
+	{
+		m_ui.feedbackTextEdit->addEntry(a_message, style);
+	}
 }
 
 // END OF void ScriptBenchmarkDialog::slotWriteLogMessage(int a_messageType,

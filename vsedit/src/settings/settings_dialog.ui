@@ -289,6 +289,13 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="debugMsgCheckBox">
+         <property name="text">
+          <string>Show debug messages</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="darkModeCheckBox">
          <property name="text">
           <string>Dark theme (overriding OS theme; relaunching required)</string>

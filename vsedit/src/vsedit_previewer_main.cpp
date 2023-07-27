@@ -24,8 +24,17 @@ PreviewDialog * pPreviewDialog = nullptr;
 
 void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 {
-	std::cerr << "[" << a_style.toUpper().toStdString() << "] "
-		<< std::string(a_msg.toLocal8Bit()) << std::endl;
+	QString debugTypes[] = {
+		LOG_STYLE_DEBUG,
+		LOG_STYLE_QT_DEBUG,
+		LOG_STYLE_VS_DEBUG,
+	};
+
+	if(pSettings->getShowDebugMessages() || !vsedit::contains(debugTypes, a_style))
+	{
+		std::cerr << "[" << a_style.toUpper().toStdString() << "] "
+			<< std::string(a_msg.toLocal8Bit()) << std::endl;
+	}
 
 	QString breakingTypes[] = {
 		LOG_STYLE_VS_CRITICAL,

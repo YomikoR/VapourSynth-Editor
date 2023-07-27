@@ -49,6 +49,7 @@ const char ALWAYS_KEEP_CURRENT_FRAME_KEY[] = "always_keep_current_frame";
 const char LAST_SNAPSHOT_EXTENSION_KEY[] = "last_snapshot_extension";
 const char PNG_COMPRESSION_LEVEL_KEY[] = "png_compression_level";
 const char RELOAD_BEFORE_EXECUTION_KEY[] = "reload_before_execution";
+const char DEBUG_MESSAGES_KEY[] = "show_debug_messages";
 const char DARK_MODE_KEY[] = "dark_mode";
 const char SILENT_SNAPSHOT_KEY[] = "silent_snapshot";
 const char SNAPSHOT_TEMPLATE_KEY[] = "snapshot_template";
@@ -1206,6 +1207,16 @@ bool SettingsManager::getReloadBeforeExecution() const
 bool SettingsManager::setReloadBeforeExecution(bool a_reload)
 {
 	return setValue(RELOAD_BEFORE_EXECUTION_KEY, a_reload);
+}
+
+bool SettingsManager::getShowDebugMessages() const
+{
+    return value(DEBUG_MESSAGES_KEY, DEFAULT_DEBUG_MESSAGES).toBool();
+}
+
+bool SettingsManager::setShowDebugMessages(bool a_debug)
+{
+    return setValue(DEBUG_MESSAGES_KEY, a_debug);
 }
 
 bool SettingsManager::getDarkMode() const
