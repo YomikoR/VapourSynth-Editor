@@ -1,3 +1,12 @@
+r19-mod-6.3
+-BUGFIX: On Linux the previewer refuses to quit.
+-In Windows 10 and later console window can show colored text (with ANSI escape sequences).
+-Add option to hide (VS and Qt) debug messages.
+-Add option to set dither type.
+-Show _AbsoluteTime frame props on title of preview panel.
+-Do not load chapter for VFR clips.
+-Add hotkey in preview panel for jumping to frame by frame number.
+
 r19-mod-6.2
 -BUGFIX: Encoding CLI won't start in Linux.
 -BUGFIX: Script is not loaded when file path encoding is not UTF-8.
