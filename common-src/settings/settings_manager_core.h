@@ -59,6 +59,10 @@ public:
 
 	bool setLanczosFilterTaps(int a_taps);
 
+	DitherType getDitherType() const;
+
+	bool setDitherType(DitherType a_dither);
+
 	std::vector<EncodingPreset> getAllEncodingPresets() const;
 
 	EncodingPreset getEncodingPreset(const QString & a_name) const;

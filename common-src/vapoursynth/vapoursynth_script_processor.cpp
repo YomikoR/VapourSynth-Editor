@@ -394,6 +394,8 @@ void VapourSynthScriptProcessor::slotResetSettings()
 
 	m_chromaPlacement = m_pSettingsManager->getChromaPlacement();
 
+	m_ditherType = m_pSettingsManager->getDitherType();
+
 	for(std::pair<const int, NodePair> & mapItem : m_nodePairForOutputIndex)
 	{
 		NodePair & nodePair = mapItem.second;
@@ -677,6 +679,28 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		}
 		m_cpVSAPI->mapSetInt(pArgumentMap, "chromaloc_in", chromaLoc, maReplace);
 
+		QString ditherType;
+		switch (m_ditherType)
+		{
+		case DitherType::NONE:
+			ditherType = "none";
+			break;
+		case DitherType::ORDERED:
+			ditherType = "ordered";
+			break;
+		case DitherType::RANDOM:
+			ditherType = "random";
+			break;
+		case DitherType::ERROR_DIFFUSION:
+			ditherType = "error_diffusion";
+			break;
+		default:
+			Q_ASSERT(false);
+		}
+		m_cpVSAPI->mapSetData(pArgumentMap, "dither_type",
+			ditherType.toStdString().c_str(), ditherType.size(),
+			dtUtf8, maReplace);
+
 		VSMap *pTempMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->copyMap(pArgumentMap, pTempMap);
 		m_cpVSAPI->mapSetNode(pTempMap, "clip",
@@ -686,10 +710,6 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 		m_cpVSAPI->mapSetInt(pArgumentMap, "format", (to_10_bit ?
 			pfRGB30 : pfRGB24), maReplace);
-
-		const char * dither_type = "error_diffusion";
-		m_cpVSAPI->mapSetData(pArgumentMap, "dither_type",
-				dither_type, (int)strlen(dither_type), dtUtf8, maReplace);
 
 		if(isYUV || isVF)
 		{

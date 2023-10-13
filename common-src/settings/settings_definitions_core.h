@@ -36,6 +36,14 @@ enum class ChromaPlacement : int
 	TOP_LEFT,
 };
 
+enum class DitherType: int
+{
+	NONE,
+	ORDERED,
+	RANDOM,
+	ERROR_DIFFUSION,
+};
+
 enum class EncodingType
 {
 	CLI,
@@ -153,6 +161,7 @@ extern const ChromaPlacement DEFAULT_CHROMA_PLACEMENT;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_B;
 extern const double DEFAULT_BICUBIC_FILTER_PARAMETER_C;
 extern const int DEFAULT_LANCZOS_FILTER_TAPS;
+extern const DitherType DEFAULT_DITHER_TYPE;
 extern const EncodingType DEFAULT_ENCODING_TYPE;
 extern const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE;
 extern const JobType DEFAULT_JOB_TYPE;

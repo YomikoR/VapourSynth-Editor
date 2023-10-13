@@ -16,6 +16,7 @@ const ChromaPlacement DEFAULT_CHROMA_PLACEMENT = ChromaPlacement::LEFT;
 const double DEFAULT_BICUBIC_FILTER_PARAMETER_B = 0.0;
 const double DEFAULT_BICUBIC_FILTER_PARAMETER_C = 0.5;
 const int DEFAULT_LANCZOS_FILTER_TAPS = 3;
+const DitherType DEFAULT_DITHER_TYPE = DitherType::ERROR_DIFFUSION;
 const EncodingType DEFAULT_ENCODING_TYPE = EncodingType::CLI;
 const EncodingHeaderType DEFAULT_ENCODING_HEADER_TYPE =
 	EncodingHeaderType::NoHeader;

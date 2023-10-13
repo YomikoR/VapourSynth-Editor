@@ -122,6 +122,7 @@ private:
 	double m_resamplingFilterParameterA;
 	double m_resamplingFilterParameterB;
 	YuvMatrixCoefficients m_yuvMatrix;
+	DitherType m_ditherType;
 
 	bool m_finalizing;
 };

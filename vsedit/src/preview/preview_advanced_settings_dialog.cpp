@@ -53,6 +53,12 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	m_ui.chromaPlacementComboBox->addItem(tr("Top-left"),
 		(int)ChromaPlacement::TOP_LEFT);
 
+	m_ui.ditherTypeComboBox->addItem("Error Diffusion",
+		(int)DitherType::ERROR_DIFFUSION);
+	m_ui.ditherTypeComboBox->addItem("None", (int)DitherType::NONE);
+	m_ui.ditherTypeComboBox->addItem("Ordered", (int)DitherType::ORDERED);
+	m_ui.ditherTypeComboBox->addItem("Random", (int)DitherType::RANDOM);
+
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
 	connect(m_ui.resetToDefaultButton, SIGNAL(clicked()),
@@ -93,6 +99,11 @@ void PreviewAdvancedSettingsDialog::slotCall()
 	comboIndex = m_ui.chromaPlacementComboBox->findData((int)chromaPlacement);
 	if(comboIndex != -1)
 		m_ui.chromaPlacementComboBox->setCurrentIndex(comboIndex);
+
+	DitherType ditherType = m_pSettingsManager->getDitherType();
+	comboIndex = m_ui.ditherTypeComboBox->findData((int)ditherType);
+	if(comboIndex != -1)
+		m_ui.ditherTypeComboBox->setCurrentIndex(comboIndex);
 
 	m_ui.bicubicFilterParameterBSpinBox->setValue(
 		m_pSettingsManager->getBicubicFilterParameterB());
@@ -136,6 +147,8 @@ void PreviewAdvancedSettingsDialog::slotApply()
 		m_ui.bicubicFilterParameterCSpinBox->value());
 	m_pSettingsManager->setLanczosFilterTaps(
 		m_ui.lanczosFilterTapsSpinBox->value());
+	m_pSettingsManager->setDitherType((DitherType)
+		m_ui.ditherTypeComboBox->currentData().toInt());
 	m_pSettingsManager->setSilentSnapshot(
 		m_ui.silentSnapshotCheckBox->isChecked());
 	m_pSettingsManager->setSnapshotTemplate(
@@ -170,6 +183,11 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 		DEFAULT_BICUBIC_FILTER_PARAMETER_C);
 	m_ui.lanczosFilterTapsSpinBox->setValue(
 		DEFAULT_LANCZOS_FILTER_TAPS);
+	
+	DitherType ditherType = DEFAULT_DITHER_TYPE;
+	comboIndex = m_ui.ditherTypeComboBox->findData((int)ditherType);
+	if(comboIndex != -1)
+		m_ui.ditherTypeComboBox->setCurrentIndex(comboIndex);
 
 	m_ui.silentSnapshotCheckBox->setChecked(DEFAULT_SILENT_SNAPSHOT);
 	m_ui.saveSnapshotTemplateLineEdit->setText(DEFAULT_SNAPSHOT_TEMPLATE);

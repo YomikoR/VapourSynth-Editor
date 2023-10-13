@@ -23,6 +23,7 @@ const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
 const char BICUBIC_FILTER_PARAMETER_B_KEY[] = "bicubic_filter_parameter_b";
 const char BICUBIC_FILTER_PARAMETER_C_KEY[] = "bicubic_filter_parameter_c";
 const char LANCZOS_FILTER_TAPS_KEY[] = "lanczos_filter_taps";
+const char DITHER_TYPE_KEY[] = "dither_type";
 const char RECENT_JOB_SERVERS_KEY[] = "recent_job_servers";
 const char TRUSTED_CLIENTS_ADDRESSES_KEY[] = "trusted_clients_addresses";
 
@@ -319,6 +320,17 @@ int SettingsManagerCore::getLanczosFilterTaps() const
 bool SettingsManagerCore::setLanczosFilterTaps(int a_taps)
 {
 	return setValue(LANCZOS_FILTER_TAPS_KEY, a_taps);
+}
+
+DitherType SettingsManagerCore::getDitherType() const
+{
+    return (DitherType)value(DITHER_TYPE_KEY,
+		(int)DEFAULT_DITHER_TYPE).toInt();
+}
+
+bool SettingsManagerCore::setDitherType(DitherType a_dither)
+{
+    return setValue(DITHER_TYPE_KEY, (int)a_dither);
 }
 
 //==============================================================================
