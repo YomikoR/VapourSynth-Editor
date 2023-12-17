@@ -46,6 +46,9 @@ public:
 
 	bool freeScript(VSScript * a_pScript);
 
+	QString VSAPIInfo();
+	QString VSSAPIInfo();
+
 signals:
 
 	void signalWriteLogMessage(int a_messageType, const QString & a_message);
@@ -72,6 +75,11 @@ private:
 	const VSSCRIPTAPI * m_cpVSSAPI;
 
 	const VSAPI * m_cpVSAPI;
+
+	int m_VSAPIMajor;
+	int m_VSAPIMinor;
+	int m_VSSAPIMajor;
+	int m_VSSAPIMinor;
 };
 
 //==============================================================================

@@ -2,6 +2,7 @@
 
 #include "../settings/settings_manager_core.h"
 #include "../helpers.h"
+#include "../version_info.h"
 
 #include <QSettings>
 #include <QProcessEnvironment>
@@ -28,6 +29,10 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	, m_initialized(false)
 	, m_cpVSSAPI(nullptr)
 	, m_cpVSAPI(nullptr)
+	, m_VSAPIMajor(VSE_VS_API_VER_MAJOR)
+	, m_VSAPIMinor(VSE_VS_API_VER_MINOR)
+	, m_VSSAPIMajor(VSE_VSS_API_VER_MAJOR)
+	, m_VSSAPIMinor(VSE_VSS_API_VER_MINOR)
 {
 	Q_ASSERT(m_pSettingsManager);
 }
@@ -53,7 +58,14 @@ bool VSScriptLibrary::initialize()
 	if(!libraryInitialized)
 		return false;
 
-	m_cpVSAPI = m_cpVSSAPI->getVSAPI(VS_MAKE_VERSION(4, 0));
+	for(; m_VSAPIMinor >= 0; --m_VSAPIMinor)
+	{
+		int apiVer = VS_MAKE_VERSION(m_VSAPIMajor, m_VSAPIMinor);
+		m_cpVSAPI = m_cpVSSAPI->getVSAPI(apiVer);
+		if(m_cpVSAPI)
+			break;
+	}
+
 	if(!m_cpVSAPI)
 	{
 		QString errorString = tr("Failed to get VapourSynth API!");
@@ -195,6 +207,20 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	return true;
 }
 
+QString VSScriptLibrary::VSAPIInfo()
+{
+	if(!m_initialized)
+		return QString();
+    return QString("R%1.%2").arg(m_VSAPIMajor).arg(m_VSAPIMinor);
+}
+
+QString VSScriptLibrary::VSSAPIInfo()
+{
+	if(!m_initialized)
+		return QString();
+    return QString("R%1.%2").arg(m_VSSAPIMajor).arg(m_VSSAPIMinor);
+}
+
 // END OF bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 //==============================================================================
 
@@ -315,7 +341,7 @@ bool VSScriptLibrary::initLibrary()
 		}
 	}
 
-	m_cpVSSAPI = vssGetAPI(VS_MAKE_VERSION(4, 0));
+	m_cpVSSAPI = vssGetAPI(VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor));
 	if(!m_cpVSSAPI)
 	{
 		QString errorStr = tr("Failed to get VSScript API!");

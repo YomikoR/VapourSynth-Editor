@@ -570,6 +570,17 @@ void MainWindow::slotAbout()
 		aboutResource.size());
 	QString aboutString = QString::fromUtf8(aboutData);
 	aboutString.append(QString("\n\nBuilt with Qt %1").arg(QT_VERSION_STR));
+	QString VSAPIInfo = m_pVSScriptLibrary->VSAPIInfo();
+	if(VSAPIInfo.isEmpty())
+	{
+		aboutString.append(QString("\nVapourSynth not well configured."));
+	}
+	else
+	{
+		aboutString.append(QString("\nVapourSynth API Version: " + VSAPIInfo));
+		QString VSSAPIInfo = m_pVSScriptLibrary->VSSAPIInfo();
+		aboutString.append(QString("\nVSScript API Version: " + VSSAPIInfo));
+	}
 	QMessageBox msgBox(this);
 	msgBox.setText(aboutString);
 	msgBox.setWindowTitle("About VapourSynth Editor");
