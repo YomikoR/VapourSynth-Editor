@@ -51,6 +51,8 @@ public:
 
 	QString framePropsString(const VSFrame * a_cpFrame) const;
 
+	bool clearCoreCaches();
+
 public slots:
 
 	void slotResetSettings();

@@ -65,7 +65,7 @@ protected slots:
 	virtual void slotFrameRequestDiscarded(int a_frameNumber,
 		int a_outputIndex, const QString & a_reason) override;
 
-	void slotShowFrame(int a_frameNumber);
+	void slotShowFrame(int a_frameNumber, bool a_refreshCache = true);
 
 	void slotSaveSnapshot();
 

@@ -82,7 +82,7 @@ int TimeLineSlider::frame() const
 // END OF int TimeLineSlider::frame() const
 //==============================================================================
 
-void TimeLineSlider::setFrame(int a_frame)
+void TimeLineSlider::setFrame(int a_frame, bool a_refreshCache)
 {
 	int oldCurrentFrame = m_currentFrame;
 	if(a_frame > m_maxFrame)
@@ -97,21 +97,22 @@ void TimeLineSlider::setFrame(int a_frame)
 		return;
 
 	repaint();
-	emit signalFrameChanged(m_currentFrame);
+	emit signalFrameChanged(m_currentFrame, a_refreshCache);
 }
 
-// END OF void TimeLineSlider::setFrame(int a_frame)
+// END OF void TimeLineSlider::setFrame(int a_frame, bool a_refreshCache)
 //==============================================================================
 
-void TimeLineSlider::setFramesNumber(int a_framesNumber)
+void TimeLineSlider::setFramesNumber(int a_framesNumber, bool a_refreshCache)
 {
 	m_maxFrame = a_framesNumber - 1;
 	if(m_currentFrame > m_maxFrame)
-		setFrame(m_maxFrame);
+		setFrame(m_maxFrame, a_refreshCache);
 	repaint();
 }
 
-// END OF void TimeLineSlider::setFramesNumber(int a_framesNumber)
+// END OF void TimeLineSlider::setFramesNumber(int a_framesNumber,
+//		bool a_refreshCache)
 //==============================================================================
 
 void TimeLineSlider::setFPS(double a_fps)
@@ -275,7 +276,7 @@ int TimeLineSlider::getClosestBookmark(int a_frame) const
 void TimeLineSlider::slotStepUp()
 {
 	if(m_currentFrame < m_maxFrame)
-		setFrame(m_currentFrame + 1);
+		setFrame(m_currentFrame + 1, false);
 }
 
 // END OF void TimeLineSlider::slotStepUp()
@@ -284,7 +285,7 @@ void TimeLineSlider::slotStepUp()
 void TimeLineSlider::slotStepDown()
 {
 	if(m_currentFrame > 0)
-		setFrame(m_currentFrame - 1);
+		setFrame(m_currentFrame - 1, false);
 }
 
 // END OF void TimeLineSlider::slotStepDown()
@@ -311,16 +312,16 @@ void TimeLineSlider::slotStepBy(int a_step)
 	if(a_step < 0)
 	{
 		if(-a_step <= m_currentFrame)
-			setFrame(m_currentFrame + a_step);
+			setFrame(m_currentFrame + a_step, false);
 		else
-			setFrame(0);
+			setFrame(0, false);
 	}
 	else
 	{
 		if(a_step <= (m_maxFrame - m_currentFrame))
-			setFrame(m_currentFrame + a_step);
+			setFrame(m_currentFrame + a_step, false);
 		else
-			setFrame(m_maxFrame);
+			setFrame(m_maxFrame, false);
 	}
 }
 
@@ -367,7 +368,7 @@ void TimeLineSlider::slotGoToPreviousBookmark()
 
 	if(it == m_bookmarks.end())
 	{
-		setFrame(*m_bookmarks.rbegin());
+		setFrame(*m_bookmarks.rbegin(), false);
 		return;
 	}
 
@@ -379,7 +380,7 @@ void TimeLineSlider::slotGoToPreviousBookmark()
 	if(*it < 0)
 		return;
 
-	setFrame(*it);
+	setFrame(*it, false);
 }
 
 // END OF void TimeLineSlider::slotGoToPreviousBookmark()
@@ -398,7 +399,7 @@ void TimeLineSlider::slotGoToNextBookmark()
 	if(*it > m_maxFrame)
 		return;
 
-	setFrame(*it);
+	setFrame(*it, false);
 }
 
 // END OF void TimeLineSlider::slotGoToNextBookmark()
@@ -439,13 +440,13 @@ void TimeLineSlider::keyPressEvent(QKeyEvent * a_pEvent)
 	}
 	else if(key == Qt::Key_Home)
 	{
-		setFrame(0);
+		setFrame(0, true);
 		a_pEvent->accept();
 		return;
 	}
 	else if(key == Qt::Key_End)
 	{
-		setFrame(m_maxFrame);
+		setFrame(m_maxFrame, true);
 		a_pEvent->accept();
 		return;
 	}
@@ -505,7 +506,7 @@ void TimeLineSlider::mouseReleaseEvent(QMouseEvent * a_pEvent)
 {
 	bool emitSignal = m_sliderPressed;
 	m_sliderPressed = false;
-	setFrame(m_pointerAtFrame);
+	setFrame(m_pointerAtFrame, true);
 	if(emitSignal)
 		emit signalSliderReleased();
 	QWidget::mouseReleaseEvent(a_pEvent);

@@ -1005,6 +1005,11 @@ QString VapourSynthScriptProcessor::framePropsString(
 	return propsString;
 }
 
+bool VapourSynthScriptProcessor::clearCoreCaches()
+{
+	return m_pVSScriptLibrary->clearCoreCaches(m_pVSScript);
+}
+
 // END OF QString VapourSynthScriptProcessor::framePropsString(
 //		const VSFrame * a_cpFrame) const
 //==============================================================================

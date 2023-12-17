@@ -207,6 +207,20 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	return true;
 }
 
+bool VSScriptLibrary::clearCoreCaches(VSScript *a_pScript)
+{
+	if(m_VSAPIMajor == 4 && m_VSAPIMinor >= 1)
+	{
+		if(!m_initialized)
+			return false;
+
+		VSCore * pCore = m_cpVSSAPI->getCore(a_pScript);
+		m_cpVSAPI->clearCoreCaches(pCore);
+		return true;
+	}
+    return false;
+}
+
 QString VSScriptLibrary::VSAPIInfo()
 {
 	if(!m_initialized)

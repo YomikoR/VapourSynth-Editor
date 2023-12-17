@@ -46,6 +46,8 @@ public:
 
 	bool freeScript(VSScript * a_pScript);
 
+	bool clearCoreCaches(VSScript * a_pScript);
+
 	QString VSAPIInfo();
 	QString VSSAPIInfo();
 

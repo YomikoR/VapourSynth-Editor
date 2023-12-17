@@ -37,9 +37,9 @@ public:
 
 	int frame() const;
 
-	void setFrame(int a_frame);
+	void setFrame(int a_frame, bool a_refreshCache);
 
-	void setFramesNumber(int a_framesNumber);
+	void setFramesNumber(int a_framesNumber, bool a_refreshCache);
 
 	void setFPS(double a_fps);
 
@@ -77,7 +77,7 @@ signals:
 
 	void signalSliderMoved(int a_frame);
 
-	void signalFrameChanged(int a_frame);
+	void signalFrameChanged(int a_frame, bool a_refreshCache);
 
 	void signalSliderPressed();
 	void signalSliderReleased();

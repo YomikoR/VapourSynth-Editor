@@ -177,8 +177,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 
 	connect(m_pAdvancedSettingsDialog, SIGNAL(signalSettingsChanged()),
 		this, SLOT(slotAdvancedSettingsChanged()));
-	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int)),
-		this, SLOT(slotShowFrame(int)));
+	connect(m_ui.frameNumberSlider, SIGNAL(signalFrameChanged(int, bool)),
+		this, SLOT(slotShowFrame(int, bool)));
 	connect(m_ui.frameNumberSpinBox, SIGNAL(valueChanged(int)),
 		this, SLOT(slotShowFrame(int)));
 	connect(m_ui.previewArea, SIGNAL(signalSizeChanged()),
@@ -257,7 +257,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	int lastFrameNumber = vi->numFrames - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
-	m_ui.frameNumberSlider->setFramesNumber(vi->numFrames);
+	m_ui.frameNumberSlider->setFramesNumber(vi->numFrames, false);
 	if(vi->fpsDen == 0)
 	{
 		m_ui.frameNumberSlider->setFPS(0.0);
@@ -293,7 +293,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	else
 		showNormal();
 
-	slotShowFrame(m_frameExpected);
+	slotShowFrame(m_frameExpected, false);
 }
 
 // END OF void PreviewDialog::previewScript(const QString& a_script,
@@ -419,22 +419,22 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 
 	if(((key == Qt::Key_Left) || (key == Qt::Key_Down)) &&
 		(m_frameExpected > 0))
-		slotShowFrame(m_frameExpected - 1);
+		slotShowFrame(m_frameExpected - 1, false);
 	else if(((key == Qt::Key_Right) || (key == Qt::Key_Up)) &&
 		(m_frameExpected < (m_nodeInfo[m_outputIndex].numFrames() - 1)))
-		slotShowFrame(m_frameExpected + 1);
+		slotShowFrame(m_frameExpected + 1, false);
 	else if((key == Qt::Key_PageDown) && (m_frameExpected > 0))
-		slotShowFrame(std::max(0, m_frameExpected - m_bigFrameStep));
+		slotShowFrame(std::max(0, m_frameExpected - m_bigFrameStep), true);
 	else if((key == Qt::Key_PageUp) &&
 		(m_frameExpected < (m_nodeInfo[m_outputIndex].numFrames() - 1)))
 	{
 		slotShowFrame(std::min(m_nodeInfo[m_outputIndex].numFrames() - 1,
-			m_frameExpected + m_bigFrameStep));
+			m_frameExpected + m_bigFrameStep), true);
 	}
 	else if(key == Qt::Key_Home)
-		slotShowFrame(0);
+		slotShowFrame(0, true);
 	else if(key == Qt::Key_End)
-		slotShowFrame(m_nodeInfo[m_outputIndex].numFrames() - 1);
+		slotShowFrame(m_nodeInfo[m_outputIndex].numFrames() - 1, true);
 	else if(key == Qt::Key_Escape)
 		close();
 	else
@@ -498,17 +498,17 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 			if(m_frameExpected == 0)
 			{
 				// Nowhere to roll back
-				m_ui.frameNumberSlider->setFrame(0);
+				m_ui.frameNumberSlider->setFrame(0, false);
 				m_ui.frameNumberSpinBox->setValue(0);
 				m_ui.frameStatusLabel->setPixmap(m_errorPixmap);
 			}
 			else
-				slotShowFrame(0);
+				slotShowFrame(0, false);
 			return;
 		}
 
 		m_frameExpected = m_frameShown;
-		m_ui.frameNumberSlider->setFrame(m_frameShown);
+		m_ui.frameNumberSlider->setFrame(m_frameShown, false);
 		m_ui.frameNumberSpinBox->setValue(m_frameShown);
 		m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
 	}
@@ -518,7 +518,7 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 //		int a_outputIndex, const QString & a_reason)
 //==============================================================================
 
-void PreviewDialog::slotShowFrame(int a_frameNumber)
+void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 {
 	if((m_frameShown == a_frameNumber) && (!m_framePixmap.isNull()))
 		return;
@@ -531,8 +531,19 @@ void PreviewDialog::slotShowFrame(int a_frameNumber)
 		return;
 	requestingFrame = true;
 
+	if(a_refreshCache)
+	{
+		int frameDiff = m_frameShown - a_frameNumber;
+		if(frameDiff < 0)
+			frameDiff = -frameDiff;
+		if(frameDiff > 10 && m_usedCacheRatio > 0.75)
+		{
+			m_pVapourSynthScriptProcessor->clearCoreCaches();
+		}
+	}
+
 	m_ui.frameNumberSpinBox->setValue(a_frameNumber);
-	m_ui.frameNumberSlider->setFrame(a_frameNumber);
+	m_ui.frameNumberSlider->setFrame(a_frameNumber, a_refreshCache);
 
 	bool requested = requestShowFrame(a_frameNumber);
 	if(requested)
@@ -543,12 +554,12 @@ void PreviewDialog::slotShowFrame(int a_frameNumber)
 	else
 	{
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
-		m_ui.frameNumberSlider->setFrame(m_frameExpected);
+		m_ui.frameNumberSlider->setFrame(m_frameExpected, a_refreshCache);
 	}
 
 	requestingFrame = false;
 }
-// END OF void PreviewDialog::slotShowFrame(int a_frameNumber)
+// END OF void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 //==============================================================================
 
 void PreviewDialog::slotSaveSnapshot()
@@ -1511,7 +1522,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		m_frameShown = nextFrame;
 		m_frameExpected = m_frameShown;
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
-		m_ui.frameNumberSlider->setFrame(m_frameExpected);
+		m_ui.frameNumberSlider->setFrame(m_frameExpected, false);
 		m_framesCache[m_outputIndex].erase(it);
 		nextFrame = (m_frameShown + 1) % vi->numFrames;
 		referenceFrame.number = nextFrame;
@@ -1690,7 +1701,7 @@ void PreviewDialog::slotJumpToFrame()
 		frame = lastFrameNumber;
 	if(frame != currFrameNumber)
 	{
-		slotShowFrame(frame);
+		slotShowFrame(frame, true);
 	}
 }
 
@@ -1765,7 +1776,7 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	int lastFrameNumber = m_nodeInfo[m_outputIndex].numFrames() - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(
-		m_nodeInfo[m_outputIndex].numFrames());
+		m_nodeInfo[m_outputIndex].numFrames(), false);
 	if(m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen == 0)
 	{
 		m_ui.frameNumberSlider->setFPS(0.0);
