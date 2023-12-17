@@ -53,7 +53,7 @@ bool VSScriptLibrary::initialize()
 	if(!libraryInitialized)
 		return false;
 
-	m_cpVSAPI = m_cpVSSAPI->getVSAPI(VAPOURSYNTH_API_VERSION);
+	m_cpVSAPI = m_cpVSSAPI->getVSAPI(VS_MAKE_VERSION(4, 0));
 	if(!m_cpVSAPI)
 	{
 		QString errorString = tr("Failed to get VapourSynth API!");
