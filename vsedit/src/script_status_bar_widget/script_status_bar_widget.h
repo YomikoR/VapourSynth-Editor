@@ -26,7 +26,7 @@ public slots:
 	virtual void setColorPickerString(const QString & a_string);
 
 	virtual void setQueueState(size_t a_inQueue, size_t a_inProcess,
-		size_t a_maxThreads);
+		size_t a_maxThreads, double a_usedCacheRatio);
 
 	virtual void setNodeInfo(const VSNodeInfo & a_nodeInfo,
 		const VSAPI * a_cpVSAPI);

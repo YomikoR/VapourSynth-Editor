@@ -560,8 +560,15 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 {
 	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
+
+	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+	m_cpVSAPI->getCoreInfo(pCore, &m_cpCoreInfo);
+
 	size_t maxThreads = m_cpCoreInfo.numThreads;
-	emit signalFrameQueueStateChanged(inQueue, inProcess, maxThreads);
+	double usedCacheRatio = (double)m_cpCoreInfo.usedFramebufferSize
+		/ (double)m_cpCoreInfo.maxFramebufferSize;
+	emit signalFrameQueueStateChanged(inQueue, inProcess, maxThreads,
+		usedCacheRatio);
 }
 
 // END OF void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()

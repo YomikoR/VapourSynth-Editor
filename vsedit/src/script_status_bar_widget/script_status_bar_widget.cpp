@@ -20,7 +20,7 @@ ScriptStatusBarWidget::ScriptStatusBarWidget(QWidget * a_pParent) :
 	m_ui.videoInfoLabel->clear();
 
 	m_ui.scriptProcessorQueueIconLabel->setPixmap(m_readyPixmap);
-	setQueueState(0, 0, 0);
+	setQueueState(0, 0, 0, 0.0);
 }
 
 // END OF ScriptStatusBarWidget::ScriptStatusBarWidget(QWidget * a_pParent)
@@ -59,16 +59,20 @@ void ScriptStatusBarWidget::setColorPickerString(const QString & a_string)
 //==============================================================================
 
 void ScriptStatusBarWidget::setQueueState(size_t a_inQueue, size_t a_inProcess,
-	size_t a_maxThreads)
+	size_t a_maxThreads, double a_usedCacheRatio)
 {
 	if((a_inProcess + a_inQueue) > 0)
 		m_ui.scriptProcessorQueueIconLabel->setPixmap(m_busyPixmap);
 	else
 		m_ui.scriptProcessorQueueIconLabel->setPixmap(m_readyPixmap);
 
+	int percentage_int = (int)(a_usedCacheRatio * 100);
+	int percentage_dec = (int)(a_usedCacheRatio * 1000) - 10 * percentage_int;
+
 	m_ui.scriptProcessorQueueLabel->setText(
-		tr("Script processor queue: %1:%2(%3)")
-		.arg(a_inQueue).arg(a_inProcess).arg(a_maxThreads));
+		tr("Script processor queue: %1:%2(%3) | Core cache used: %4.%5%")
+		.arg(a_inQueue).arg(a_inProcess).arg(a_maxThreads)
+		.arg(percentage_int).arg(percentage_dec));
 }
 
 // END OF void ScriptStatusBarWidget::setQueueState(size_t a_inQueue,

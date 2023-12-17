@@ -25,6 +25,7 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	, m_framesInQueue()
 	, m_framesInProcess()
 	, m_maxThreads(0)
+	, m_usedCacheRatio(0.0)
 	, m_outputIndex(0)
 	, m_wantToFinalize(false)
 	, m_wantToClose(false)
@@ -54,8 +55,8 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 	connect(m_pVapourSynthScriptProcessor,
-		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+		SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t, double)),
+		this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t, double)));
 	connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
 		this, SLOT(slotScriptProcessorFinalized()));
 	connect(m_pVapourSynthScriptProcessor,
@@ -170,18 +171,20 @@ void VSScriptProcessorDialog::slotWriteLogMessage(int a_messageType,
 //==============================================================================
 
 void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
-	size_t a_inProcess, size_t a_maxThreads)
+	size_t a_inProcess, size_t a_maxThreads, double a_usedCacheRatio)
 {
 	m_framesInQueue[m_outputIndex] = a_inQueue;
 	m_framesInProcess[m_outputIndex] = a_inProcess;
 	m_maxThreads = a_maxThreads;
+	m_usedCacheRatio = a_usedCacheRatio;
 
 	m_pStatusBarWidget->setQueueState(m_framesInQueue[m_outputIndex],
-		m_framesInProcess[m_outputIndex], m_maxThreads);
+		m_framesInProcess[m_outputIndex], m_maxThreads, m_usedCacheRatio);
 }
 
 // END OF void VSScriptProcessorDialog::slotFrameQueueStateChanged(
-//		size_t a_inQueue, size_t a_inProcess, size_t a_maxThreads)
+//		size_t a_inQueue, size_t a_inProcess, size_t a_maxThreads,
+//		double a_usedCacheRatio)
 //==============================================================================
 
 void VSScriptProcessorDialog::slotScriptProcessorFinalized()

@@ -528,8 +528,8 @@ bool vsedit::Job::initialize()
 			SIGNAL(signalWriteLogMessage(int, const QString &)),
 			this, SLOT(slotWriteLogMessage(int, const QString &)));
 		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t, double)),
+			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t, double)));
 		connect(m_pVapourSynthScriptProcessor, SIGNAL(signalFinalized()),
 			this, SLOT(slotScriptProcessorFinalized()));
 		connect(m_pVapourSynthScriptProcessor,
@@ -541,8 +541,8 @@ bool vsedit::Job::initialize()
 			SIGNAL(signalFrameRequestDiscarded(int, int, const QString &)),
 			this, SLOT(slotFrameRequestDiscarded(int, int, const QString &)));
 		connect(m_pVapourSynthScriptProcessor,
-			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t)),
-			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t)));
+			SIGNAL(signalFrameQueueStateChanged(size_t, size_t, size_t, double)),
+			this, SLOT(slotFrameQueueStateChanged(size_t, size_t, size_t, double)));
 	}
 
 	if((!m_pVapourSynthScriptProcessor->isInitialized()) ||
@@ -1072,7 +1072,7 @@ void vsedit::Job::slotWriteLogMessage(int a_messageType,
 //==============================================================================
 
 void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
-	size_t a_inProcess, size_t a_maxThreads)
+	size_t a_inProcess, size_t a_maxThreads, double a_usedCacheRatio)
 {
 	m_framesInQueue = a_inQueue;
 	m_framesInProcess = a_inProcess;
@@ -1080,7 +1080,7 @@ void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
 }
 
 // END OF void vsedit::Job::slotFrameQueueStateChanged(size_t a_inQueue,
-//		size_t a_inProcess, size_t a_maxThreads)
+//		size_t a_inProcess, size_t a_maxThreads, double a_usedCacheRatio)
 //==============================================================================
 
 void vsedit::Job::slotScriptProcessorFinalized()

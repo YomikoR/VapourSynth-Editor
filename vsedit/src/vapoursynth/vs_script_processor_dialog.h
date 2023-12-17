@@ -57,7 +57,7 @@ protected slots:
 		const QString & a_message);
 
 	virtual void slotFrameQueueStateChanged(size_t a_inQueue,
-		size_t a_inProcess, size_t a_maxThreads);
+		size_t a_inProcess, size_t a_maxThreads, double a_usedCacheRatio);
 
 	virtual void slotScriptProcessorFinalized();
 
@@ -99,6 +99,7 @@ protected:
 	size_t m_framesInQueue[MAX_VS_OUTPUT];
 	size_t m_framesInProcess[MAX_VS_OUTPUT];
 	size_t m_maxThreads;
+	double m_usedCacheRatio;
 
 	int m_outputIndex;
 

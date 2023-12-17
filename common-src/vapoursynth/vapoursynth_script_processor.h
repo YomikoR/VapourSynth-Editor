@@ -67,7 +67,7 @@ signals:
 		const QString & a_reason);
 
 	void signalFrameQueueStateChanged(size_t a_inQueue, size_t a_inProcess,
-		size_t a_maxThreads);
+		size_t a_maxThreads, double a_usedCacheRatio);
 
 	void signalFinalized();
 

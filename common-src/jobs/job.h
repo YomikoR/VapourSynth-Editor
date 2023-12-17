@@ -136,7 +136,7 @@ protected slots:
 	virtual void slotWriteLogMessage(int a_messageType,
 		const QString & a_message);
 	virtual void slotFrameQueueStateChanged(size_t a_inQueue,
-		size_t a_inProcess, size_t a_maxThreads);
+		size_t a_inProcess, size_t a_maxThreads, double a_usedCacheRatio);
 	virtual void slotScriptProcessorFinalized();
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		const VSFrame * a_cpOutputFrame,
