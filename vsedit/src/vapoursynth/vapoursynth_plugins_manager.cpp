@@ -132,7 +132,7 @@ void VapourSynthPluginsManager::getCorePlugins()
 		return;
 	}
 
-	const VSAPI * cpVSAPI = getVapourSynthAPI(VAPOURSYNTH_API_VERSION);
+	const VSAPI * cpVSAPI = getVapourSynthAPI(VS_MAKE_VERSION(4, 0));
 	if(!cpVSAPI)
 	{
 		emit signalWriteLogMessage(mtCritical, "VapourSynth plugins manager: "

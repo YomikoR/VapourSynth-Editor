@@ -315,7 +315,7 @@ bool VSScriptLibrary::initLibrary()
 		}
 	}
 
-	m_cpVSSAPI = vssGetAPI(VSSCRIPT_API_VERSION);
+	m_cpVSSAPI = vssGetAPI(VS_MAKE_VERSION(4, 0));
 	if(!m_cpVSSAPI)
 	{
 		QString errorStr = tr("Failed to get VSScript API!");
