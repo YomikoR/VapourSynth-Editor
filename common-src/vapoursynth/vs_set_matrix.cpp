@@ -10,13 +10,7 @@ struct setMatrixData
 {
     VSNode *node;
     VSVideoInfo vi;
-
-    // Default values
-
     int64_t matrix_in;
-    int64_t transfer_in;
-    bool is_transfer_in_given = false;
-    int64_t chromaloc;
 };
 
 const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
@@ -32,7 +26,6 @@ const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *insta
 
         /* RGB: tag RGB matrix
            YUV: if missing matrix, add it
-                if transfer is given, add it with matrix
            GRAY: if having RGB matrix, drop it
          */
 
@@ -54,16 +47,6 @@ const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *insta
             if (err)
             {
                 vsapi->mapSetInt(props, "_Matrix", d->matrix_in, maReplace);
-                if (d->is_transfer_in_given)
-                {
-                    vsapi->mapSetInt(props, "_Transfer", d->transfer_in, maReplace);
-                }
-            }
-
-            int64_t chromaloc = vsapi->mapGetInt(props, "_ChromaLocation", 0, &err);
-            if (err)
-            {
-                vsapi->mapSetInt(props, "_ChromaLocation", d->chromaloc, maReplace);
             }
         }
         else
@@ -98,9 +81,6 @@ void VS_CC setMatrixFilter(const VSMap *in, VSMap *out, VSCore *core, const VSAP
 
     int err;
     d->matrix_in = vsapi->mapGetInt(in, "matrix_in", 0, &err);
-    d->transfer_in = vsapi->mapGetInt(in, "transfer_in", 0, &err);
-    if (!err) d->is_transfer_in_given = true;
-    d->chromaloc = vsapi->mapGetInt(in, "chromaloc", 0, &err);
 
     VSFilterDependency deps[] = {{d->node, rpStrictSpatial}};
 

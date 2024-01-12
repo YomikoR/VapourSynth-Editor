@@ -649,25 +649,11 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		case YuvMatrixCoefficients::m2020_NCL:
 			matrixIn = VSC_MATRIX_BT2020_NCL;
 			break;
-		case YuvMatrixCoefficients::m2020_CL:
-			matrixIn = VSC_MATRIX_BT2020_CL;
-			break;
 		default:
 			Q_ASSERT(false);
 		}
 
 		m_cpVSAPI->mapSetInt(pArgumentMap, "matrix_in", matrixIn, maReplace);
-
-		if(m_yuvMatrix == YuvMatrixCoefficients::m2020_CL)
-		{
-			int64_t transferIn = VSC_TRANSFER_BT709;
-			int64_t transferOut = VSC_TRANSFER_BT2020_10;
-
-			m_cpVSAPI->mapSetInt(pArgumentMap, "transfer_in",
-				transferIn, maReplace);
-			m_cpVSAPI->mapSetInt(pArgumentMap, "transfer",
-				transferOut, maReplace);
-		}
 
 		int64_t chromaLoc;
 		switch(m_chromaPlacement)

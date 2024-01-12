@@ -28,8 +28,6 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 		tr("170M"), (int)YuvMatrixCoefficients::m170M);
 	m_ui.yuvMatrixCoefficientsComboBox->addItem(
 		tr("2020 NCL"), (int)YuvMatrixCoefficients::m2020_NCL);
-	m_ui.yuvMatrixCoefficientsComboBox->addItem(
-		tr("2020 CL"), (int)YuvMatrixCoefficients::m2020_CL);
 
 	m_ui.chromaResamplingFilterComboBox->addItem(tr("Point"),
 		(int)ResamplingFilter::Point);

@@ -26,7 +26,6 @@ enum class YuvMatrixCoefficients : int
 	m470BG,
 	m170M,
 	m2020_NCL,
-	m2020_CL,
 };
 
 enum class ChromaPlacement : int
