@@ -8,11 +8,6 @@
 
 #include <QKeyEvent>
 
-#ifdef Q_OS_WIN
-	class QWinTaskbarButton;
-	class QWinTaskbarProgress;
-#endif
-
 class ScriptBenchmarkDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
@@ -73,10 +68,6 @@ protected:
 	int m_lastFromFrame;
 	int m_lastToFrame;
 
-#ifdef Q_OS_WIN
-	QWinTaskbarButton * m_pWinTaskbarButton;
-	QWinTaskbarProgress * m_pWinTaskbarProgress;
-#endif
 };
 
 #endif // BENCHMARK_DIALOG_H_INCLUDED

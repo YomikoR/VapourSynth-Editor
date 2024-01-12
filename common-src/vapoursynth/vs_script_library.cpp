@@ -267,11 +267,6 @@ bool VSScriptLibrary::initLibrary()
 			QSettings::NativeFormat);
 		libraryFullPath =
 			settings.value("VapourSynth/VSScriptDLL").toString();
-		if(libraryFullPath.isEmpty())
-		{
-			libraryFullPath = settings.value(
-				"Wow6432Node/VapourSynth/VSScriptDLL").toString();
-		}
 
 		if(!libraryFullPath.isEmpty())
 		{

@@ -94,8 +94,6 @@ private:
 
 	NodePair & getNodePair(int a_outputIndex, bool a_needPreview);
 
-	void printFrameProps(const VSFrame * a_cpFrame);
-
 	SettingsManagerCore * m_pSettingsManager;
 
 	VSScriptLibrary * m_pVSScriptLibrary;

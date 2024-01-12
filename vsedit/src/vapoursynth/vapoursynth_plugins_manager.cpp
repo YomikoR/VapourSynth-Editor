@@ -58,11 +58,6 @@ void VapourSynthPluginsManager::getCorePlugins()
 			QSettings::NativeFormat);
 		libraryFullPath =
 			settings.value("VapourSynth/VapourSynthDLL").toString();
-		if(libraryFullPath.isEmpty())
-		{
-			libraryFullPath = settings.value(
-				"Wow6432Node/VapourSynth/VapourSynthDLL").toString();
-		}
 
 		if(!libraryFullPath.isEmpty())
 		{

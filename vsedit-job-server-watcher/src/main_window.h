@@ -25,11 +25,6 @@ class QLocalSocket;
 class TrustedClientsAddressesDialog;
 class QTimer;
 
-#ifdef Q_OS_WIN
-	class QWinTaskbarButton;
-	class QWinTaskbarProgress;
-#endif
-
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -189,10 +184,6 @@ private:
 	QTimer * m_pGeometrySaveTimer;
 	QByteArray m_windowGeometry;
 
-#ifdef Q_OS_WIN
-	QWinTaskbarButton * m_pWinTaskbarButton;
-	QWinTaskbarProgress * m_pWinTaskbarProgress;
-#endif
 };
 
 #endif // MAINWINDOW_H

@@ -8,11 +8,6 @@
 class SettingsManager;
 class VSScriptLibrary;
 
-#ifdef Q_OS_WIN
-	class QWinTaskbarButton;
-	class QWinTaskbarProgress;
-#endif
-
 class EncodeDialog : public QDialog
 {
 	Q_OBJECT
@@ -77,10 +72,6 @@ private:
 
 	std::vector<EncodingPreset> m_encodingPresets;
 
-#ifdef Q_OS_WIN
-	QWinTaskbarButton * m_pWinTaskbarButton;
-	QWinTaskbarProgress * m_pWinTaskbarProgress;
-#endif
 };
 
 #endif // ENCODE_DIALOG_H_INCLUDED

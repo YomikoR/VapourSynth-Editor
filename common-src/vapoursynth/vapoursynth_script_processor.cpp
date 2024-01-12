@@ -991,22 +991,11 @@ QString VapourSynthScriptProcessor::framePropsString(
 	return propsString;
 }
 
-bool VapourSynthScriptProcessor::clearCoreCaches()
-{
-	return m_pVSScriptLibrary->clearCoreCaches(m_pVSScript);
-}
-
 // END OF QString VapourSynthScriptProcessor::framePropsString(
 //		const VSFrame * a_cpFrame) const
 //==============================================================================
 
-void VapourSynthScriptProcessor::printFrameProps(const VSFrame * a_cpFrame)
+bool VapourSynthScriptProcessor::clearCoreCaches()
 {
-	QString message = tr("Frame properties:\n%1")
-		.arg(framePropsString(a_cpFrame));
-	emit signalWriteLogMessage(mtDebug, message);
+	return m_pVSScriptLibrary->clearCoreCaches(m_pVSScript);
 }
-
-// END OF void VapourSynthScriptProcessor::printFrameProps(
-//		const VSFrame * a_cpFrame)
-//==============================================================================
