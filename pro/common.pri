@@ -1,2 +1,2 @@
-VER_MAJ = R1
+VER_MAJ = 1
 VERSION = $$VER_MAJ
