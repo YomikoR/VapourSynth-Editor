@@ -38,8 +38,7 @@ public:
 
 	VSNodeInfo nodeInfo(int a_outputIndex = 0);
 
-	bool requestFrameAsync(int a_frameNumber, int a_outputIndex = 0,
-		bool a_needPreview = false);
+	bool requestFrameAsync(int a_frameNumber, int a_outputIndex = 0);
 
 	bool flushFrameTicketsQueue();
 
@@ -92,7 +91,7 @@ private:
 
 	void freeFrameTicket(FrameTicket & a_ticket);
 
-	NodePair & getNodePair(int a_outputIndex, bool a_needPreview);
+	NodePair & getNodePair(int a_outputIndex);
 
 	SettingsManagerCore * m_pSettingsManager;
 

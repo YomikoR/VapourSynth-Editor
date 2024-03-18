@@ -20,12 +20,11 @@ bool Frame::operator==(const Frame & a_other) const
 //==============================================================================
 
 FrameTicket::FrameTicket(int a_frameNumber, int a_outputIndex,
-		VSNode * a_pOutputNode, bool a_needPreview,
+		VSNode * a_pOutputNode,
 		VSNode * a_pPreviewNode):
 	frameNumber(a_frameNumber)
 	, outputIndex(a_outputIndex)
 	, pOutputNode(a_pOutputNode)
-	, needPreview(a_needPreview)
 	, pPreviewNode(a_pPreviewNode)
 	, cpOutputFrame(nullptr)
 	, cpPreviewFrame(nullptr)
@@ -38,8 +37,7 @@ FrameTicket::FrameTicket(int a_frameNumber, int a_outputIndex,
 bool FrameTicket::isComplete() const
 {
 	bool complete = (cpOutputFrame != nullptr);
-	if(needPreview)
-		complete = complete && (cpPreviewFrame != nullptr);
+	complete = complete && (cpPreviewFrame != nullptr);
 	return complete;
 }
 

@@ -25,14 +25,13 @@ struct FrameTicket
 	int frameNumber;
 	int outputIndex;
 	VSNode * pOutputNode;
-	bool needPreview;
 	VSNode * pPreviewNode;
 	const VSFrame * cpOutputFrame;
 	const VSFrame * cpPreviewFrame;
 	bool discard;
 
 	FrameTicket(int a_frameNumber, int a_outputIndex,
-		VSNode * a_pOutputNode, bool a_needPreview = false,
+		VSNode * a_pOutputNode,
 		VSNode * a_pPreviewNode = nullptr);
 
 	bool isComplete() const;

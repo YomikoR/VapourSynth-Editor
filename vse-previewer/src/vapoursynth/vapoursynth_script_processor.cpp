@@ -257,7 +257,7 @@ VSNodeInfo VapourSynthScriptProcessor::nodeInfo(int a_outputIndex)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
-	int a_outputIndex, bool a_needPreview)
+	int a_outputIndex)
 {
 	if(!m_initialized)
 		return false;
@@ -272,7 +272,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 
 	Q_ASSERT(m_cpVSAPI);
 
-	NodePair & nodePair = getNodePair(a_outputIndex, a_needPreview);
+	NodePair & nodePair = getNodePair(a_outputIndex);
 	if(!nodePair.pOutputNode)
 		return false;
 
@@ -299,11 +299,11 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 		return false;
 	}
 
-	if(a_needPreview && (!nodePair.pPreviewNode))
+	if(!nodePair.pPreviewNode)
 		return false;
 
 	FrameTicket newFrameTicket(a_frameNumber, a_outputIndex,
-		nodePair.pOutputNode, a_needPreview, nodePair.pPreviewNode);
+		nodePair.pOutputNode, nodePair.pPreviewNode);
 
 	m_frameTicketsQueue.push_back(newFrameTicket);
 	sendFrameQueueChangeSignal();
@@ -313,7 +313,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 }
 
 // END OF void VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
-//		int a_outputIndex, bool a_needPreview)
+//		int a_outputIndex)
 //==============================================================================
 
 bool VapourSynthScriptProcessor::flushFrameTicketsQueue()
@@ -439,19 +439,16 @@ void VapourSynthScriptProcessor::receiveFrame(
 			m_cpVSAPI->freeNode(it->pOutputNode);
 			it->pOutputNode = nullptr;
 
-			if(it->needPreview)
+			Q_ASSERT(it->pPreviewNode);
+			if(a_cpFrame)
 			{
-				Q_ASSERT(it->pPreviewNode);
-				if(a_cpFrame)
-				{
-					m_cpVSAPI->getFrameAsync(it->frameNumber, it->pPreviewNode,
-						frameReady, this);
-				}
-				else
-				{
-					m_cpVSAPI->freeNode(it->pPreviewNode);
-					it->pPreviewNode = nullptr;
-				}
+				m_cpVSAPI->getFrameAsync(it->frameNumber, it->pPreviewNode,
+					frameReady, this);
+			}
+			else
+			{
+				m_cpVSAPI->freeNode(it->pPreviewNode);
+				it->pPreviewNode = nullptr;
 			}
 		}
 		else if(it->pPreviewNode == a_pNode)
@@ -463,8 +460,7 @@ void VapourSynthScriptProcessor::receiveFrame(
 
 		// Since we nullify the nodes in ticket - we can check if it can be
 		// removed from the queue by checking the nodes.
-		if((it->pOutputNode != nullptr) ||
-			(it->needPreview && (it->pPreviewNode != nullptr)))
+		if((it->pOutputNode != nullptr) || (it->pPreviewNode != nullptr))
 			return;
 
 		ticket = *it;
@@ -517,11 +513,10 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 
 		// In case preview node was hot-swapped.
 		NodePair & nodePair =
-			getNodePair(ticket.outputIndex, ticket.needPreview);
+			getNodePair(ticket.outputIndex);
 
 		bool validPair = (nodePair.pOutputNode != nullptr);
-		if(ticket.needPreview)
-			validPair = validPair && (nodePair.pPreviewNode != nullptr);
+		validPair = validPair && (nodePair.pPreviewNode != nullptr);
 		if(!validPair)
 		{
 			QString reason = tr("No nodes to produce the frame "
@@ -533,9 +528,7 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 		}
 
 		ticket.pOutputNode = m_cpVSAPI->addNodeRef(nodePair.pOutputNode);
-		if(ticket.needPreview)
-			ticket.pPreviewNode =
-				m_cpVSAPI->addNodeRef(nodePair.pPreviewNode);
+		ticket.pPreviewNode = m_cpVSAPI->addNodeRef(nodePair.pPreviewNode);
 
 		m_cpVSAPI->getFrameAsync(ticket.frameNumber, ticket.pOutputNode,
 			frameReady, this);
@@ -812,8 +805,7 @@ void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 //		FrameTicket & a_ticket)
 //==============================================================================
 
-NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
-	bool a_needPreview)
+NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex)
 {
 	NodePair & nodePair = m_nodePairForOutputIndex[a_outputIndex];
 
@@ -833,7 +825,7 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 		}
 	}
 
-	if(a_needPreview && (!nodePair.pPreviewNode))
+	if(!nodePair.pPreviewNode)
 	{
 		bool previewNodeCreated = recreatePreviewNode(nodePair);
 		if(!previewNodeCreated)
@@ -848,8 +840,7 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 	return nodePair;
 }
 
-// END OF NodePair VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
-//		bool a_needPreview)
+// END OF NodePair VapourSynthScriptProcessor::getNodePair(int a_outputIndex)
 //==============================================================================
 
 QString VapourSynthScriptProcessor::framePropsString(
