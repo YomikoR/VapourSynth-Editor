@@ -212,6 +212,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
 	QPoint scrollBarPos = loadLastScrollBarPositions();
 	m_ui.previewArea->getScrollBarPositionsFromPreviewer(scrollBarPos);
+
+	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 // END OF PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
