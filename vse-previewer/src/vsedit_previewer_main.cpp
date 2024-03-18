@@ -13,6 +13,7 @@
 #include <QResource>
 
 #include <iostream>
+#include <map>
 #include <string>
 
 Q_DECLARE_OPAQUE_POINTER(const VSFrame *)
@@ -131,22 +132,70 @@ void handleQtMessage(QtMsgType a_type,
 
 int main(int argc, char *argv[])
 {
-	QString scriptFilePath;
-	if(argc > 1)
+	QString scriptFilePath = "";
+	std::map<std::string, std::string> scriptArgs = {};
+
+	if (argc <= 1)
 	{
-		if(strcmp(argv[1], "-v") == 0 ||
-			strcmp(argv[1], "--version") == 0)
+		std::cout << "VSE-Previewer " << VSE_PREVIEWER_VERSION << std::endl;
+		std::cout << "Usage: vse-previewer [-a key1=value1 -a key2=value2 ...] <script>" << std::endl;
+		return 0;
+	}
+
+	for(int arg = 1; arg < argc; ++arg)
+	{
+		QString argString = QString::fromLocal8Bit(argv[arg], -1);
+		// Version
+		if(argString == "-v" || argString == "--version")
 		{
-			std::cout << "VSE-Previewer " << VSE_PREVIEWER_VERSION << std::endl;
-			return 0;
+			if (argc > 2)
+			{
+				std::cerr << "VSE-Previewer: please use `-v` or `--version` without other options for version information." << std::endl;
+				return 1;
+			}
+			else
+			{
+				std::cout << "VSE-Previewer " << VSE_PREVIEWER_VERSION << std::endl;
+				return 0;
+			}
+		}
+		else if(argString == "-a" || argString == "--arg")
+		{
+			if (argc <= arg + 1)
+			{
+				std::cerr << "VSE-Previewer: no argument specified." << std::endl;
+				return 1;
+			}
+			QString line = QString::fromLocal8Bit(argv[arg + 1], -1);
+			if(line.contains('='))
+			{
+				auto pos = line.indexOf('=');
+				std::string v1 = line.left(pos).toStdString();
+				std::string v2 = line.mid(pos + 1).toStdString();
+				scriptArgs[v1] = v2;
+				++arg;
+			}
+			else
+			{
+				std::cerr << "VSE-Previewer: no value specified for argument " << line.toStdString().c_str() << std::endl;
+				return 1;
+			}
+		}
+		else if(scriptFilePath.isEmpty() && !argString.isEmpty())
+		{
+			scriptFilePath = argString;
 		}
 		else
-			scriptFilePath = QString::fromLocal8Bit(argv[1], -1);
+		{
+			std::cerr << "VSE-Previewer: unknown argument " << argString.toStdString().c_str() << std::endl;
+			return 1;
+		}
 	}
-	else
+
+	if(scriptFilePath.isEmpty())
 	{
-		std::cerr << "vsedit-previewer: Please provide the path to your script." << std::endl;
-		return -2;
+		std::cerr << "VSE-Previewer: no script input found." << std::endl;
+		return 1;
 	}
 
 	std::cerr << "VSE-Previewer " << VSE_PREVIEWER_VERSION << std::endl;
@@ -197,6 +246,7 @@ int main(int argc, char *argv[])
 	pVSSLibrary = new VSScriptLibrary(pSettings, qApp);
 	QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
+	pVSSLibrary->setArguments(scriptArgs);
 
 	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary);
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,

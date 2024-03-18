@@ -29,6 +29,7 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	, m_initialized(false)
 	, m_cpVSSAPI(nullptr)
 	, m_cpVSAPI(nullptr)
+	, m_pArguments(nullptr)
 	, m_VSAPIMajor(VSE_VS_API_VER_MAJOR)
 	, m_VSAPIMinor(VSE_VS_API_VER_MINOR)
 	, m_VSSAPIMajor(VSE_VSS_API_VER_MAJOR)
@@ -84,6 +85,12 @@ bool VSScriptLibrary::initialize()
 
 bool VSScriptLibrary::finalize()
 {
+	if(m_pArguments && m_cpVSAPI)
+	{
+		m_cpVSAPI->clearMap(m_pArguments);
+		m_pArguments = nullptr;
+	}
+
 	m_cpVSAPI = nullptr;
 
 	freeLibrary();
@@ -111,6 +118,28 @@ const VSAPI * VSScriptLibrary::getVSAPI()
 	return m_cpVSAPI;
 }
 
+void VSScriptLibrary::setArguments(const std::map<std::string, std::string> &a_args)
+{
+	if(!initialize())
+		return;
+
+	if(m_pArguments)
+	{
+		m_cpVSAPI->clearMap(m_pArguments);
+		m_pArguments = nullptr;
+	}
+
+	if(a_args.size() > 0)
+	{
+		m_pArguments = m_cpVSAPI->createMap();
+		for (const auto &p : a_args)
+		{
+			m_cpVSAPI->mapSetData(m_pArguments, p.first.c_str(),
+				p.second.c_str(), (int)p.second.size(), dtUtf8, maAppend);
+		}
+	}
+}
+
 // END OF const VSAPI * VSScriptLibrary::getVSAPI()
 //==============================================================================
 
@@ -122,6 +151,9 @@ VSScript * VSScriptLibrary::createScript()
 	VSScript * pScript = m_cpVSSAPI->createScript(nullptr);
 	if(pScript)
 		m_cpVSSAPI->evalSetWorkingDir(pScript, 1);
+
+	if(m_pArguments)
+		m_cpVSSAPI->setVariables(pScript, m_pArguments);
 
 	return pScript;
 }

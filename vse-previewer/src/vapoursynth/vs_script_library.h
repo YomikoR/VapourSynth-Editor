@@ -33,6 +33,8 @@ public:
 
 	const VSAPI * getVSAPI();
 
+	void setArguments(const std::map<std::string, std::string> &a_args);
+
 	VSScript * createScript();
 
 	int evaluateScript(VSScript * a_pScript, const char * a_scriptText,
@@ -77,6 +79,8 @@ private:
 	const VSSCRIPTAPI * m_cpVSSAPI;
 
 	const VSAPI * m_cpVSAPI;
+
+	VSMap * m_pArguments;
 
 	int m_VSAPIMajor;
 	int m_VSAPIMinor;
