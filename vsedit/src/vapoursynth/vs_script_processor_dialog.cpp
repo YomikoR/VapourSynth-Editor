@@ -42,9 +42,9 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	Q_ASSERT(m_pSettingsManager);
 	Q_ASSERT(m_pVSScriptLibrary);
 
-	connect(m_pVSScriptLibrary,
-		SIGNAL(signalWriteLogMessage(int, const QString &)),
-		this, SLOT(slotWriteLogMessage(int, const QString &)));
+	//connect(m_pVSScriptLibrary,
+	//	SIGNAL(signalWriteLogMessage(int, const QString &)),
+	//	this, SLOT(slotWriteLogMessage(int, const QString &)));
 
 	m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
 		m_pSettingsManager, m_pVSScriptLibrary, this);
