@@ -1486,7 +1486,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		(m_framesCache[m_outputIndex].size() <= m_cachedFramesLimit))
 	{
 		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame,
-			m_outputIndex, true);
+			m_outputIndex);
 		m_lastFrameRequestedForPlay = nextFrame;
 		nextFrame = (nextFrame + 1) % vi->numFrames;
 	}
@@ -1740,7 +1740,7 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	resetCropSpinBoxes();
 
 	m_pVapourSynthScriptProcessor->requestFrameAsync(m_frameExpected,
-		m_outputIndex, true);
+		m_outputIndex);
 }
 
 // END OF void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
@@ -2248,7 +2248,7 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 		return false;
 
 	m_pVapourSynthScriptProcessor->requestFrameAsync(a_frameNumber,
-		m_outputIndex, true);
+		m_outputIndex);
 	return true;
 }
 
