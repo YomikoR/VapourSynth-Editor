@@ -9,6 +9,7 @@ extern const char LOG_STYLE_WARNING[];
 extern const char LOG_STYLE_POSITIVE[];
 
 extern const char LOG_STYLE_VS_DEBUG[];
+extern const char LOG_STYLE_VS_INFO[];
 extern const char LOG_STYLE_VS_WARNING[];
 extern const char LOG_STYLE_VS_CRITICAL[];
 extern const char LOG_STYLE_VS_FATAL[];

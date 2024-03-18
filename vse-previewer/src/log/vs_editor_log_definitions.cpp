@@ -14,6 +14,7 @@ const char LOG_STYLE_WARNING[] = "warning";
 const char LOG_STYLE_POSITIVE[] = "positive";
 
 const char LOG_STYLE_VS_DEBUG[] = "vs_debug";
+const char LOG_STYLE_VS_INFO[] = "vs_info";
 const char LOG_STYLE_VS_WARNING[] = "vs_warning";
 const char LOG_STYLE_VS_CRITICAL[] = "vs_critical";
 const char LOG_STYLE_VS_FATAL[] = "vs_fatal";
@@ -32,6 +33,7 @@ QString vsMessageTypeToStyleName(int a_messageType)
 
 	std::map<int, QString> vsTypeToStyleMap = {
 		{mtDebug, LOG_STYLE_VS_DEBUG},
+		{mtInformation, LOG_STYLE_VS_INFO},
 		{mtWarning, LOG_STYLE_VS_WARNING},
 		{mtCritical, LOG_STYLE_VS_CRITICAL},
 		{mtFatal, LOG_STYLE_VS_FATAL},
