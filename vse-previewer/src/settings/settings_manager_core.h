@@ -59,26 +59,6 @@ public:
 
 	bool setDitherType(DitherType a_dither);
 
-	std::vector<EncodingPreset> getAllEncodingPresets() const;
-
-	EncodingPreset getEncodingPreset(const QString & a_name) const;
-
-	bool saveEncodingPreset(const EncodingPreset & a_preset);
-
-	bool deleteEncodingPreset(const QString & a_name);
-
-	std::vector<JobProperties> getJobs() const;
-
-	bool setJobs(const std::vector<JobProperties> & a_jobs);
-
-	QStringList getRecentJobServers() const;
-
-	bool setRecentJobServers(const QStringList & a_servers);
-
-	QStringList getTrustedClientsAddresses() const;
-
-	bool setTrustedClientsAddresses(const QStringList & a_addresses);
-
 protected:
 
 	QVariant valueInGroup(const QString & a_group, const QString & a_key,

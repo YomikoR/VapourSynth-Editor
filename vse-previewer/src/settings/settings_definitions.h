@@ -46,43 +46,26 @@ struct StandardAction
 
 //==============================================================================
 
-extern const bool DEFAULT_MAIN_WINDOW_MAXIMIZED;
 extern const bool DEFAULT_PREVIEW_DIALOG_MAXIMIZED;
-extern const bool DEFAULT_JOBS_DIALOG_MAXIMIZED;
-extern const bool DEFAULT_JOB_SERVER_WATCHER_MAXIMIZED;
-extern const bool DEFAULT_AUTO_LOAD_LAST_SCRIPT;
 extern const bool DEFAULT_ZOOM_PANEL_VISIBLE;
 extern const ZoomMode DEFAULT_ZOOM_MODE;
 extern const double DEFAULT_ZOOM_RATIO;
 extern const Qt::TransformationMode DEFAULT_SCALE_MODE;
 extern const CropMode DEFAULT_CROP_MODE;
 extern const int DEFAULT_CROP_ZOOM_RATIO;
-extern const bool DEFAULT_PROMPT_TO_SAVE_CHANGES;
-extern const unsigned int DEFAULT_MAX_RECENT_FILES_NUMBER;
-extern const QStringList DEFAULT_DOCUMENTATION_PATHS;
-extern const int DEFAULT_CHARACTERS_TYPED_TO_START_COMPLETION;
 extern const double DEFAULT_TIME_STEP;
 extern const TimeLineSlider::DisplayMode DEFAULT_TIMELINE_MODE;
 extern const bool DEFAULT_COLOR_PICKER_VISIBLE;
 extern const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE;
 extern const double DEFAULT_PLAY_FPS_LIMIT;
-extern const bool DEFAULT_USE_SPACES_AS_TAB;
-extern const int DEFAULT_SPACES_IN_TAB;
-extern const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME;
 extern const int DEFAULT_LAST_PREVIEW_FRAME;
-extern const bool DEFAULT_HIGHLIGHT_SELECTION_MATCHES;
-extern const int DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH;
 extern const bool DEFAULT_TIMELINE_PANEL_VISIBLE;
-extern const bool DEFAULT_ALWAYS_KEEP_CURRENT_FRAME;
 extern const QString DEFAULT_LAST_SNAPSHOT_EXTENSION;
 extern const int DEFAULT_FPS_DISPLAY_PRECISION;
 extern const double DEFAULT_TIMELINE_LABELS_HEIGHT;
-extern const char DEFAULT_DROP_FILE_TEMPLATE[];
-extern const int DEFAULT_MAX_WATCHER_CONNECTION_ATTEMPTS;
 extern const int DEFAULT_PNG_COMPRESSION_LEVEL;
 extern const bool DEFAULT_RELOAD_BEFORE_EXECUTION;
 extern const bool DEFAULT_DEBUG_MESSAGES;
-extern const bool DEFAULT_DARK_MODE;
 extern const bool DEFAULT_SILENT_SNAPSHOT;
 extern const QString DEFAULT_SNAPSHOT_TEMPLATE;
 
