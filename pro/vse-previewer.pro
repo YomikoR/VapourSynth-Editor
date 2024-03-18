@@ -210,6 +210,7 @@ contains(QMAKE_COMPILER, msvc) {
 	p2p.commands += -o ${QMAKE_FILE_OUT}
 	p2p.commands += -std=c++14
 	p2p.commands += -Wno-missing-field-initializers
+	p2p.commands += -msse4.1
 }
 macx {
 	p2p.commands += -Wno-gnu

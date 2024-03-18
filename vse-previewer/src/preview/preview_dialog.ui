@@ -640,19 +640,19 @@
   <customwidget>
    <class>PreviewArea</class>
    <extends>QWidget</extends>
-   <header>./preview_area.h</header>
+   <header>../../src/preview/preview_area.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>TimeLineSlider</class>
    <extends>QWidget</extends>
-   <header>../timeline_slider/timeline_slider.h</header>
+   <header>../../src/timeline_slider/timeline_slider.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ZoomRatioSpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header>./zoom_ratio_spinbox.h</header>
+   <header>../../src/preview/zoom_ratio_spinbox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

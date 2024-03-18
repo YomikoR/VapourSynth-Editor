@@ -3,7 +3,7 @@ THIS MANUAL IS A DRAFT. PLEASE REPORT ANY MISTAKES OR ADDITIONS AT https://githu
 ## Prerequisites
 
 You need C++17 (or higher) compiler and Qt 6 development distribution.
-In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev and libqt6websockets6-dev are required.
+In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev is required.
 
 Windows users may use Qt 6.5 or later for native dark mode support.
 
