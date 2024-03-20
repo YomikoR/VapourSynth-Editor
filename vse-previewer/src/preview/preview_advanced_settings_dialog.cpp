@@ -114,7 +114,6 @@ void PreviewAdvancedSettingsDialog::slotCall()
 	m_ui.silentSnapshotCheckBox->setChecked(silentSnapshotEnabled);
 	m_ui.saveSnapshotTemplateLineEdit->setText(
 		m_pSettingsManager->getSnapshotTemplate());
-	m_ui.saveSnapshotTemplateLineEdit->setEnabled(silentSnapshotEnabled);
 
 	show();
 }
@@ -189,7 +188,6 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 
 	m_ui.silentSnapshotCheckBox->setChecked(DEFAULT_SILENT_SNAPSHOT);
 	m_ui.saveSnapshotTemplateLineEdit->setText(DEFAULT_SNAPSHOT_TEMPLATE);
-	m_ui.saveSnapshotTemplateLineEdit->setEnabled(false);
 }
 
 // END OF void PreviewAdvancedSettingsDialog::slotResetToDefault()

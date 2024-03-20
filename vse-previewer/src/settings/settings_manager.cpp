@@ -42,7 +42,7 @@ const char THEME_GROUP[] = "theme";
 
 //==============================================================================
 
-const char PREVIEWER_GROUP[] = "previewer";
+const char PREVIEW_GROUP[] = "preview";
 
 //==============================================================================
 
@@ -246,8 +246,6 @@ bool SettingsManager::setHotkey(const QString & a_actionID,
 QTextCharFormat SettingsManager::getDefaultTextFormat(
 	const QString & a_textFormatID) const
 {
-	// Standard "Icecream" theme
-
 	QTextCharFormat defaultFormat;
 
 	if(a_textFormatID == TEXT_FORMAT_ID_COMMON_SCRIPT_TEXT)
@@ -337,32 +335,36 @@ bool SettingsManager::setColor(const QString & a_colorID,
 
 QByteArray SettingsManager::getPreviewDialogGeometry() const
 {
-	return value(PREVIEW_DIALOG_GEOMETRY_KEY).toByteArray();
+	return valueInGroup(PREVIEW_GROUP,
+		PREVIEW_DIALOG_GEOMETRY_KEY).toByteArray();
 }
 
 bool SettingsManager::setPreviewDialogGeometry(
 	const QByteArray & a_previewDialogGeometry)
 {
-	return setValue(PREVIEW_DIALOG_GEOMETRY_KEY, a_previewDialogGeometry);
+	return setValueInGroup(PREVIEW_GROUP,
+		PREVIEW_DIALOG_GEOMETRY_KEY, a_previewDialogGeometry);
 }
 
 //==============================================================================
 
 bool SettingsManager::getPreviewDialogMaximized() const
 {
-	return value(PREVIEW_DIALOG_MAXIMIZED_KEY,
+	return valueInGroup(PREVIEW_GROUP,
+		PREVIEW_DIALOG_MAXIMIZED_KEY,
 		DEFAULT_PREVIEW_DIALOG_MAXIMIZED).toBool();
 }
 
 bool SettingsManager::setPreviewDialogMaximized(bool a_previewDialogMaximized)
 {
-	return setValue(PREVIEW_DIALOG_MAXIMIZED_KEY, a_previewDialogMaximized);
+	return setValueInGroup(PREVIEW_GROUP,
+		PREVIEW_DIALOG_MAXIMIZED_KEY, a_previewDialogMaximized);
 }
 
 QPoint SettingsManager::getLastPreviewScrollBarPositions() const
 {
-	int x = valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_X, 0).toInt();
-	int y = valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_Y, 0).toInt();
+	int x = valueInGroup(PREVIEW_GROUP, LAST_PREVIEW_SCROLLBAR_POS_X, 0).toInt();
+	int y = valueInGroup(PREVIEW_GROUP, LAST_PREVIEW_SCROLLBAR_POS_Y, 0).toInt();
 	return QPoint(x, y);
 }
 
@@ -370,158 +372,173 @@ bool SettingsManager::setLastPreviewScrollBarPositions(const QPoint &pos)
 {
 	int x = pos.x();
 	int y = pos.y();
-    return setValueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_X, x)
-		&& setValueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_SCROLLBAR_POS_Y, y);
+    return setValueInGroup(PREVIEW_GROUP, LAST_PREVIEW_SCROLLBAR_POS_X, x)
+		&& setValueInGroup(PREVIEW_GROUP, LAST_PREVIEW_SCROLLBAR_POS_Y, y);
 }
 
 //==============================================================================
 
 bool SettingsManager::getZoomPanelVisible() const
 {
-	return value(ZOOM_PANEL_VISIBLE_KEY, DEFAULT_ZOOM_PANEL_VISIBLE).toBool();
+	return valueInGroup(PREVIEW_GROUP,
+		ZOOM_PANEL_VISIBLE_KEY, DEFAULT_ZOOM_PANEL_VISIBLE).toBool();
 }
 
 bool SettingsManager::setZoomPanelVisible(bool a_zoomPanelVisible)
 {
-	return setValue(ZOOM_PANEL_VISIBLE_KEY, a_zoomPanelVisible);
+	return setValueInGroup(PREVIEW_GROUP,
+		ZOOM_PANEL_VISIBLE_KEY, a_zoomPanelVisible);
 }
 
 //==============================================================================
 
 ZoomMode SettingsManager::getZoomMode() const
 {
-	return (ZoomMode)value(ZOOM_MODE_KEY, (int)DEFAULT_ZOOM_MODE).toInt();
+	return (ZoomMode)valueInGroup(PREVIEW_GROUP,
+		ZOOM_MODE_KEY, (int)DEFAULT_ZOOM_MODE).toInt();
 }
 
 bool SettingsManager::setZoomMode(ZoomMode a_zoomMode)
 {
-	return setValue(ZOOM_MODE_KEY, (int)a_zoomMode);
+	return setValueInGroup(PREVIEW_GROUP,
+		ZOOM_MODE_KEY, (int)a_zoomMode);
 }
 
 //==============================================================================
 
 double SettingsManager::getZoomRatio() const
 {
-	return value(ZOOM_RATIO_KEY, DEFAULT_ZOOM_RATIO).toDouble();
+	return valueInGroup(PREVIEW_GROUP,
+		ZOOM_RATIO_KEY, DEFAULT_ZOOM_RATIO).toDouble();
 }
 
 bool SettingsManager::setZoomRatio(double a_zoomRatio)
 {
-	return setValue(ZOOM_RATIO_KEY, a_zoomRatio);
+	return setValueInGroup(PREVIEW_GROUP, ZOOM_RATIO_KEY, a_zoomRatio);
 }
 
 //==============================================================================
 
 Qt::TransformationMode SettingsManager::getScaleMode() const
 {
-	return (Qt::TransformationMode)value(SCALE_MODE_KEY,
-		(int)DEFAULT_SCALE_MODE).toInt();
+	return (Qt::TransformationMode)valueInGroup(PREVIEW_GROUP,
+		SCALE_MODE_KEY, (int)DEFAULT_SCALE_MODE).toInt();
 }
 
 bool SettingsManager::setScaleMode(Qt::TransformationMode a_scaleMode)
 {
-	return setValue(SCALE_MODE_KEY, (int)a_scaleMode);
+	return setValueInGroup(PREVIEW_GROUP, SCALE_MODE_KEY, (int)a_scaleMode);
 }
 
 //==============================================================================
 
 CropMode SettingsManager::getCropMode() const
 {
-	return (CropMode)value(CROP_MODE_KEY, (int)DEFAULT_CROP_MODE).toInt();
+	return (CropMode)valueInGroup(PREVIEW_GROUP,
+		CROP_MODE_KEY, (int)DEFAULT_CROP_MODE).toInt();
 }
 
 bool SettingsManager::setCropMode(CropMode a_cropMode)
 {
-	return setValue(CROP_MODE_KEY, (int)a_cropMode);
+	return setValueInGroup(PREVIEW_GROUP, CROP_MODE_KEY, (int)a_cropMode);
 }
 
 //==============================================================================
 
 int SettingsManager::getCropZoomRatio() const
 {
-	return value(CROP_ZOOM_RATIO_KEY, DEFAULT_CROP_ZOOM_RATIO).toInt();
+	return valueInGroup(PREVIEW_GROUP,
+		CROP_ZOOM_RATIO_KEY, DEFAULT_CROP_ZOOM_RATIO).toInt();
 }
 
 bool SettingsManager::setCropZoomRatio(int a_cropZoomRatio)
 {
-	return setValue(CROP_ZOOM_RATIO_KEY, a_cropZoomRatio);
+	return setValueInGroup(PREVIEW_GROUP,
+		CROP_ZOOM_RATIO_KEY, a_cropZoomRatio);
 }
 
 //==============================================================================
 
 TimeLineSlider::DisplayMode SettingsManager::getTimeLineMode() const
 {
-	return (TimeLineSlider::DisplayMode)value(TIMELINE_MODE_KEY,
-		(int)DEFAULT_TIMELINE_MODE).toInt();
+	return (TimeLineSlider::DisplayMode)valueInGroup(PREVIEW_GROUP,
+		TIMELINE_MODE_KEY, (int)DEFAULT_TIMELINE_MODE).toInt();
 }
 
 bool SettingsManager::setTimeLineMode(
 	TimeLineSlider::DisplayMode a_timeLineMode)
 {
-	return setValue(TIMELINE_MODE_KEY, (int)a_timeLineMode);
+	return setValueInGroup(PREVIEW_GROUP,
+		TIMELINE_MODE_KEY, (int)a_timeLineMode);
 }
 
 //==============================================================================
 
 double SettingsManager::getTimeStep() const
 {
-	return value(TIME_STEP_KEY, DEFAULT_TIME_STEP).toDouble();
+	return valueInGroup(PREVIEW_GROUP,
+		TIME_STEP_KEY, DEFAULT_TIME_STEP).toDouble();
 }
 
 bool SettingsManager::setTimeStep(double a_timeStep)
 {
-	return setValue(TIME_STEP_KEY, a_timeStep);
+	return setValueInGroup(PREVIEW_GROUP,
+		TIME_STEP_KEY, a_timeStep);
 }
 
 //==============================================================================
 
 bool SettingsManager::getColorPickerVisible() const
 {
-	return value(COLOR_PICKER_VISIBLE_KEY,
-		DEFAULT_COLOR_PICKER_VISIBLE).toBool();
+	return valueInGroup(PREVIEW_GROUP,
+		COLOR_PICKER_VISIBLE_KEY, DEFAULT_COLOR_PICKER_VISIBLE).toBool();
 }
 
 bool SettingsManager::setColorPickerVisible(bool a_colorPickerVisible)
 {
-	return setValue(COLOR_PICKER_VISIBLE_KEY, a_colorPickerVisible);
+	return setValueInGroup(PREVIEW_GROUP,
+		COLOR_PICKER_VISIBLE_KEY, a_colorPickerVisible);
 }
 
 //==============================================================================
 
 PlayFPSLimitMode SettingsManager::getPlayFPSLimitMode() const
 {
-	return (PlayFPSLimitMode)value(PLAY_FPS_LIMIT_MODE_KEY,
-		(int)DEFAULT_PLAY_FPS_LIMIT_MODE).toInt();
+	return (PlayFPSLimitMode)valueInGroup(PREVIEW_GROUP,
+		PLAY_FPS_LIMIT_MODE_KEY, (int)DEFAULT_PLAY_FPS_LIMIT_MODE).toInt();
 }
 
 bool SettingsManager::setPlayFPSLimitMode(PlayFPSLimitMode a_mode)
 {
-	return setValue(PLAY_FPS_LIMIT_MODE_KEY, (int)a_mode);
+	return setValueInGroup(PREVIEW_GROUP,
+		PLAY_FPS_LIMIT_MODE_KEY, (int)a_mode);
 }
 
 //==============================================================================
 
 double SettingsManager::getPlayFPSLimit() const
 {
-	return value(PLAY_FPS_LIMIT_KEY, DEFAULT_PLAY_FPS_LIMIT).toDouble();
+	return valueInGroup(PREVIEW_GROUP,
+		PLAY_FPS_LIMIT_KEY, DEFAULT_PLAY_FPS_LIMIT).toDouble();
 }
 
 bool SettingsManager::setPlayFPSLimit(double a_limit)
 {
-	return setValue(PLAY_FPS_LIMIT_KEY, a_limit);
+	return setValueInGroup(PREVIEW_GROUP,
+		PLAY_FPS_LIMIT_KEY, a_limit);
 }
 
 //==============================================================================
 
 int SettingsManager::getLastPreviewFrame() const
 {
-	return valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_FRAME_KEY,
+	return valueInGroup(PREVIEW_GROUP, LAST_PREVIEW_FRAME_KEY,
 		DEFAULT_LAST_PREVIEW_FRAME).toInt();
 }
 
 bool SettingsManager::setLastPreviewFrame(int a_frameNumber)
 {
-	return setValueInGroup(PREVIEWER_GROUP,
+	return setValueInGroup(PREVIEW_GROUP,
 		LAST_PREVIEW_FRAME_KEY, a_frameNumber);
 }
 
@@ -529,89 +546,14 @@ bool SettingsManager::setLastPreviewFrame(int a_frameNumber)
 
 bool SettingsManager::getTimeLinePanelVisible() const
 {
-	return value(TIMELINE_PANEL_VISIBLE_KEY,
-		DEFAULT_TIMELINE_PANEL_VISIBLE).toBool();
+	return valueInGroup(PREVIEW_GROUP,
+		TIMELINE_PANEL_VISIBLE_KEY, DEFAULT_TIMELINE_PANEL_VISIBLE).toBool();
 }
 
 bool SettingsManager::setTimeLinePanelVisible(bool a_visible)
 {
-	return setValue(TIMELINE_PANEL_VISIBLE_KEY, a_visible);
-}
-
-//==============================================================================
-
-std::vector<TextBlockStyle> SettingsManager::getLogStyles(
-	const QString & a_logName) const
-{
-	std::vector<TextBlockStyle> styles;
-
-	if(a_logName.isEmpty())
-		return styles;
-
-	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
-	settings.beginGroup(LOGS_GROUP);
-
-	QStringList logNames = settings.childGroups();
-	if(!logNames.contains(a_logName))
-		return styles;
-
-	settings.beginGroup(a_logName);
-	settings.beginGroup(LOG_STYLES_GROUP);
-
-	QStringList styleNames = settings.childGroups();
-	for(const QString & styleName : styleNames)
-	{
-		settings.beginGroup(styleName);
-
-		TextBlockStyle style;
-		style.name = styleName;
-		style.title = settings.value(LOG_STYLE_TITLE_KEY).toString();
-		if(settings.contains(LOG_STYLE_TEXT_FORMAT_KEY))
-			style.textFormat = qvariant_cast<QTextFormat>(
-				settings.value(LOG_STYLE_TEXT_FORMAT_KEY)).toCharFormat();
-		style.isAlias = settings.value(LOG_STYLE_IS_ALIAS_KEY, false).toBool();
-		style.originalStyleName =
-			settings.value(LOG_STYLE_ORIGINAL_STYLE_NAME_KEY).toString();
-		style.isVisible =
-			settings.value(LOG_STYLE_IS_VISIBLE_KEY, true).toBool();
-
-		styles.push_back(style);
-
-		settings.endGroup();
-	}
-
-	return styles;
-}
-
-bool SettingsManager::setLogStyles(const QString & a_logName,
-	const std::vector<TextBlockStyle> a_styles)
-{
-	if(a_logName.isEmpty())
-		return false;
-
-	if(a_styles.empty())
-		return false;
-
-	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
-	settings.beginGroup(LOGS_GROUP);
-	settings.beginGroup(a_logName);
-	settings.remove(LOG_STYLES_GROUP);
-	settings.beginGroup(LOG_STYLES_GROUP);
-	for(const TextBlockStyle & style : a_styles)
-	{
-		settings.beginGroup(style.name);
-		settings.setValue(LOG_STYLE_TITLE_KEY, style.title);
-		settings.setValue(LOG_STYLE_TEXT_FORMAT_KEY, style.textFormat);
-		settings.setValue(LOG_STYLE_IS_ALIAS_KEY, style.isAlias);
-		settings.setValue(LOG_STYLE_ORIGINAL_STYLE_NAME_KEY,
-			style.originalStyleName);
-		settings.setValue(LOG_STYLE_IS_VISIBLE_KEY, style.isVisible);
-		settings.endGroup();
-	}
-
-	settings.sync();
-	bool success = (QSettings::NoError == settings.status());
-	return success;
+	return setValueInGroup(PREVIEW_GROUP,
+		TIMELINE_PANEL_VISIBLE_KEY, a_visible);
 }
 
 //==============================================================================

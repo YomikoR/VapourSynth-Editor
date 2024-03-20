@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Settings - VapourSynth Editor</string>
+   <string>Additional Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -111,7 +111,7 @@
        <item>
         <widget class="QLabel" name="portableModeLabel">
          <property name="text">
-          <string>Portable mode means that vse-previewer stores its settings in the same folder with its executable. Editors determines if it is running in portable mode by looking for the configuration file in its folder. Please make sure you have the rights to write files in the editor's folder before you switch to this mode.</string>
+          <string>Portable mode means that VSE-Previewer stores its settings in the file vse-previewer.conf next to the main executable.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -379,7 +379,7 @@
          <item row="1" column="0">
           <widget class="QPushButton" name="colourButton">
            <property name="text">
-            <string>Colour</string>
+            <string>Color</string>
            </property>
           </widget>
          </item>

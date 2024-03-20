@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Preview Advanced Settings</string>
+   <string>Preview Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -186,11 +186,18 @@
    <item row="8" column="0">
     <widget class="QCheckBox" name="silentSnapshotCheckBox">
      <property name="text">
-      <string>Silently save snapshots with template:</string>
+      <string>Save snapshots silently</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="0">
+    <widget class="QLabel" name="snapshotTemplateLabel">
+     <property name="text">
+      <string>Snapshot naming template: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
     <widget class="QToolButton" name="argumentsHelpButton">
      <property name="text">
      </property>
@@ -200,7 +207,7 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
+   <item row="10" column="0" colspan="2">
     <widget class="QLineEdit" name="saveSnapshotTemplateLineEdit">
     </widget>
    </item>

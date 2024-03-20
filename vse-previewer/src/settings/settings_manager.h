@@ -116,11 +116,6 @@ public:
 
 	bool setTimeLinePanelVisible(bool a_visible);
 
-	std::vector<TextBlockStyle> getLogStyles(const QString & a_logName) const;
-
-	bool setLogStyles(const QString & a_logName,
-		const std::vector<TextBlockStyle> a_styles);
-
 	QString getLastSnapshotExtension() const;
 
 	bool setLastSnapshotExtension(const QString & a_extension);
