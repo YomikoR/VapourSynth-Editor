@@ -95,6 +95,16 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
+	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
+	if(!m_cpVSAPI)
+	{
+		finalize();
+		return false;
+	}
+
+	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+	m_cpVSAPI->getCoreInfo(pCore, &m_cpCoreInfo);
+
 	int opresult = m_pVSScriptLibrary->evaluateScript(m_pVSScript,
 		a_script.toUtf8().constData(), a_scriptName.toUtf8().constData());
 
@@ -111,16 +121,6 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		finalize();
 		return false;
 	}
-
-	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
-	if(!m_cpVSAPI)
-	{
-		finalize();
-		return false;
-	}
-
-	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
-	m_cpVSAPI->getCoreInfo(pCore, &m_cpCoreInfo);
 
 	VSNode * pOutputNode = m_pVSScriptLibrary->getOutput(
 		m_pVSScript, a_outputIndex);

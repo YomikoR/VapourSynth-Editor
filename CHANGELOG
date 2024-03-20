@@ -4,3 +4,4 @@ Show core cache usage in status bar
 Remove 2020_CL option in preview advanced settings
 Fix duplicated VS messages sent from core
 Accept -a/--arg arguments like in vspipe
+Fix filter message not shown before full evaluation
