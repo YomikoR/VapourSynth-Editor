@@ -1,3 +1,9 @@
+r19-mod-6.4
+-BUGFIX: Filter logs are not shown before script is evaluated.
+-BUGFIX: VS messages sent from core are duplicated.
+Add core cache usage data in status bar.
+2020_CL option is removed from preview advanced settings.
+
 r19-mod-6.3
 -BUGFIX: On Linux the previewer refuses to quit.
 -In Windows 10 and later console window can show colored text (with ANSI escape sequences).
