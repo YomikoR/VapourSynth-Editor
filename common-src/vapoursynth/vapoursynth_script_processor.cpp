@@ -82,24 +82,6 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	int opresult = m_pVSScriptLibrary->evaluateScript(&m_pVSScript,
-		a_script.toUtf8().constData(), a_scriptName.toUtf8().constData(),
-		efSetWorkingDir);
-
-	if(opresult)
-	{
-		m_error = tr("Failed to evaluate the script");
-		const char * vsError = m_pVSScriptLibrary->getError(m_pVSScript);
-		if(vsError)
-			m_error += QString(":\n") + vsError;
-		else
-			m_error += '.';
-
-		emit signalWriteLogMessage(mtCritical, m_error);
-		finalize();
-		return false;
-	}
-
 	m_cpVSAPI = m_pVSScriptLibrary->getVSAPI();
 	if(!m_cpVSAPI)
 	{
@@ -114,6 +96,24 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	{
 		m_error = tr("VapourSynth R47+ required for preview. "
 			"Or use official VapourSynth Editor R19 instead.");
+		emit signalWriteLogMessage(mtCritical, m_error);
+		finalize();
+		return false;
+	}
+
+	int opresult = m_pVSScriptLibrary->evaluateScript(&m_pVSScript,
+		a_script.toUtf8().constData(), a_scriptName.toUtf8().constData(),
+		efSetWorkingDir);
+
+	if(opresult)
+	{
+		m_error = tr("Failed to evaluate the script");
+		const char * vsError = m_pVSScriptLibrary->getError(m_pVSScript);
+		if(vsError)
+			m_error += QString(":\n") + vsError;
+		else
+			m_error += '.';
+
 		emit signalWriteLogMessage(mtCritical, m_error);
 		finalize();
 		return false;
