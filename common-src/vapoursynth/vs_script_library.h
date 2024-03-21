@@ -78,6 +78,8 @@ private:
 
 	const VSAPI * m_cpVSAPI;
 
+	VSLogHandle * m_pLogHandle;
+
 	int m_VSAPIMajor;
 	int m_VSAPIMinor;
 	int m_VSSAPIMajor;
