@@ -756,19 +756,14 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	}
 
-	VSMap * pPackedMap = m_cpVSAPI->createMap();
-
-	to_10_bit ?
-		packCreateRGB30(pResultMap, pPackedMap, pCore, m_cpVSAPI):
-		packCreateRGB24(pResultMap, pPackedMap, pCore, m_cpVSAPI);
-
+	VSNode * pRGBNode = m_cpVSAPI->mapGetNode(pResultMap, "clip", 0, nullptr);
 	m_cpVSAPI->freeMap(pResultMap);
 
-	VSNode * pPreviewNode = m_cpVSAPI->mapGetNode(pPackedMap, "clip", 0, nullptr);
+	VSNode * pPreviewNode = packRGBFilter(pRGBNode, a_nodePair.pOutputNode,
+		to_10_bit, pCore, m_cpVSAPI);
+
 	Q_ASSERT(pPreviewNode);
 	a_nodePair.pPreviewNode = pPreviewNode;
-
-	m_cpVSAPI->freeMap(pPackedMap);
 
 	return true;
 }
