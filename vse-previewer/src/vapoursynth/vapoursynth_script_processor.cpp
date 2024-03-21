@@ -179,16 +179,6 @@ bool VapourSynthScriptProcessor::finalize()
 	if(!noFrameTicketsInProcess)
 		return false;
 
-	for(std::pair<const int, NodePair> & mapItem : m_nodePairForOutputIndex)
-	{
-		NodePair & nodePair = mapItem.second;
-		if(nodePair.pOutputNode)
-			m_cpVSAPI->freeNode(nodePair.pOutputNode);
-		if(nodePair.pPreviewNode)
-			m_cpVSAPI->freeNode(nodePair.pPreviewNode);
-	}
-	m_nodePairForOutputIndex.clear();
-
 	if(m_pVSScript)
 	{
 		m_pVSScriptLibrary->freeScript(m_pVSScript);
@@ -272,7 +262,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 
 	Q_ASSERT(m_cpVSAPI);
 
-	NodePair & nodePair = getNodePair(a_outputIndex);
+	NodePair nodePair = getNodePair(a_outputIndex);
 	if(!nodePair.pOutputNode)
 		return false;
 
@@ -395,12 +385,6 @@ void VapourSynthScriptProcessor::slotResetSettings()
 
 	m_ditherType = m_pSettingsManager->getDitherType();
 
-	for(std::pair<const int, NodePair> & mapItem : m_nodePairForOutputIndex)
-	{
-		NodePair & nodePair = mapItem.second;
-		if(nodePair.pPreviewNode)
-			recreatePreviewNode(nodePair);
-	}
 }
 
 // END OF void VapourSynthScriptProcessor::slotResetSettings()
@@ -512,7 +496,7 @@ void VapourSynthScriptProcessor::processFrameTicketsQueue()
 		m_frameTicketsQueue.pop_front();
 
 		// In case preview node was hot-swapped.
-		NodePair & nodePair =
+		NodePair nodePair =
 			getNodePair(ticket.outputIndex);
 
 		bool validPair = (nodePair.pOutputNode != nullptr);
@@ -566,21 +550,21 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 // END OF void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 //==============================================================================
 
-bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
+bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair * a_nodePair)
 {
-	if(!a_nodePair.pOutputNode)
+	if(!a_nodePair->pOutputNode)
 		return false;
 
 	if(!m_cpVSAPI)
 		return false;
 
-	if(a_nodePair.pPreviewNode)
+	if(a_nodePair->pPreviewNode)
 	{
-		m_cpVSAPI->freeNode(a_nodePair.pPreviewNode);
-		a_nodePair.pPreviewNode = nullptr;
+		m_cpVSAPI->freeNode(a_nodePair->pPreviewNode);
+		a_nodePair->pPreviewNode = nullptr;
 	}
 
-	int outputMediaType = m_cpVSAPI->getNodeType(a_nodePair.pOutputNode);
+	int outputMediaType = m_cpVSAPI->getNodeType(a_nodePair->pOutputNode);
 	if(outputMediaType == mtAudio)
 	{
 		m_error = tr("Audio playback is not supported.");
@@ -589,7 +573,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	}
 
 	const VSVideoInfo * cpVideoInfo =
-		m_cpVSAPI->getVideoInfo(a_nodePair.pOutputNode);
+		m_cpVSAPI->getVideoInfo(a_nodePair->pOutputNode);
 	if(!cpVideoInfo)
 		return false;
 	const VSVideoFormat * cpFormat = &cpVideoInfo->format;
@@ -603,14 +587,14 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	{
 		to_10_bit = false;
 		pResultMap = m_cpVSAPI->createMap();
-		m_cpVSAPI->mapSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
+		m_cpVSAPI->mapSetNode(pResultMap, "clip", a_nodePair->pOutputNode,
 			maReplace);
 	}
 	else if(to_10_bit &&
 		vsh::isSameVideoPresetFormat(pfRGB30, cpFormat, pCore, m_cpVSAPI))
 	{
 		pResultMap = m_cpVSAPI->createMap();
-		m_cpVSAPI->mapSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
+		m_cpVSAPI->mapSetNode(pResultMap, "clip", a_nodePair->pOutputNode,
 			maReplace);
 	}
 	else
@@ -689,7 +673,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		VSMap *pTempMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->copyMap(pArgumentMap, pTempMap);
 		m_cpVSAPI->mapSetNode(pTempMap, "clip",
-			a_nodePair.pOutputNode, maReplace);
+			a_nodePair->pOutputNode, maReplace);
 		setMatrixFilter(pTempMap, pArgumentMap, pCore, m_cpVSAPI);
 		m_cpVSAPI->clearMap(pTempMap);
 
@@ -758,7 +742,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 	VSNode * pPreviewNode = m_cpVSAPI->mapGetNode(pPackedMap, "clip", 0, nullptr);
 	Q_ASSERT(pPreviewNode);
-	a_nodePair.pPreviewNode = pPreviewNode;
+	a_nodePair->pPreviewNode = pPreviewNode;
 
 	m_cpVSAPI->freeMap(pPackedMap);
 
@@ -805,36 +789,30 @@ void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 //		FrameTicket & a_ticket)
 //==============================================================================
 
-NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex)
+NodePair VapourSynthScriptProcessor::getNodePair(int a_outputIndex)
 {
-	NodePair & nodePair = m_nodePairForOutputIndex[a_outputIndex];
+	Q_ASSERT(m_cpVSAPI);
 
-	if(!nodePair.pOutputNode)
+	NodePair nodePair(m_cpVSAPI);
+
+	VSNode *pOutputNode =
+		m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
+	if(!pOutputNode)
 	{
-		Q_ASSERT(!nodePair.pPreviewNode);
-
-		nodePair.pOutputNode =
-			m_pVSScriptLibrary->getOutput(m_pVSScript, a_outputIndex);
-		if(!nodePair.pOutputNode)
-		{
-			m_error = tr("Couldn't resolve output node #%1.")
-				.arg(a_outputIndex);
-			emit signalWriteLogMessage(
-				a_outputIndex == 0 ? mtCritical : mtWarning, m_error);
-			return nodePair;
-		}
+		m_error = tr("Couldn't resolve output node #%1.")
+			.arg(a_outputIndex);
+		emit signalWriteLogMessage(
+			a_outputIndex == 0 ? mtCritical : mtWarning, m_error);
 	}
+	nodePair.pOutputNode = pOutputNode;
+	nodePair.outputIndex = a_outputIndex;
 
-	if(!nodePair.pPreviewNode)
+	bool previewNodeCreated = recreatePreviewNode(&nodePair);
+	if(!previewNodeCreated)
 	{
-		bool previewNodeCreated = recreatePreviewNode(nodePair);
-		if(!previewNodeCreated)
-		{
-			m_error = tr("Couldn't create preview node for output "
-				"#%1.").arg(a_outputIndex);
-			emit signalWriteLogMessage(mtCritical, m_error);
-			return nodePair;
-		}
+		m_error = tr("Couldn't create preview node for output "
+			"#%1.").arg(a_outputIndex);
+		emit signalWriteLogMessage(mtCritical, m_error);
 	}
 
 	return nodePair;

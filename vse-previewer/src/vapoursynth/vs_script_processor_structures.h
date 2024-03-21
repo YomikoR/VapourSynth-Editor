@@ -44,13 +44,16 @@ struct NodePair
 	int outputIndex;
 	VSNode * pOutputNode;
 	VSNode * pPreviewNode;
+	const VSAPI * cpVSAPI;
 
-	NodePair();
+	NodePair(const VSAPI * a_cpVSAPI);
 	NodePair(int a_outputIndex, VSNode * a_pOutputNode,
-		VSNode * a_pPreviewNode);
+		VSNode * a_pPreviewNode, const VSAPI * a_cpVSAPI);
 
 	bool isNull() const;
 	bool isValid() const;
+
+	~NodePair();
 };
 
 //==============================================================================

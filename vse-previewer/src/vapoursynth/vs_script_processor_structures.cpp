@@ -43,20 +43,22 @@ bool FrameTicket::isComplete() const
 
 //==============================================================================
 
-NodePair::NodePair():
+NodePair::NodePair(const VSAPI * a_cpVSAPI):
 	  outputIndex(-1)
 	, pOutputNode(nullptr)
 	, pPreviewNode(nullptr)
+	, cpVSAPI(a_cpVSAPI)
 {
 }
 
 //==============================================================================
 
 NodePair::NodePair(int a_outputIndex, VSNode * a_pOutputNode,
-	VSNode * a_pPreviewNode):
+	VSNode * a_pPreviewNode, const VSAPI * a_cpVSAPI):
 	  outputIndex(a_outputIndex)
 	, pOutputNode(a_pOutputNode)
 	, pPreviewNode(a_pPreviewNode)
+	, cpVSAPI(a_cpVSAPI)
 {
 }
 
@@ -74,6 +76,15 @@ bool NodePair::isValid() const
 {
 	return ((outputIndex >= 0) && (pOutputNode != nullptr) &&
 		(pPreviewNode != nullptr));
+}
+
+NodePair::~NodePair()
+{
+	if(cpVSAPI)
+	{
+		cpVSAPI->freeNode(pOutputNode);
+		cpVSAPI->freeNode(pPreviewNode);
+	}
 }
 
 //==============================================================================

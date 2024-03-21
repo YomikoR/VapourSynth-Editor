@@ -87,11 +87,11 @@ private:
 
 	void sendFrameQueueChangeSignal();
 
-	bool recreatePreviewNode(NodePair & a_nodePair);
+	bool recreatePreviewNode(NodePair * a_nodePair);
 
 	void freeFrameTicket(FrameTicket & a_ticket);
 
-	NodePair & getNodePair(int a_outputIndex);
+	NodePair getNodePair(int a_outputIndex);
 
 	SettingsManagerCore * m_pSettingsManager;
 
@@ -114,7 +114,6 @@ private:
 
 	std::deque<FrameTicket> m_frameTicketsQueue;
 	std::vector<FrameTicket> m_frameTicketsInProcess;
-	std::map<int, NodePair> m_nodePairForOutputIndex;
 
 	ResamplingFilter m_chromaResamplingFilter;
 	ChromaPlacement m_chromaPlacement;
