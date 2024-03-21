@@ -128,6 +128,22 @@ public:
 		}
 	}
 
+	double fps() const
+	{
+		if (m_mediaType == mtAudio)
+		{
+			return (double)m_pTA->sampleRate / VS_AUDIO_FRAME_SAMPLES;
+		}
+		else if (m_mediaType == mtVideo)
+		{
+			auto fpsDen = m_pTV->fpsDen;
+			if (fpsDen == 0)
+				return 0.0;
+			return (double)m_pTV->fpsNum / (double)fpsDen;
+		}
+		return 0.0;
+	}
+
 };
 
 class VSFrameFormat : public VSMediaTypePicker<VSVideoFormat, VSAudioFormat>

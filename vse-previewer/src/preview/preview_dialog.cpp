@@ -282,7 +282,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 		lastFrameNumber = ai->numFrames - 1;
 		m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 		m_ui.frameNumberSlider->setFramesNumber(ai->numFrames, false);
-		m_ui.frameNumberSlider->setFPS(0.0); // TODO
 
 		if(m_ui.cropCheckButton->isChecked())
 			m_ui.cropCheckButton->click();
@@ -1404,21 +1403,15 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		m_secondsBetweenFrames = 1.0 / limit;
 	else if(mode == PlayFPSLimitMode::FromVideo)
 	{
-		// TODO
-		const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
-		if(!vi)
-			m_secondsBetweenFrames = 0.0;
-		else if(vi->fpsNum == 0ll)
+		double nativeFPS = m_nodeInfo[m_outputIndex].fps();
+		if(nativeFPS == 0.0)
 		{
+			// Will decide duration by video frame props
 			m_nativePlaybackRate = true;
 			m_secondsBetweenFrames = 0.0;
 		}
 		else
-		{
-			m_secondsBetweenFrames =
-				(double)vi->fpsDen /
-				(double)vi->fpsNum;
-		}
+			m_secondsBetweenFrames = 1.0 / nativeFPS;
 	}
 	else
 		Q_ASSERT(false);
@@ -1542,18 +1535,11 @@ void PreviewDialog::slotLoadChapters()
 	if(m_playing)
 		return;
 
-	VSNodeInfo nodeInfo =
-		m_pVapourSynthScriptProcessor->nodeInfo(m_outputIndex);
+	VSNodeInfo nodeInfo = m_nodeInfo[m_outputIndex];
 
-	if(!nodeInfo.isVideo())
-		return;
+	double nativeFPS = nodeInfo.fps();
 
-	const VSVideoInfo * vi = nodeInfo.getAsVideo();
-	// TODO
-	if(!vi)
-		return;
-
-	if (vi->fpsDen == 0)
+	if (nativeFPS == 0.0)
 	{
 		QString infoString = tr(
 			"Warning: Load chapters requires clip having constant frame rate. Skipped");
@@ -1568,8 +1554,6 @@ void PreviewDialog::slotLoadChapters()
 	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 
-	const double fps = (double)vi->fpsNum / (double)vi->fpsDen;
-
 	static const QRegularExpression re(R"((\d{2}):(\d{2}):(\d{2})[\.:](\d{3})?)");
     while (!chaptersFile.atEnd())
     {
@@ -1582,7 +1566,7 @@ void PreviewDialog::slotLoadChapters()
                                      matched.at(2).toDouble() * 60.0 +
                                      matched.at(3).toDouble() +
                                      matched.at(4).toDouble() / 1000;
-            int frameIndex = std::round(timestamp * fps);
+            int frameIndex = std::round(timestamp * nativeFPS);
             m_ui.frameNumberSlider->addBookmark(frameIndex);
         }
     }
@@ -2197,7 +2181,7 @@ void PreviewDialog::setUpTimeLinePanel()
     m_ui.timeStepForwardButton->setDefaultAction(m_pActionTimeStepForward);
     m_ui.timeStepBackButton->setDefaultAction(m_pActionTimeStepBack);
 
-    m_ui.playFpsLimitModeComboBox->addItem(tr("From video"),
+    m_ui.playFpsLimitModeComboBox->addItem(tr("From script"),
 		(int)PlayFPSLimitMode::FromVideo);
     m_ui.playFpsLimitModeComboBox->addItem(tr("No limit"),
 		(int)PlayFPSLimitMode::NoLimit);
