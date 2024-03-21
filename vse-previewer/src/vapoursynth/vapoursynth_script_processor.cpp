@@ -135,18 +135,6 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	m_nodeInfo = VSNodeInfo(pOutputNode, m_cpVSAPI);
 
-	if(m_nodeInfo.isAudio())
-	{
-		m_cpVSAPI->freeNode(pOutputNode);
-		m_error = tr("Output node #%1 is audio. "
-			"Previewing and encoding audio are not supported.")
-			.arg(a_outputIndex);
-		emit signalWriteLogMessage(
-			a_outputIndex == 0 ? mtCritical : mtWarning, m_error);
-		finalize();
-		return false;
-	}
-
 	if(m_nodeInfo.isVideo() &&
 		m_nodeInfo.getAsVideo()->format.colorFamily == cfUndefined)
 	{
@@ -294,7 +282,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	if(a_frameNumber >= numFrames)
 	{
 		m_error = tr("Requested frame number %1 is outside the frame "
-			"range.").arg(a_outputIndex);
+			"range.").arg(a_frameNumber);
 		emit signalWriteLogMessage(mtCritical, m_error);
 		return false;
 	}
@@ -583,9 +571,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	int outputMediaType = m_cpVSAPI->getNodeType(a_nodePair.pOutputNode);
 	if(outputMediaType == mtAudio)
 	{
-		m_error = tr("Audio playback is not supported.");
-		emit signalWriteLogMessage(mtCritical, m_error);
-		return false;
+		return recreateAudioPreviewNode(a_nodePair);
 	}
 
 	const VSVideoInfo * cpVideoInfo =
@@ -760,6 +746,40 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	return true;
 }
 
+bool VapourSynthScriptProcessor::recreateAudioPreviewNode(NodePair &a_nodePair)
+{
+	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+	Q_ASSERT(pCore);
+
+	const VSAudioInfo * cpAudioInfo =
+		m_cpVSAPI->getAudioInfo(a_nodePair.pOutputNode);
+
+	VSMap * map = m_cpVSAPI->createMap();
+	VSPlugin *stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, pCore);
+	m_cpVSAPI->mapSetInt(map, "length", cpAudioInfo->numFrames, maReplace);
+	m_cpVSAPI->mapSetInt(map, "width", 960, maReplace);
+	m_cpVSAPI->mapSetInt(map, "height", 540, maReplace);
+	VSMap * blankMap = m_cpVSAPI->invoke(stdPlugin, "BlankClip", map);
+	m_cpVSAPI->clearMap(map);
+
+	QString props = vsedit::nodeInfoString(
+		nodeInfo(a_nodePair.outputIndex), m_cpVSAPI);
+	QString text = QString("Audio node #%1\n\n").arg(a_nodePair.outputIndex)
+		+ props.replace("| ", "\n");
+    m_cpVSAPI->mapSetData(blankMap, "text", text.toStdString().c_str(),
+		text.size(), dtUtf8, maReplace);
+	VSPlugin * textPlugin = m_cpVSAPI->getPluginByID(VSH_TEXT_PLUGIN_ID, pCore);
+    VSMap * textMap = m_cpVSAPI->invoke(textPlugin, "Text", blankMap);
+	m_cpVSAPI->clearMap(blankMap);
+
+	VSNode * textClip = m_cpVSAPI->mapGetNode(textMap, "clip", 0, nullptr);
+	m_cpVSAPI->clearMap(textMap);
+
+	a_nodePair.pPreviewNode = packRGBFilter(textClip, a_nodePair.pOutputNode,
+		false, pCore, m_cpVSAPI);
+    return true;
+}
+
 // END OF bool VapourSynthScriptProcessor::recreatePreviewNode(
 //		NodePair & a_nodePair)
 //==============================================================================
@@ -803,6 +823,8 @@ void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex)
 {
 	NodePair & nodePair = m_nodePairForOutputIndex[a_outputIndex];
+
+	nodePair.outputIndex = a_outputIndex;
 
 	if(!nodePair.pOutputNode)
 	{
