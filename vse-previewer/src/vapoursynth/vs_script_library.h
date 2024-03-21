@@ -82,6 +82,8 @@ private:
 
 	VSMap * m_pArguments;
 
+	VSLogHandle * m_pLogHandle;
+
 	int m_VSAPIMajor;
 	int m_VSAPIMinor;
 	int m_VSSAPIMajor;

@@ -34,6 +34,7 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	, m_VSAPIMinor(VSE_VS_API_VER_MINOR)
 	, m_VSSAPIMajor(VSE_VSS_API_VER_MAJOR)
 	, m_VSSAPIMinor(VSE_VSS_API_VER_MINOR)
+	, m_pLogHandle(nullptr)
 {
 	Q_ASSERT(m_pSettingsManager);
 }
@@ -210,7 +211,8 @@ VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 		return nullptr;
 	}
 
-	m_cpVSAPI->addLogHandler(vsMessageHandler, nullptr, this, pCore);
+	if(!m_pLogHandle)
+		m_pLogHandle = m_cpVSAPI->addLogHandler(vsMessageHandler, nullptr, this, pCore);
 	return pCore;
 }
 
