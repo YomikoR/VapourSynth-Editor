@@ -3,7 +3,7 @@
 #include <vapoursynth/VSHelper4.h>
 #include <vapoursynth/VSConstants4.h>
 
-const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
+const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *instanceData, [[maybe_unused]] void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
     VSNode *node = reinterpret_cast<VSNode *>(instanceData);
     if (activationReason == arInitial)
@@ -32,7 +32,7 @@ const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *insta
     return nullptr;
 }
 
-void VS_CC setMatrixFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
+void VS_CC setMatrixFree(void *instanceData, [[maybe_unused]] VSCore *core, const VSAPI *vsapi)
 {
     vsapi->freeNode(reinterpret_cast<VSNode *>(instanceData));
 }

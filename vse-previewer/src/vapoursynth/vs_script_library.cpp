@@ -30,11 +30,11 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	, m_cpVSSAPI(nullptr)
 	, m_cpVSAPI(nullptr)
 	, m_pArguments(nullptr)
+	, m_pLogHandle(nullptr)
 	, m_VSAPIMajor(VSE_VS_API_VER_MAJOR)
 	, m_VSAPIMinor(VSE_VS_API_VER_MINOR)
 	, m_VSSAPIMajor(VSE_VSS_API_VER_MAJOR)
 	, m_VSSAPIMinor(VSE_VSS_API_VER_MINOR)
-	, m_pLogHandle(nullptr)
 {
 	Q_ASSERT(m_pSettingsManager);
 }

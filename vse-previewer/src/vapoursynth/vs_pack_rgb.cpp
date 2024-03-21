@@ -12,7 +12,7 @@ struct packData
     enum p2p_packing packing_fmt;
 };
 
-const VSFrame * VS_CC packGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
+const VSFrame * VS_CC packGetFrame(int n, int activationReason, void *instanceData, [[maybe_unused]] void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
     packData *d = reinterpret_cast<packData *>(instanceData);
 
@@ -48,7 +48,7 @@ const VSFrame * VS_CC packGetFrame(int n, int activationReason, void *instanceDa
     return nullptr;
 }
 
-void VS_CC packFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
+void VS_CC packFree(void *instanceData, [[maybe_unused]] VSCore *core, const VSAPI *vsapi)
 {
     packData *d = reinterpret_cast<packData *>(instanceData);
     vsapi->freeNode(d->node);
