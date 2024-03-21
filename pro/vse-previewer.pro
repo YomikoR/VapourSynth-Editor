@@ -5,6 +5,7 @@ lessThan(QT_MAJOR_VERSION, 6) {
 CONFIG += qt
 
 QT += widgets
+QT += multimedia
 
 win32 {
 	CONFIG += console

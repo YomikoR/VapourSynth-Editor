@@ -36,6 +36,7 @@
 #include <QInputDialog>
 #include <QRegularExpression>
 #include <QResource>
+#include <QMediaDevices>
 #include <algorithm>
 #include <cmath>
 
@@ -287,6 +288,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 			m_ui.cropCheckButton->click();
 		m_ui.cropCheckButton->setEnabled(false);
 		m_ui.saveSnapshotButton->setEnabled(false);
+
+		setAudioOutput();
 	}
 
 	if(m_frameExpected > lastFrameNumber)
@@ -562,6 +565,7 @@ void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 	}
 
 	requestingFrame = false;
+	playAudioFrame();
 }
 // END OF void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 //==============================================================================
@@ -1501,6 +1505,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		}
 
 		setCurrentFrame(it->cpOutputFrame, it->cpPreviewFrame);
+		playAudioFrame();
 		m_lastFrameShowTime = hr_clock::now();
 
 		m_frameShown = nextFrame;
@@ -1686,6 +1691,98 @@ void PreviewDialog::saveLastScrollBarPositions()
 	m_pSettingsManager->setLastPreviewScrollBarPositions(pos);
 }
 
+void PreviewDialog::setAudioOutput()
+{
+	const VSAudioInfo * pAI = m_nodeInfo[m_outputIndex].getAsAudio();
+	QAudioFormat af;
+	int numChannels = pAI->format.numChannels;
+	int bytesPerSample = pAI->format.bytesPerSample;
+	af.setChannelCount(numChannels);
+	af.setSampleRate(pAI->sampleRate);
+	if(pAI->format.sampleType == stFloat)
+		af.setSampleFormat(QAudioFormat::Float);
+	else if(bytesPerSample <= 2)
+		af.setSampleFormat(QAudioFormat::Int16);
+	else
+		af.setSampleFormat(QAudioFormat::Int32);
+
+	stopAudioOutput();
+	QAudioDevice device = QMediaDevices::defaultAudioOutput();
+	if(numChannels <= 2 && bytesPerSample != 3 && device.isFormatSupported(af))
+	{
+		m_pAudioSink = new QAudioSink(device, af);
+		m_pAudioSink->setBufferSize(numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		m_pAudioIODevice = m_pAudioSink->start();
+	}
+	else
+	{
+		qWarning() << QString("Audio format of node #%1 is not yet supported for playback.")
+			.arg(m_outputIndex).toStdString().c_str();
+	}
+}
+
+void PreviewDialog::stopAudioOutput()
+{
+	if(m_pAudioSink)
+	{
+		if(m_pAudioIODevice)
+			m_pAudioSink->stop();
+		delete m_pAudioSink;
+		m_pAudioSink = nullptr;
+		m_pAudioIODevice = nullptr;
+	}
+}
+
+void PreviewDialog::playAudioFrame()
+{
+	if(!m_cpFrame)
+		return;
+
+	if(m_cpVSAPI->getFrameType(m_cpFrame) != mtAudio)
+		return;
+
+	if(m_pAudioSink)
+	{
+		int numChannels = m_nodeInfo[m_outputIndex].getAsAudio()->format.numChannels;
+		int bytesPerSample = m_nodeInfo[m_outputIndex].getAsAudio()->format.bytesPerSample;
+		if(numChannels == 1)
+			m_pAudioIODevice->write(reinterpret_cast<const char *>(
+				m_cpVSAPI->getReadPtr(m_cpFrame, 0)), bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		else
+		{
+			// For now numChannels = 2
+			if(bytesPerSample == 2)
+			{
+				uint16_t * cache = new uint16_t[2 * VS_AUDIO_FRAME_SAMPLES];
+				auto ptr0 = reinterpret_cast<const uint16_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 0));
+				auto ptr1 = reinterpret_cast<const uint16_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 1));
+				auto stride = m_cpVSAPI->getStride(m_cpFrame, 0) / 2;
+				for (ptrdiff_t i = 0; i < stride; ++i)
+				{
+					cache[2 * i] = ptr0[i];
+					cache[2 * i + 1] = ptr1[i];
+				}
+				m_pAudioIODevice->write(reinterpret_cast<const char *>(cache), 4 * VS_AUDIO_FRAME_SAMPLES);
+				delete cache;
+			}
+			else
+			{
+				uint32_t * cache = new uint32_t[2 * VS_AUDIO_FRAME_SAMPLES];
+				auto ptr0 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 0));
+				auto ptr1 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 1));
+				auto stride = m_cpVSAPI->getStride(m_cpFrame, 0) / 4;
+				for (ptrdiff_t i = 0; i < stride; ++i)
+				{
+					cache[2 * i] = ptr0[i];
+					cache[2 * i + 1] = ptr1[i];
+				}
+				m_pAudioIODevice->write(reinterpret_cast<const char *>(cache), 8 * VS_AUDIO_FRAME_SAMPLES);
+				delete cache;
+			}
+		}
+	}
+}
+
 // END OF void PreviewDialog::slotSaveGeometry()
 //==============================================================================
 
@@ -1727,6 +1824,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	if(ni.isInvalid())
 		return;
 
+	stopAudioOutput();
+
 	m_outputIndex = a_outputIndex;
 
 	// Update stuff
@@ -1741,16 +1840,7 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(
 		m_nodeInfo[m_outputIndex].numFrames(), false);
-	if(isAudio || m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen == 0)
-	{
-		m_ui.frameNumberSlider->setFPS(0.0);
-	}
-	else
-	{
-		m_ui.frameNumberSlider->setFPS(
-			(double)m_nodeInfo[m_outputIndex].getAsVideo()->fpsNum /
-			(double)m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen);
-	}
+	m_ui.frameNumberSlider->setFPS(m_nodeInfo[m_outputIndex].fps());
 
 	m_pStatusBarWidget->setNodeInfo(m_nodeInfo[m_outputIndex], m_cpVSAPI);
 
@@ -1766,6 +1856,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		m_ui.cropCheckButton->setEnabled(false);
 		m_ui.saveSnapshotButton->setEnabled(false);
 		m_pStatusBarWidget->setColorPickerString("");
+
+		setAudioOutput();
 	}
 	else
 	{

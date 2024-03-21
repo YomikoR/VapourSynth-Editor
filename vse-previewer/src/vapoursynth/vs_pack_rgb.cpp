@@ -3,8 +3,6 @@
 
 #include <vapoursynth/VSHelper4.h>
 
-#include <vector>
-
 struct PackData
 {
     VSNode *rgbNode;
@@ -70,12 +68,10 @@ VSNode *packRGBFilter(VSNode *rgbNode, VSNode *outputNode, bool use10bit, VSCore
 
     PackData *d = new PackData{rgbNode, outputNode};
 
-    std::vector<VSFilterDependency> deps = {
-        {rgbNode, rpStrictSpatial},
-        {outputNode, rpStrictSpatial}};
+    VSFilterDependency deps[] = {{rgbNode, rpStrictSpatial}, {outputNode, rpStrictSpatial}};
 
     if (use10bit)
-        return vsapi->createVideoFilter2("PackRGB30", &vi, packGetFrame<p2p_rgb30>, packFree, fmParallel, deps.data(), deps.size(), d, core);
+        return vsapi->createVideoFilter2("PackRGB30", &vi, packGetFrame<p2p_rgb30>, packFree, fmParallel, deps, 2, d, core);
     else
-        return vsapi->createVideoFilter2("PackRGB24", &vi, packGetFrame<p2p_argb32>, packFree, fmParallel, deps.data(), deps.size(), d, core);
+        return vsapi->createVideoFilter2("PackRGB24", &vi, packGetFrame<p2p_argb32>, packFree, fmParallel, deps, 2, d, core);
 }

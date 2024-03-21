@@ -11,6 +11,8 @@
 #include <QTextEdit>
 #include <QIcon>
 #include <QToolButton>
+#include <QAudioSink>
+#include <QIODevice>
 #include <map>
 #include <vector>
 #include <chrono>
@@ -224,6 +226,10 @@ protected:
 	QPoint loadLastScrollBarPositions() const;
 	void saveLastScrollBarPositions();
 
+	void setAudioOutput();
+	void stopAudioOutput();
+	void playAudioFrame();
+
 	Ui::PreviewDialog m_ui;
 
 	PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
@@ -326,6 +332,10 @@ protected:
 	// fake buttons to hold hotkeys
 	QToolButton * m_fakeButton1 = nullptr;
 	QToolButton * m_fakeButton2 = nullptr;
+
+	// audio
+	QAudioSink * m_pAudioSink = nullptr;
+	QIODevice * m_pAudioIODevice = nullptr;
 };
 
 class FramePropsPanel: public QTextEdit
