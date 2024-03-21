@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
 {
 	QString scriptFilePath = "";
 	std::map<std::string, std::string> scriptArgs = {};
+	bool launchInPortableMode = false;
 
 	if (argc <= 1)
 	{
@@ -181,6 +182,10 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 		}
+		else if (argString == "-fp" || argString == "--force-portable")
+		{
+			launchInPortableMode = true;
+		}
 		else if(scriptFilePath.isEmpty() && !argString.isEmpty())
 		{
 			scriptFilePath = argString;
@@ -208,6 +213,8 @@ int main(int argc, char *argv[])
 	qInstallMessageHandler(handleQtMessage);
 
 	pSettings = new SettingsManager(qApp);
+	if(launchInPortableMode)
+		pSettings->setPortableMode(true);
 
 	vsedit::disableFontKerning(qApp);
 

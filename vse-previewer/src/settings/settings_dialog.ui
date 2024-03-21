@@ -111,7 +111,7 @@
        <item>
         <widget class="QLabel" name="portableModeLabel">
          <property name="text">
-          <string>Portable mode means that VSE-Previewer stores its settings in the file vse-previewer.conf next to the main executable.</string>
+          <string>Portable mode means that VSE-Previewer stores its settings in the file vse-previewer.conf next to the main executable. Launch with command line option -fp or --force-portable to force portable mode.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

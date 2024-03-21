@@ -3,5 +3,6 @@ Initial release, stripped from VapourSynth-Editor R19-mod-6.3
 Show core cache usage in status bar
 Remove 2020_CL option in preview advanced settings
 Fix duplicated VS messages sent from core
-Accept -a/--arg arguments like in vspipe
 Fix filter message not shown before full evaluation
+Accept -a/--arg arguments like in vspipe
+Accept -fp/--force-portable argument to force portable mode on launch
