@@ -626,7 +626,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 		// Set matrix and chromaloc
 
-		int64_t matrixIn;
+		int64_t matrixIn = VSC_MATRIX_UNSPECIFIED;
 		switch(m_yuvMatrix)
 		{
 		case YuvMatrixCoefficients::m709:
@@ -647,7 +647,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 		m_cpVSAPI->mapSetInt(pArgumentMap, "matrix_in", matrixIn, maReplace);
 
-		int64_t chromaLoc;
+		int64_t chromaLoc = VSC_CHROMA_LEFT;
 		switch(m_chromaPlacement)
 		{
 		case ChromaPlacement::LEFT:
