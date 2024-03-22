@@ -39,6 +39,19 @@
 #include <QMediaDevices>
 #include <algorithm>
 #include <cmath>
+#include <random>
+
+// Random numbers
+std::random_device rd;
+std::mt19937_64 gen(rd());
+std::uniform_int_distribution<int64_t> unif16(-32768, 32768);
+
+static inline uint16_t dither32to16(uint32_t a)
+{
+	int64_t perturbed = VSMAX(VSMIN((int64_t)a + unif16(gen) + unif16(gen) + 32768, 0xFFFFFFFF), 0);
+	uint16_t base = perturbed >> 16;
+	return base;
+}
 
 //==============================================================================
 
@@ -1549,7 +1562,6 @@ void PreviewDialog::slotProcessPlayQueue()
 			break;
 		}
 
-
 		setCurrentFrame(it->cpOutputFrame, it->cpPreviewFrame);
 		m_lastFrameShowTime = hr_clock::now();
 
@@ -1818,16 +1830,21 @@ void PreviewDialog::setAudioOutput()
 	int bytesPerSample = pAI->format.bytesPerSample;
 	af.setChannelCount(numChannels);
 	af.setSampleRate(pAI->sampleRate);
+
+	// FIXME Always convert to int16?
 	if(pAI->format.sampleType == stFloat)
+	{
 		af.setSampleFormat(QAudioFormat::Float);
-	else if(bytesPerSample <= 2)
-		af.setSampleFormat(QAudioFormat::Int16);
+	}
 	else
-		af.setSampleFormat(QAudioFormat::Int32);
+	{
+		bytesPerSample = 2;
+		af.setSampleFormat(QAudioFormat::Int16);
+	}
 
 	stopAudioOutput();
 	QAudioDevice device = QMediaDevices::defaultAudioOutput();
-	if(numChannels <= 2 && bytesPerSample != 3 && device.isFormatSupported(af))
+	if(numChannels <= 2 && device.isFormatSupported(af))
 	{
 		m_pAudioSink = new QAudioSink(device, af);
 		m_pAudioSink->setVolume(m_audioVolume);
@@ -1875,13 +1892,53 @@ QByteArray PreviewDialog::readAudioFrame(const VSFrame *a_cpFrame)
 
 	int numChannels = m_nodeInfo[m_outputIndex].getAsAudio()->format.numChannels;
 	int bytesPerSample = m_nodeInfo[m_outputIndex].getAsAudio()->format.bytesPerSample;
+	auto sampleType = m_nodeInfo[m_outputIndex].getAsAudio()->format.sampleType;
 	if(numChannels == 1)
-		return QByteArray::fromRawData(reinterpret_cast<const char *>(
-			m_cpVSAPI->getReadPtr(a_cpFrame, 0)), bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+	{
+		if(bytesPerSample == 2)
+			return QByteArray::fromRawData(reinterpret_cast<const char *>(
+				m_cpVSAPI->getReadPtr(a_cpFrame, 0)), bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		else if(sampleType == stFloat)
+		{
+			std::vector<float> cache;
+			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
+			auto ptr0 = reinterpret_cast<const float *>(m_cpVSAPI->getReadPtr(a_cpFrame, 0));
+			auto stride = m_cpVSAPI->getStride(a_cpFrame, 0) / bytesPerSample;
+			for (ptrdiff_t i = 0; i < stride; ++i)
+				cache[i] = ptr0[i];
+			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
+				numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		}
+		else
+		{
+			std::vector<uint16_t> cache;
+			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
+			auto ptr0 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 0));
+			auto stride = m_cpVSAPI->getStride(a_cpFrame, 0) / bytesPerSample;
+			for (ptrdiff_t i = 0; i < stride; ++i)
+				cache[i] = dither32to16(ptr0[i]);
+			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
+				numChannels * 2 * VS_AUDIO_FRAME_SAMPLES);
+		}
+	}
 	else
 	{
-		// For now numChannels = 2
-		if(bytesPerSample == 2)
+		if(sampleType == stFloat)
+		{
+			std::vector<float> cache;
+			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
+			auto ptr0 = reinterpret_cast<const float *>(m_cpVSAPI->getReadPtr(a_cpFrame, 0));
+			auto ptr1 = reinterpret_cast<const float *>(m_cpVSAPI->getReadPtr(a_cpFrame, 1));
+			auto stride = m_cpVSAPI->getStride(a_cpFrame, 0) / bytesPerSample;
+			for (ptrdiff_t i = 0; i < stride; ++i)
+			{
+				cache[2 * i] = ptr0[i];
+				cache[2 * i + 1] = ptr1[i];
+			}
+			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
+				numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		}
+		else if(bytesPerSample == 2)
 		{
 			std::vector<uint16_t> cache;
 			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
@@ -1894,22 +1951,22 @@ QByteArray PreviewDialog::readAudioFrame(const VSFrame *a_cpFrame)
 				cache[2 * i + 1] = ptr1[i];
 			}
 			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
-				numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+				numChannels * 2 * VS_AUDIO_FRAME_SAMPLES);
 		}
 		else
 		{
-			std::vector<uint32_t> cache;
+			std::vector<uint16_t> cache;
 			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
 			auto ptr0 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 0));
 			auto ptr1 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 1));
 			auto stride = m_cpVSAPI->getStride(a_cpFrame, 0) / bytesPerSample;
 			for (ptrdiff_t i = 0; i < stride; ++i)
 			{
-				cache[2 * i] = ptr0[i];
-				cache[2 * i + 1] = ptr1[i];
+				cache[2 * i] = dither32to16(ptr0[i]);
+				cache[2 * i + 1] = dither32to16(ptr1[i]);
 			}
 			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
-				numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+				numChannels * 2 * VS_AUDIO_FRAME_SAMPLES);
 		}
 	}
 }
