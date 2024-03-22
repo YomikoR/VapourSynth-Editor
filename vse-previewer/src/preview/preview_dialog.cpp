@@ -315,7 +315,9 @@ void PreviewDialog::previewScript(const QString& a_script,
 		if(m_ui.cropCheckButton->isChecked())
 			m_ui.cropCheckButton->click();
 		m_ui.cropCheckButton->setEnabled(false);
+		m_pActionToggleCropPanel->setEnabled(false);
 		m_ui.saveSnapshotButton->setEnabled(false);
+		m_pActionSaveSnapshot->setEnabled(false);
 		m_pStatusBarWidget->setColorPickerString("");
 		m_ui.playFpsLimitSpinBox->setEnabled(false);
 		m_ui.playFpsLimitModeComboBox->setEnabled(false);
@@ -2040,7 +2042,9 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		if(m_ui.cropCheckButton->isChecked())
 			m_ui.cropCheckButton->click();
 		m_ui.cropCheckButton->setEnabled(false);
+		m_pActionToggleCropPanel->setEnabled(false);
 		m_ui.saveSnapshotButton->setEnabled(false);
+		m_pActionSaveSnapshot->setEnabled(false);
 		m_pStatusBarWidget->setColorPickerString("");
 		m_ui.playFpsLimitSpinBox->setEnabled(false);
 		m_ui.playFpsLimitModeComboBox->setEnabled(false);
@@ -2055,7 +2059,9 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	{
 		resetCropSpinBoxes();
 		m_ui.cropCheckButton->setEnabled(true);
+		m_pActionToggleCropPanel->setEnabled(true);
 		m_ui.saveSnapshotButton->setEnabled(true);
+		m_pActionSaveSnapshot->setEnabled(true);
 		m_ui.playFpsLimitSpinBox->setEnabled(true);
 		m_ui.playFpsLimitModeComboBox->setEnabled(true);
 	}
