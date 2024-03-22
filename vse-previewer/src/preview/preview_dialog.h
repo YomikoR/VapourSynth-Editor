@@ -37,6 +37,18 @@ class PreviewDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
 
+	struct AudioFrame
+	{
+		int number;
+		int outputIndex;
+		QByteArray data;
+
+		AudioFrame();
+		AudioFrame(int a_number, int a_outputIndex, QByteArray a_data);
+		bool valid() const { return !!data.size(); }
+		bool operator==(const AudioFrame & a_other) const;
+	};
+
 public:
 
 	PreviewDialog(SettingsManager * a_pSettingsManager,
@@ -55,9 +67,6 @@ public:
 	}
 
 signals:
-
-	void signalPasteIntoScriptAtNewLine(const QString& a_line);
-	void signalPasteIntoScriptAtCursor(const QString& a_line);
 
 protected slots:
 
@@ -133,6 +142,7 @@ protected slots:
 	void slotPlay(bool a_play);
 
 	void slotProcessPlayQueue();
+	void slotProcessAudioPlayQueue();
 
 	void slotLoadChapters();
 	void slotClearBookmarks();
@@ -229,6 +239,8 @@ protected:
 	void setAudioOutput();
 	void stopAudioOutput();
 	void playAudioFrame();
+
+	QByteArray readAudioFrame(const VSFrame * a_cpFrame);
 
 	Ui::PreviewDialog m_ui;
 
@@ -336,6 +348,8 @@ protected:
 	// audio
 	QAudioSink * m_pAudioSink = nullptr;
 	QIODevice * m_pAudioIODevice = nullptr;
+	std::map<int, AudioFrame> m_audioCache;
+	QTimer * m_pAudioPlayTimer = nullptr;
 };
 
 class FramePropsPanel: public QTextEdit
