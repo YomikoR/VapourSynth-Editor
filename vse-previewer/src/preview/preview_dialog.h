@@ -351,6 +351,7 @@ protected:
 	QIODevice * m_pAudioIODevice = nullptr;
 	std::map<int, AudioFrame> m_audioCache;
 	QTimer * m_pAudioPlayTimer = nullptr;
+	double m_audioVolume = 1.0;
 };
 
 class FramePropsPanel: public QTextEdit

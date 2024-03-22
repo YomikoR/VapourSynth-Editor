@@ -484,7 +484,7 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		Frame newFrame(a_frameNumber, a_outputIndex,
 			cpOutputFrame, cpPreviewFrame);
 		m_framesCache[m_outputIndex].push_back(newFrame);
-		if(m_nodeInfo[m_outputIndex].isAudio())
+		if(m_currentIsAudio)
 		{
 			QByteArray audioData = readAudioFrame(a_cpOutputFrame);
 			AudioFrame newAudioFrame(a_frameNumber, a_outputIndex, audioData);
@@ -597,7 +597,7 @@ void PreviewDialog::slotSaveSnapshot()
 	if((m_frameShown < 0) || m_framePixmap.isNull())
 		return;
 
-	if(!m_nodeInfo[m_outputIndex].isVideo())
+	if(m_currentIsAudio)
 		return;
 
 	std::map<QString, QString> extensionToFilterMap =
@@ -662,11 +662,9 @@ void PreviewDialog::slotSaveSnapshot()
 			{"{t}", tr("timestamp"),
 				[&]()
 				{
-					auto fpsden = m_nodeInfo[m_outputIndex].getAsVideo()->fpsDen;
-					auto fpsnum = m_nodeInfo[m_outputIndex].getAsVideo()->fpsNum;
-					if(fpsden == 0 || fpsnum == 0)
+					double fps = m_nodeInfo[m_outputIndex].fps();
+					if(fps == 0.0)
 						return QString();
-					double fps = (double)fpsnum / (double)fpsden;
 					QString timeStr = vsedit::timeToString(
 						m_frameShown / fps, true).replace(":", ".");
 					return timeStr;
@@ -1215,6 +1213,24 @@ void PreviewDialog::slotPreviewAreaSizeChanged()
 
 void PreviewDialog::slotPreviewAreaCtrlWheel(QPoint a_angleDelta)
 {
+	if(m_currentIsAudio && m_pAudioSink)
+	{
+		int deltaY = a_angleDelta.y();
+		m_audioVolume = m_pAudioSink->volume();
+		if(deltaY > 0)
+		{
+			m_audioVolume += 0.1;
+			m_pAudioSink->setVolume(m_audioVolume);
+		}
+		else if(deltaY < 0)
+		{
+			m_audioVolume -= 0.1;
+			m_pAudioSink->setVolume(m_audioVolume);
+		}
+
+		return;
+	}
+
 	ZoomMode zoomMode = (ZoomMode)m_ui.zoomModeComboBox->currentData().toInt();
 	int deltaY = a_angleDelta.y();
 
@@ -1464,7 +1480,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	{
 		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
-		if(m_nodeInfo[m_outputIndex].isAudio())
+		if(m_currentIsAudio)
 			slotProcessAudioPlayQueue();
 		else
 			slotProcessPlayQueue();
@@ -1645,9 +1661,7 @@ void PreviewDialog::slotLoadChapters()
 	if(m_playing)
 		return;
 
-	VSNodeInfo nodeInfo = m_nodeInfo[m_outputIndex];
-
-	double nativeFPS = nodeInfo.fps();
+	double nativeFPS = m_nodeInfo[m_outputIndex].fps();
 
 	if (nativeFPS == 0.0)
 	{
@@ -1816,6 +1830,7 @@ void PreviewDialog::setAudioOutput()
 	if(numChannels <= 2 && bytesPerSample != 3 && device.isFormatSupported(af))
 	{
 		m_pAudioSink = new QAudioSink(device, af);
+		m_pAudioSink->setVolume(m_audioVolume);
 		m_pAudioSink->setBufferSize(numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES * 3);
 		m_pAudioIODevice = m_pAudioSink->start();
 	}
