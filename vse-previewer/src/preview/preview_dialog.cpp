@@ -150,6 +150,10 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	m_pPlayTimer->setTimerType(Qt::PreciseTimer);
 	m_pPlayTimer->setSingleShot(true);
 
+	m_pAudioPlayTimer = new QTimer(this);
+	m_pAudioPlayTimer->setTimerType(Qt::PreciseTimer);
+	m_pAudioPlayTimer->setSingleShot(true);
+
 	m_pFramePropsPanel = new FramePropsPanel(a_pSettingsManager, this);
 
 	createActionsAndMenus();
@@ -207,6 +211,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotPreviewAreaMouseOverPoint(double, double)));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
 		this, SLOT(slotProcessPlayQueue()));
+	connect(m_pAudioPlayTimer, &QTimer::timeout,
+		this, &PreviewDialog::slotProcessAudioPlayQueue);
 
 	slotSettingsChanged();
 
@@ -478,7 +484,15 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		Frame newFrame(a_frameNumber, a_outputIndex,
 			cpOutputFrame, cpPreviewFrame);
 		m_framesCache[m_outputIndex].push_back(newFrame);
-		slotProcessPlayQueue();
+		if(m_nodeInfo[m_outputIndex].isAudio())
+		{
+			QByteArray audioData = readAudioFrame(a_cpOutputFrame);
+			AudioFrame newAudioFrame(a_frameNumber, a_outputIndex, audioData);
+			m_audioCache[a_frameNumber] = newAudioFrame;
+			slotProcessAudioPlayQueue();
+		}
+		else
+			slotProcessPlayQueue();
 	}
 	else
 	{
@@ -1451,7 +1465,10 @@ void PreviewDialog::slotPlay(bool a_play)
 	{
 		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
-		slotProcessPlayQueue();
+		if(m_nodeInfo[m_outputIndex].isAudio())
+			slotProcessAudioPlayQueue();
+		else
+			slotProcessPlayQueue();
 	}
 	else
 	{
@@ -1506,6 +1523,7 @@ void PreviewDialog::slotProcessPlayQueue()
 			else
 				m_secondsBetweenFrames = (double)durNum / (double)durDen;
 		}
+
 		hr_time_point now = hr_clock::now();
 		double passed = duration_to_double(now - m_lastFrameShowTime);
 		double secondsToNextFrame = m_secondsBetweenFrames - passed;
@@ -1516,8 +1534,8 @@ void PreviewDialog::slotProcessPlayQueue()
 			break;
 		}
 
+
 		setCurrentFrame(it->cpOutputFrame, it->cpPreviewFrame);
-		playAudioFrame();
 		m_lastFrameShowTime = hr_clock::now();
 
 		m_frameShown = nextFrame;
@@ -1540,6 +1558,82 @@ void PreviewDialog::slotProcessPlayQueue()
 		m_lastFrameRequestedForPlay = nextFrame;
 		nextFrame = (nextFrame + 1) % numFrames;
 	}
+
+	m_processingPlayQueue = false;
+}
+
+void PreviewDialog::slotProcessAudioPlayQueue()
+{
+	if(!m_playing)
+		return;
+
+	if(m_processingPlayQueue)
+		return;
+	m_processingPlayQueue = true;
+
+	int numFrames = m_nodeInfo[m_outputIndex].numFrames();
+	int nextFrame = (m_frameShown + 1) % numFrames;
+
+	static double delay_estimate = 0.0;
+
+	while(!m_framesCache[m_outputIndex].empty())
+	{
+		auto ait = m_audioCache.find(nextFrame);
+		if(ait == m_audioCache.end())
+			break;
+		auto af = m_audioCache[nextFrame];
+
+		double ms_offset = 0.0;
+		hr_time_point now = hr_clock::now();
+		double passed = duration_to_double(now - m_lastFrameShowTime);
+		double secondsToNextFrame = m_secondsBetweenFrames - passed - delay_estimate;
+		if(secondsToNextFrame > 0)
+		{
+			int millisecondsToNextFrame = std::round(secondsToNextFrame * 1000);
+			ms_offset = secondsToNextFrame - millisecondsToNextFrame / 1000.0;
+			m_pAudioPlayTimer->start(millisecondsToNextFrame);
+			break;
+		}
+
+		m_lastFrameShowTime = hr_clock::now();
+		m_pAudioIODevice->write(af.data);
+		auto time_post = hr_clock::now();
+		delay_estimate = duration_to_double(time_post - m_lastFrameShowTime) - ms_offset;
+		m_audioCache.erase(nextFrame);
+
+		Frame referenceFrame(nextFrame, m_outputIndex, nullptr);
+		std::list<Frame>::const_iterator it =
+			std::find(m_framesCache[m_outputIndex].begin(),
+			m_framesCache[m_outputIndex].end(), referenceFrame);
+
+		// caches are synced so this won't happen...
+		if(it == m_framesCache[m_outputIndex].end())
+			break;
+
+		setCurrentFrame(it->cpOutputFrame, it->cpPreviewFrame);
+		m_frameShown = nextFrame;
+		m_frameExpected = m_frameShown;
+		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
+		m_ui.frameNumberSlider->setFrame(m_frameExpected, false);
+		m_framesCache[m_outputIndex].erase(it);
+		nextFrame = (m_frameShown + 1) % numFrames;
+		referenceFrame.number = nextFrame;
+	}
+
+	nextFrame = (m_lastFrameRequestedForPlay + 1) % numFrames;
+
+	while(((m_framesInQueue[m_outputIndex] + m_framesInProcess[m_outputIndex]) <
+		m_maxThreads) &&
+		(m_framesCache[m_outputIndex].size() <= m_cachedFramesLimit))
+	{
+		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame,
+			m_outputIndex);
+		m_lastFrameRequestedForPlay = nextFrame;
+		nextFrame = (nextFrame + 1) % numFrames;
+	}
+
+	if(m_framesCache[m_outputIndex].empty())
+		m_audioCache.clear();
 
 	m_processingPlayQueue = false;
 }
@@ -1723,7 +1817,7 @@ void PreviewDialog::setAudioOutput()
 	if(numChannels <= 2 && bytesPerSample != 3 && device.isFormatSupported(af))
 	{
 		m_pAudioSink = new QAudioSink(device, af);
-		m_pAudioSink->setBufferSize(numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		m_pAudioSink->setBufferSize(numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES * 3);
 		m_pAudioIODevice = m_pAudioSink->start();
 	}
 	else
@@ -1744,54 +1838,64 @@ void PreviewDialog::stopAudioOutput()
 		m_pAudioSink = nullptr;
 		m_pAudioIODevice = nullptr;
 	}
+	m_audioCache.clear();
 }
 
 void PreviewDialog::playAudioFrame()
 {
-	if(!m_cpFrame)
-		return;
-
-	if(!m_currentIsAudio)
-		return;
-
-	if(m_pAudioSink)
+	QByteArray data = readAudioFrame(m_cpFrame);
+	if(data.size() > 0 && m_pAudioSink)
 	{
-		int numChannels = m_nodeInfo[m_outputIndex].getAsAudio()->format.numChannels;
-		int bytesPerSample = m_nodeInfo[m_outputIndex].getAsAudio()->format.bytesPerSample;
-		if(numChannels == 1)
-			m_pAudioIODevice->write(reinterpret_cast<const char *>(
-				m_cpVSAPI->getReadPtr(m_cpFrame, 0)), bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		m_pAudioIODevice->write(data);
+	}
+}
+
+QByteArray PreviewDialog::readAudioFrame(const VSFrame *a_cpFrame)
+{
+	if(!a_cpFrame)
+	    return QByteArray();
+	if(m_cpVSAPI->getFrameType(a_cpFrame) != mtAudio)
+		return QByteArray();
+	if(!m_pAudioSink)
+		return QByteArray();
+
+	int numChannels = m_nodeInfo[m_outputIndex].getAsAudio()->format.numChannels;
+	int bytesPerSample = m_nodeInfo[m_outputIndex].getAsAudio()->format.bytesPerSample;
+	if(numChannels == 1)
+		return QByteArray::fromRawData(reinterpret_cast<const char *>(
+			m_cpVSAPI->getReadPtr(a_cpFrame, 0)), bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+	else
+	{
+		// For now numChannels = 2
+		if(bytesPerSample == 2)
+		{
+			std::vector<uint16_t> cache;
+			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
+			auto ptr0 = reinterpret_cast<const uint16_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 0));
+			auto ptr1 = reinterpret_cast<const uint16_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 1));
+			auto stride = m_cpVSAPI->getStride(a_cpFrame, 0) / bytesPerSample;
+			for (ptrdiff_t i = 0; i < stride; ++i)
+			{
+				cache[2 * i] = ptr0[i];
+				cache[2 * i + 1] = ptr1[i];
+			}
+			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
+				numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
+		}
 		else
 		{
-			// For now numChannels = 2
-			if(bytesPerSample == 2)
+			std::vector<uint32_t> cache;
+			cache.reserve(numChannels * VS_AUDIO_FRAME_SAMPLES);
+			auto ptr0 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 0));
+			auto ptr1 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(a_cpFrame, 1));
+			auto stride = m_cpVSAPI->getStride(a_cpFrame, 0) / bytesPerSample;
+			for (ptrdiff_t i = 0; i < stride; ++i)
 			{
-				uint16_t * cache = new uint16_t[2 * VS_AUDIO_FRAME_SAMPLES];
-				auto ptr0 = reinterpret_cast<const uint16_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 0));
-				auto ptr1 = reinterpret_cast<const uint16_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 1));
-				auto stride = m_cpVSAPI->getStride(m_cpFrame, 0) / 2;
-				for (ptrdiff_t i = 0; i < stride; ++i)
-				{
-					cache[2 * i] = ptr0[i];
-					cache[2 * i + 1] = ptr1[i];
-				}
-				m_pAudioIODevice->write(reinterpret_cast<const char *>(cache), 4 * VS_AUDIO_FRAME_SAMPLES);
-				delete cache;
+				cache[2 * i] = ptr0[i];
+				cache[2 * i + 1] = ptr1[i];
 			}
-			else
-			{
-				uint32_t * cache = new uint32_t[2 * VS_AUDIO_FRAME_SAMPLES];
-				auto ptr0 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 0));
-				auto ptr1 = reinterpret_cast<const uint32_t *>(m_cpVSAPI->getReadPtr(m_cpFrame, 1));
-				auto stride = m_cpVSAPI->getStride(m_cpFrame, 0) / 4;
-				for (ptrdiff_t i = 0; i < stride; ++i)
-				{
-					cache[2 * i] = ptr0[i];
-					cache[2 * i + 1] = ptr1[i];
-				}
-				m_pAudioIODevice->write(reinterpret_cast<const char *>(cache), 8 * VS_AUDIO_FRAME_SAMPLES);
-				delete cache;
-			}
+			return QByteArray::fromRawData(reinterpret_cast<const char *>(cache.data()),
+				numChannels * bytesPerSample * VS_AUDIO_FRAME_SAMPLES);
 		}
 	}
 }
@@ -2920,4 +3024,18 @@ void FramePropsPanel::setVisible(bool visible)
 		m_widgetHeight = height();
 	}
 	QWidget::setVisible(visible);
+}
+
+PreviewDialog::AudioFrame::AudioFrame() : number(-1), outputIndex(-1), data(QByteArray())
+{
+}
+
+PreviewDialog::AudioFrame::AudioFrame(int a_number, int a_outputIndex, QByteArray a_data) : number(a_number), outputIndex(a_outputIndex), data(a_data)
+{
+	data.detach();
+}
+
+bool PreviewDialog::AudioFrame::operator==(const AudioFrame &a_other) const
+{
+    return ((number == a_other.number) && (outputIndex == a_other.outputIndex));
 }
