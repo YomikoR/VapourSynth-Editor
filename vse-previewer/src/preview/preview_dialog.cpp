@@ -484,7 +484,7 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		Frame newFrame(a_frameNumber, a_outputIndex,
 			cpOutputFrame, cpPreviewFrame);
 		m_framesCache[m_outputIndex].push_back(newFrame);
-		if(m_currentIsAudio)
+		if(m_currentIsAudio && m_pAudioSink)
 		{
 			QByteArray audioData = readAudioFrame(a_cpOutputFrame);
 			AudioFrame newAudioFrame(a_frameNumber, a_outputIndex, audioData);
@@ -1480,7 +1480,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	{
 		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
-		if(m_currentIsAudio)
+		if(m_currentIsAudio && m_pAudioSink)
 			slotProcessAudioPlayQueue();
 		else
 			slotProcessPlayQueue();
