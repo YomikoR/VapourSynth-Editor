@@ -6,3 +6,4 @@ Fix duplicated VS messages sent from core
 Fix filter message not shown before full evaluation
 Accept -a/--arg arguments like in vspipe
 Accept -fp/--force-portable argument to force portable mode on launch
+Add experimental audio playback
