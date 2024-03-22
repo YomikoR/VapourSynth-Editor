@@ -588,7 +588,6 @@ void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 	}
 
 	requestingFrame = false;
-	playAudioFrame();
 }
 // END OF void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 //==============================================================================
