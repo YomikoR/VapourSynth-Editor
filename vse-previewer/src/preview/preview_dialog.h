@@ -334,6 +334,7 @@ protected:
 	QToolButton * m_fakeButton2 = nullptr;
 
 	// audio
+	bool m_currentIsAudio;
 	QAudioSink * m_pAudioSink = nullptr;
 	QIODevice * m_pAudioIODevice = nullptr;
 };

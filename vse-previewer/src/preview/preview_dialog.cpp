@@ -257,6 +257,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	auto mt = m_nodeInfo[m_outputIndex].mediaType();
 	if(mt == mtVideo)
 	{
+		m_currentIsAudio = false;
 		const VSVideoInfo * vi = m_nodeInfo[m_outputIndex].getAsVideo();
 		if(!vi)
 			return;
@@ -276,6 +277,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	}
 	else
 	{
+		m_currentIsAudio = true;
 		const VSAudioInfo * ai = m_nodeInfo[m_outputIndex].getAsAudio();
 		if(!ai)
 			return;
@@ -288,6 +290,13 @@ void PreviewDialog::previewScript(const QString& a_script,
 			m_ui.cropCheckButton->click();
 		m_ui.cropCheckButton->setEnabled(false);
 		m_ui.saveSnapshotButton->setEnabled(false);
+		m_pStatusBarWidget->setColorPickerString("");
+		m_ui.playFpsLimitSpinBox->setEnabled(false);
+		m_ui.playFpsLimitModeComboBox->setEnabled(false);
+		int comboIndex = m_ui.playFpsLimitModeComboBox->findData(
+			(int)PlayFPSLimitMode::FromVideo);
+		if(comboIndex != -1)
+			m_ui.playFpsLimitModeComboBox->setCurrentIndex(comboIndex);
 
 		setAudioOutput();
 	}
@@ -1243,7 +1252,7 @@ void PreviewDialog::slotPreviewAreaMouseOverPoint(double a_pX, double a_pY)
 	if(!m_cpFrame)
 		return;
 
-	if(m_cpVSAPI->getFrameType(m_cpFrame) == mtAudio)
+	if(m_currentIsAudio)
 		return;
 
 	if(!m_pStatusBarWidget->colorPickerVisible())
@@ -1399,7 +1408,7 @@ void PreviewDialog::slotSetPlayFPSLimit()
 	if(limit < 1e-3)
 		limit = 1e-3;
 	m_nativePlaybackRate = false;
-	PlayFPSLimitMode mode =
+	PlayFPSLimitMode mode = m_currentIsAudio ? PlayFPSLimitMode::FromVideo :
 		(PlayFPSLimitMode)m_ui.playFpsLimitModeComboBox->currentData().toInt();
 	if(mode == PlayFPSLimitMode::NoLimit)
 		m_secondsBetweenFrames = 0.0;
@@ -1420,8 +1429,11 @@ void PreviewDialog::slotSetPlayFPSLimit()
 	else
 		Q_ASSERT(false);
 
-	m_pSettingsManager->setPlayFPSLimitMode(mode);
-	m_pSettingsManager->setPlayFPSLimit(limit);
+	if(!m_currentIsAudio)
+	{
+		m_pSettingsManager->setPlayFPSLimitMode(mode);
+		m_pSettingsManager->setPlayFPSLimit(limit);
+	}
 }
 
 // END OF void PreviewDialog::void slotSetPlayFPSLimit()
@@ -1726,7 +1738,8 @@ void PreviewDialog::stopAudioOutput()
 	if(m_pAudioSink)
 	{
 		if(m_pAudioIODevice)
-			m_pAudioSink->stop();
+			m_pAudioIODevice->close();
+		m_pAudioSink->stop();
 		delete m_pAudioSink;
 		m_pAudioSink = nullptr;
 		m_pAudioIODevice = nullptr;
@@ -1738,7 +1751,7 @@ void PreviewDialog::playAudioFrame()
 	if(!m_cpFrame)
 		return;
 
-	if(m_cpVSAPI->getFrameType(m_cpFrame) != mtAudio)
+	if(!m_currentIsAudio)
 		return;
 
 	if(m_pAudioSink)
@@ -1834,7 +1847,7 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 
 	m_nodeInfo[m_outputIndex] = ni;
 
-	bool isAudio = ni.mediaType() == mtAudio;
+	m_currentIsAudio = ni.mediaType() == mtAudio;
 
 	int lastFrameNumber = m_nodeInfo[m_outputIndex].numFrames() - 1;
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
@@ -1847,15 +1860,19 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	if(m_frameExpected > lastFrameNumber)
 		m_frameExpected = lastFrameNumber;
 
-	slotSetPlayFPSLimit();
-
-	if(isAudio)
+	if(m_currentIsAudio)
 	{
 		if(m_ui.cropCheckButton->isChecked())
 			m_ui.cropCheckButton->click();
 		m_ui.cropCheckButton->setEnabled(false);
 		m_ui.saveSnapshotButton->setEnabled(false);
 		m_pStatusBarWidget->setColorPickerString("");
+		m_ui.playFpsLimitSpinBox->setEnabled(false);
+		m_ui.playFpsLimitModeComboBox->setEnabled(false);
+		int comboIndex = m_ui.playFpsLimitModeComboBox->findData(
+			(int)PlayFPSLimitMode::FromVideo);
+		if(comboIndex != -1)
+			m_ui.playFpsLimitModeComboBox->setCurrentIndex(comboIndex);
 
 		setAudioOutput();
 	}
@@ -1864,7 +1881,11 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		resetCropSpinBoxes();
 		m_ui.cropCheckButton->setEnabled(true);
 		m_ui.saveSnapshotButton->setEnabled(true);
+		m_ui.playFpsLimitSpinBox->setEnabled(true);
+		m_ui.playFpsLimitModeComboBox->setEnabled(true);
 	}
+
+	slotSetPlayFPSLimit();
 
 	m_pVapourSynthScriptProcessor->requestFrameAsync(m_frameExpected,
 		m_outputIndex);
