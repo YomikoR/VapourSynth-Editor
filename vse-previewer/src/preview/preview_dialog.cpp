@@ -389,6 +389,7 @@ void PreviewDialog::stopAndCleanUp()
 	}
 
 	VSScriptProcessorDialog::stopAndCleanUp();
+	m_audioCache.clear();
 }
 
 // END OF void PreviewDialog::stopAndCleanUp()
@@ -1511,6 +1512,7 @@ void PreviewDialog::slotPlay(bool a_play)
 	else
 	{
 		clearFramesCache();
+		m_audioCache.clear();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 		m_pActionPlay->setIcon(m_iconPlay);
 	}
