@@ -241,7 +241,7 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	return true;
 }
 
-bool VSScriptLibrary::clearCoreCaches(VSScript *a_pScript)
+bool VSScriptLibrary::clearCoreCaches([[maybe_unused]] VSScript *a_pScript)
 {
 #if(VAPOURSYNTH_API_MAJOR == 4) && (VAPOURSYNTH_API_MINOR >= 1)
 	if(m_VSAPIMajor == 4 && m_VSAPIMinor >= 1)

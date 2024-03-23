@@ -311,6 +311,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 		lastFrameNumber = ai->numFrames - 1;
 		m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 		m_ui.frameNumberSlider->setFramesNumber(ai->numFrames, false);
+		m_ui.frameNumberSlider->setFPS(m_nodeInfo[m_outputIndex].fps());
 
 		if(m_ui.cropCheckButton->isChecked())
 			m_ui.cropCheckButton->click();
@@ -1876,10 +1877,10 @@ void PreviewDialog::stopAudioOutput()
 
 void PreviewDialog::playAudioFrame()
 {
-	QByteArray data = readAudioFrame(m_cpFrame);
-	if(data.size() > 0 && m_pAudioSink)
+	QByteArray frameData = readAudioFrame(m_cpFrame);
+	if(frameData.size() > 0 && m_pAudioSink)
 	{
-		m_pAudioIODevice->write(data);
+		m_pAudioIODevice->write(frameData);
 	}
 }
 
