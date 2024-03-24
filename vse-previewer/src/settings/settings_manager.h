@@ -112,6 +112,15 @@ public:
 
 	bool setLastPreviewFrame(int a_frameNumber);
 
+	// timestamp in ms
+	qlonglong getLastPreviewTimestamp() const;
+
+	bool setLastPreviewTimestamp(qlonglong a_ms);
+
+	SyncOutputNodesMode getSyncOutputMode() const;
+
+	bool setSyncOutputMode(SyncOutputNodesMode a_mode);
+
 	bool getTimeLinePanelVisible() const;
 
 	bool setTimeLinePanelVisible(bool a_visible);

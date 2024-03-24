@@ -25,6 +25,8 @@ const char COLOR_PICKER_VISIBLE_KEY[] = "color_picker_visible";
 const char PLAY_FPS_LIMIT_MODE_KEY[] = "play_fps_limit_mode";
 const char PLAY_FPS_LIMIT_KEY[] = "play_fps_limit";
 const char LAST_PREVIEW_FRAME_KEY[] = "last_preview_frame";
+const char LAST_PREVIEW_TIMESTAMP_KEY[] = "last_preview_timestamp";
+const char SYNC_OUTPUT_MODE_KEY[] = "sync_output_node_mode";
 const char TIMELINE_PANEL_VISIBLE_KEY[] = "timeline_panel_visible";
 const char LAST_SNAPSHOT_EXTENSION_KEY[] = "last_snapshot_extension";
 const char PNG_COMPRESSION_LEVEL_KEY[] = "png_compression_level";
@@ -541,6 +543,30 @@ bool SettingsManager::setLastPreviewFrame(int a_frameNumber)
 {
 	return setValueInGroup(PREVIEW_GROUP,
 		LAST_PREVIEW_FRAME_KEY, a_frameNumber);
+}
+
+qlonglong SettingsManager::getLastPreviewTimestamp() const
+{
+	return valueInGroup(PREVIEW_GROUP, LAST_PREVIEW_TIMESTAMP_KEY,
+		DEFAULT_LAST_PREVIEW_TIMESTAMP).toLongLong();
+}
+
+bool SettingsManager::setLastPreviewTimestamp(qlonglong a_ms)
+{
+	return setValueInGroup(PREVIEW_GROUP,
+		LAST_PREVIEW_TIMESTAMP_KEY, a_ms);
+}
+
+SyncOutputNodesMode SettingsManager::getSyncOutputMode() const
+{
+	return (SyncOutputNodesMode)valueInGroup(PREVIEW_GROUP,
+		SYNC_OUTPUT_MODE_KEY, (int)DEFAULT_SYNC_OUTPUT_MODE).toInt();
+}
+
+bool SettingsManager::setSyncOutputMode(SyncOutputNodesMode a_mode)
+{
+	return setValueInGroup(PREVIEW_GROUP,
+		SYNC_OUTPUT_MODE_KEY, (int)a_mode);
 }
 
 //==============================================================================

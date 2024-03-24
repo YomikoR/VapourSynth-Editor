@@ -215,6 +215,11 @@ protected:
 
 	void resetCropSpinBoxes();
 
+	qlonglong frameToTimestamp(int a_frame);
+	int timestampToFrame(qlonglong a_timestamp);
+
+	void setExpectedFrame(int a_frame);
+
 	void setCurrentFrame(const VSFrame * a_cpOutputFrame,
 		const VSFrame * a_cpPreviewFrame);
 
@@ -248,7 +253,11 @@ protected:
 
 	SettingsDialog * m_pSettingsDialog;
 
+	int64_t m_fpsNum = 0;
+	int64_t m_fpsDen = 0;
+
 	int m_frameExpected;
+	qlonglong m_frameTimestampExpected;
 	int m_frameShown;
 	int m_lastFrameRequestedForPlay;
 

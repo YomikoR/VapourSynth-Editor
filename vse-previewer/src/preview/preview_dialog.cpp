@@ -82,6 +82,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
 	, m_frameExpected(0)
+	, m_frameTimestampExpected(0)
 	, m_frameShown(-1)
 	, m_lastFrameRequestedForPlay(-1)
 	, m_bigFrameStep(10)
@@ -237,6 +238,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	slotSettingsChanged();
 
 	m_frameExpected = m_pSettingsManager->getLastPreviewFrame();
+	m_frameTimestampExpected = m_pSettingsManager->getLastPreviewTimestamp();
+
 	QPoint scrollBarPos = loadLastScrollBarPositions();
 	m_ui.previewArea->getScrollBarPositionsFromPreviewer(scrollBarPos);
 
@@ -291,15 +294,11 @@ void PreviewDialog::previewScript(const QString& a_script,
 		lastFrameNumber = vi->numFrames - 1;
 		m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 		m_ui.frameNumberSlider->setFramesNumber(vi->numFrames, false);
-		if(vi->fpsDen == 0)
-		{
-			m_ui.frameNumberSlider->setFPS(0.0);
-		}
-		else
-		{
-			m_ui.frameNumberSlider->setFPS(
-				(double)vi->fpsNum / (double)vi->fpsDen);
-		}
+		auto fpsPair = m_nodeInfo[m_outputIndex].fpsPair();
+		m_fpsNum = fpsPair.first;
+		m_fpsDen = fpsPair.second;
+		m_ui.frameNumberSlider->setFPS(m_fpsDen == 0 ?
+			0.0 : (double)m_fpsNum / (double)m_fpsDen);
 	}
 	else
 	{
@@ -311,7 +310,10 @@ void PreviewDialog::previewScript(const QString& a_script,
 		lastFrameNumber = ai->numFrames - 1;
 		m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 		m_ui.frameNumberSlider->setFramesNumber(ai->numFrames, false);
-		m_ui.frameNumberSlider->setFPS(m_nodeInfo[m_outputIndex].fps());
+		auto fpsPair = m_nodeInfo[m_outputIndex].fpsPair();
+		m_fpsNum = fpsPair.first;
+		m_fpsDen = fpsPair.second;
+		m_ui.frameNumberSlider->setFPS((double)m_fpsNum / (double)m_fpsDen);
 
 		if(m_ui.cropCheckButton->isChecked())
 			m_ui.cropCheckButton->click();
@@ -331,7 +333,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 	}
 
 	if(m_frameExpected > lastFrameNumber)
-		m_frameExpected = lastFrameNumber;
+		setExpectedFrame(lastFrameNumber);
 
 	resetCropSpinBoxes();
 
@@ -345,6 +347,12 @@ void PreviewDialog::previewScript(const QString& a_script,
 		showMaximized();
 	else
 		showNormal();
+
+	auto timelineMode = m_pSettingsManager->getTimeLineMode();
+	if(timelineMode == TimeLineSlider::DisplayMode::Frames)
+		m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
+	else
+		m_frameExpected = timestampToFrame(m_frameTimestampExpected);
 
 	slotShowFrame(m_frameExpected, false);
 }
@@ -361,7 +369,10 @@ void PreviewDialog::stopAndCleanUp()
 		m_ui.cropCheckButton->click();
 
 	if((!scriptName().isEmpty()) && (m_frameExpected > -1))
+	{
 		m_pSettingsManager->setLastPreviewFrame(m_frameExpected);
+		m_pSettingsManager->setLastPreviewTimestamp(m_frameTimestampExpected);
+	}
 	m_frameShown = -1;
 	m_framePixmap = QPixmap();
 	// Replace shown image with a blank one of the same dimension:
@@ -434,7 +445,10 @@ void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 
 	slotSaveGeometry();
 	if(m_frameExpected > -1)
+	{
 		m_pSettingsManager->setLastPreviewFrame(m_frameExpected);
+		m_pSettingsManager->setLastPreviewTimestamp(m_frameTimestampExpected);
+	}
 	saveLastScrollBarPositions();
 
 	reject();
@@ -561,7 +575,7 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 			return;
 		}
 
-		m_frameExpected = m_frameShown;
+		setExpectedFrame(m_frameShown);
 		m_ui.frameNumberSlider->setFrame(m_frameShown, false);
 		m_ui.frameNumberSpinBox->setValue(m_frameShown);
 		m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
@@ -602,7 +616,7 @@ void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 	bool requested = requestShowFrame(a_frameNumber);
 	if(requested)
 	{
-		m_frameExpected = a_frameNumber;
+		setExpectedFrame(a_frameNumber);
 		m_ui.frameStatusLabel->setPixmap(m_busyPixmap);
 	}
 	else
@@ -686,11 +700,11 @@ void PreviewDialog::slotSaveSnapshot()
 			{"{t}", tr("timestamp"),
 				[&]()
 				{
-					double fps = m_nodeInfo[m_outputIndex].fps();
-					if(fps == 0.0)
+					if(m_fpsDen == 0 || m_fpsNum == 0)
 						return QString();
 					QString timeStr = vsedit::timeToString(
-						m_frameShown / fps, true).replace(":", ".");
+						(double)m_frameShown / m_fpsNum * m_fpsDen, true)
+						.replace(":", ".");
 					return timeStr;
 				}
 			},
@@ -1469,15 +1483,14 @@ void PreviewDialog::slotSetPlayFPSLimit()
 		m_secondsBetweenFrames = 1.0 / limit;
 	else if(mode == PlayFPSLimitMode::FromVideo)
 	{
-		double nativeFPS = m_nodeInfo[m_outputIndex].fps();
-		if(nativeFPS == 0.0)
+		if(m_fpsDen == 0 || m_fpsNum == 0)
 		{
 			// Will decide duration by video frame props
 			m_nativePlaybackRate = true;
 			m_secondsBetweenFrames = 0.0;
 		}
 		else
-			m_secondsBetweenFrames = 1.0 / nativeFPS;
+			m_secondsBetweenFrames = 1.0 / m_fpsNum * m_fpsDen;
 	}
 	else
 		Q_ASSERT(false);
@@ -1578,7 +1591,7 @@ void PreviewDialog::slotProcessPlayQueue()
 		m_lastFrameShowTime = hr_clock::now();
 
 		m_frameShown = nextFrame;
-		m_frameExpected = m_frameShown;
+		setExpectedFrame(m_frameShown);
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected, false);
 		m_framesCache[m_outputIndex].erase(it);
@@ -1651,7 +1664,7 @@ void PreviewDialog::slotProcessAudioPlayQueue()
 
 		setCurrentFrame(it->cpOutputFrame, it->cpPreviewFrame);
 		m_frameShown = nextFrame;
-		m_frameExpected = m_frameShown;
+		setExpectedFrame(m_frameShown);
 		m_ui.frameNumberSpinBox->setValue(m_frameExpected);
 		m_ui.frameNumberSlider->setFrame(m_frameExpected, false);
 		m_framesCache[m_outputIndex].erase(it);
@@ -1685,9 +1698,7 @@ void PreviewDialog::slotLoadChapters()
 	if(m_playing)
 		return;
 
-	double nativeFPS = m_nodeInfo[m_outputIndex].fps();
-
-	if (nativeFPS == 0.0)
+	if (m_fpsDen == 0)
 	{
 		QString infoString = tr(
 			"Warning: Load chapters requires clip having constant frame rate. Skipped");
@@ -1714,7 +1725,7 @@ void PreviewDialog::slotLoadChapters()
                                      matched.at(2).toDouble() * 60.0 +
                                      matched.at(3).toDouble() +
                                      matched.at(4).toDouble() / 1000;
-            int frameIndex = std::round(timestamp * nativeFPS);
+            int frameIndex = std::round(timestamp * m_fpsNum / m_fpsDen);
             m_ui.frameNumberSlider->addBookmark(frameIndex);
         }
     }
@@ -2033,12 +2044,31 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 	m_ui.frameNumberSlider->setFramesNumber(
 		m_nodeInfo[m_outputIndex].numFrames(), false);
-	m_ui.frameNumberSlider->setFPS(m_nodeInfo[m_outputIndex].fps());
+
+	auto fpsPair = m_nodeInfo[m_outputIndex].fpsPair();
+	m_fpsNum = fpsPair.first;
+	m_fpsDen = fpsPair.second;
+	m_ui.frameNumberSlider->setFPS(m_fpsDen == 0 ?
+		0.0 : (double)m_fpsNum / (double)m_fpsDen);
 
 	m_pStatusBarWidget->setNodeInfo(m_nodeInfo[m_outputIndex], m_cpVSAPI);
 
+	bool setFrameFromTimestamps = false;
+	SyncOutputNodesMode syncMode = m_pSettingsManager->getSyncOutputMode();
+	if(syncMode == SyncOutputNodesMode::Time)
+		setFrameFromTimestamps = true;
+	else if(syncMode == SyncOutputNodesMode::FromTimeLine)
+	{
+		TimeLineSlider::DisplayMode timeLineMode = (TimeLineSlider::DisplayMode)
+			m_ui.timeLineModeComboBox->currentData().toInt();
+		if(timeLineMode == TimeLineSlider::DisplayMode::Time)
+			setFrameFromTimestamps = true;
+	}
+	if(setFrameFromTimestamps)
+		m_frameExpected = timestampToFrame(m_frameTimestampExpected);
+
 	if(m_frameExpected > lastFrameNumber)
-		m_frameExpected = lastFrameNumber;
+		setExpectedFrame(lastFrameNumber);
 
 	if(m_currentIsAudio)
 	{
@@ -2704,6 +2734,26 @@ void PreviewDialog::resetCropSpinBoxes()
 	recalculateCropMods();
 
 	END_CROP_VALUES_CHANGE
+}
+
+qlonglong PreviewDialog::frameToTimestamp(int a_frame)
+{
+	if(m_fpsDen == 0 || m_fpsNum == 0)
+		return 0;
+	return a_frame * m_fpsDen * 1000 / m_fpsNum;
+}
+
+int PreviewDialog::timestampToFrame(qlonglong a_timestamp)
+{
+	if(m_fpsDen == 0 || m_fpsNum == 0)
+		return 0;
+	return std::ceil((double)a_timestamp * m_fpsNum / m_fpsDen / 1000);
+}
+
+void PreviewDialog::setExpectedFrame(int a_frame)
+{
+	m_frameExpected = a_frame;
+	m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
 }
 
 // END OF void PreviewDialog::resetCropSpinBoxes()

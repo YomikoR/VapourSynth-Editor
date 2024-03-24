@@ -33,6 +33,13 @@ enum class PlayFPSLimitMode
 	Custom,
 };
 
+enum class SyncOutputNodesMode
+{
+	Frame,
+	Time,
+	FromTimeLine,
+};
+
 struct StandardAction
 {
 	QString id;
@@ -59,6 +66,8 @@ extern const bool DEFAULT_COLOR_PICKER_VISIBLE;
 extern const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE;
 extern const double DEFAULT_PLAY_FPS_LIMIT;
 extern const int DEFAULT_LAST_PREVIEW_FRAME;
+extern const qlonglong DEFAULT_LAST_PREVIEW_TIMESTAMP;
+extern const SyncOutputNodesMode DEFAULT_SYNC_OUTPUT_MODE;
 extern const bool DEFAULT_TIMELINE_PANEL_VISIBLE;
 extern const QString DEFAULT_LAST_SNAPSHOT_EXTENSION;
 extern const int DEFAULT_FPS_DISPLAY_PRECISION;

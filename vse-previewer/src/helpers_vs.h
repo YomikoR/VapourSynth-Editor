@@ -2,6 +2,9 @@
 #define HELPERS_VS_H_INCLUDED
 
 #include <vapoursynth/VapourSynth4.h>
+#include <vapoursynth/VSHelper4.h>
+
+#include <utility>
 
 template <typename TV, typename TA>
 class VSMediaTypePicker
@@ -128,20 +131,18 @@ public:
 		}
 	}
 
-	double fps() const
+	std::pair<int64_t, int64_t> fpsPair() const
 	{
 		if (m_mediaType == mtAudio)
 		{
-			return (double)m_pTA->sampleRate / VS_AUDIO_FRAME_SAMPLES;
+			std::pair<int64_t, int64_t> res = {m_pTA->sampleRate, VS_AUDIO_FRAME_SAMPLES};
+			vsh::reduceRational(&res.first, &res.second);
+			return res;
 		}
 		else if (m_mediaType == mtVideo)
-		{
-			auto fpsDen = m_pTV->fpsDen;
-			if (fpsDen == 0)
-				return 0.0;
-			return (double)m_pTV->fpsNum / (double)fpsDen;
-		}
-		return 0.0;
+			return {m_pTV->fpsNum, m_pTV->fpsDen};
+		else
+			return {0, 0};
 	}
 
 };
