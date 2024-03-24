@@ -279,8 +279,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 	if(!initialized)
 		return;
 
-	setTitle();
-
 	int lastFrameNumber;
 
 	auto mt = m_nodeInfo[m_outputIndex].mediaType();
@@ -306,7 +304,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 		const VSAudioInfo * ai = m_nodeInfo[m_outputIndex].getAsAudio();
 		if(!ai)
 			return;
-		
+
 		lastFrameNumber = ai->numFrames - 1;
 		m_ui.frameNumberSpinBox->setMaximum(lastFrameNumber);
 		m_ui.frameNumberSlider->setFramesNumber(ai->numFrames, false);
@@ -355,6 +353,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 		m_frameExpected = timestampToFrame(m_frameTimestampExpected);
 
 	slotShowFrame(m_frameExpected, false);
+	
+	setTitle();
 }
 
 // END OF void PreviewDialog::previewScript(const QString& a_script,
@@ -1528,6 +1528,7 @@ void PreviewDialog::slotPlay(bool a_play)
 		m_audioCache.clear();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
 		m_pActionPlay->setIcon(m_iconPlay);
+		setTitle();
 	}
 }
 
@@ -2103,6 +2104,7 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 
 	m_pVapourSynthScriptProcessor->requestFrameAsync(m_frameExpected,
 		m_outputIndex);
+	slotShowFrame(m_frameExpected, false);
 }
 
 // END OF void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
