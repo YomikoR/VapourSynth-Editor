@@ -167,7 +167,7 @@ QString vsedit::audioInfoString(const VSAudioInfo * a_cpAudioInfo,
 	const VSAPI * a_cpVSAPI)
 {
 	QString infoString = QString("Frames: %frames% | Time: %time% | "
-		"Sample Rate: %srate% Hz | Num Samples: %ns% | "
+		"Sample Rate: %srate% Hz | Samples: %ns% | "
 		"Channels: %channels%| Format: %format%");
 	infoString.replace("%frames%", QString::number(a_cpAudioInfo->numFrames));
 	infoString.replace("%time%", vsedit::timeToString(
