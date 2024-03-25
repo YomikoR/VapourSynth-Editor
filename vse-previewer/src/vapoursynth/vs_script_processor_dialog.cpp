@@ -42,6 +42,8 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	Q_ASSERT(m_pSettingsManager);
 	Q_ASSERT(m_pVSScriptLibrary);
 
+	m_outputIndex = a_pVSScriptLibrary->getDefaultOutputIndex();
+
 	//connect(m_pVSScriptLibrary,
 	//	SIGNAL(signalWriteLogMessage(int, const QString &)),
 	//	this, SLOT(slotWriteLogMessage(int, const QString &)));
@@ -232,7 +234,7 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 	for(auto & pair : m_nodeInfo)
 		pair.second.setNull();
 
-	m_outputIndex = 0;
+	m_outputIndex = m_pVSScriptLibrary->getDefaultOutputIndex();
 }
 
 // END OF void VSScriptProcessorDialog::stopAndCleanUp()

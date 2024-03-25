@@ -50,6 +50,9 @@ public:
 
 	bool clearCoreCaches(VSScript * a_pScript);
 
+	int getDefaultOutputIndex() const { return m_defaultOutputIndex; }
+	void setDefaultOutputIndex(int a_index) { m_defaultOutputIndex = a_index; }
+
 	QString VSAPIInfo();
 	QString VSSAPIInfo();
 
@@ -90,6 +93,8 @@ private:
 	int m_VSSAPIMinor;
 
 	QString m_forcedLibrarySearchPath;
+
+	int m_defaultOutputIndex = 0;
 };
 
 //==============================================================================

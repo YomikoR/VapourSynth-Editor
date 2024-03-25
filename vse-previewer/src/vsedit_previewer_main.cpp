@@ -136,6 +136,7 @@ int main(int argc, char *argv[])
 	std::map<std::string, std::string> scriptArgs = {};
 	bool launchInPortableMode = false;
 	QString librarySearchPath = "";
+	int defaultOutputIndex = 0;
 
 	if (argc <= 1)
 	{
@@ -143,6 +144,7 @@ int main(int argc, char *argv[])
 		std::cout << "Usage: vse-previewer [options] <script>" << std::endl;
 		std::cout << "Options:" << std::endl;
 		std::cout << "  -a, --arg key=value              Argument to pass to the script environment, same as vspipe" << std::endl;
+		std::cout << "  -o, --outputindex N              Select output index to start with, should be between 0 and 9" << std::endl;
 		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
 		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
 		return 0;
@@ -185,6 +187,24 @@ int main(int argc, char *argv[])
 				std::cerr << "VSE-Previewer: no value specified for argument " << line.toStdString().c_str() << std::endl;
 				return 1;
 			}
+		}
+		else if (argString == "-o" || argString == "--outputindex")
+		{
+			if (argc <= arg + 1)
+			{
+				std::cerr << "VSE-Previewer: no output index specified." << std::endl;
+				return 1;
+			}
+			QString indexStr = QString::fromLocal8Bit(argv[arg + 1], -1);
+			bool isInt = false;
+			int index = indexStr.toInt(&isInt, 10);
+			if (!isInt || index < 0 || index > 9)
+			{
+				std::cerr << "VSE-Previewer: please specify a default output index between 0 and 9." << std::endl;
+				return 1;
+			}
+			defaultOutputIndex = index;
+			++arg;
 		}
 		else if (argString == "-p" || argString == "--portable")
 		{
@@ -267,6 +287,7 @@ int main(int argc, char *argv[])
 	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, librarySearchPath);
 	QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
+	pVSSLibrary->setDefaultOutputIndex(defaultOutputIndex);
 	pVSSLibrary->setArguments(scriptArgs);
 
 	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary);

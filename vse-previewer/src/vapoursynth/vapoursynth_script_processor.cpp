@@ -230,7 +230,8 @@ VSNodeInfo VapourSynthScriptProcessor::nodeInfo(int a_outputIndex)
 		m_error = tr("Couldn't resolve output node #%1.")
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(
-			a_outputIndex == 0 ? mtCritical : mtWarning, m_error);
+			a_outputIndex == m_pVSScriptLibrary->getDefaultOutputIndex() ?
+			mtCritical : mtWarning, m_error);
 		return VSNodeInfo();
 	}
 
@@ -837,7 +838,8 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex)
 			m_error = tr("Couldn't resolve output node #%1.")
 				.arg(a_outputIndex);
 			emit signalWriteLogMessage(
-				a_outputIndex == 0 ? mtCritical : mtWarning, m_error);
+				a_outputIndex == m_pVSScriptLibrary->getDefaultOutputIndex() ?
+				mtCritical : mtWarning, m_error);
 			return nodePair;
 		}
 	}
