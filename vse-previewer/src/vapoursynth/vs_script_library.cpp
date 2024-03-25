@@ -121,7 +121,7 @@ const VSAPI * VSScriptLibrary::getVSAPI()
 
 void VSScriptLibrary::setArguments(const std::map<std::string, std::string> &a_args)
 {
-	if(!initialize())
+	if(!isInitialized())
 		return;
 
 	if(m_pArguments)

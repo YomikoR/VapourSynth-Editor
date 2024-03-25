@@ -262,6 +262,10 @@ int main(int argc, char *argv[])
 	QString scriptText = QString::fromUtf8(scriptFile.readAll());
 
 	pPreviewDialog->previewScript(scriptText, scriptFileFullPath);
-	int exitCode = pPreviewDialog->exec();
+
+	int exitCode = -1;
+	if(pVSSLibrary->isInitialized())
+		exitCode = pPreviewDialog->exec();
+
 	return exitCode;
 }
