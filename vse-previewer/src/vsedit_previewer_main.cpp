@@ -135,18 +135,22 @@ int main(int argc, char *argv[])
 	QString scriptFilePath = "";
 	std::map<std::string, std::string> scriptArgs = {};
 	bool launchInPortableMode = false;
+	QString librarySearchPath = "";
 
 	if (argc <= 1)
 	{
 		std::cout << "VSE-Previewer " << VSE_PREVIEWER_VERSION << std::endl;
-		std::cout << "Usage: vse-previewer [-a key1=value1 -a key2=value2 ...] <script>" << std::endl;
+		std::cout << "Usage: vse-previewer [options] <script>" << std::endl;
+		std::cout << "Options:" << std::endl;
+		std::cout << "  -a, --arg key=value              Argument to pass to the script environment, same as vspipe" << std::endl;
+		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
+		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
 		return 0;
 	}
 
 	for(int arg = 1; arg < argc; ++arg)
 	{
 		QString argString = QString::fromLocal8Bit(argv[arg], -1);
-		// Version
 		if(argString == "-v" || argString == "--version")
 		{
 			if (argc > 2)
@@ -182,9 +186,19 @@ int main(int argc, char *argv[])
 				return 1;
 			}
 		}
-		else if (argString == "-fp" || argString == "--force-portable")
+		else if (argString == "-p" || argString == "--portable")
 		{
 			launchInPortableMode = true;
+		}
+		else if (argString == "-l" || argString == "--lib")
+		{
+			if (argc <= arg + 1)
+			{
+				std::cerr << "VSE-Previewer: no library search path specified." << std::endl;
+				return 1;
+			}
+			librarySearchPath = QString::fromLocal8Bit(argv[arg + 1], -1);
+			++arg;
 		}
 		else if(scriptFilePath.isEmpty() && !argString.isEmpty())
 		{
@@ -250,7 +264,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	pVSSLibrary = new VSScriptLibrary(pSettings, qApp);
+	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, librarySearchPath);
 	QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
 	pVSSLibrary->setArguments(scriptArgs);

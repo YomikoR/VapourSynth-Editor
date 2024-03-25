@@ -22,7 +22,7 @@ void VS_CC vsMessageHandler(int a_msgType, const char * a_message,
 //==============================================================================
 
 VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
-	QObject * a_pParent):
+	QObject * a_pParent, QString a_libPath):
 	QObject(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_vsScriptLibrary(this)
@@ -35,6 +35,7 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 	, m_VSAPIMinor(VSE_VS_API_VER_MINOR)
 	, m_VSSAPIMajor(VSE_VSS_API_VER_MAJOR)
 	, m_VSSAPIMinor(VSE_VSS_API_VER_MINOR)
+	, m_forcedLibrarySearchPath(a_libPath)
 {
 	Q_ASSERT(m_pSettingsManager);
 }
@@ -334,7 +335,20 @@ bool VSScriptLibrary::initLibrary()
 		}
 	};
 
-	if(m_pSettingsManager->getPreferVSLibrariesFromList())
+	auto load_forced = [&]()
+	{
+		m_vsScriptLibrary.unload();
+		libraryFullPath = vsedit::resolvePathFromApplication(
+			m_forcedLibrarySearchPath) + QString("/") + libraryName;
+		m_vsScriptLibrary.setFileName(libraryFullPath);
+		loaded = m_vsScriptLibrary.load();
+	};
+
+	if(!m_forcedLibrarySearchPath.isEmpty())
+	{
+		load_forced();
+	}
+	else if(m_pSettingsManager->getPreferVSLibrariesFromList())
 	{
 		if(!loaded) load_from_list();
 		if(!loaded) load_from_registry();

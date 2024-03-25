@@ -21,7 +21,7 @@ class VSScriptLibrary : public QObject
 public:
 
 	VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
-		QObject * a_pParent = nullptr);
+		QObject * a_pParent = nullptr, QString a_libPath = QString());
 
 	virtual ~VSScriptLibrary();
 
@@ -88,6 +88,8 @@ private:
 	int m_VSAPIMinor;
 	int m_VSSAPIMajor;
 	int m_VSSAPIMinor;
+
+	QString m_forcedLibrarySearchPath;
 };
 
 //==============================================================================
