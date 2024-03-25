@@ -128,8 +128,8 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 
 bool VSScriptProcessorDialog::busy(int a_outputIndex) const
 {
-	return ((m_framesInProcess[a_outputIndex]
-		+ m_framesInQueue[a_outputIndex]) != 0);
+	return (m_framesInProcess.at(a_outputIndex)
+		+ m_framesInQueue.at(a_outputIndex) != 0);
 }
 
 // END OF bool VSScriptProcessorDialog::busy(int a_outputIndex)
@@ -229,8 +229,8 @@ void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 void VSScriptProcessorDialog::stopAndCleanUp()
 {
 	clearFramesCache();
-	for(int n = 0; n < 10; ++n)
-		m_nodeInfo[n].setNull();
+	for(auto & pair : m_nodeInfo)
+		pair.second.setNull();
 
 	m_outputIndex = 0;
 }
@@ -240,17 +240,17 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 
 void VSScriptProcessorDialog::clearFramesCache()
 {
-	for(int n = 0; n < 10; ++n)
+	for(auto & pair : m_framesCache)
 	{
-		if(m_framesCache[n].empty())
-			continue;
-		Q_ASSERT(m_cpVSAPI);
-		for(Frame & frame : m_framesCache[n])
+		if(!pair.second.empty())
 		{
-			m_cpVSAPI->freeFrame(frame.cpOutputFrame);
-			m_cpVSAPI->freeFrame(frame.cpPreviewFrame);
+			for(Frame & frame : pair.second)
+			{
+				m_cpVSAPI->freeFrame(frame.cpOutputFrame);
+				m_cpVSAPI->freeFrame(frame.cpPreviewFrame);
+			}
+			pair.second.clear();
 		}
-		m_framesCache[n].clear();
 	}
 }
 

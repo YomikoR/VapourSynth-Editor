@@ -17,6 +17,9 @@ const PlayFPSLimitMode DEFAULT_PLAY_FPS_LIMIT_MODE =
 	PlayFPSLimitMode::FromVideo;
 const double DEFAULT_PLAY_FPS_LIMIT = 23.976;
 const int DEFAULT_LAST_PREVIEW_FRAME = 0;
+const qlonglong DEFAULT_LAST_PREVIEW_TIMESTAMP = 0;
+const SyncOutputNodesMode DEFAULT_SYNC_OUTPUT_MODE =
+	SyncOutputNodesMode::Frame;
 const bool DEFAULT_TIMELINE_PANEL_VISIBLE = true;
 const QString DEFAULT_LAST_SNAPSHOT_EXTENSION = "png";
 const int DEFAULT_FPS_DISPLAY_PRECISION = 3;
