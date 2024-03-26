@@ -1,3 +1,10 @@
+R2
+Allow choosing syncing output nodes by frame or by timestamp
+Accept -l/--lib argument to set vsscript lib search directory on launch
+Set env variables for loading custom vsscript library from portable VS
+Accept -o/--outputindex for default output index (0-9) like in vspipe
+Change -fp/--force-portable argument to -p/--portable
+
 R1
 Initial release, stripped from VapourSynth-Editor R19-mod-6.3
 Show core cache usage in status bar
@@ -7,9 +14,5 @@ Fix duplicated VS messages sent from core
 Fix filter message not shown before full evaluation
 Fix each frame from script requested twice
 Accept -a/--arg arguments like in vspipe
-Accept -p/--portable argument to force portable mode on launch
+Accept -fp/--force-portable argument to force portable mode on launch
 Add experimental audio playback
-Allow choosing syncing output nodes by frame or by timestamp
-Accept -l/--lib argument to set vsscript lib search directory on launch
-Set env variables for loading custom vsscript library in portable VS
-Accept -o/--outputindex for default output index (0-9) like in vspipe
