@@ -758,8 +758,6 @@ bool VapourSynthScriptProcessor::recreateAudioPreviewNode(NodePair &a_nodePair)
 	VSMap * map = m_cpVSAPI->createMap();
 	VSPlugin *stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, pCore);
 	m_cpVSAPI->mapSetInt(map, "length", cpAudioInfo->numFrames, maReplace);
-	m_cpVSAPI->mapSetInt(map, "width", 960, maReplace);
-	m_cpVSAPI->mapSetInt(map, "height", 540, maReplace);
 	VSMap * blankMap = m_cpVSAPI->invoke(stdPlugin, "BlankClip", map);
 	m_cpVSAPI->clearMap(map);
 
