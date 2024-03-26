@@ -296,14 +296,14 @@ bool VSScriptLibrary::initLibrary()
 	bool loaded = false;
 	m_vsScriptLibrary.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 
-	QString path = QString(qgetenv("PATH"));
+	QString path = QString::fromLocal8Bit(qgetenv("PATH"));
 	QString path_backup = path;
 
 	auto set_path = [&]()
 	{
 #ifdef Q_OS_WIN
 		path = libraryDir + ";" + path;
-		qputenv("PATH", path.toStdString());
+		qputenv("PATH", path.toLocal8Bit());
 #endif
 	};
 
@@ -311,7 +311,7 @@ bool VSScriptLibrary::initLibrary()
 	{
 #ifdef Q_OS_WIN
 		path = path_backup;
-		qputenv("PATH", path.toStdString());
+		qputenv("PATH", path.toLocal8Bit());
 #endif
 	};
 
