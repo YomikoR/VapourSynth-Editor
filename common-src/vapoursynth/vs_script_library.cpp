@@ -258,9 +258,29 @@ bool VSScriptLibrary::initLibrary()
 #endif // Q_OS_WIN
 	);
 
+	QString libraryDir;
 	QString libraryFullPath;
 	bool loaded = false;
 	m_vsScriptLibrary.setLoadHints(QLibrary::ExportExternalSymbolsHint);
+
+	QString path = QString(qgetenv("PATH"));
+	QString path_backup = path;
+
+	auto set_path = [&]()
+	{
+#ifdef Q_OS_WIN
+		path = libraryDir + ";" + path;
+		qputenv("PATH", path.toStdString());
+#endif
+	};
+
+	auto reset_path = [&]()
+	{
+#ifdef Q_OS_WIN
+		path = path_backup;
+		qputenv("PATH", path.toStdString());
+#endif
+	};
 
 	auto load_from_registry = [&]()
 	{
@@ -293,10 +313,12 @@ bool VSScriptLibrary::initLibrary()
 		for(const QString & path : librarySearchPaths)
 		{
 			m_vsScriptLibrary.unload();
-			libraryFullPath = vsedit::resolvePathFromApplication(path) +
-				QString("/") + libraryName;
+			libraryDir = vsedit::resolvePathFromApplication(path);
+			libraryFullPath = libraryDir + QString("/") + libraryName;
 			m_vsScriptLibrary.setFileName(libraryFullPath);
+			set_path();
 			loaded = m_vsScriptLibrary.load();
+			reset_path();
 			if(loaded)
 				break;
 		}
