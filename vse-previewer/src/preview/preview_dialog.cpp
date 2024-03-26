@@ -330,9 +330,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 		setAudioOutput();
 	}
 
-	if(m_frameExpected > lastFrameNumber)
-		setExpectedFrame(lastFrameNumber);
-
 	resetCropSpinBoxes();
 
 	slotSetPlayFPSLimit();
@@ -351,6 +348,11 @@ void PreviewDialog::previewScript(const QString& a_script,
 		m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
 	else
 		m_frameExpected = timestampToFrame(m_frameTimestampExpected);
+
+	if(m_frameExpected > lastFrameNumber)
+		setExpectedFrame(lastFrameNumber);
+	else if(m_frameExpected < 0)
+		setExpectedFrame(0);
 
 	slotShowFrame(m_frameExpected, false);
 	
@@ -2070,6 +2072,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 
 	if(m_frameExpected > lastFrameNumber)
 		setExpectedFrame(lastFrameNumber);
+	else if(m_frameExpected < 0)
+		setExpectedFrame(0);
 
 	if(m_currentIsAudio)
 	{
