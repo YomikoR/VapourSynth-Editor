@@ -4,6 +4,7 @@ Accept -l/--lib argument to set vsscript lib search directory on launch
 Set env variables for loading custom vsscript library from portable VS
 Accept -o/--outputindex for default output index (0-9) like in vspipe
 Change -fp/--force-portable argument to -p/--portable
+Accept -f/--frame argument to start from given frame number
 
 R1
 Initial release, stripped from VapourSynth-Editor R19-mod-6.3

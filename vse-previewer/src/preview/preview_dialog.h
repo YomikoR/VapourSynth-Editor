@@ -59,7 +59,7 @@ public:
 	virtual void setScriptName(const QString & a_scriptName) override;
 
 	void previewScript(const QString& a_script,
-		const QString& a_scriptName);
+		const QString& a_scriptName, int a_number = -1);
 
 	bool busy() const
 	{

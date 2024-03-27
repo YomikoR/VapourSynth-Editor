@@ -273,7 +273,7 @@ void PreviewDialog::setScriptName(const QString & a_scriptName)
 //==============================================================================
 
 void PreviewDialog::previewScript(const QString& a_script,
-	const QString& a_scriptName)
+	const QString& a_scriptName, int a_number)
 {
 	bool initialized = initialize(a_script, a_scriptName);
 	if(!initialized)
@@ -343,11 +343,16 @@ void PreviewDialog::previewScript(const QString& a_script,
 	else
 		showNormal();
 
-	auto timelineMode = m_pSettingsManager->getTimeLineMode();
-	if(timelineMode == TimeLineSlider::DisplayMode::Frames)
-		m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
+	if(a_number >= 0)
+		setExpectedFrame(a_number);
 	else
-		m_frameExpected = timestampToFrame(m_frameTimestampExpected);
+	{
+		auto timelineMode = m_pSettingsManager->getTimeLineMode();
+		if(timelineMode == TimeLineSlider::DisplayMode::Frames)
+			m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
+		else
+			m_frameExpected = timestampToFrame(m_frameTimestampExpected);
+	}
 
 	if(m_frameExpected > lastFrameNumber)
 		setExpectedFrame(lastFrameNumber);

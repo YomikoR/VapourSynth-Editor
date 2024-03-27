@@ -130,13 +130,19 @@ void handleQtMessage(QtMsgType a_type,
 	writeLogMessageByTypename(fullMessage, style);
 }
 
-int main(int argc, char *argv[])
+struct VSEPreviewerArgs
 {
 	QString scriptFilePath = "";
 	std::map<std::string, std::string> scriptArgs = {};
 	bool launchInPortableMode = false;
 	QString librarySearchPath = "";
 	int defaultOutputIndex = 0;
+	int defaultFrameNumber = -1;
+};
+
+int main(int argc, char *argv[])
+{
+	VSEPreviewerArgs args;
 
 	if (argc <= 1)
 	{
@@ -145,6 +151,7 @@ int main(int argc, char *argv[])
 		std::cout << "Options:" << std::endl;
 		std::cout << "  -a, --arg key=value              Argument to pass to the script environment, same as vspipe" << std::endl;
 		std::cout << "  -o, --outputindex N              Select output index to start with, should be between 0 and 9" << std::endl;
+		std::cout << "  -f, --frame N                    Select frame number to start with" << std::endl;
 		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
 		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
 		return 0;
@@ -179,7 +186,7 @@ int main(int argc, char *argv[])
 				auto pos = line.indexOf('=');
 				std::string v1 = line.left(pos).toStdString();
 				std::string v2 = line.mid(pos + 1).toStdString();
-				scriptArgs[v1] = v2;
+				args.scriptArgs[v1] = v2;
 				++arg;
 			}
 			else
@@ -203,12 +210,30 @@ int main(int argc, char *argv[])
 				std::cerr << "VSE-Previewer: please specify a default output index between 0 and 9." << std::endl;
 				return 1;
 			}
-			defaultOutputIndex = index;
+			args.defaultOutputIndex = index;
+			++arg;
+		}
+		else if (argString == "-f" || argString == "--frame")
+		{
+			if (argc <= arg + 1)
+			{
+				std::cerr << "VSE-Previewer: no frame number specified." << std::endl;
+				return 1;
+			}
+			QString indexStr = QString::fromLocal8Bit(argv[arg + 1], -1);
+			bool isInt = false;
+			int number = indexStr.toInt(&isInt, 10);
+			if (!isInt || number < 0)
+			{
+				std::cerr << "VSE-Previewer: please specify a valid frame number." << std::endl;
+				return 1;
+			}
+			args.defaultFrameNumber = number;
 			++arg;
 		}
 		else if (argString == "-p" || argString == "--portable")
 		{
-			launchInPortableMode = true;
+			args.launchInPortableMode = true;
 		}
 		else if (argString == "-l" || argString == "--lib")
 		{
@@ -217,12 +242,12 @@ int main(int argc, char *argv[])
 				std::cerr << "VSE-Previewer: no library search path specified." << std::endl;
 				return 1;
 			}
-			librarySearchPath = QString::fromLocal8Bit(argv[arg + 1], -1);
+			args.librarySearchPath = QString::fromLocal8Bit(argv[arg + 1], -1);
 			++arg;
 		}
-		else if(scriptFilePath.isEmpty() && !argString.isEmpty())
+		else if(args.scriptFilePath.isEmpty() && !argString.isEmpty())
 		{
-			scriptFilePath = argString;
+			args.scriptFilePath = argString;
 		}
 		else
 		{
@@ -231,7 +256,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if(scriptFilePath.isEmpty())
+	if(args.scriptFilePath.isEmpty())
 	{
 		std::cerr << "VSE-Previewer: no script input found." << std::endl;
 		return 1;
@@ -247,7 +272,7 @@ int main(int argc, char *argv[])
 	qInstallMessageHandler(handleQtMessage);
 
 	pSettings = new SettingsManager(qApp);
-	if(launchInPortableMode)
+	if(args.launchInPortableMode)
 		pSettings->setPortableMode(true);
 
 	vsedit::disableFontKerning(qApp);
@@ -271,24 +296,24 @@ int main(int argc, char *argv[])
 	qApp->setStyle("fusion");
 #endif
 
-	QFileInfo fileInfo(scriptFilePath);
+	QFileInfo fileInfo(args.scriptFilePath);
 	QString scriptFileFullPath = fileInfo.absoluteFilePath();
 	QFile scriptFile(scriptFileFullPath);
 	bool loaded = scriptFile.open(QIODevice::ReadOnly | QIODevice::Text);
 	if(!loaded)
 	{
 		QString errorMsg = QString("Failed to open script [%1]!")
-			.arg(scriptFilePath);
+			.arg(args.scriptFilePath);
 		writeLogMessageByTypename(errorMsg, LOG_STYLE_ERROR);
 		delete pSettings;
 		return -1;
 	}
 
-	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, librarySearchPath);
+	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, args.librarySearchPath);
 	QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
-	pVSSLibrary->setDefaultOutputIndex(defaultOutputIndex);
-	pVSSLibrary->setArguments(scriptArgs);
+	pVSSLibrary->setDefaultOutputIndex(args.defaultOutputIndex);
+	pVSSLibrary->setArguments(args.scriptArgs);
 
 	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary);
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,
@@ -296,7 +321,8 @@ int main(int argc, char *argv[])
 
 	QString scriptText = QString::fromUtf8(scriptFile.readAll());
 
-	pPreviewDialog->previewScript(scriptText, scriptFileFullPath);
+	pPreviewDialog->previewScript(scriptText, scriptFileFullPath,
+		args.defaultFrameNumber);
 
 	int exitCode = -1;
 	if(pVSSLibrary->isInitialized())
