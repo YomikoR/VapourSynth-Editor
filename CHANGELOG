@@ -1,3 +1,6 @@
+r19-mod-6.5
+-Use same vapoursynth library as used for script evaluation for plugin list.
+
 r19-mod-6.4
 -BUGFIX: Filter logs are not shown before script is evaluated.
 -BUGFIX: VS messages sent from core are duplicated.

@@ -11,9 +11,8 @@ In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev and libqt6websockets
 2) open the system terminal and change working directory to the "pro" directory in the source tree;
 3) execute following command to generate the Makefile and other intermediate files
 
-    `qmake -norecursive pro.pro CONFIG+=release`
-    
-    In some distros you may use `qmake6` instead of `qmake`;
+    `qmake6 -norecursive pro.pro CONFIG+=release`
+
 4) "make" the Makefile with platform specific make-tool, e.g. `nmake` for MS Visual Studio.
 
 The program files will be built in compiler specific sub-directory in the "build" directory in source tree and ready to use.
