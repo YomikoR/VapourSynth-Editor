@@ -290,6 +290,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 {
 	QString previousScript = script();
 	QString previousScriptName = scriptName();
+	m_scriptTextChanged = false;
 
 	if(!m_inPreviewer)
 		stopAndCleanUp();
@@ -566,9 +567,15 @@ void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 // END OF void PreviewDialog::keyPressEvent(QKeyEvent * a_pEvent)
 //==============================================================================
 
+void PreviewDialog::slotScriptTextChanged()
+{
+	m_scriptTextChanged = true;
+	setTitle();
+}
+
 void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
-	const VSFrame * a_cpOutputFrame,
-	const VSFrame * a_cpPreviewFrame)
+                                     const VSFrame * a_cpOutputFrame,
+                                     const VSFrame * a_cpPreviewFrame)
 {
 	if(!a_cpOutputFrame)
 		return;
@@ -3116,6 +3123,8 @@ QPixmap PreviewDialog::pixmapFromRGB(
 void PreviewDialog::setTitle()
 {
 	QString l_scriptName = scriptName();
+	if(m_scriptTextChanged)
+		l_scriptName = "*" + l_scriptName;
 	QString scriptNameTitle =
 		l_scriptName.isEmpty() ? tr("(Untitled)") : l_scriptName;
 	QString title = tr("Preview - Index %1 | ").arg(m_outputIndex);

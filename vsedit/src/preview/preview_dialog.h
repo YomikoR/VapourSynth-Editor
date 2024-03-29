@@ -74,6 +74,10 @@ signals:
 	void signalPasteIntoScriptAtNewLine(const QString& a_line);
 	void signalPasteIntoScriptAtCursor(const QString& a_line);
 
+public slots:
+
+	void slotScriptTextChanged();
+
 protected slots:
 
 	virtual void slotReceiveFrame(int a_frameNumber, int a_outputIndex,
@@ -361,6 +365,7 @@ protected:
 	FramePropsPanel * m_pFramePropsPanel;
 
 	bool m_toChangeTitle;
+	bool m_scriptTextChanged = false;
 
 	bool m_inPreviewer;
 

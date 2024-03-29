@@ -148,6 +148,9 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 	connect(m_pSettingsDialog, SIGNAL(signalSettingsChanged()),
 		m_pPreviewDialog, SLOT(slotSettingsChanged()));
 
+	connect(m_ui.scriptEdit, &QPlainTextEdit::textChanged,
+		m_pPreviewDialog, &PreviewDialog::slotScriptTextChanged);
+
 	m_pBenchmarkDialog =
 		new ScriptBenchmarkDialog(m_pSettingsManager, m_pVSScriptLibrary);
 	connect(m_pBenchmarkDialog,
