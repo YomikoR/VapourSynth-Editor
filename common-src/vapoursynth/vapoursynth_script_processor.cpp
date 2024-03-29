@@ -644,6 +644,11 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 		VSMap * pArgumentMap = m_cpVSAPI->createMap();
 
+		VSCoreInfo coreInfo;
+		m_cpVSAPI->getCoreInfo(pCore, &coreInfo);
+		if(coreInfo.core < 58)
+			m_cpVSAPI->mapSetInt(pArgumentMap, "prefer_props", 1, maReplace);
+
 		// Set matrix and chromaloc
 
 		int64_t matrixIn;

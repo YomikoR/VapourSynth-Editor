@@ -169,16 +169,6 @@ VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 		return nullptr;
 	}
 
-	VSCoreInfo info;
-	m_cpVSAPI->getCoreInfo(pCore, &info);
-	if(info.core < 58)
-	{
-		QString errorString = "VapourSynth version 58 or later is required.";
-		emit signalWriteLogMessage(mtCritical, errorString);
-		finalize();
-		return nullptr;
-	}
-
 	if(!m_pLogHandle)
 		m_pLogHandle = m_cpVSAPI->addLogHandler(vsMessageHandler, nullptr, this, pCore);
 	return pCore;
