@@ -1800,7 +1800,7 @@ void PreviewDialog::slotProcessAudioPlayQueue()
 		(m_framesCache[m_outputIndex].size() <= m_cachedFramesLimit))
 	{
 		m_pVapourSynthScriptProcessor->requestFrameAsync(nextFrame,
-			m_outputIndex);
+			m_outputIndex, true);
 		m_lastFrameRequestedForPlay = nextFrame;
 		nextFrame = (nextFrame + 1) % numFrames;
 	}
