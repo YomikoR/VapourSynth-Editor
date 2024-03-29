@@ -90,6 +90,8 @@ private:
 
 	bool recreatePreviewNode(NodePair & a_nodePair);
 
+	bool recreateAudioPreviewNode(NodePair & a_nodePair);
+
 	void freeFrameTicket(FrameTicket & a_ticket);
 
 	NodePair & getNodePair(int a_outputIndex, bool a_needPreview);

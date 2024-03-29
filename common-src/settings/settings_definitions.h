@@ -33,6 +33,13 @@ enum class PlayFPSLimitMode
 	Custom,
 };
 
+enum class SyncOutputNodesMode
+{
+	Frame,
+	Time,
+	FromTimeLine,
+};
+
 struct StandardAction
 {
 	QString id;
@@ -89,6 +96,8 @@ extern const bool DEFAULT_USE_SPACES_AS_TAB;
 extern const int DEFAULT_SPACES_IN_TAB;
 extern const bool DEFAULT_REMEMBER_LAST_PREVIEW_FRAME;
 extern const int DEFAULT_LAST_PREVIEW_FRAME;
+extern const qlonglong DEFAULT_LAST_PREVIEW_TIMESTAMP;
+extern const SyncOutputNodesMode DEFAULT_SYNC_OUTPUT_MODE;
 extern const bool DEFAULT_HIGHLIGHT_SELECTION_MATCHES;
 extern const int DEFAULT_HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH;
 extern const bool DEFAULT_TIMELINE_PANEL_VISIBLE;

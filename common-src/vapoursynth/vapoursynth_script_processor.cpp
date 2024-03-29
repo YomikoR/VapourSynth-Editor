@@ -135,12 +135,20 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 
 	m_nodeInfo = VSNodeInfo(pOutputNode, m_cpVSAPI);
 
+#ifdef Q_OS_WIN // AUDIO
+	if(a_reason == ProcessReason::Encode && m_nodeInfo.isAudio())
+#else
 	if((a_reason == ProcessReason::Preview
 		|| a_reason == ProcessReason::Encode) && m_nodeInfo.isAudio())
+#endif
 	{
 		m_cpVSAPI->freeNode(pOutputNode);
 		m_error = tr("Output node #%1 is audio. "
+#ifdef Q_OS_WIN // AUDIO
+			"Encoding audio are not supported.")
+#else
 			"Previewing and encoding audio are not supported.")
+#endif
 			.arg(a_outputIndex);
 		emit signalWriteLogMessage(
 			a_outputIndex == 0 ? mtCritical : mtWarning, m_error);
@@ -266,7 +274,7 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	if(a_frameNumber < 0)
 	{
 		m_error = tr("Requested frame number %1 is negative.")
-			.arg(a_outputIndex);
+			.arg(a_frameNumber);
 		emit signalWriteLogMessage(mtCritical, m_error);
 		return false;
 	}
@@ -591,9 +599,13 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	int outputMediaType = m_cpVSAPI->getNodeType(a_nodePair.pOutputNode);
 	if(outputMediaType == mtAudio)
 	{
-		m_error = tr("Audio playback is not supported.");
+#ifdef Q_OS_WIN // AUDIO
+		return recreateAudioPreviewNode(a_nodePair);
+#else
+		m_error = tr("Audio playback is supported on Windows only.");
 		emit signalWriteLogMessage(mtCritical, m_error);
 		return false;
+#endif
 	}
 
 	const VSVideoInfo * cpVideoInfo =
@@ -772,6 +784,38 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 //		NodePair & a_nodePair)
 //==============================================================================
 
+bool VapourSynthScriptProcessor::recreateAudioPreviewNode(NodePair &a_nodePair)
+{
+	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+	Q_ASSERT(pCore);
+
+	const VSAudioInfo * cpAudioInfo =
+		m_cpVSAPI->getAudioInfo(a_nodePair.pOutputNode);
+
+	VSMap * map = m_cpVSAPI->createMap();
+	VSPlugin *stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, pCore);
+	m_cpVSAPI->mapSetInt(map, "length", cpAudioInfo->numFrames, maReplace);
+	VSMap * blankMap = m_cpVSAPI->invoke(stdPlugin, "BlankClip", map);
+	m_cpVSAPI->clearMap(map);
+
+	QString props = vsedit::nodeInfoString(
+		nodeInfo(a_nodePair.outputIndex), m_cpVSAPI);
+	QString text = QString("Audio node #%1\n\n").arg(a_nodePair.outputIndex)
+		+ props.replace("| ", "\n");
+    m_cpVSAPI->mapSetData(blankMap, "text", text.toStdString().c_str(),
+		text.size(), dtUtf8, maReplace);
+	VSPlugin * textPlugin = m_cpVSAPI->getPluginByID(VSH_TEXT_PLUGIN_ID, pCore);
+    VSMap * textMap = m_cpVSAPI->invoke(textPlugin, "Text", blankMap);
+	m_cpVSAPI->clearMap(blankMap);
+
+	VSNode * textClip = m_cpVSAPI->mapGetNode(textMap, "clip", 0, nullptr);
+	m_cpVSAPI->clearMap(textMap);
+
+	a_nodePair.pPreviewNode = packRGBFilter(textClip, a_nodePair.pOutputNode,
+		false, pCore, m_cpVSAPI);
+    return true;
+}
+
 void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 {
 	Q_ASSERT(m_cpVSAPI);
@@ -812,6 +856,8 @@ NodePair & VapourSynthScriptProcessor::getNodePair(int a_outputIndex,
 	bool a_needPreview)
 {
 	NodePair & nodePair = m_nodePairForOutputIndex[a_outputIndex];
+
+	nodePair.outputIndex = a_outputIndex;
 
 	if(!nodePair.pOutputNode)
 	{

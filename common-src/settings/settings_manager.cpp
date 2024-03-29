@@ -40,6 +40,8 @@ const char USE_SPACES_AS_TAB_KEY[] = "use_spaces_as_tab";
 const char SPACES_IN_TAB_KEY[] = "spaces_in_tab";
 const char REMEMBER_LAST_PREVIEW_FRAME_KEY[] = "remember_last_preview_frame";
 const char LAST_PREVIEW_FRAME_KEY[] = "last_preview_frame";
+const char LAST_PREVIEW_TIMESTAMP_KEY[] = "last_preview_timestamp";
+const char SYNC_OUTPUT_MODE_KEY[] = "sync_output_node_mode";
 const char NEW_SCRIPT_TEMPLATE_KEY[] = "new_script_template";
 const char HIGHLIGHT_SELECTION_MATCHES_KEY[] = "highlight_selection_matches";
 const char HIGHLIGHT_SELECTION_MATCHES_MIN_LENGTH_KEY[] =
@@ -905,6 +907,33 @@ bool SettingsManager::setLastPreviewFrame(int a_frameNumber, bool a_inPreviewer)
 			LAST_PREVIEW_FRAME_KEY, a_frameNumber);
 	}
 	return setValue(LAST_PREVIEW_FRAME_KEY, a_frameNumber);
+}
+
+qlonglong SettingsManager::getLastPreviewTimestamp(bool a_inPreviewer) const
+{
+	if(a_inPreviewer)
+		return valueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_TIMESTAMP_KEY,
+			DEFAULT_LAST_PREVIEW_TIMESTAMP).toLongLong();
+	return value(LAST_PREVIEW_TIMESTAMP_KEY,
+			DEFAULT_LAST_PREVIEW_TIMESTAMP).toLongLong();
+}
+
+bool SettingsManager::setLastPreviewTimestamp(qlonglong a_ms, bool a_inPreviewer)
+{
+	if(a_inPreviewer)
+		return setValueInGroup(PREVIEWER_GROUP, LAST_PREVIEW_TIMESTAMP_KEY, a_ms);
+	return setValue(LAST_PREVIEW_TIMESTAMP_KEY, a_ms);
+}
+
+SyncOutputNodesMode SettingsManager::getSyncOutputMode() const
+{
+	return (SyncOutputNodesMode)value(SYNC_OUTPUT_MODE_KEY,
+		(int)DEFAULT_SYNC_OUTPUT_MODE).toInt();
+}
+
+bool SettingsManager::setSyncOutputMode(SyncOutputNodesMode a_mode)
+{
+	return setValue(SYNC_OUTPUT_MODE_KEY, (int)a_mode);
 }
 
 //==============================================================================

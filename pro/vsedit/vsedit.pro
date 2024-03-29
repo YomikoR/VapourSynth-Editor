@@ -4,6 +4,10 @@ QT += widgets
 QT += network
 QT += core5compat
 
+win32 {
+	QT += multimedia
+}
+
 
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")

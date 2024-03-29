@@ -10,6 +10,10 @@
 #include <QPixmap>
 #include <QTextEdit>
 #include <QIcon>
+#ifdef Q_OS_WIN // AUDIO
+#include <QAudioSink>
+#include <QIODevice>
+#endif
 #include <map>
 #include <vector>
 #include <chrono>
@@ -33,6 +37,20 @@ extern const char TIMELINE_BOOKMARKS_FILE_SUFFIX[];
 class PreviewDialog : public VSScriptProcessorDialog
 {
 	Q_OBJECT
+
+#ifdef Q_OS_WIN // AUDIO
+	struct AudioFrame
+	{
+		int number;
+		int outputIndex;
+		QByteArray data;
+
+		AudioFrame();
+		AudioFrame(int a_number, int a_outputIndex, QByteArray a_data);
+		bool valid() const { return !!data.size(); }
+		bool operator==(const AudioFrame & a_other) const;
+	};
+#endif
 
 public:
 
@@ -132,6 +150,9 @@ protected slots:
 	void slotPlay(bool a_play);
 
 	void slotProcessPlayQueue();
+#ifdef Q_OS_WIN // AUDIO
+	void slotProcessAudioPlayQueue();
+#endif
 
 	void slotLoadChapters();
 	void slotClearBookmarks();
@@ -203,6 +224,11 @@ protected:
 
 	void resetCropSpinBoxes();
 
+	qlonglong frameToTimestamp(int a_frame);
+	int timestampToFrame(qlonglong a_timestamp);
+
+	void setExpectedFrame(int a_frame);
+
 	void setCurrentFrame(const VSFrame * a_cpOutputFrame,
 		const VSFrame * a_cpPreviewFrame);
 
@@ -224,11 +250,23 @@ protected:
 	QPoint loadLastScrollBarPositions() const;
 	void saveLastScrollBarPositions();
 
+#ifdef Q_OS_WIN // AUDIO
+	void setAudioOutput();
+	void stopAudioOutput();
+	void playAudioFrame();
+
+	QByteArray readAudioFrame(const VSFrame * a_cpFrame);
+#endif
+
 	Ui::PreviewDialog m_ui;
 
 	PreviewAdvancedSettingsDialog * m_pAdvancedSettingsDialog;
 
+	int64_t m_fpsNum = 0;
+	int64_t m_fpsDen = 0;
+
 	int m_frameExpected;
+	qlonglong m_frameTimestampExpected;
 	int m_frameShown;
 	int m_lastFrameRequestedForPlay;
 
@@ -325,6 +363,15 @@ protected:
 	bool m_toChangeTitle;
 
 	bool m_inPreviewer;
+
+#ifdef Q_OS_WIN // AUDIO
+	bool m_currentIsAudio;
+	QAudioSink * m_pAudioSink = nullptr;
+	QIODevice * m_pAudioIODevice = nullptr;
+	std::map<int, AudioFrame> m_audioCache;
+	QTimer * m_pAudioPlayTimer = nullptr;
+	double m_audioVolume = 1.0;
+#endif
 };
 
 class FramePropsPanel: public QTextEdit

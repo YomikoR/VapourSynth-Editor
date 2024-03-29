@@ -5,6 +5,7 @@ QT += core5compat
 
 
 win32 {
+	QT += multimedia
 	CONFIG += console
 }
 

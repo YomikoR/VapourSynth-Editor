@@ -229,7 +229,7 @@ void VSScriptProcessorDialog::closeEvent(QCloseEvent * a_pEvent)
 void VSScriptProcessorDialog::stopAndCleanUp()
 {
 	clearFramesCache();
-	for(int n = 0; n < 10; ++n)
+	for(int n = 0; n < MAX_VS_OUTPUT; ++n)
 		m_nodeInfo[n].setNull();
 
 	m_outputIndex = 0;
@@ -240,7 +240,7 @@ void VSScriptProcessorDialog::stopAndCleanUp()
 
 void VSScriptProcessorDialog::clearFramesCache()
 {
-	for(int n = 0; n < 10; ++n)
+	for(int n = 0; n < MAX_VS_OUTPUT; ++n)
 	{
 		if(m_framesCache[n].empty())
 			continue;

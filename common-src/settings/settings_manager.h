@@ -170,6 +170,15 @@ public:
 
 	bool setLastPreviewFrame(int a_frameNumber, bool a_inPreviewer = false);
 
+	// timestamp in ms
+	qlonglong getLastPreviewTimestamp(bool a_inPreviewer = false) const;
+
+	bool setLastPreviewTimestamp(qlonglong a_ms, bool a_inPreviewer = false);
+
+	SyncOutputNodesMode getSyncOutputMode() const;
+
+	bool setSyncOutputMode(SyncOutputNodesMode a_mode);
+
 	QString getDefaultNewScriptTemplate();
 
 	QString getNewScriptTemplate();

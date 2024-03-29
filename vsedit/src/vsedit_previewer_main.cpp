@@ -225,7 +225,11 @@ int main(int argc, char *argv[])
 	QString scriptText = QString::fromUtf8(scriptFile.readAll());
 	pSettings->setLastUsedPath(scriptFileFullPath);
 
-	pPreviewDialog->previewScript(scriptText, scriptFileFullPath);
-	int exitCode = pPreviewDialog->exec();
+	int exitCode = -1;
+	if(pVSSLibrary->isInitialized())
+	{
+		pPreviewDialog->previewScript(scriptText, scriptFileFullPath);
+		exitCode = pPreviewDialog->exec();
+	}
 	return exitCode;
 }

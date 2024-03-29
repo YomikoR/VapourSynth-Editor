@@ -57,6 +57,12 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	m_ui.ditherTypeComboBox->addItem("Ordered", (int)DitherType::ORDERED);
 	m_ui.ditherTypeComboBox->addItem("Random", (int)DitherType::RANDOM);
 
+	m_ui.syncOutputComboBox->addItem("Frame", (int)SyncOutputNodesMode::Frame);
+	m_ui.syncOutputComboBox->addItem("Timestamp",
+		(int)SyncOutputNodesMode::Time);
+	m_ui.syncOutputComboBox->addItem("From Timeline",
+		(int)SyncOutputNodesMode::FromTimeLine);
+
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
 	connect(m_ui.resetToDefaultButton, SIGNAL(clicked()),
@@ -116,6 +122,11 @@ void PreviewAdvancedSettingsDialog::slotCall()
 		m_pSettingsManager->getSnapshotTemplate());
 	m_ui.saveSnapshotTemplateLineEdit->setEnabled(silentSnapshotEnabled);
 
+	SyncOutputNodesMode syncOutputMode = m_pSettingsManager->getSyncOutputMode();
+	comboIndex = m_ui.syncOutputComboBox->findData((int)syncOutputMode);
+	if(comboIndex != -1)
+		m_ui.syncOutputComboBox->setCurrentIndex(comboIndex);
+
 	show();
 }
 
@@ -151,6 +162,8 @@ void PreviewAdvancedSettingsDialog::slotApply()
 		m_ui.silentSnapshotCheckBox->isChecked());
 	m_pSettingsManager->setSnapshotTemplate(
 		m_ui.saveSnapshotTemplateLineEdit->text());
+	m_pSettingsManager->setSyncOutputMode((SyncOutputNodesMode)
+		m_ui.syncOutputComboBox->currentData().toInt());
 
 	emit signalSettingsChanged();
 }
@@ -186,6 +199,11 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 	comboIndex = m_ui.ditherTypeComboBox->findData((int)ditherType);
 	if(comboIndex != -1)
 		m_ui.ditherTypeComboBox->setCurrentIndex(comboIndex);
+
+	SyncOutputNodesMode syncOutputMode = DEFAULT_SYNC_OUTPUT_MODE;
+	comboIndex = m_ui.syncOutputComboBox->findData((int)syncOutputMode);
+	if(comboIndex != -1)
+		m_ui.syncOutputComboBox->setCurrentIndex(comboIndex);
 
 	m_ui.silentSnapshotCheckBox->setChecked(DEFAULT_SILENT_SNAPSHOT);
 	m_ui.saveSnapshotTemplateLineEdit->setText(DEFAULT_SNAPSHOT_TEMPLATE);
