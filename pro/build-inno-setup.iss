@@ -49,16 +49,15 @@ Source: ..\build\release-64bit-msvc\CHANGELOG; DestDir: {app}; Flags: ignorevers
 Source: ..\build\release-64bit-msvc\Qt6Core.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Core5Compat.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Gui.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\Qt6Multimedia.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Network.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6WebSockets.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Widgets.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\imageformats\qwebp.dll; DestDir: {app}\imageformats; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\platforms\qwindows.dll; DestDir: {app}\platforms; Flags: ignoreversion uninsrestartdelete restartreplace
-Source: ..\build\release-64bit-msvc\styles\qwindowsvistastyle.dll; DestDir: {app}\styles; Flags: ignoreversion uninsrestartdelete restartreplace
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"
-Name: "{group}\{#AppName} (Console Mode)"; Filename: "cmd"; Parameters: "/c """"{app}\{#ExeName}.exe"""""; Tasks: desktopicon
 Name: "{group}\VapourSynth Jobs Server Watcher"; Filename: "{app}\{#ExeName}-job-server-watcher.exe"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"; Tasks: desktopicon
 
