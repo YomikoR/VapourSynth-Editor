@@ -56,12 +56,6 @@ private slots:
 
 	void slotSelectVSLibraryPath();
 
-	void slotAddVSPluginsPath();
-
-	void slotRemoveVSPluginsPath();
-
-	void slotSelectVSPluginsPath();
-
 	void slotThemeElementSelected(const QModelIndex & a_index);
 
 	void slotFontButtonClicked();

@@ -17,7 +17,7 @@ const char CORE_PLUGINS_FILEPATH[] = "core";
 //==============================================================================
 
 VapourSynthPluginsManager::VapourSynthPluginsManager(
-	SettingsManager * a_pSettingsManager, QObject * a_pParent):
+	SettingsManager * a_pSettingsManager, const VSAPI * a_cpVSAPI, QObject * a_pParent):
 	QObject(a_pParent)
 	, m_pluginsList()
 	, m_currentPluginPath()
@@ -29,7 +29,7 @@ VapourSynthPluginsManager::VapourSynthPluginsManager(
 		connect(this, SIGNAL(signalWriteLogMessage(int, const QString &)),
 		a_pParent, SLOT(slotWriteLogMessage(int, const QString &)));
 	}
-	slotRefill();
+	slotRefill(a_cpVSAPI);
 }
 
 // END OF VapourSynthPluginsManager::VapourSynthPluginsManager(
@@ -44,172 +44,51 @@ VapourSynthPluginsManager::~VapourSynthPluginsManager()
 // END OF VapourSynthPluginsManager::~VapourSynthPluginsManager()
 //==============================================================================
 
-void VapourSynthPluginsManager::getCorePlugins()
+void VapourSynthPluginsManager::getCorePlugins(const VSAPI * a_cpVSAPI)
 {
-	QString libraryName("vapoursynth");
-	QString libraryFullPath;
-	QLibrary vsLibrary(libraryName);
-	bool loaded = false;
-
-	auto load_from_registry = [&]()
-	{
-#ifdef Q_OS_WIN
-		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
-			QSettings::NativeFormat);
-		libraryFullPath =
-			settings.value("VapourSynth/VapourSynthDLL").toString();
-
-		if(!libraryFullPath.isEmpty())
-		{
-			vsLibrary.unload();
-			vsLibrary.setFileName(libraryFullPath);
-			loaded = vsLibrary.load();
-		}
-#endif // Q_OS_WIN
-	};
-
-	auto load_from_path = [&]()
-	{
-		vsLibrary.unload();
-		vsLibrary.setFileName(libraryName);
-		loaded = vsLibrary.load();
-	};
-
-	auto load_from_list = [&]()
-	{
-		QStringList librarySearchPaths =
-			m_pSettingsManager->getVapourSynthLibraryPaths();
-		for(const QString & path : librarySearchPaths)
-		{
-			vsLibrary.unload();
-			libraryFullPath = vsedit::resolvePathFromApplication(path) +
-				QString("/") + libraryName;
-			vsLibrary.setFileName(libraryFullPath);
-			loaded = vsLibrary.load();
-			if(loaded)
-				break;
-		}
-	};
-
-	if(m_pSettingsManager->getPreferVSLibrariesFromList())
-	{
-		if(!loaded) load_from_list();
-		if(!loaded) load_from_registry();
-		if(!loaded) load_from_path();
-	}
-	else
-	{
-		if(!loaded) load_from_registry();
-		if(!loaded) load_from_path();
-		if(!loaded) load_from_list();
-	}
-
-	if(!loaded)
-	{
-		emit signalWriteLogMessage(mtCritical, "VapourSynth plugins manager: "
-			"Failed to load vapoursynth library!\n"
-			"Please set up the library search paths in settings.");
+	if(!a_cpVSAPI)
 		return;
-	}
 
-	VSGetVapourSynthAPI getVapourSynthAPI =
-		(VSGetVapourSynthAPI)vsLibrary.resolve("getVapourSynthAPI");
-	if(!getVapourSynthAPI)
-	{ // Win32 fallback
-		getVapourSynthAPI =
-			(VSGetVapourSynthAPI)vsLibrary.resolve("_getVapourSynthAPI@4");
-	}
-	if(!getVapourSynthAPI)
-	{
-		emit signalWriteLogMessage(mtCritical, "VapourSynth plugins manager: "
-			"Failed to get entry in vapoursynth library!");
-		vsLibrary.unload();
-		return;
-	}
-
-	const VSAPI * cpVSAPI = getVapourSynthAPI(VS_MAKE_VERSION(4, 0));
-	if(!cpVSAPI)
-	{
-		emit signalWriteLogMessage(mtCritical, "VapourSynth plugins manager: "
-			"Failed to get VapourSynth API!");
-		vsLibrary.unload();
-		return;
-	}
-
-	VSCore * pCore = cpVSAPI->createCore(0);
+	VSCore * pCore = a_cpVSAPI->createCore(0);
 	if(!pCore)
 	{
 		emit signalWriteLogMessage(mtCritical, "VapourSynth plugins manager: "
 			"Failed to create VapourSynth core!");
-		vsLibrary.unload();
 		return;
 	}
 
-	VSPlugin * pPlugin = cpVSAPI->getNextPlugin(nullptr, pCore);
+	VSPlugin * pPlugin = a_cpVSAPI->getNextPlugin(nullptr, pCore);
 	while(pPlugin)
 	{
 		m_pluginsList.emplace_back();
 		VSData::Plugin & pluginData = m_pluginsList.back();
-		pluginData.filepath = cpVSAPI->getPluginPath(pPlugin);
-		pluginData.id = cpVSAPI->getPluginID(pPlugin);
-		pluginData.pluginNamespace = cpVSAPI->getPluginNamespace(pPlugin);
-		pluginData.name = cpVSAPI->getPluginName(pPlugin);
+		pluginData.filepath = a_cpVSAPI->getPluginPath(pPlugin);
+		pluginData.id = a_cpVSAPI->getPluginID(pPlugin);
+		pluginData.pluginNamespace = a_cpVSAPI->getPluginNamespace(pPlugin);
+		pluginData.name = a_cpVSAPI->getPluginName(pPlugin);
 
 		VSPluginFunction * pPluginFunction =
-			cpVSAPI->getNextPluginFunction(nullptr, pPlugin);
+			a_cpVSAPI->getNextPluginFunction(nullptr, pPlugin);
 		while(pPluginFunction)
 		{
 			const char * pluginFunctionName =
-				cpVSAPI->getPluginFunctionName(pPluginFunction);
+				a_cpVSAPI->getPluginFunctionName(pPluginFunction);
 			const char * pluginFunctionArgs =
-				cpVSAPI->getPluginFunctionArguments(pPluginFunction);
+				a_cpVSAPI->getPluginFunctionArguments(pPluginFunction);
 
 			VSData::Function function = parseFunctionSignature(pluginFunctionName,
 				pluginFunctionArgs);
 			pluginData.functions.push_back(function);
 
-			pPluginFunction = cpVSAPI->getNextPluginFunction(pPluginFunction, pPlugin);
+			pPluginFunction = a_cpVSAPI->getNextPluginFunction(pPluginFunction, pPlugin);
 		}
-		pPlugin = cpVSAPI->getNextPlugin(pPlugin, pCore);
+		pPlugin = a_cpVSAPI->getNextPlugin(pPlugin, pCore);
 	}
 
-	cpVSAPI->freeCore(pCore);
-	vsLibrary.unload();
+	a_cpVSAPI->freeCore(pCore);
 }
 
-// END OF void VapourSynthPluginsManager::getCorePlugins()
-//==============================================================================
-
-void VapourSynthPluginsManager::pollPaths(const QStringList & a_pluginsPaths)
-{
-	for(const QString & dirPath : a_pluginsPaths)
-	{
-		QString absolutePath = vsedit::resolvePathFromApplication(dirPath);
-		QFileInfoList fileInfoList = QDir(absolutePath).entryInfoList();
-		for(const QFileInfo & fileInfo : fileInfoList)
-		{
-			QString filePath = fileInfo.absoluteFilePath();
-			QLibrary plugin(filePath);
-			VSInitPlugin initVSPlugin =
-				(VSInitPlugin)plugin.resolve("VapourSynthPluginInit");
-			if(!initVSPlugin)
-			{ // Win32 fallback
-				initVSPlugin =
-					(VSInitPlugin)plugin.resolve("_VapourSynthPluginInit@12");
-			}
-			if(!initVSPlugin)
-				continue;
-			m_currentPluginPath = filePath;
-
-			initVSPlugin(reinterpret_cast<VSPlugin *>(this), &m_VSPAPI);
-			plugin.unload();
-			m_pluginAlreadyLoaded = false;
-		}
-	}
-}
-
-// END OF void VapourSynthPluginsManager::pollPaths(
-//		const QStringList & a_pluginsPaths)
+// END OF void VapourSynthPluginsManager::getCorePlugins(const VSAPI * a_cpVSAPI)
 //==============================================================================
 
 QStringList VapourSynthPluginsManager::functions() const
@@ -295,14 +174,12 @@ void VapourSynthPluginsManager::slotSort()
 // END OF void VapourSynthPluginsManager::slotSort()
 //==============================================================================
 
-void VapourSynthPluginsManager::slotRefill()
+void VapourSynthPluginsManager::slotRefill(const VSAPI * a_cpVSAPI)
 {
 	slotClear();
-	getCorePlugins();
-	QStringList pluginsPaths = m_pSettingsManager->getVapourSynthPluginsPaths();
-	pollPaths(pluginsPaths);
+	getCorePlugins(a_cpVSAPI);
 	slotSort();
 }
 
-// END OF void VapourSynthPluginsManager::slotRefill()
+// END OF void VapourSynthPluginsManager::slotRefill(const VSAPI * a_cpVSAPI)
 //==============================================================================

@@ -114,8 +114,8 @@ MainWindow::MainWindow(SettingsManager *settings) : QMainWindow()
 		SIGNAL(signalWriteLogMessage(int, const QString &)),
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 
-	m_pVapourSynthPluginsManager =
-		new VapourSynthPluginsManager(m_pSettingsManager, this);
+	m_pVapourSynthPluginsManager = new VapourSynthPluginsManager(
+		m_pSettingsManager, m_pVSScriptLibrary->getVSAPI(), this);
 	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
 
 	m_ui.scriptEdit->setPluginsList(vsPluginsList);
@@ -641,7 +641,7 @@ void MainWindow::slotSettingsChanged()
 		pAction->setShortcut(hotkey);
 	}
 
-	m_pVapourSynthPluginsManager->slotRefill();
+	m_pVapourSynthPluginsManager->slotRefill(m_pVSScriptLibrary->getVSAPI());
 	VSPluginsList vsPluginsList = m_pVapourSynthPluginsManager->pluginsList();
 	m_ui.scriptEdit->setPluginsList(vsPluginsList);
 	m_ui.scriptEdit->slotLoadSettings();

@@ -34,9 +34,6 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 	m_ui.addVSLibraryPathButton->setIcon(QIcon(":folder_add.png"));
 	m_ui.removeVSLibraryPathButton->setIcon(QIcon(":folder_remove.png"));
 	m_ui.selectVSLibraryPathButton->setIcon(QIcon(":folder.png"));
-	m_ui.addVSPluginsPathButton->setIcon(QIcon(":folder_add.png"));
-	m_ui.removeVSPluginsPathButton->setIcon(QIcon(":folder_remove.png"));
-	m_ui.selectVSPluginsPathButton->setIcon(QIcon(":folder.png"));
 
 	m_pActionsHotkeyEditModel = new ActionsHotkeyEditModel(m_pSettingsManager,
 		this);
@@ -61,13 +58,6 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotRemoveVSLibraryPath()));
 	connect(m_ui.selectVSLibraryPathButton, SIGNAL(clicked()),
 		this, SLOT(slotSelectVSLibraryPath()));
-
-	connect(m_ui.addVSPluginsPathButton, SIGNAL(clicked()),
-		this, SLOT(slotAddVSPluginsPath()));
-	connect(m_ui.removeVSPluginsPathButton, SIGNAL(clicked()),
-		this, SLOT(slotRemoveVSPluginsPath()));
-	connect(m_ui.selectVSPluginsPathButton, SIGNAL(clicked()),
-		this, SLOT(slotSelectVSPluginsPath()));
 
 	connect(m_ui.themeElementsList, SIGNAL(clicked(const QModelIndex &)),
 		this, SLOT(slotThemeElementSelected(const QModelIndex &)));
@@ -127,11 +117,6 @@ void SettingsDialog::slotCall()
 	m_ui.vsLibraryPathsListWidget->addItems(
 		m_pSettingsManager->getVapourSynthLibraryPaths());
 	m_ui.vsLibraryPathEdit->clear();
-
-	m_ui.vsPluginsPathsListWidget->clear();
-	m_ui.vsPluginsPathsListWidget->addItems(
-		m_pSettingsManager->getVapourSynthPluginsPaths());
-	m_ui.vsPluginsPathEdit->clear();
 
 	m_ui.settingsTabWidget->setCurrentIndex(0);
 
@@ -237,16 +222,6 @@ void SettingsDialog::slotApply()
 	vapourSynthLibraryPaths.removeDuplicates();
 	m_pSettingsManager->setVapourSynthLibraryPaths(vapourSynthLibraryPaths);
 
-	QStringList vapourSynthPluginsPaths;
-	int vsPluginsPathsNumber = m_ui.vsPluginsPathsListWidget->count();
-	for(int i = 0; i < vsPluginsPathsNumber; ++i)
-	{
-		QString path = m_ui.vsPluginsPathsListWidget->item(i)->text();
-		vapourSynthPluginsPaths.append(path);
-	}
-	vapourSynthPluginsPaths.removeDuplicates();
-	m_pSettingsManager->setVapourSynthPluginsPaths(vapourSynthPluginsPaths);
-
 	m_pActionsHotkeyEditModel->slotSaveActionsHotkeys();
 
 	m_pThemeElementsModel->slotSaveThemeSettings();
@@ -285,9 +260,6 @@ void SettingsDialog::slotRemoveVSLibraryPath()
 		delete pCurrentItem;
 }
 
-// END OF void SettingsDialog::slotRemoveVSPluginsPath()
-//==============================================================================
-
 void SettingsDialog::slotSelectVSLibraryPath()
 {
 	QString path = QFileDialog::getExistingDirectory(this,
@@ -299,50 +271,6 @@ void SettingsDialog::slotSelectVSLibraryPath()
 
 // END OF void SettingsDialog::slotSelectVSLibraryPath()
 //==============================================================================
-
-void SettingsDialog::slotAddVSPluginsPath()
-{
-	QString newPath = m_ui.vsPluginsPathEdit->text();
-	if(newPath.isEmpty())
-		return;
-	int pathsNumber = m_ui.vsPluginsPathsListWidget->count();
-	for(int i = 0; i < pathsNumber; ++i)
-	{
-		QString path = m_ui.vsPluginsPathsListWidget->item(i)->text();
-		if(path == newPath)
-			return;
-	}
-	QListWidgetItem * pListItem = new QListWidgetItem(newPath,
-		m_ui.vsPluginsPathsListWidget);
-	pListItem->setToolTip(newPath);
-}
-
-// END OF void SettingsDialog::slotAddVSPluginsPath()
-//==============================================================================
-
-void SettingsDialog::slotRemoveVSPluginsPath()
-{
-	QListWidgetItem * pCurrentItem =
-		m_ui.vsPluginsPathsListWidget->currentItem();
-	if(pCurrentItem)
-		delete pCurrentItem;
-}
-
-// END OF void SettingsDialog::slotRemoveVSPluginsPath()
-//==============================================================================
-
-void SettingsDialog::slotSelectVSPluginsPath()
-{
-	QString path = QFileDialog::getExistingDirectory(this,
-		tr("Select VapourSynth plugins path"),
-		m_ui.vsPluginsPathEdit->text());
-	if(!path.isEmpty())
-		m_ui.vsPluginsPathEdit->setText(path);
-}
-
-// END OF void SettingsDialog::slotSelectVSPluginsPath()
-//==============================================================================
-
 
 void SettingsDialog::slotThemeElementSelected(const QModelIndex & a_index)
 {

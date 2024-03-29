@@ -31,10 +31,6 @@ public:
 
 	bool setPreferVSLibrariesFromList(bool a_prior);
 
-	QStringList getVapourSynthPluginsPaths() const;
-
-	bool setVapourSynthPluginsPaths(const QStringList & a_pathsList);
-
 	ResamplingFilter getChromaResamplingFilter() const;
 
 	bool setChromaResamplingFilter(ResamplingFilter a_filter);

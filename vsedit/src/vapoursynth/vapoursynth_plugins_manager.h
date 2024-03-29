@@ -17,13 +17,11 @@ class VapourSynthPluginsManager : public QObject
 public:
 
 	VapourSynthPluginsManager(SettingsManager * a_pSettingsManager,
-		QObject * a_pParent = nullptr);
+		const VSAPI * a_cpVSAPI, QObject * a_pParent = nullptr);
 
 	virtual ~VapourSynthPluginsManager();
 
-	void getCorePlugins();
-
-	void pollPaths(const QStringList & a_pluginsPaths);
+	void getCorePlugins(const VSAPI * a_cpVSAPI = nullptr);
 
 	QStringList functions() const;
 
@@ -32,21 +30,13 @@ public:
 	static VSData::Function parseFunctionSignature(const QString & a_name,
 		const QString & a_arguments);
 
-	friend void VS_CC fakeConfigPlugin(const char * a_identifier,
-		const char * a_defaultNamespace, const char * a_name,
-		int a_apiVersion, int a_readonly, VSPlugin * a_pPlugin);
-
-	friend void VS_CC fakeRegisterFunction(const char * a_name,
-		const char * a_args, VSPublicFunction a_argsFunc,
-		void * a_pFunctionData, VSPlugin * a_pPlugin);
-
 public slots:
 
 	void slotClear();
 
 	void slotSort();
 
-	void slotRefill();
+	void slotRefill(const VSAPI * a_cpVSAPI);
 
 signals:
 

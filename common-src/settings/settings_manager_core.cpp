@@ -16,7 +16,6 @@ const char COMMON_GROUP[] = "common";
 
 const char VAPOURSYNTH_LIBRARY_PATHS_KEY[] = "vapoursynth_library_paths";
 const char PREFER_VS_LIBRARIES_FROM_LIST_KEY[] = "prefer_vs_libs_from_list";
-const char VAPOURSYNTH_PLUGINS_PATHS_KEY[] = "vapoursynth_plugins_paths";
 const char CHROMA_RESAMPLING_FILTER_KEY[] = "chroma_resampling_filter";
 const char YUV_MATRIX_COEFFICIENTS_KEY[] = "yuv_matrix_coefficients";
 const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
@@ -227,21 +226,6 @@ bool SettingsManagerCore::setVapourSynthLibraryPaths(
 	const QStringList & a_pathsList)
 {
 	return setValue(VAPOURSYNTH_LIBRARY_PATHS_KEY, a_pathsList);
-}
-
-//==============================================================================
-
-QStringList SettingsManagerCore::getVapourSynthPluginsPaths() const
-{
-	QStringList paths = value(VAPOURSYNTH_PLUGINS_PATHS_KEY).toStringList();
-	paths.removeDuplicates();
-	return paths;
-}
-
-bool SettingsManagerCore::setVapourSynthPluginsPaths(
-	const QStringList & a_pathsList)
-{
-	return setValue(VAPOURSYNTH_PLUGINS_PATHS_KEY, a_pathsList);
 }
 
 //==============================================================================
