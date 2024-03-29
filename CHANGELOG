@@ -3,6 +3,9 @@ r19-mod-6.4
 -BUGFIX: VS messages sent from core are duplicated.
 -BUGFIX: Each frame from script is requested twice (no influence in performance).
 -BUGFIX: Loading vsscript library from VS R66 portable directory fails.
+-BUGFIX: output nodes #10-#19 are not properly cleared.
+Add audio playback (Windows only).
+Add options to set output syncing mode.
 Add core cache usage data in status bar.
 2020_CL option is removed from preview advanced settings.
 
