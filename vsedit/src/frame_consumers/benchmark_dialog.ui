@@ -84,7 +84,7 @@
      <item>
       <widget class="QPushButton" name="wholeVideoButton">
        <property name="text">
-        <string>Whole video</string>
+        <string>Full length</string>
        </property>
       </widget>
      </item>
