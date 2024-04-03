@@ -1,3 +1,8 @@
+r19-mod-6.6
+-Allow all VS versions with API4.
+-Remove option that reloads script from disk before evaluation.
+-Add an asterisk in preview window title that indicates change in text editor.
+
 r19-mod-6.5
 -Use same vapoursynth library as used for script evaluation for plugin list.
 
