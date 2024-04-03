@@ -3123,10 +3123,10 @@ QPixmap PreviewDialog::pixmapFromRGB(
 void PreviewDialog::setTitle()
 {
 	QString l_scriptName = scriptName();
-	if(m_scriptTextChanged)
-		l_scriptName = "*" + l_scriptName;
 	QString scriptNameTitle =
 		l_scriptName.isEmpty() ? tr("(Untitled)") : l_scriptName;
+	if(m_scriptTextChanged)
+		scriptNameTitle = scriptNameTitle + "*";
 	QString title = tr("Preview - Index %1 | ").arg(m_outputIndex);
 	if(!m_clipName.isEmpty())
 		title = title + tr("Name: %1 | ").arg(m_clipName);
