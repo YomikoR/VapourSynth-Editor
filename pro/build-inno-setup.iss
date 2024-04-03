@@ -55,6 +55,7 @@ Source: ..\build\release-64bit-msvc\Qt6WebSockets.dll; DestDir: {app}; Flags: ig
 Source: ..\build\release-64bit-msvc\Qt6Widgets.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\imageformats\qwebp.dll; DestDir: {app}\imageformats; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\platforms\qwindows.dll; DestDir: {app}\platforms; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: ..\build\release-64bit-msvc\multimedia\windowsmediaplugin.dll; DestDir: {app}\multimedia; Flags: ignoreversion uninsrestartdelete restartreplace
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#ExeName}.exe"

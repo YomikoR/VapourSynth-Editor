@@ -234,6 +234,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotProcessPlayQueue()));
 
 #ifdef Q_OS_WIN // AUDIO
+	qputenv("QT_MEDIA_BACKEND", QString("windows").toLocal8Bit());
+
 	m_pAudioPlayTimer = new QTimer(this);
 	m_pAudioPlayTimer->setTimerType(Qt::PreciseTimer);
 	m_pAudioPlayTimer->setSingleShot(true);
