@@ -453,9 +453,6 @@ void MainWindow::slotPreview()
 		return;
 	}
 
-	if(m_pSettingsManager->getReloadBeforeExecution())
-		reloadTexts();
-
 	m_pPreviewDialog->previewScript(m_ui.scriptEdit->text(), m_scriptFilePath);
 }
 
@@ -464,9 +461,6 @@ void MainWindow::slotPreview()
 
 void MainWindow::slotCheckScript()
 {
-	if(m_pSettingsManager->getReloadBeforeExecution())
-		reloadTexts();
-
 	VapourSynthScriptProcessor tempProcessor(m_pSettingsManager,
 		m_pVSScriptLibrary, this);
 
@@ -501,9 +495,6 @@ void MainWindow::slotBenchmark()
 		return;
 	}
 
-	if(m_pSettingsManager->getReloadBeforeExecution())
-		reloadTexts();
-
 	m_pBenchmarkDialog->initialize(m_ui.scriptEdit->text(), m_scriptFilePath);
 	m_pBenchmarkDialog->call();
 }
@@ -519,9 +510,6 @@ void MainWindow::slotEncode()
 		return;
 	}
 
-	if(m_pSettingsManager->getReloadBeforeExecution())
-		reloadTexts();
-
 	bool initialized = m_pEncodeDialog->initialize(
 		m_ui.scriptEdit->text(), m_scriptFilePath);
 	if(initialized)
@@ -535,9 +523,6 @@ void MainWindow::slotEnqueueEncodeJob()
 {
 	if(m_scriptFilePath.isEmpty())
 		return;
-
-	if(m_pSettingsManager->getReloadBeforeExecution())
-		reloadTexts();
 
 	JobProperties properties;
 	properties.type = JobType::EncodeScriptCLI;
