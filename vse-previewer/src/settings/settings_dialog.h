@@ -8,6 +8,7 @@
 class SettingsManager;
 class ItemDelegateForHotkey;
 class ThemeElementsModel;
+class QCloseEvent;
 
 class SettingsDialog : public QDialog
 {
@@ -22,9 +23,11 @@ public:
 
 public slots:
 
-	void slotCall();
+	void slotCall(bool a_show = true);
 
 protected:
+
+	void closeEvent(QCloseEvent * a_pEvent) override;
 
 signals:
 

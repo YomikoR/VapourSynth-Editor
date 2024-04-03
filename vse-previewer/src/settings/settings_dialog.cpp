@@ -79,7 +79,14 @@ SettingsDialog::~SettingsDialog()
 // END OF SettingsDialog::~SettingsDialog()
 //==============================================================================
 
-void SettingsDialog::slotCall()
+void SettingsDialog::closeEvent(QCloseEvent *a_pEvent)
+{
+	if(testAttribute(Qt::WA_DeleteOnClose)) // Started by exec()
+		reject();
+	QDialog::closeEvent(a_pEvent);
+}
+
+void SettingsDialog::slotCall(bool a_show)
 {
 	m_ui.portableModeCheckBox->setChecked(
 		m_pSettingsManager->getPortableMode());
@@ -104,7 +111,8 @@ void SettingsDialog::slotCall()
 	QModelIndex firstElement = m_pActionsHotkeyEditModel->index(0, 0);
 	m_ui.themeElementsList->setCurrentIndex(firstElement);
 
-	show();
+	if(a_show)
+		show();
 }
 
 // END OF void SettingsDialog::slotCall()

@@ -76,7 +76,7 @@ void SettingsManager::initializeStandardActions()
 {
 	m_standardActions =
 	{
-		{ACTION_ID_SETTINGS, tr("More settings..."), QIcon(":settings.png"),
+		{ACTION_ID_SETTINGS, tr("Additional settings"), QIcon(":settings.png"),
 			QKeySequence()},
 		{ACTION_ID_ABOUT, tr("About..."), QIcon(), QKeySequence()},
 		{ACTION_ID_FRAME_TO_CLIPBOARD, tr("Copy frame to clipboard"),
@@ -113,7 +113,7 @@ void SettingsManager::initializeStandardActions()
 			QIcon(":time_back.png"),
 			QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Left)},
 		{ACTION_ID_ADVANCED_PREVIEW_SETTINGS,
-			tr("Preview advanced settings"), QIcon(":settings.png"),
+			tr("Preview settings"), QIcon(":settings.png"),
 			QKeySequence()},
 		{ACTION_ID_TOGGLE_COLOR_PICKER, tr("Color panel"),
 			QIcon(":color_picker.png"), QKeySequence()},
