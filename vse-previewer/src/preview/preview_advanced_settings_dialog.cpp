@@ -68,8 +68,6 @@ PreviewAdvancedSettingsDialog::PreviewAdvancedSettingsDialog(
 	connect(m_ui.resetToDefaultButton, SIGNAL(clicked()),
 		this, SLOT(slotResetToDefault()));
 	connect(m_ui.cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(m_ui.silentSnapshotCheckBox, SIGNAL(clicked()),
-		this, SLOT(slotSilentSnapshotChanged()));
 	connect(m_ui.argumentsHelpButton, SIGNAL(clicked()),
 		this, SLOT(slotArgumentsHelpButtonPressed()));
 }
@@ -85,7 +83,7 @@ PreviewAdvancedSettingsDialog::~PreviewAdvancedSettingsDialog()
 // END OF PreviewAdvancedSettingsDialog::~PreviewAdvancedSettingsDialog()
 //==============================================================================
 
-void PreviewAdvancedSettingsDialog::slotCall()
+void PreviewAdvancedSettingsDialog::slotCall(bool a_show)
 {
 	YuvMatrixCoefficients matrix =
 		m_pSettingsManager->getYuvMatrixCoefficients();
@@ -126,7 +124,8 @@ void PreviewAdvancedSettingsDialog::slotCall()
 	if(comboIndex != -1)
 		m_ui.syncOutputComboBox->setCurrentIndex(comboIndex);
 
-	show();
+	if(a_show)
+		show();
 }
 
 // END OF void PreviewAdvancedSettingsDialog::slotCall()
@@ -211,22 +210,17 @@ void PreviewAdvancedSettingsDialog::slotResetToDefault()
 // END OF void PreviewAdvancedSettingsDialog::slotResetToDefault()
 //==============================================================================
 
-void PreviewAdvancedSettingsDialog::slotSilentSnapshotChanged()
-{
-	bool silentSnapshotEnabled = m_ui.silentSnapshotCheckBox->isChecked();
-
-	emit signalSilentSnapshotChanged();
-}
-
 void PreviewAdvancedSettingsDialog::slotArgumentsHelpButtonPressed()
 {
-	QString argumentsHelpString = tr("Use the following placeholders:");
+	QString argumentsHelpString = tr("Use the following placeholders:\n");
 	argumentsHelpString += QString("\n%1 - %2")
-		.arg(tr("{f}")).arg(tr("script file path"));
+		.arg(tr("{f}")).arg(tr("path to script file with extension"));
+	argumentsHelpString += QString("\n%1 - %2")
+		.arg(tr("{fn}")).arg(tr("path to script file without extension"));
 	argumentsHelpString += QString("\n%1 - %2")
 		.arg(tr("{d}")).arg(tr("script file directory"));
 	argumentsHelpString += QString("\n%1 - %2")
-		.arg(tr("{n}")).arg(tr("script file name"));
+		.arg(tr("{n}")).arg(tr("script file name without extension"));
 	argumentsHelpString += QString("\n%1 - %2")
 		.arg(tr("{o}")).arg(tr("output index"));
 	argumentsHelpString += QString("\n%1 - %2")
@@ -234,9 +228,9 @@ void PreviewAdvancedSettingsDialog::slotArgumentsHelpButtonPressed()
 	argumentsHelpString += QString("\n%1 - %2")
 		.arg(tr("{t}")).arg(tr("timestamp"));
 	argumentsHelpString += QString("\n%1 - %2")
-		.arg(tr("{nm}")).arg(tr("clip name"));
+		.arg(tr("{nm}")).arg(tr("clip name by frame property 'Name'"));
 	argumentsHelpString += QString("\n%1 - %2")
-		.arg(tr("{sc}")).arg(tr("scene name"));
+		.arg(tr("{sc}")).arg(tr("scene name by frame property 'SceneName'"));
 	QString title = tr("Snapshot template arguments");
 	QMessageBox msgBox(this);
 	msgBox.setWindowTitle(title);

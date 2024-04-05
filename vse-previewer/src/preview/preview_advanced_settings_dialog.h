@@ -18,13 +18,11 @@ public:
 
 public slots:
 
-	void slotCall();
+	void slotCall(bool a_show = true);
 
 signals:
 
 	void signalSettingsChanged();
-
-	void signalSilentSnapshotChanged();
 
 private slots:
 
@@ -33,8 +31,6 @@ private slots:
 	void slotApply();
 
 	void slotResetToDefault();
-
-	void slotSilentSnapshotChanged();
 
 	void slotArgumentsHelpButtonPressed();
 

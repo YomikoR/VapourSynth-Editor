@@ -27,7 +27,7 @@ const double DEFAULT_TIMELINE_LABELS_HEIGHT = 5.0;
 const int DEFAULT_PNG_COMPRESSION_LEVEL = 0;
 const bool DEFAULT_DEBUG_MESSAGES = false;
 const bool DEFAULT_SILENT_SNAPSHOT = false;
-const QString DEFAULT_SNAPSHOT_TEMPLATE = "{f}-{i}.png";
+const QString DEFAULT_SNAPSHOT_TEMPLATE = "{fn}-{i}.png";
 
 //==============================================================================
 

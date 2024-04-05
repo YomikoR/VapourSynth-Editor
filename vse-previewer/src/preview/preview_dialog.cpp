@@ -659,91 +659,96 @@ void PreviewDialog::slotSaveSnapshot()
 		extensionToFilterMap["webp"] = tr("WebP image (*.webp)");
 
 	QString currScriptName = scriptName();
-	bool currScriptNotSaved = currScriptName.isEmpty();
 
 	// Parse the template
 	QString snapshotTemplate = m_pSettingsManager->getSnapshotTemplate();
-	if(!currScriptNotSaved)
+	std::vector<vsedit::VariableToken> variables =
 	{
-		std::vector<vsedit::VariableToken> variables =
-		{
-			{"{f}", tr("script file path"),
-				[&]()
-				{
-					return currScriptName;
-				}
-			},
+		{"{f}", tr("path to script file with extension"),
+			[&]()
+			{
+				return currScriptName;
+			}
+		},
 
-			{"{d}", tr("script file directory"),
-				[&]()
-				{
-					QFileInfo file(currScriptName);
-					return QDir::toNativeSeparators(file.path());
-				}
-			},
+		{"{fn}", tr("path to script file without extension"),
+			[&]()
+			{
+				QFileInfo file(currScriptName);
+				return QDir(file.absolutePath()).filePath(
+					file.completeBaseName());
+			}
+		},
 
-			{"{n}", tr("script file name"),
-				[&]()
-				{
-					QFileInfo file(currScriptName);
-					return file.completeBaseName();
-				}
-			},
+		{"{d}", tr("script file directory"),
+			[&]()
+			{
+				QFileInfo file(currScriptName);
+				return QDir::toNativeSeparators(file.path());
+			}
+		},
 
-			{"{o}", tr("output index"),
-				[&]()
-				{
-					return QString::number(m_outputIndex);
-				}
-			},
+		{"{n}", tr("script file name without extension"),
+			[&]()
+			{
+				QFileInfo file(currScriptName);
+				return file.completeBaseName();
+			}
+		},
 
-			{"{i}", tr("frame number"),
-				[&]()
-				{
-					return QString::number(m_frameShown);
-				}
-			},
+		{"{o}", tr("output index"),
+			[&]()
+			{
+				return QString::number(m_outputIndex);
+			}
+		},
 
-			{"{t}", tr("timestamp"),
-				[&]()
-				{
-					if(m_fpsDen == 0 || m_fpsNum == 0)
-						return QString();
-					QString timeStr = vsedit::timeToString(
-						(double)m_frameShown / m_fpsNum * m_fpsDen, true)
-						.replace(":", ".");
-					return timeStr;
-				}
-			},
+		{"{i}", tr("frame number"),
+			[&]()
+			{
+				return QString::number(m_frameShown);
+			}
+		},
 
-			{"{nm}", tr("clip name"),
-				[&]()
-				{
-					return m_clipName;
-				}
-			},
+		{"{t}", tr("timestamp"),
+			[&]()
+			{
+				if(m_fpsDen == 0 || m_fpsNum == 0)
+					return QString();
+				QString timeStr = vsedit::timeToString(
+					(double)m_frameShown / m_fpsNum * m_fpsDen, true)
+					.replace(":", ".");
+				return timeStr;
+			}
+		},
 
-			{"{sc}", tr("scene name"),
-				[&]()
-				{
-					return m_sceneName;
-				}
-			},
-		};
+		{"{nm}", tr("clip name by frame property 'Name'"),
+			[&]()
+			{
+				return m_clipName;
+			}
+		},
 
-		for(const vsedit::VariableToken & var : variables)
-		{
-			snapshotTemplate = snapshotTemplate.replace(
-				var.token, var.evaluate());
-		}
+		{"{sc}", tr("scene name by frame property 'SceneName'"),
+			[&]()
+			{
+				return m_sceneName;
+			}
+		},
+	};
+
+	for(const vsedit::VariableToken & var : variables)
+	{
+		snapshotTemplate = snapshotTemplate.replace(
+			var.token, var.evaluate());
 	}
 
 	bool silentSnapshot = m_pSettingsManager->getSilentSnapshot();
 
 	QString snapshotFilePath = snapshotTemplate;
-	if(snapshotFilePath.isEmpty()) silentSnapshot = false;
-	if(currScriptNotSaved || snapshotFilePath.isEmpty())
+	if(snapshotFilePath.isEmpty())
 	{
+		silentSnapshot = false;
 		snapshotFilePath =
 			QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
 		snapshotFilePath += QString("/%1-%2").arg(
@@ -757,10 +762,12 @@ void PreviewDialog::slotSaveSnapshot()
 
 	QString selectedFilter = extensionToFilterMap[fileExtension];
 
-	if(currScriptNotSaved || !silentSnapshot)
+	if(!silentSnapshot)
 	{
+		QString title = QString("Save index %1 frame %2 as image")
+			.arg(m_outputIndex).arg(m_frameExpected);
 		snapshotFilePath = QFileDialog::getSaveFileName(this,
-			tr("Save frame as image"), snapshotFilePath,
+			title, snapshotFilePath,
 			saveFormatsList.join(";;"), &selectedFilter);
 	}
 
