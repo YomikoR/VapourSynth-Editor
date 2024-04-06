@@ -26,18 +26,6 @@ PreviewDialog * pPreviewDialog = nullptr;
 
 void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 {
-	QString debugTypes[] = {
-		LOG_STYLE_DEBUG,
-		LOG_STYLE_QT_DEBUG,
-		LOG_STYLE_VS_DEBUG,
-	};
-
-	if(pSettings->getShowDebugMessages() || !vsedit::contains(debugTypes, a_style))
-	{
-		std::cerr << "[" << a_style.toUpper().toStdString() << "] "
-			<< std::string(a_msg.toLocal8Bit()) << std::endl;
-	}
-
 	QString breakingTypes[] = {
 		LOG_STYLE_VS_CRITICAL,
 		LOG_STYLE_QT_CRITICAL,
@@ -45,6 +33,31 @@ void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 		LOG_STYLE_VS_FATAL,
 		LOG_STYLE_QT_FATAL,
 	};
+
+	QString debugTypes[] = {
+		LOG_STYLE_DEBUG,
+		LOG_STYLE_QT_DEBUG,
+		LOG_STYLE_VS_DEBUG,
+	};
+
+	QString infoTypes[] = {
+		LOG_STYLE_QT_INFO,
+		LOG_STYLE_VS_INFO,
+	};
+
+	if(pSettings->getShowDebugMessages() || !vsedit::contains(debugTypes, a_style))
+	{
+		if(vsedit::contains(breakingTypes, a_style))
+			std::cerr << "\033[1;97;41m";
+		else if(vsedit::contains(debugTypes, a_style))
+			std::cerr << "\033[1;97;44m";
+		else if(vsedit::contains(infoTypes, a_style))
+			std::cerr << "\033[1;97m";
+		else
+			std::cerr << "\033[1;93m";
+		std::cerr << "[" << a_style.toUpper().toStdString() << "]\033[0m "
+			<< std::string(a_msg.toLocal8Bit()) << std::endl;
+	}
 
 	if(vsedit::contains(breakingTypes, a_style))
 	{
