@@ -65,6 +65,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="reloadFromDiskCheckBox">
+         <property name="text">
+          <string>Periodically reload script text from disk (to sync with external changes)</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="promptToSaveChangesCheckBox">
          <property name="text">
           <string>Prompt to save changes when closing script file</string>

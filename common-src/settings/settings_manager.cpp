@@ -26,6 +26,7 @@ const char ZOOM_RATIO_KEY[] = "zoom_ratio";
 const char SCALE_MODE_KEY[] = "scale_mode";
 const char CROP_MODE_KEY[] = "crop_mode";
 const char CROP_ZOOM_RATIO_KEY[] = "crop_zoom_ratio";
+const char RELOAD_FROM_DISK_KEY[] = "period_reload_from_disk";
 const char PROMPT_TO_SAVE_CHANGES_KEY[] = "prompt_to_save_changes";
 const char RECENT_FILES_LIST_KEY[] = "recent_files_list";
 const char MAX_RECENT_FILES_NUMBER_KEY[] = "max_recent_files_number";
@@ -754,6 +755,16 @@ bool SettingsManager::setMaxRecentFilesNumber(
 	unsigned int a_maxRecentFilesNumber)
 {
 	return setValue(MAX_RECENT_FILES_NUMBER_KEY, a_maxRecentFilesNumber);
+}
+
+bool SettingsManager::getReloadScriptFromDisk() const
+{
+	return value(RELOAD_FROM_DISK_KEY, DEFAULT_RELOAD_FROM_DISK).toBool();
+}
+
+bool SettingsManager::setReloadScriptFromDisk(bool a_reload)
+{
+	return setValue(RELOAD_FROM_DISK_KEY, a_reload);
 }
 
 //==============================================================================

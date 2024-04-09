@@ -4,6 +4,7 @@
 #include <ui_main_window.h>
 
 #include <vector>
+#include <mutex>
 
 class SettingsManager;
 class VapourSynthPluginsManager;
@@ -80,6 +81,8 @@ private slots:
 
 	void slotSaveGeometry();
 
+	void slotReloadTextFromDisk();
+
 private:
 
 	void createActionsAndMenus();
@@ -145,6 +148,8 @@ private:
 
 	QTimer * m_pGeometrySaveTimer;
 	QByteArray m_windowGeometry;
+
+	QTimer * m_pReloadTextTimer;
 };
 
 #endif // MAINWINDOW_H

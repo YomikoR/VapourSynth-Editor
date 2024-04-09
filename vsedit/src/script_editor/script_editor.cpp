@@ -117,7 +117,7 @@ QPoint ScriptEditor::cursorPosition() const
 {
 	QTextCursor currentCursor = textCursor();
 	int line = currentCursor.blockNumber();
-	int index = currentCursor.anchor() - currentCursor.position();
+	int index = currentCursor.positionInBlock();
 
 	return QPoint(line, index);
 }

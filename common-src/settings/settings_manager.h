@@ -128,6 +128,10 @@ public:
 
 	bool setMaxRecentFilesNumber(unsigned int a_maxRecentFilesNumber);
 
+	bool getReloadScriptFromDisk() const;
+
+	bool setReloadScriptFromDisk(bool a_reload);
+
 	int getCharactersTypedToStartCompletion() const;
 
 	bool setCharactersTypedToStartCompletion(int a_charactersNumber);

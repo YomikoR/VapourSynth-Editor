@@ -83,6 +83,8 @@ void SettingsDialog::slotCall()
 {
 	m_ui.autoLoadLastScriptCheckBox->setChecked(
 		m_pSettingsManager->getAutoLoadLastScript());
+	m_ui.reloadFromDiskCheckBox->setChecked(
+		m_pSettingsManager->getReloadScriptFromDisk());
 	m_ui.promptToSaveChangesCheckBox->setChecked(
 		m_pSettingsManager->getPromptToSaveChanges());
 	m_ui.portableModeCheckBox->setChecked(
@@ -181,6 +183,8 @@ void SettingsDialog::slotApply()
 {
 	m_pSettingsManager->setAutoLoadLastScript(
 		m_ui.autoLoadLastScriptCheckBox->isChecked());
+	m_pSettingsManager->setReloadScriptFromDisk(
+		m_ui.reloadFromDiskCheckBox->isChecked());
 	m_pSettingsManager->setPromptToSaveChanges(
 		m_ui.promptToSaveChangesCheckBox->isChecked());
 	m_pSettingsManager->setPortableMode(
