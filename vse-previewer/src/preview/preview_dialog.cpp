@@ -157,10 +157,11 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
-	setWindowIcon(QIcon(":preview.png"));
 
 	m_iconPlay = QIcon(":play.png");
 	m_iconPause = QIcon(":pause.png");
+	m_iconPreview = QIcon(":preview.png");
+	setWindowIcon(m_iconPreview);
 
 	m_pAdvancedSettingsDialog = new PreviewAdvancedSettingsDialog(
 		m_pSettingsManager, this);
@@ -544,7 +545,11 @@ void PreviewDialog::slotReceiveFrame(int a_frameNumber, int a_outputIndex,
 		setCurrentFrame(cpOutputFrame, cpPreviewFrame);
 		m_frameShown = a_frameNumber;
 		if(m_frameShown == m_frameExpected)
+		{
 			m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
+			if(m_detailedTitle)
+				setWindowIcon(m_iconPreview);
+		}
 	}
 }
 
@@ -576,6 +581,8 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 				m_ui.frameNumberSlider->setFrame(0, false);
 				m_ui.frameNumberSpinBox->setValue(0);
 				m_ui.frameStatusLabel->setPixmap(m_errorPixmap);
+				if(m_detailedTitle)
+					setWindowIcon(QIcon(m_errorPixmap));
 			}
 			else
 				slotShowFrame(0, false);
@@ -586,6 +593,8 @@ void PreviewDialog::slotFrameRequestDiscarded(int a_frameNumber,
 		m_ui.frameNumberSlider->setFrame(m_frameShown, false);
 		m_ui.frameNumberSpinBox->setValue(m_frameShown);
 		m_ui.frameStatusLabel->setPixmap(m_readyPixmap);
+		if(m_detailedTitle)
+			setWindowIcon(m_iconPreview);
 	}
 }
 
@@ -625,6 +634,8 @@ void PreviewDialog::slotShowFrame(int a_frameNumber, bool a_refreshCache)
 	{
 		setExpectedFrame(a_frameNumber);
 		m_ui.frameStatusLabel->setPixmap(m_busyPixmap);
+		if(m_detailedTitle)
+			setWindowIcon(QIcon(m_busyPixmap));
 	}
 	else
 	{
@@ -1248,6 +1259,10 @@ void PreviewDialog::slotSettingsChanged()
 	m_ui.frameNumberSlider->setColor(TimeLineSlider::Bookmark, bookmarksColor);
 
 	m_ui.frameNumberSlider->setUpdatesEnabled(true);
+
+	m_detailedTitle = m_pSettingsManager->getShowAdditionalTitleInfo();
+	setWindowIcon(m_iconPreview);
+	setTitle();
 }
 
 // END OF void PreviewDialog::slotSettingsChanged()
@@ -3031,6 +3046,18 @@ void PreviewDialog::setTitle()
 	QString scriptNameTitle =
 		l_scriptName.isEmpty() ? tr("(Untitled)") : l_scriptName;
 	QString title = tr("VSE-Previewer - Index %1 | ").arg(m_outputIndex);
+	if(m_detailedTitle)
+	{
+		title = title + tr("Frame: %1 | ").arg(m_frameExpected);
+		if(m_fpsDen == 0)
+			title = title + tr("VFR | ");
+		else
+		{
+			m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
+			title = title + tr("Timestamp: %1 | ").arg(
+				vsedit::timeToString(m_frameTimestampExpected / 1000.0));
+		}
+	}
 	if(!m_clipName.isEmpty())
 		title = title + tr("Name: %1 | ").arg(m_clipName);
 	if(!m_sceneName.isEmpty())

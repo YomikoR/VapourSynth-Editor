@@ -88,6 +88,8 @@ void SettingsDialog::closeEvent(QCloseEvent *a_pEvent)
 
 void SettingsDialog::slotCall(bool a_show)
 {
+	m_ui.additionalTitleInfoCheckBox->setChecked(
+		m_pSettingsManager->getShowAdditionalTitleInfo());
 	m_ui.portableModeCheckBox->setChecked(
 		m_pSettingsManager->getPortableMode());
 	m_ui.debugMsgCheckBox->setChecked(
@@ -142,6 +144,8 @@ void SettingsDialog::slotOk()
 
 void SettingsDialog::slotApply()
 {
+	m_pSettingsManager->setShowAdditionalTitleInfo(
+		m_ui.additionalTitleInfoCheckBox->isChecked());
 	m_pSettingsManager->setPortableMode(
 		m_ui.portableModeCheckBox->isChecked());
 	m_pSettingsManager->setShowDebugMessages(

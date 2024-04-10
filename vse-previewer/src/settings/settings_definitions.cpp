@@ -3,6 +3,7 @@
 //==============================================================================
 
 const bool DEFAULT_PREVIEW_DIALOG_MAXIMIZED = false;
+const bool DEFAULT_ADDITIONAL_TITLE_INFO = false;
 const bool DEFAULT_ZOOM_PANEL_VISIBLE = true;
 const ZoomMode DEFAULT_ZOOM_MODE = ZoomMode::NoZoom;
 const double DEFAULT_ZOOM_RATIO = 2.0;

@@ -60,6 +60,10 @@ public:
 
 	bool setPreviewDialogMaximized(bool a_previewDialogMaximized);
 
+	bool getShowAdditionalTitleInfo() const;
+
+	bool setShowAdditionalTitleInfo(bool a_show);
+
 	QPoint getLastPreviewScrollBarPositions() const;
 
 	bool setLastPreviewScrollBarPositions(const QPoint &pos);

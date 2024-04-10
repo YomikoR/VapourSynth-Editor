@@ -13,6 +13,7 @@ const char PREVIEW_DIALOG_GEOMETRY_KEY[] = "prewiew_dialog_geometry";
 const char LAST_PREVIEW_SCROLLBAR_POS_X[] = "last_preview_scrollbar_position_x";
 const char LAST_PREVIEW_SCROLLBAR_POS_Y[] = "last_preview_scrollbar_position_y";
 const char PREVIEW_DIALOG_MAXIMIZED_KEY[] = "preview_dialog_maximized";
+const char ADDITIONAL_TITLE_INFO_KEY[] = "show_additional_info_on_title";
 const char ZOOM_PANEL_VISIBLE_KEY[] = "zoom_panel_visible";
 const char ZOOM_MODE_KEY[] = "zoom_mode";
 const char ZOOM_RATIO_KEY[] = "zoom_ratio";
@@ -362,6 +363,18 @@ bool SettingsManager::setPreviewDialogMaximized(bool a_previewDialogMaximized)
 {
 	return setValueInGroup(PREVIEW_GROUP,
 		PREVIEW_DIALOG_MAXIMIZED_KEY, a_previewDialogMaximized);
+}
+
+bool SettingsManager::getShowAdditionalTitleInfo() const
+{
+    return valueInGroup(PREVIEW_GROUP,
+		ADDITIONAL_TITLE_INFO_KEY, DEFAULT_ADDITIONAL_TITLE_INFO).toBool();
+}
+
+bool SettingsManager::setShowAdditionalTitleInfo(bool a_show)
+{
+    return setValueInGroup(PREVIEW_GROUP,
+		ADDITIONAL_TITLE_INFO_KEY, a_show);
 }
 
 QPoint SettingsManager::getLastPreviewScrollBarPositions() const

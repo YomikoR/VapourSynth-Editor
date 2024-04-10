@@ -99,6 +99,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="additionalTitleInfoCheckBox">
+         <property name="text">
+          <string>Show additional frame info on title</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="delimiter">
          <property name="frameShape">
           <enum>QFrame::HLine</enum>

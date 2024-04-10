@@ -342,9 +342,12 @@ protected:
 	QTimer * m_pPlayTimer;
 	QIcon m_iconPlay;
 	QIcon m_iconPause;
+	QIcon m_iconPreview;
 
 	QTimer * m_pGeometrySaveTimer;
 	QByteArray m_windowGeometry;
+
+	bool m_detailedTitle;
 
 	qreal m_devicePixelRatio;
 

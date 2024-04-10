@@ -54,6 +54,7 @@ struct StandardAction
 //==============================================================================
 
 extern const bool DEFAULT_PREVIEW_DIALOG_MAXIMIZED;
+extern const bool DEFAULT_ADDITIONAL_TITLE_INFO;
 extern const bool DEFAULT_ZOOM_PANEL_VISIBLE;
 extern const ZoomMode DEFAULT_ZOOM_MODE;
 extern const double DEFAULT_ZOOM_RATIO;
