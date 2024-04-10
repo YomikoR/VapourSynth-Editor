@@ -6,6 +6,7 @@ r19-mod-6.6
 -Add an asterisk in preview window title that indicates change in text editor.
 -Add info texts to certain reserved frame props when displayed.
 -Improve error handling of the previewer.
+-Better sync output frame numbers by timestamp.
 
 r19-mod-6.5
 -Use same vapoursynth library as used for script evaluation for plugin list.

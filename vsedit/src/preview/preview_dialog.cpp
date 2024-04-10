@@ -3154,7 +3154,7 @@ int PreviewDialog::timestampToFrame(qlonglong a_timestamp)
 {
 	if(m_fpsDen == 0 || m_fpsNum == 0)
 		return 0;
-	return std::ceil((double)a_timestamp * m_fpsNum / m_fpsDen / 1000);
+	return std::round((double)a_timestamp * m_fpsNum / m_fpsDen / 1000);
 }
 
 void PreviewDialog::setExpectedFrame(int a_frame)
