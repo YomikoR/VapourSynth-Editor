@@ -987,7 +987,8 @@ QString VapourSynthScriptProcessor::framePropsString(
 		{VSC_TRANSFER_BT2020_10, "2020_10"},
 		{VSC_TRANSFER_BT2020_12, "2020_12"},
 		{VSC_TRANSFER_ST2084, "st2084"},
-		{VSC_TRANSFER_ST428, "st428"},
+		//{VSC_TRANSFER_ST428, "st428"},
+		{17, "st428"},
 		{VSC_TRANSFER_ARIB_B67, "std-b67"},
 	};
 
