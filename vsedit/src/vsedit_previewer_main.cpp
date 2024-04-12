@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 	pSettings->setLastUsedPath(scriptFileFullPath);
 
 	int exitCode = -1;
-	if(pVSSLibrary->isInitialized())
+	if(pVSSLibrary->initialize())
 	{
 		pPreviewDialog->previewScript(scriptText, scriptFileFullPath);
 		exitCode = pPreviewDialog->exec();
