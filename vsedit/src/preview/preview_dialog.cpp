@@ -713,7 +713,7 @@ void PreviewDialog::slotSaveSnapshot()
 	if(!m_nodeInfo[m_outputIndex].isVideo())
 		return;
 
-	std::map<QString, QString> extensionToFilterMap =
+	static std::map<QString, QString> extensionToFilterMap =
 	{
 		{"png", tr("PNG image (*.png)")},
 	};

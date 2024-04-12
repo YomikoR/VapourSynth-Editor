@@ -145,6 +145,8 @@ private:
 	QColor m_slidingPointerColor;
 	QColor m_bookmarkColor;
 
+	std::map<ColorRole, QColor *> m_colorRoleMap;
+
 	std::set<int> m_bookmarks;
 };
 

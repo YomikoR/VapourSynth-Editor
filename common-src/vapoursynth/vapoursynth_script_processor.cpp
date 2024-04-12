@@ -910,7 +910,7 @@ QString VapourSynthScriptProcessor::framePropsString(
 	QString propsString;
 	QStringList propsStringList;
 
-	std::map<char, QString> propTypeToString =
+	static std::map<char, QString> propTypeToString =
 	{
 		{ptUnset, "<unset>"},
 		{ptInt, "int"},

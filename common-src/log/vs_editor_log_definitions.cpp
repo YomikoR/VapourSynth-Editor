@@ -31,7 +31,7 @@ QString vsMessageTypeToStyleName(int a_messageType)
 {
 	QString style(LOG_STYLE_DEFAULT);
 
-	std::map<int, QString> vsTypeToStyleMap = {
+	static std::map<int, QString> vsTypeToStyleMap = {
 		{mtDebug, LOG_STYLE_VS_DEBUG},
 		{mtInformation, LOG_STYLE_VS_INFO},
 		{mtWarning, LOG_STYLE_VS_WARNING},

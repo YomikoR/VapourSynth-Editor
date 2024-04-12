@@ -58,6 +58,15 @@ TimeLineSlider::TimeLineSlider(QWidget * a_pParent) : QWidget(a_pParent)
 	m_slidingPointerColor = palette().color(QPalette::Text);
 	m_bookmarkColor = Qt::magenta;
 
+	m_colorRoleMap = {
+		{SlideLine, &m_slideLineColor},
+		{ActiveFrame, &m_activeFrameColor},
+		{InactiveFrame, &m_inactiveFrameColor},
+		{CurrentFramePointer, &m_currentFramePointerColor},
+		{SlidingPointer, &m_slidingPointerColor},
+		{Bookmark, &m_bookmarkColor},
+	};
+
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
 	recalculateMinimumSize();
@@ -165,18 +174,8 @@ void TimeLineSlider::setLabelsFont(const QFont & a_font)
 
 void TimeLineSlider::setColor(ColorRole a_role, const QColor & a_color)
 {
-	std::map<ColorRole, QColor *> colorRoleMap =
-	{
-		{SlideLine, &m_slideLineColor},
-		{ActiveFrame, &m_activeFrameColor},
-		{InactiveFrame, &m_inactiveFrameColor},
-		{CurrentFramePointer, &m_currentFramePointerColor},
-		{SlidingPointer, &m_slidingPointerColor},
-		{Bookmark, &m_bookmarkColor},
-	};
-
-	std::map<ColorRole, QColor *>::iterator it = colorRoleMap.find(a_role);
-	if(it == colorRoleMap.end())
+	std::map<ColorRole, QColor *>::iterator it = m_colorRoleMap.find(a_role);
+	if(it == m_colorRoleMap.end())
 		return;
 
 	*(it->second) = a_color;
