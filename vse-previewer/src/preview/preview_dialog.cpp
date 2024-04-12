@@ -656,7 +656,7 @@ void PreviewDialog::slotSaveSnapshot()
 	if(m_currentIsAudio)
 		return;
 
-	std::map<QString, QString> extensionToFilterMap =
+	static std::map<QString, QString> extensionToFilterMap =
 	{
 		{"png", tr("PNG image (*.png)")},
 	};
