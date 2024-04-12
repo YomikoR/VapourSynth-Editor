@@ -365,6 +365,27 @@ void PreviewDialog::previewScript(const QString& a_script,
 	setTitle();
 }
 
+void PreviewDialog::finalize()
+{
+	if(!m_cpVSAPI)
+		return;
+
+	if(m_cpFrame)
+	{
+		m_cpVSAPI->freeFrame(m_cpFrame);
+		m_cpFrame = nullptr;
+	}
+
+	if(m_cpPreviewFrame)
+	{
+		m_cpVSAPI->freeFrame(m_cpPreviewFrame);
+		m_cpPreviewFrame = nullptr;
+	}
+
+	VSScriptProcessorDialog::stopAndCleanUp();
+	m_audioCache.clear();
+}
+
 // END OF void PreviewDialog::previewScript(const QString& a_script,
 //		const QString& a_scriptName)
 //==============================================================================

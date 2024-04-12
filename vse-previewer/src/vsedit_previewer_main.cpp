@@ -70,6 +70,7 @@ void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 			msgBox->setWindowTitle(a_style.toUpper());
 			vsedit::disableFontKerning(msgBox);
 			msgBox->exec();
+			pPreviewDialog->finalize();
 		}
 
 		// Handle fatal errors and save to current dir

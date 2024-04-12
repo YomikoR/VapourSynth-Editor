@@ -66,6 +66,8 @@ public:
 		return VSScriptProcessorDialog::busy(m_outputIndex);
 	}
 
+	void finalize();
+
 signals:
 
 protected slots:
