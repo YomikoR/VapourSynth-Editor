@@ -1,6 +1,7 @@
 VSE-Previewer
 
-This software is free and distributed under MIT license.
+Source code of this software is distributed under MIT license.
+The distributed binaries are licensed under GPLv2 because of assets below.
 
 Software uses Qt framework by The Qt Company, distributed under LGPL license.
 https://qt.io/
