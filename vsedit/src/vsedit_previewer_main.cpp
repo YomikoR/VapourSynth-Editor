@@ -21,6 +21,7 @@ Q_DECLARE_OPAQUE_POINTER(VSNode *)
 SettingsManager * pSettings = nullptr;
 VSScriptLibrary * pVSSLibrary = nullptr;
 PreviewDialog * pPreviewDialog = nullptr;
+int exitCode = 0;
 
 void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 {
@@ -46,12 +47,16 @@ void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 
 	if(vsedit::contains(breakingTypes, a_style))
 	{
-		QMessageBox * msgBox = new QMessageBox(pPreviewDialog);
-		msgBox->setText(a_msg);
-		msgBox->setWindowTitle(a_style.toUpper());
-		vsedit::disableFontKerning(msgBox);
-		msgBox->setTextInteractionFlags(Qt::TextSelectableByMouse);
-		msgBox->exec();
+		if(pPreviewDialog)
+		{
+			pPreviewDialog->show();
+			QMessageBox * msgBox = new QMessageBox(pPreviewDialog);
+			msgBox->setText(a_msg);
+			msgBox->setWindowTitle(a_style.toUpper());
+			vsedit::disableFontKerning(msgBox);
+			msgBox->setTextInteractionFlags(Qt::TextSelectableByMouse);
+			msgBox->exec();
+		}
 
 		// Handle fatal errors and save to current dir
 		QString fatalTypes[] = {LOG_STYLE_VS_FATAL, LOG_STYLE_QT_FATAL};
@@ -78,6 +83,7 @@ void writeLogMessageByTypename(const QString & a_msg, const QString & a_style)
 		}
 
 		qApp->exit(-1);
+		exitCode = -1;
 	}
 }
 
@@ -222,10 +228,12 @@ int main(int argc, char *argv[])
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,
 		writeLogMessage);
 
+	if(exitCode != 0)
+		return exitCode;
+
 	QString scriptText = QString::fromUtf8(scriptFile.readAll());
 	pSettings->setLastUsedPath(scriptFileFullPath);
 
-	int exitCode = -1;
 	if(pVSSLibrary->initialize())
 	{
 		pPreviewDialog->previewScript(scriptText, scriptFileFullPath);
