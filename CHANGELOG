@@ -1,8 +1,11 @@
 r19-mod-6.6
+-BUGFIX: Previewer does not launch.
 -Allow all VS versions with API4.
 -Remove option that reloads script from disk before evaluation.
 -Add option to periodically reload script from disk to sync with external changes.
 -Add an asterisk in preview window title that indicates change in text editor.
+-Add info texts to certain reserved frame props when displayed.
+-Improve error handling of the previewer.
 
 r19-mod-6.5
 -Use same vapoursynth library as used for script evaluation for plugin list.
