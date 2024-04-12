@@ -1,3 +1,13 @@
+R3
+Accept -s/--settings argument to launch additional settings dialog
+Improve snapshot template handling
+Show console messages in color
+Add option to show frame number and timestamp on window title
+Better sync output frame numbers by timestamp
+Improve error message handling
+Show info text for certain reserved frame props
+Fix memory leak when script error happens in run time
+
 R2
 Allow choosing syncing output nodes by frame or by timestamp
 Accept -l/--lib argument to set vsscript lib search directory on launch
