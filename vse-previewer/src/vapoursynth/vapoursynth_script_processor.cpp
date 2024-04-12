@@ -871,7 +871,7 @@ QString VapourSynthScriptProcessor::framePropsString(
 	QString propsString;
 	QStringList propsStringList;
 
-	static std::map<char, QString> propTypeToString =
+	static std::map<VSPropertyType, QString> propTypeToString =
 	{
 		{ptUnset, "<unset>"},
 		{ptInt, "int"},
@@ -884,6 +884,98 @@ QString VapourSynthScriptProcessor::framePropsString(
 		{ptAudioFrame, "aframe"}
 	};
 
+	static std::map<int64_t, QString> _ChromaLocationToString = 
+	{
+		{VSC_CHROMA_LEFT, "left"},
+		{VSC_CHROMA_CENTER, "center"},
+		{VSC_CHROMA_TOP_LEFT, "top left"},
+		{VSC_CHROMA_BOTTOM_LEFT, "bottom left"},
+		{VSC_CHROMA_BOTTOM, "bottom"},
+	};
+
+	static std::map<int64_t, QString> _ColorRangeToString = 
+	{
+		{VSC_RANGE_FULL, "full"},
+		{VSC_RANGE_LIMITED, "limited"},
+	};
+
+	static std::map<int64_t, QString> _PrimariesToString = 
+	{
+		{VSC_PRIMARIES_BT709, "709"},
+		{VSC_PRIMARIES_UNSPECIFIED, "unspec"},
+		{VSC_PRIMARIES_BT470_M, "470m"},
+		{VSC_PRIMARIES_BT470_BG, "470bg"},
+		{VSC_PRIMARIES_ST170_M, "170m"},
+		{VSC_PRIMARIES_ST240_M, "240m"},
+		{VSC_PRIMARIES_FILM, "film"},
+		{VSC_PRIMARIES_BT2020, "2020"},
+		{VSC_PRIMARIES_ST428, "st428"},
+		{VSC_PRIMARIES_ST431_2, "st431-2"},
+		{VSC_PRIMARIES_ST432_1, "st432-1"},
+		{VSC_PRIMARIES_EBU3213_E, "jedec-p22"},
+	};
+
+	static std::map<int64_t, QString> _MatrixToString =
+	{
+		{VSC_MATRIX_RGB, "rgb"},
+		{VSC_MATRIX_BT709, "709"},
+		{VSC_MATRIX_UNSPECIFIED, "unspec"},
+		{VSC_MATRIX_FCC, "fcc"},
+		{VSC_MATRIX_BT470_BG, "470bg"},
+		{VSC_MATRIX_ST170_M, "170m"},
+		{VSC_MATRIX_ST240_M, "240m"},
+		{VSC_MATRIX_YCGCO, "ycgco"},
+		{VSC_MATRIX_BT2020_NCL, "2020ncl"},
+		{VSC_MATRIX_BT2020_CL, "2020cl"},
+		{VSC_MATRIX_CHROMATICITY_DERIVED_NCL, "chromancl"},
+		{VSC_MATRIX_CHROMATICITY_DERIVED_CL, "chromacl"},
+		{VSC_MATRIX_ICTCP, "ictcp"},
+	};
+
+	static std::map<int64_t, QString> _TransferToString =
+	{
+		{VSC_TRANSFER_BT709, "709"},
+		{VSC_TRANSFER_UNSPECIFIED, "unspec"},
+		{VSC_TRANSFER_BT470_M, "470m"},
+		{VSC_TRANSFER_BT470_BG, "470bg"},
+		{VSC_TRANSFER_BT601, "601"},
+		{VSC_TRANSFER_ST240_M, "240m"},
+		{VSC_TRANSFER_LINEAR, "linear"},
+		{VSC_TRANSFER_LOG_100, "log100"},
+		{VSC_TRANSFER_LOG_316, "log316"},
+		{VSC_TRANSFER_IEC_61966_2_4, "xvycc"},
+		{VSC_TRANSFER_IEC_61966_2_1, "srgb"},
+		{VSC_TRANSFER_BT2020_10, "2020_10"},
+		{VSC_TRANSFER_BT2020_12, "2020_12"},
+		{VSC_TRANSFER_ST2084, "st2084"},
+		{VSC_TRANSFER_ST428, "st428"},
+		{VSC_TRANSFER_ARIB_B67, "std-b67"},
+	};
+
+	static std::map<int64_t, QString> _FieldBasedToString =
+	{
+		{VSC_FIELD_PROGRESSIVE, "progressive"},
+		{VSC_FIELD_BOTTOM, "bottom field first"},
+		{VSC_FIELD_TOP, "top field first"},
+	};
+
+	static std::map<int64_t, QString> _FieldToString =
+	{
+		{0, "from bottom field"},
+		{1, "from top field"},
+	};
+
+	static std::map<QString, std::map<int64_t, QString>> reservedPropToMap =
+	{
+		{"_ChromaLocation", _ChromaLocationToString},
+		{"_ColorRange", _ColorRangeToString},
+		{"_Primaries", _PrimariesToString},
+		{"_Matrix", _MatrixToString},
+		{"_Transfer", _TransferToString},
+		{"_FieldBased", _FieldBasedToString},
+		{"_Field", _FieldToString},
+	};
+
 	const VSMap * cpProps = m_cpVSAPI->getFramePropertiesRO(a_cpFrame);
 
 	int propsNumber = m_cpVSAPI->mapNumKeys(cpProps);
@@ -893,7 +985,7 @@ QString VapourSynthScriptProcessor::framePropsString(
 		if(!propKey)
 			continue;
 		QString currentPropString = QString("%1 : ").arg(propKey);
-		int propType = m_cpVSAPI->mapGetType(cpProps, propKey);
+		auto propType = (VSPropertyType)m_cpVSAPI->mapGetType(cpProps, propKey);
 		currentPropString += propTypeToString[propType];
 		int elementsNumber = m_cpVSAPI->mapNumElements(cpProps, propKey);
 		if(elementsNumber > 1)
@@ -910,7 +1002,58 @@ QString VapourSynthScriptProcessor::framePropsString(
 			currentPropString += ": <unset>";
 			break;
 		case ptInt:
+		{
+			currentPropString += " : ";
+			QStringList elementStringList;
+			for(int j = 0; j < elementsNumber; ++j)
+			{
+				QString elementString;
+				int error;
+				int64_t element = m_cpVSAPI->mapGetInt(cpProps,
+					propKey, j, &error);
+				if(error)
+					elementString = "<error>";
+				else
+				{
+					auto it = reservedPropToMap.find(QString(propKey));
+					if(it == reservedPropToMap.end())
+						elementString = QString::number(element);
+					else
+					{
+						auto it2 = it->second.find(element);
+						if(it2 == it->second.end())
+							elementString = QString::number(element);
+						else
+							elementString = QString("%1 (%2)")
+								.arg(element).arg(it2->second);
+					}
+				}
+
+				elementStringList += elementString;
+			}
+			currentPropString += elementStringList.join(", ");
+			break;
+		}
 		case ptFloat:
+		{
+			currentPropString += " : ";
+			QStringList elementStringList;
+			for(int j = 0; j < elementsNumber; ++j)
+			{
+				QString elementString;
+				int error;
+				double element = m_cpVSAPI->mapGetFloat(cpProps,
+					propKey, j, &error);
+				if(error)
+					elementString = "<error>";
+				else
+					elementString = QString::number(element);
+
+				elementStringList += elementString;
+			}
+			currentPropString += elementStringList.join(", ");
+			break;
+		}
 		case ptData:
 		{
 			currentPropString += " : ";
@@ -919,65 +1062,44 @@ QString VapourSynthScriptProcessor::framePropsString(
 			{
 				QString elementString;
 				int error;
-				if(propType == ptInt)
+				int hint = m_cpVSAPI->mapGetDataTypeHint(cpProps,
+					propKey, j, &error);
+				if(error)
+					elementString = "<error>";
+				else if(hint == dtUtf8)
 				{
-					int64_t element = m_cpVSAPI->mapGetInt(cpProps,
+					const char * element = m_cpVSAPI->mapGetData(cpProps,
 						propKey, j, &error);
 					if(error)
 						elementString = "<error>";
 					else
-						elementString = QString::number(element);
+						elementString = QString::fromUtf8(element);
 				}
-				else if(propType == ptFloat)
+				else if(hint == dtBinary)
 				{
-					double element = m_cpVSAPI->mapGetFloat(cpProps,
+					int len = m_cpVSAPI->mapGetDataSize(cpProps,
 						propKey, j, &error);
 					if(error)
 						elementString = "<error>";
 					else
-						elementString = QString::number(element);
+						elementString = QString("<binary with %1 bytes>")
+							.arg(len);
 				}
-				else if(propType == ptData)
+				else
 				{
-					int hint = m_cpVSAPI->mapGetDataTypeHint(cpProps,
+					const char * element = m_cpVSAPI->mapGetData(cpProps,
 						propKey, j, &error);
 					if(error)
 						elementString = "<error>";
-					else if(hint == dtUtf8)
+					else
 					{
-						const char * element = m_cpVSAPI->mapGetData(cpProps,
-							propKey, j, &error);
-						if(error)
-							elementString = "<error>";
-						else
-							elementString = QString::fromUtf8(element);
-					}
-					else if(hint == dtBinary)
-					{
+						elementString = QString::fromUtf8(element);
+						QByteArray elementAsUtf8 = elementString.toUtf8();
 						int len = m_cpVSAPI->mapGetDataSize(cpProps,
 							propKey, j, &error);
-						if(error)
-							elementString = "<error>";
-						else
-							elementString = QString("<binary with %1 bytes>")
-								.arg(len);
-					}
-					else
-					{
-						const char * element = m_cpVSAPI->mapGetData(cpProps,
-							propKey, j, &error);
-						if(error)
-							elementString = "<error>";
-						else
-						{
-							elementString = QString::fromUtf8(element);
-							QByteArray elementAsUtf8 = elementString.toUtf8();
-							int len = m_cpVSAPI->mapGetDataSize(cpProps,
-								propKey, j, &error);
-							if(elementAsUtf8.length() != len ||
-								elementAsUtf8.toStdString() != element)
-								elementString = "<unknown type>";
-						}
+						if(elementAsUtf8.length() != len ||
+							elementAsUtf8.toStdString() != element)
+							elementString = "<unknown type>";
 					}
 				}
 
