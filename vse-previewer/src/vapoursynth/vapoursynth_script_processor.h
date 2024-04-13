@@ -111,7 +111,6 @@ private:
 
 	VSScript * m_pVSScript;
 
-	VSNodeInfo m_nodeInfo;
 	VSCoreInfo m_cpCoreInfo;
 
 	std::deque<FrameTicket> m_frameTicketsQueue;

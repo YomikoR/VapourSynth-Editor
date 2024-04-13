@@ -53,7 +53,6 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_initialized(false)
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
-	, m_nodeInfo()
 	, m_finalizing(false)
 {
 	Q_ASSERT(m_pSettingsManager);
@@ -133,10 +132,9 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	m_nodeInfo = VSNodeInfo(pOutputNode, m_cpVSAPI);
+	auto info = VSNodeInfo(pOutputNode, m_cpVSAPI);
 
-	if(m_nodeInfo.isVideo() &&
-		m_nodeInfo.getAsVideo()->format.colorFamily == cfUndefined)
+	if(info.isVideo() && info.getAsVideo()->format.colorFamily == cfUndefined)
 	{
 		emit signalWriteLogMessage(mtWarning,
 			tr("Video output node #%1 has Undefined format.")
@@ -257,20 +255,8 @@ bool VapourSynthScriptProcessor::requestFrameAsync(int a_frameNumber,
 	if(!nodePair.pOutputNode)
 		return false;
 
-	int numFrames;
-	int mediaType = m_cpVSAPI->getNodeType(nodePair.pOutputNode);
-	if(mediaType == mtAudio)
-	{
-		auto *info = m_cpVSAPI->getAudioInfo(nodePair.pOutputNode);
-		Q_ASSERT(info);
-		numFrames = info->numFrames;
-	}
-	else
-	{
-		auto *info = m_cpVSAPI->getVideoInfo(nodePair.pOutputNode);
-		Q_ASSERT(info);
-		numFrames = info->numFrames;
-	}
+	auto nodeInfo = VSNodeInfo(nodePair.pOutputNode, m_cpVSAPI);
+	int numFrames = nodeInfo.numFrames();
 
 	if(a_frameNumber >= numFrames)
 	{
