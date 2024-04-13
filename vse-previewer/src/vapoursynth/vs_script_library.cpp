@@ -93,6 +93,12 @@ bool VSScriptLibrary::finalize()
 		m_pArguments = nullptr;
 	}
 
+	for (int i = 0; i < m_scripts.size(); ++i)
+	{
+		if(m_scripts[i])
+			m_cpVSSAPI->freeScript(m_scripts[i]);
+	}
+
 	m_cpVSAPI = nullptr;
 
 	freeLibrary();
@@ -156,6 +162,8 @@ VSScript * VSScriptLibrary::createScript()
 
 	if(m_pArguments)
 		m_cpVSSAPI->setVariables(pScript, m_pArguments);
+
+	m_scripts.push_back(pScript);
 
 	return pScript;
 }
@@ -237,9 +245,20 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	if(!initialize())
 		return false;
 
-	m_cpVSSAPI->freeScript(a_pScript);
+	if(!a_pScript)
+		return true;
 
-	return true;
+	for(int i = 0; i < m_scripts.size(); ++i)
+	{
+		if(a_pScript == m_scripts[i])
+		{
+			m_cpVSSAPI->freeScript(a_pScript);
+			m_scripts[i] = nullptr;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool VSScriptLibrary::clearCoreCaches([[maybe_unused]] VSScript *a_pScript)

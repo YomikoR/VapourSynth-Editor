@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QLibrary>
 
+#include <vector>
+
 class SettingsManagerCore;
 
 //==============================================================================
@@ -95,6 +97,8 @@ private:
 	QString m_forcedLibrarySearchPath;
 
 	int m_defaultOutputIndex = 0;
+
+	std::vector<VSScript *> m_scripts;
 };
 
 //==============================================================================

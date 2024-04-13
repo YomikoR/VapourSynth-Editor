@@ -23,7 +23,7 @@ void VS_CC frameReady(void * a_pUserData,
 	VSNode * a_pNode, const char * a_errorMessage)
 {
 	VapourSynthScriptProcessor * pScriptProcessor =
-		static_cast<VapourSynthScriptProcessor *>(a_pUserData);
+		reinterpret_cast<VapourSynthScriptProcessor *>(a_pUserData);
 	Q_ASSERT(pScriptProcessor);
 	QString errorMessage(a_errorMessage);
 	QMetaObject::invokeMethod(pScriptProcessor,
@@ -176,14 +176,6 @@ bool VapourSynthScriptProcessor::finalize()
 			m_cpVSAPI->freeNode(nodePair.pPreviewNode);
 	}
 	m_nodePairForOutputIndex.clear();
-
-	if(m_pVSScript)
-	{
-		m_pVSScriptLibrary->freeScript(m_pVSScript);
-		m_pVSScript = nullptr;
-	}
-
-	m_cpVSAPI = nullptr;
 
 	m_script.clear();
 	m_scriptName.clear();
@@ -809,7 +801,6 @@ void VapourSynthScriptProcessor::freeFrameTicket(FrameTicket & a_ticket)
 
 	if(a_ticket.pPreviewNode)
 	{
-
 		m_cpVSAPI->freeNode(a_ticket.pPreviewNode);
 		a_ticket.pPreviewNode = nullptr;
 	}

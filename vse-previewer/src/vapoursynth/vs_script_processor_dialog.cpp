@@ -95,17 +95,6 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 	if(!m_cpVSAPI)
 		return false;
 
-	if(m_pVapourSynthScriptProcessor->isInitialized())
-	{
-		stopAndCleanUp();
-		bool finalized = m_pVapourSynthScriptProcessor->finalize();
-		if(!finalized)
-		{
-			m_wantToFinalize = true;
-			return false;
-		}
-	}
-
 	bool initialized = m_pVapourSynthScriptProcessor->initialize(a_script,
 		a_scriptName, m_outputIndex);
 	if(!initialized)

@@ -253,6 +253,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 
 PreviewDialog::~PreviewDialog()
 {
+	stopAndCleanUp();
 	if(m_pGeometrySaveTimer->isActive())
 	{
 		m_pGeometrySaveTimer->stop();
@@ -449,6 +450,19 @@ void PreviewDialog::changeEvent(QEvent * a_pEvent)
 
 void PreviewDialog::closeEvent(QCloseEvent *a_pEvent)
 {
+	if(m_playing)
+	{
+		slotPlay(false);
+		a_pEvent->ignore();
+		return;
+	}
+	if(m_framePixmap.isNull() || busy())
+	{
+		m_wantToFinalize = true;
+		slotPlay(false);
+		a_pEvent->ignore();
+		return;
+	}
 	m_pFramePropsPanel->setVisible(false);
 
 	slotSaveGeometry();
@@ -2652,9 +2666,11 @@ bool PreviewDialog::requestShowFrame(int a_frameNumber)
 
 void PreviewDialog::setPreviewPixmap()
 {
+	if(m_framePixmap.isNull())
+		return;
+
 	m_devicePixelRatio = window()->devicePixelRatioF();
-	if(!m_framePixmap.isNull())
-		m_framePixmap.setDevicePixelRatio(m_devicePixelRatio);
+	m_framePixmap.setDevicePixelRatio(m_devicePixelRatio);
 	if(m_ui.cropPanel->isVisible())
 	{
 		int cropLeft = m_ui.cropLeftSpinBox->value();
@@ -2699,8 +2715,6 @@ void PreviewDialog::setPreviewPixmap()
 	}
 	else
 	{
-		if(m_framePixmap.isNull())
-			return;
 		QRect previewRect = m_ui.previewArea->geometry();
 		int cropSize = m_ui.previewArea->frameWidth() * 2;
 		frameWidth = previewRect.width() * m_devicePixelRatio - cropSize;
@@ -2836,7 +2850,12 @@ void PreviewDialog::setCurrentFrame(const VSFrame * a_cpOutputFrame,
 	}
 	m_framePixmap = pixmapFromRGB(a_cpPreviewFrame);
 	m_cpPreviewFrame = a_cpPreviewFrame;
-	setPreviewPixmap();
+	if(m_wantToFinalize)
+	{
+		close();
+	}
+	else
+		setPreviewPixmap();
 	QPointF pixelPos = m_ui.previewArea->pixelPosition();
 	m_ui.previewArea->checkMouseOverPreview(pixelPos);
 	updateFrameProps(false);
