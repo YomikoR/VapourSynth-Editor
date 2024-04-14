@@ -53,6 +53,7 @@ public:
 
 	PreviewDialog(SettingsManager * a_pSettingsManager,
 		VSScriptLibrary * a_pVSScriptLibrary,
+		bool a_enableAudioPlayback = true,
 		QWidget * a_pParent = nullptr);
 	virtual ~PreviewDialog();
 
@@ -358,6 +359,7 @@ protected:
 	QToolButton * m_fakeButton2 = nullptr;
 
 	// audio
+	bool m_audioPlaybackEnabled;
 	bool m_currentIsAudio;
 	QAudioSink * m_pAudioSink = nullptr;
 	QIODevice * m_pAudioIODevice = nullptr;

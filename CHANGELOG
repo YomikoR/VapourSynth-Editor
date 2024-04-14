@@ -1,3 +1,7 @@
+R4
+Do clear filters and frames when script evaluation is aborted
+Accept -a/--audio argument to enable sound during audio playback, default enabled on Windows only
+
 R3
 Accept -s/--settings argument to launch additional settings dialog
 Improve snapshot template handling

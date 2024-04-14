@@ -157,6 +157,11 @@ struct VSEPreviewerArgs
 	QString librarySearchPath = "";
 	int defaultOutputIndex = 0;
 	int defaultFrameNumber = -1;
+#ifdef Q_OS_WIN
+	bool enableAudioPlayback = true;
+#else
+	bool enableAudioPlayback = false;
+#endif
 };
 
 int main(int argc, char *argv[])
@@ -189,6 +194,7 @@ int main(int argc, char *argv[])
 		std::cout << "  -f, --frame N                    Select frame number to start with" << std::endl;
 		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
 		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
+		std::cout << "  -a, --audio                      Enable experimental audio playback support (default disabled when not on Windows)" << std::endl;
 		return 0;
 	}
 
@@ -276,6 +282,10 @@ int main(int argc, char *argv[])
 			else if(argString == "-p" || argString == "--portable")
 			{
 				args.launchInPortableMode = true;
+			}
+			else if(argString == "-a" || argString == "--audio")
+			{
+				args.enableAudioPlayback = true;
 			}
 			else if(argString == "-l" || argString == "--lib")
 			{
@@ -371,7 +381,8 @@ int main(int argc, char *argv[])
 	if(exitCode != 0)
 		return exitCode;
 
-	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary);
+	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary,
+		args.enableAudioPlayback);
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,
 		writeLogMessage);
 

@@ -77,7 +77,7 @@ const char TIMELINE_BOOKMARKS_FILE_SUFFIX[] = ".bookmarks";
 //==============================================================================
 
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-	VSScriptLibrary * a_pVSScriptLibrary, QWidget * a_pParent) :
+	VSScriptLibrary * a_pVSScriptLibrary, bool a_enableAudioPlayback, QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent)
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
@@ -154,6 +154,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pFramePropsPanel(nullptr)
 	, m_fakeButton1(new QToolButton(this))
 	, m_fakeButton2(new QToolButton(this))
+	, m_audioPlaybackEnabled(a_enableAudioPlayback)
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
@@ -171,10 +172,6 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	m_pPlayTimer = new QTimer(this);
 	m_pPlayTimer->setTimerType(Qt::PreciseTimer);
 	m_pPlayTimer->setSingleShot(true);
-
-	m_pAudioPlayTimer = new QTimer(this);
-	m_pAudioPlayTimer->setTimerType(Qt::PreciseTimer);
-	m_pAudioPlayTimer->setSingleShot(true);
 
 	m_pFramePropsPanel = new FramePropsPanel(a_pSettingsManager, this);
 
@@ -233,8 +230,15 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 		this, SLOT(slotPreviewAreaMouseOverPoint(double, double)));
 	connect(m_pPlayTimer, SIGNAL(timeout()),
 		this, SLOT(slotProcessPlayQueue()));
-	connect(m_pAudioPlayTimer, &QTimer::timeout,
-		this, &PreviewDialog::slotProcessAudioPlayQueue);
+
+	if(m_audioPlaybackEnabled)
+	{
+		m_pAudioPlayTimer = new QTimer(this);
+		m_pAudioPlayTimer->setTimerType(Qt::PreciseTimer);
+		m_pAudioPlayTimer->setSingleShot(true);
+		connect(m_pAudioPlayTimer, &QTimer::timeout,
+			this, &PreviewDialog::slotProcessAudioPlayQueue);
+	}
 
 	slotSettingsChanged();
 
@@ -329,7 +333,8 @@ void PreviewDialog::previewScript(const QString& a_script,
 		if(comboIndex != -1)
 			m_ui.playFpsLimitModeComboBox->setCurrentIndex(comboIndex);
 
-		setAudioOutput();
+		if(m_audioPlaybackEnabled)
+			setAudioOutput();
 	}
 
 	resetCropSpinBoxes();
@@ -2072,7 +2077,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 	if(ni.isInvalid())
 		return;
 
-	stopAudioOutput();
+	if(m_audioPlaybackEnabled)
+		stopAudioOutput();
 
 	m_outputIndex = a_outputIndex;
 
@@ -2132,7 +2138,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		if(comboIndex != -1)
 			m_ui.playFpsLimitModeComboBox->setCurrentIndex(comboIndex);
 
-		setAudioOutput();
+		if(m_audioPlaybackEnabled)
+			setAudioOutput();
 	}
 	else
 	{
