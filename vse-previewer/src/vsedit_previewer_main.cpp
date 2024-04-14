@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 		std::cout << "  -f, --frame N                    Select frame number to start with" << std::endl;
 		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
 		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
-		std::cout << "  -a, --audio                      Enable experimental audio playback support (default disabled when not on Windows)" << std::endl;
+		std::cout << "  --sound                          Enable experimental sound support during audio playback (default enabled on Windows)" << std::endl;
 		return 0;
 	}
 
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 			{
 				args.launchInPortableMode = true;
 			}
-			else if(argString == "-a" || argString == "--audio")
+			else if(argString == "--sound")
 			{
 				args.enableAudioPlayback = true;
 			}
