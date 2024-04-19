@@ -93,7 +93,7 @@ bool VSScriptLibrary::finalize()
 		m_pArguments = nullptr;
 	}
 
-	for (int i = 0; i < m_scripts.size(); ++i)
+	for(size_t i = 0; i < m_scripts.size(); ++i)
 	{
 		if(m_scripts[i])
 			m_cpVSSAPI->freeScript(m_scripts[i]);
@@ -248,7 +248,7 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	if(!a_pScript)
 		return true;
 
-	for(int i = 0; i < m_scripts.size(); ++i)
+	for(size_t i = 0; i < m_scripts.size(); ++i)
 	{
 		if(a_pScript == m_scripts[i])
 		{
@@ -290,9 +290,6 @@ QString VSScriptLibrary::VSSAPIInfo()
 		return QString();
     return QString("R%1.%2").arg(m_VSSAPIMajor).arg(m_VSSAPIMinor);
 }
-
-// END OF bool VSScriptLibrary::freeScript(VSScript * a_pScript)
-//==============================================================================
 
 bool VSScriptLibrary::initLibrary()
 {
@@ -362,10 +359,10 @@ bool VSScriptLibrary::initLibrary()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
-		for(const QString & path : librarySearchPaths)
+		for(const QString & libSearchPath : librarySearchPaths)
 		{
 			m_vsScriptLibrary.unload();
-			libraryDir = vsedit::resolvePathFromApplication(path);
+			libraryDir = vsedit::resolvePathFromApplication(libSearchPath);
 			libraryFullPath = libraryDir + QString("/") + libraryName;
 			m_vsScriptLibrary.setFileName(libraryFullPath);
 			set_path();

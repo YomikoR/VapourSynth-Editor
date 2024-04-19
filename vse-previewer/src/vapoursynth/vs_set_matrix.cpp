@@ -12,7 +12,7 @@ struct setMatrixData
     int64_t matrix_in;
 };
 
-const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
+const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *instanceData, [[maybe_unused]] void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
     setMatrixData *d = reinterpret_cast<setMatrixData *>(instanceData);
     if (activationReason == arInitial)
@@ -41,7 +41,7 @@ const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *insta
         else if (vff->colorFamily == cfYUV)
         {
             int err;
-            int64_t matrix = vsapi->mapGetInt(props, "_Matrix", 0, &err);
+            vsapi->mapGetInt(props, "_Matrix", 0, &err);
             if (err)
             {
                 vsapi->mapSetInt(props, "_Matrix", d->matrix_in, maReplace);
@@ -61,7 +61,7 @@ const VSFrame * VS_CC setMatrixGetFrame(int n, int activationReason, void *insta
     return nullptr;
 }
 
-void VS_CC setMatrixFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
+void VS_CC setMatrixFree(void *instanceData, [[maybe_unused]] VSCore *core, const VSAPI *vsapi)
 {
     setMatrixData *d = reinterpret_cast<setMatrixData *>(instanceData);
     vsapi->freeNode(d->node);
