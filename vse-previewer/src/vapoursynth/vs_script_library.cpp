@@ -240,28 +240,6 @@ VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
 //		int a_index)
 //==============================================================================
 
-bool VSScriptLibrary::freeScript(VSScript * a_pScript)
-{
-	if(!initialize())
-		return false;
-
-	if(!a_pScript)
-		return true;
-
-	for(size_t i = 0; i < m_scripts.size(); ++i)
-	{
-		if(a_pScript == m_scripts[i])
-		{
-			m_cpVSSAPI->freeScript(a_pScript);
-			m_scripts[i] = nullptr;
-			return true;
-		}
-	}
-	qWarning() << "script freed here";
-
-	return false;
-}
-
 bool VSScriptLibrary::clearCoreCaches([[maybe_unused]] VSScript *a_pScript)
 {
 #if(VAPOURSYNTH_API_MAJOR == 4) && (VAPOURSYNTH_API_MINOR >= 1)

@@ -48,7 +48,7 @@ public:
 
 	VSNode * getOutput(VSScript * a_pScript, int a_index);
 
-	bool freeScript(VSScript * a_pScript);
+	//bool freeScript(VSScript * a_pScript);
 
 	bool clearCoreCaches(VSScript * a_pScript);
 

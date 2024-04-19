@@ -378,10 +378,6 @@ void PreviewDialog::setVSScriptLibraryLogs()
 		this, SLOT(slotWriteLogMessage(int, const QString &)));
 }
 
-// END OF void PreviewDialog::previewScript(const QString& a_script,
-//		const QString& a_scriptName)
-//==============================================================================
-
 void PreviewDialog::stopAndCleanUp()
 {
 	slotPlay(false);
