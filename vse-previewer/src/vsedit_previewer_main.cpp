@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
 	}
 
 	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, args.librarySearchPath);
-	QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
+	auto vssLibLog = QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
 	pVSSLibrary->setDefaultOutputIndex(args.defaultOutputIndex);
 	pVSSLibrary->setArguments(args.scriptArgs);
@@ -395,7 +395,11 @@ int main(int argc, char *argv[])
 		args.defaultFrameNumber);
 
 	if(pVSSLibrary->isInitialized())
+	{
+		QObject::disconnect(vssLibLog);
+		pPreviewDialog->setVSScriptLibraryLogs();
 		exitCode = pPreviewDialog->exec();
+	}
 
 	return exitCode;
 }

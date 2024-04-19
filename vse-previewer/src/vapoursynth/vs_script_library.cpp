@@ -89,7 +89,7 @@ bool VSScriptLibrary::finalize()
 {
 	if(m_pArguments && m_cpVSAPI)
 	{
-		m_cpVSAPI->clearMap(m_pArguments);
+		m_cpVSAPI->freeMap(m_pArguments);
 		m_pArguments = nullptr;
 	}
 
@@ -128,7 +128,7 @@ const VSAPI * VSScriptLibrary::getVSAPI()
 
 void VSScriptLibrary::setArguments(const std::map<std::string, std::string> &a_args)
 {
-	if(!isInitialized())
+	if(!initialize())
 		return;
 
 	if(m_pArguments)
@@ -257,6 +257,7 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 			return true;
 		}
 	}
+	qWarning() << "script freed here";
 
 	return false;
 }
