@@ -50,6 +50,8 @@ public:
 
 	virtual void setScriptName(const QString & a_scriptName);
 
+	virtual void setVSScriptLibraryLogs();
+
 protected slots:
 
 	virtual void slotWriteLogMessage(int a_messageType,

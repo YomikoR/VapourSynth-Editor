@@ -371,13 +371,6 @@ void PreviewDialog::previewScript(const QString& a_script,
 	setTitle();
 }
 
-void PreviewDialog::setVSScriptLibraryLogs()
-{
-	connect(m_pVSScriptLibrary,
-		SIGNAL(signalWriteLogMessage(int, const QString &)),
-		this, SLOT(slotWriteLogMessage(int, const QString &)));
-}
-
 void PreviewDialog::stopAndCleanUp()
 {
 	slotPlay(false);

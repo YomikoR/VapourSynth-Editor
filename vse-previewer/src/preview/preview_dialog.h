@@ -67,8 +67,6 @@ public:
 		return VSScriptProcessorDialog::busy(m_outputIndex);
 	}
 
-	void setVSScriptLibraryLogs();
-
 signals:
 
 protected slots:

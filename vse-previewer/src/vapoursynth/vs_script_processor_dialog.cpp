@@ -151,6 +151,13 @@ void VSScriptProcessorDialog::setScriptName(const QString & a_scriptName)
 //		const QString & a_scriptName)
 //==============================================================================
 
+void VSScriptProcessorDialog::setVSScriptLibraryLogs()
+{
+	connect(m_pVSScriptLibrary,
+		SIGNAL(signalWriteLogMessage(int, const QString &)),
+		this, SLOT(slotWriteLogMessage(int, const QString &)));
+}
+
 void VSScriptProcessorDialog::slotWriteLogMessage(int a_messageType,
 	const QString & a_message)
 {
