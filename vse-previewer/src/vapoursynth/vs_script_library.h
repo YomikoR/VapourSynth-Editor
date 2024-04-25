@@ -55,6 +55,8 @@ public:
 	int getDefaultOutputIndex() const { return m_defaultOutputIndex; }
 	void setDefaultOutputIndex(int a_index) { m_defaultOutputIndex = a_index; }
 
+	void setCoreCreationFlags(int a_flag) { m_coreCreationFlag = a_flag; }
+
 	QString VSAPIInfo();
 	QString VSSAPIInfo();
 
@@ -97,6 +99,8 @@ private:
 	QString m_forcedLibrarySearchPath;
 
 	int m_defaultOutputIndex = 0;
+
+	int m_coreCreationFlag = 0;
 
 	std::vector<VSScript *> m_scripts;
 };

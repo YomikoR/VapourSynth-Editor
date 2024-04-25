@@ -1,6 +1,7 @@
 R4
 Do clear filters and frames when script evaluation is aborted
 Accept --sound argument to enable sound during audio playback, default enabled on Windows
+Accept experimental -c/--coreflag argument to set VSCoreCreationFlags
 
 R3
 Accept -s/--settings argument to launch additional settings dialog

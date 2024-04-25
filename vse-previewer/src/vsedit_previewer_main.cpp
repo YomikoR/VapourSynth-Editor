@@ -157,6 +157,7 @@ struct VSEPreviewerArgs
 	QString librarySearchPath = "";
 	int defaultOutputIndex = 0;
 	int defaultFrameNumber = -1;
+	int coreCreationFlag = 0;
 #ifdef Q_OS_WIN
 	bool enableAudioPlayback = true;
 #else
@@ -194,6 +195,7 @@ int main(int argc, char *argv[])
 		std::cout << "  -f, --frame N                    Select frame number to start with" << std::endl;
 		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
 		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
+		std::cout << "  -c, --coreflag N                 Set VS core creation flag (default 0)" << std::endl;
 		std::cout << "  --sound                          Enable experimental sound support during audio playback (default enabled on Windows)" << std::endl;
 		return 0;
 	}
@@ -297,6 +299,24 @@ int main(int argc, char *argv[])
 				args.librarySearchPath = QString::fromLocal8Bit(argv[arg + 1], -1);
 				++arg;
 			}
+			else if(argString == "-c" || argString == "--coreflag")
+			{
+				if(argc <= arg + 1)
+				{
+					std::cerr << "VSE-Previewer: no core creation flag specified." << std::endl;
+					return 1;
+				}
+				QString indexStr = QString::fromLocal8Bit(argv[arg + 1], -1);
+				bool isInt = false;
+				int number = indexStr.toInt(&isInt, 10);
+				if(!isInt)
+				{
+					std::cerr << "VSE-Previewer: please specify a valid core creation flag number." << std::endl;
+					return 1;
+				}
+				args.coreCreationFlag = number;
+				++arg;
+			}
 			else if(args.scriptFilePath.isEmpty() && !argString.isEmpty())
 			{
 				args.scriptFilePath = argString;
@@ -375,6 +395,7 @@ int main(int argc, char *argv[])
 	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, args.librarySearchPath);
 	auto vssLibLog = QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
+	pVSSLibrary->setCoreCreationFlags(args.coreCreationFlag);
 	pVSSLibrary->initialize();
 	pVSSLibrary->setDefaultOutputIndex(args.defaultOutputIndex);
 	pVSSLibrary->setArguments(args.scriptArgs);
