@@ -53,6 +53,7 @@ VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	, m_initialized(false)
 	, m_cpVSAPI(nullptr)
 	, m_pVSScript(nullptr)
+	, m_pCore(nullptr)
 	, m_nodeInfo()
 	, m_finalizing(false)
 {
@@ -86,7 +87,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 	}
 
 	if(!m_pVSScript)
+	{
 		m_pVSScript = m_pVSScriptLibrary->createScript();
+		m_pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+	}
 	if(!m_pVSScript)
 	{
 		m_error = tr("Failed to create VSScript handle!");
@@ -102,8 +106,7 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
-	m_cpVSAPI->getCoreInfo(pCore, &m_cpCoreInfo);
+	m_cpVSAPI->getCoreInfo(m_pCore, &m_cpCoreInfo);
 
 	int opresult = m_pVSScriptLibrary->evaluateScript(m_pVSScript,
 		a_script.toUtf8().constData(), a_scriptName.toUtf8().constData());
@@ -569,8 +572,7 @@ void VapourSynthScriptProcessor::sendFrameQueueChangeSignal()
 	size_t inQueue = m_frameTicketsQueue.size();
 	size_t inProcess = m_frameTicketsInProcess.size();
 
-	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
-	m_cpVSAPI->getCoreInfo(pCore, &m_cpCoreInfo);
+	m_cpVSAPI->getCoreInfo(m_pCore, &m_cpCoreInfo);
 
 	size_t maxThreads = m_cpCoreInfo.numThreads;
 	double usedCacheRatio = (double)m_cpCoreInfo.usedFramebufferSize
@@ -617,9 +619,8 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	bool to_10_bit = (QColormap::instance().depth() == 30);
 
 	VSMap * pResultMap = nullptr;
-	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 
-	if(vsh::isSameVideoPresetFormat(pfRGB24, cpFormat, pCore, m_cpVSAPI))
+	if(vsh::isSameVideoPresetFormat(pfRGB24, cpFormat, m_pCore, m_cpVSAPI))
 	{
 		to_10_bit = false;
 		pResultMap = m_cpVSAPI->createMap();
@@ -627,7 +628,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 			maReplace);
 	}
 	else if(to_10_bit &&
-		vsh::isSameVideoPresetFormat(pfRGB30, cpFormat, pCore, m_cpVSAPI))
+		vsh::isSameVideoPresetFormat(pfRGB30, cpFormat, m_pCore, m_cpVSAPI))
 	{
 		pResultMap = m_cpVSAPI->createMap();
 		m_cpVSAPI->mapSetNode(pResultMap, "clip", a_nodePair.pOutputNode,
@@ -639,13 +640,13 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		bool isYUV = cpFormat->colorFamily == cfYUV;
 
 		VSPlugin * pResizePlugin = m_cpVSAPI->getPluginByID(
-			"com.vapoursynth.resize", pCore);
+			"com.vapoursynth.resize", m_pCore);
 		const char * resizeName = "Point";
 
 		VSMap * pArgumentMap = m_cpVSAPI->createMap();
 
 		VSCoreInfo coreInfo;
-		m_cpVSAPI->getCoreInfo(pCore, &coreInfo);
+		m_cpVSAPI->getCoreInfo(m_pCore, &coreInfo);
 		if(coreInfo.core < 58)
 			m_cpVSAPI->mapSetInt(pArgumentMap, "prefer_props", 1, maReplace);
 
@@ -715,7 +716,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		m_cpVSAPI->copyMap(pArgumentMap, pTempMap);
 		m_cpVSAPI->mapSetNode(pTempMap, "clip",
 			a_nodePair.pOutputNode, maReplace);
-		setMatrixFilter(pTempMap, pArgumentMap, pCore, m_cpVSAPI);
+		setMatrixFilter(pTempMap, pArgumentMap, m_pCore, m_cpVSAPI);
 		m_cpVSAPI->clearMap(pTempMap);
 
 		m_cpVSAPI->mapSetInt(pArgumentMap, "format", (to_10_bit ?
@@ -777,7 +778,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	m_cpVSAPI->freeMap(pResultMap);
 
 	VSNode * pPreviewNode = packRGBFilter(pRGBNode, a_nodePair.pOutputNode,
-		to_10_bit, pCore, m_cpVSAPI);
+		to_10_bit, m_pCore, m_cpVSAPI);
 
 	Q_ASSERT(pPreviewNode);
 	a_nodePair.pPreviewNode = pPreviewNode;
@@ -791,14 +792,13 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 
 bool VapourSynthScriptProcessor::recreateAudioPreviewNode(NodePair &a_nodePair)
 {
-	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
-	Q_ASSERT(pCore);
+	Q_ASSERT(m_pCore);
 
 	const VSAudioInfo * cpAudioInfo =
 		m_cpVSAPI->getAudioInfo(a_nodePair.pOutputNode);
 
 	VSMap * map = m_cpVSAPI->createMap();
-	VSPlugin *stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, pCore);
+	VSPlugin *stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, m_pCore);
 	m_cpVSAPI->mapSetInt(map, "length", cpAudioInfo->numFrames, maReplace);
 	VSMap * blankMap = m_cpVSAPI->invoke(stdPlugin, "BlankClip", map);
 	m_cpVSAPI->clearMap(map);
@@ -809,7 +809,7 @@ bool VapourSynthScriptProcessor::recreateAudioPreviewNode(NodePair &a_nodePair)
 		+ props.replace("| ", "\n");
     m_cpVSAPI->mapSetData(blankMap, "text", text.toStdString().c_str(),
 		text.size(), dtUtf8, maReplace);
-	VSPlugin * textPlugin = m_cpVSAPI->getPluginByID(VSH_TEXT_PLUGIN_ID, pCore);
+	VSPlugin * textPlugin = m_cpVSAPI->getPluginByID(VSH_TEXT_PLUGIN_ID, m_pCore);
     VSMap * textMap = m_cpVSAPI->invoke(textPlugin, "Text", blankMap);
 	m_cpVSAPI->clearMap(blankMap);
 
@@ -817,7 +817,7 @@ bool VapourSynthScriptProcessor::recreateAudioPreviewNode(NodePair &a_nodePair)
 	m_cpVSAPI->clearMap(textMap);
 
 	a_nodePair.pPreviewNode = packRGBFilter(textClip, a_nodePair.pOutputNode,
-		false, pCore, m_cpVSAPI);
+		false, m_pCore, m_cpVSAPI);
     return true;
 }
 

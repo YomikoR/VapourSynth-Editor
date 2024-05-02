@@ -111,6 +111,7 @@ private:
 	const VSAPI * m_cpVSAPI;
 
 	VSScript * m_pVSScript;
+	VSCore * m_pCore;
 
 	VSNodeInfo m_nodeInfo;
 	VSCoreInfo m_cpCoreInfo;

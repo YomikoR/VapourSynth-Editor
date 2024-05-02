@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QLibrary>
+#include <map>
 
 class SettingsManagerCore;
 
@@ -78,7 +79,7 @@ private:
 
 	const VSAPI * m_cpVSAPI;
 
-	VSLogHandle * m_pLogHandle;
+	std::map<VSCore *, VSLogHandle *> m_VSCoreLogHandles;
 
 	int m_VSAPIMajor;
 	int m_VSAPIMinor;
