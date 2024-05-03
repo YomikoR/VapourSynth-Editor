@@ -34,20 +34,20 @@ public:
 
 	const VSAPI * getVSAPI();
 
-	VSScript * createScript();
+	VSScript * createScript(VSCore * a_pCore = nullptr);
 
 	int evaluateScript(VSScript * a_pScript, const char * a_scriptText,
 		const char * a_scriptFilename);
 
 	const char * getError(VSScript * a_pScript);
 
-	VSCore * getCore(VSScript * a_pScript);
+	VSCore * createCore(int a_flag = 0);
 
 	VSNode * getOutput(VSScript * a_pScript, int a_index);
 
 	bool freeScript(VSScript * a_pScript);
 
-	bool clearCoreCaches(VSScript * a_pScript);
+	bool clearCoreCaches(VSCore * a_pCore);
 
 	QString VSAPIInfo();
 	QString VSSAPIInfo();

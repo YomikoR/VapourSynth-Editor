@@ -119,12 +119,12 @@ const VSAPI * VSScriptLibrary::getVSAPI()
 // END OF const VSAPI * VSScriptLibrary::getVSAPI()
 //==============================================================================
 
-VSScript * VSScriptLibrary::createScript()
+VSScript * VSScriptLibrary::createScript(VSCore * a_pCore)
 {
 	if(!initialize())
 		return nullptr;
 
-	VSScript * pScript = m_cpVSSAPI->createScript(nullptr);
+	VSScript * pScript = m_cpVSSAPI->createScript(a_pCore);
 	if(pScript)
 		m_cpVSSAPI->evalSetWorkingDir(pScript, 1);
 
@@ -160,13 +160,14 @@ const char * VSScriptLibrary::getError(VSScript * a_pScript)
 // END OF const char * VSScriptLibrary::getError(VSScript * a_pScript)
 //==============================================================================
 
-VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
+VSCore *VSScriptLibrary::createCore(int a_flag)
 {
 	if(!initialize())
 		return nullptr;
 
-	VSCore *pCore = m_cpVSSAPI->getCore(a_pScript);
-	if (!pCore) {
+	VSCore * pCore = m_cpVSAPI->createCore(a_flag);
+	if(!pCore)
+	{
 		QString errorString = tr("Failed to get VapourSynth Core!");
 		emit signalWriteLogMessage(mtCritical, errorString);
 		finalize();
@@ -177,11 +178,8 @@ VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 		m_VSCoreLogHandles[pCore] = m_cpVSAPI->addLogHandler(
 			vsMessageHandler, nullptr, this, pCore);
 
-	return pCore;
+    return pCore;
 }
-
-// END OF VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
-//==============================================================================
 
 VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
 {
@@ -205,7 +203,7 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 	return true;
 }
 
-bool VSScriptLibrary::clearCoreCaches(VSScript *a_pScript)
+bool VSScriptLibrary::clearCoreCaches(VSCore * a_pCore)
 {
 #if(VAPOURSYNTH_API_MAJOR == 4) && (VAPOURSYNTH_API_MINOR >= 1)
 	if(m_VSAPIMajor == 4 && m_VSAPIMinor >= 1)
@@ -213,8 +211,7 @@ bool VSScriptLibrary::clearCoreCaches(VSScript *a_pScript)
 		if(!m_initialized)
 			return false;
 
-		VSCore * pCore = m_cpVSSAPI->getCore(a_pScript);
-		m_cpVSAPI->clearCoreCaches(pCore);
+		m_cpVSAPI->clearCoreCaches(a_pCore);
 		return true;
 	}
 #endif

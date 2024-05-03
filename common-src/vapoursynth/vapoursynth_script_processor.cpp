@@ -86,10 +86,10 @@ bool VapourSynthScriptProcessor::initialize(const QString& a_script,
 		return false;
 	}
 
-	if(!m_pVSScript)
+	if(!m_pVSScript || !m_pCore)
 	{
-		m_pVSScript = m_pVSScriptLibrary->createScript();
-		m_pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
+		m_pCore = m_pVSScriptLibrary->createCore();
+		m_pVSScript = m_pVSScriptLibrary->createScript(m_pCore);
 	}
 	if(!m_pVSScript)
 	{
@@ -1166,5 +1166,5 @@ QString VapourSynthScriptProcessor::framePropsString(
 
 bool VapourSynthScriptProcessor::clearCoreCaches()
 {
-	return m_pVSScriptLibrary->clearCoreCaches(m_pVSScript);
+	return m_pVSScriptLibrary->clearCoreCaches(m_pCore);
 }
