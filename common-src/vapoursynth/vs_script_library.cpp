@@ -43,10 +43,6 @@ VSScriptLibrary::VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
 
 VSScriptLibrary::~VSScriptLibrary()
 {
-	for(auto & pair : m_VSCoreLogHandles)
-	{
-		m_cpVSAPI->removeLogHandler(pair.second, pair.first);
-	}
 	m_VSCoreLogHandles.clear();
 	finalize();
 }
