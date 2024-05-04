@@ -1,3 +1,6 @@
+r19-mod-6.7
+-BUGFIX: Messages sent by core logging are missing after preview refresh.
+
 r19-mod-6.6
 -BUGFIX: Previewer does not launch.
 -Allow all VS versions with API4.
