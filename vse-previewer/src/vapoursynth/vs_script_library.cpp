@@ -2,7 +2,6 @@
 
 #include "../settings/settings_manager_core.h"
 #include "../helpers.h"
-#include "../version_info.h"
 
 #include <QSettings>
 #include <QProcessEnvironment>
