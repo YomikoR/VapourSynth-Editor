@@ -203,7 +203,6 @@ bool VapourSynthScriptProcessor::finalize()
 
 	if(m_pVSScript)
 	{
-		clearCoreCaches();
 		m_pVSScriptLibrary->freeScript(m_pVSScript);
 		m_pVSScript = nullptr;
 	}
