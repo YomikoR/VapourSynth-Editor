@@ -1,6 +1,7 @@
 #ifndef VS_SCRIPT_LIBRARY_H_INCLUDED
 #define VS_SCRIPT_LIBRARY_H_INCLUDED
 
+#include "../version_info.h"
 #include <vapoursynth/VSScript4.h>
 
 #include <QObject>

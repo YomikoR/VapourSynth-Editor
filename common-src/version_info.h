@@ -1,7 +1,7 @@
 #ifndef VERSION_INFO_H_INCLUDED
 #define VERSION_INFO_H_INCLUDED
 
-#define VSE_VERSION_STR "R19-mod-6"
+#define VSE_VERSION_STR "R19-mod-6.7"
 
 #define VS_USE_LATEST_API
 #define VSE_VS_API_VER_MAJOR 4
