@@ -653,7 +653,7 @@
   <customwidget>
    <class>TimeLineSlider</class>
    <extends>QWidget</extends>
-   <header>../../common-src/timeline_slider/timeline_slider.h</header>
+   <header>../../../common-src/timeline_slider/timeline_slider.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

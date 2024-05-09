@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CD54B5E3-31F8-49BC-9D02-E6E7B9D25FAD}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.22621.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>C:\Qt\6.7.0\msvc2019_64</QtInstall>
+    <QtModules>
+    </QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>C:\Qt\6.7.0\msvc2019_64</QtInstall>
+    <QtModules>core;gui;multimedia;widgets;core5compat</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+    <QtDeploy>true</QtDeploy>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <IncludePath>C:\Program Files\VapourSynth\sdk\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtMoc>
+      <QtMocDir>..\..\vsedit\generated\moc</QtMocDir>
+    </QtMoc>
+    <QtRcc>
+      <QtRccDir>..\..\vsedit\generated\rcc</QtRccDir>
+    </QtRcc>
+    <QtUic>
+      <QtUicDir>..\..\vsedit\generated\ui</QtUicDir>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libp2p\libp2p.vcxproj">
+      <Project>{dd503806-0462-4cfe-bc5d-6355cf100832}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="..\..\common-src\log\styled_log_view_settings_dialog.ui" />
+    <QtUic Include="..\..\vsedit\src\frame_consumers\benchmark_dialog.ui" />
+    <QtUic Include="..\..\vsedit\src\frame_consumers\encode_dialog.ui" />
+    <QtUic Include="..\..\vsedit\src\main_window.ui" />
+    <QtUic Include="..\..\vsedit\src\preview\preview_advanced_settings_dialog.ui" />
+    <QtUic Include="..\..\vsedit\src\preview\preview_dialog.ui" />
+    <QtUic Include="..\..\vsedit\src\script_status_bar_widget\script_status_bar_widget.ui" />
+    <QtUic Include="..\..\vsedit\src\script_templates\templates_dialog.ui" />
+    <QtUic Include="..\..\vsedit\src\settings\settings_dialog.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\vsedit\src\vapoursynth\vs_script_processor_dialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\vsedit\src\vapoursynth\vapoursynth_plugins_manager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\common-src\chrono.h" />
+    <ClInclude Include="..\..\common-src\settings\settings_definitions_core.h" />
+    <QtMoc Include="..\..\common-src\frame_header_writers\frame_header_writer_y4m.h" />
+    <QtMoc Include="..\..\common-src\frame_header_writers\frame_header_writer_null.h" />
+    <QtMoc Include="..\..\common-src\frame_header_writers\frame_header_writer.h" />
+    <ClInclude Include="..\..\common-src\helpers.h" />
+    <ClInclude Include="..\..\common-src\helpers_vs.h" />
+    <ClInclude Include="..\..\common-src\jobs\job_variables.h" />
+    <QtMoc Include="..\..\common-src\jobs\job.h" />
+    <ClInclude Include="..\..\common-src\log\styled_log_view_core.h" />
+    <ClInclude Include="..\..\common-src\log\styled_log_view_structures.h" />
+    <ClInclude Include="..\..\common-src\log\vs_editor_log_definitions.h" />
+    <QtMoc Include="..\..\common-src\log\vs_editor_log.h" />
+    <QtMoc Include="..\..\common-src\log\styled_log_view_settings_dialog.h" />
+    <QtMoc Include="..\..\common-src\log\styled_log_view.h" />
+    <QtMoc Include="..\..\common-src\log\log_styles_model.h" />
+    <ClInclude Include="..\..\common-src\settings\settings_definitions.h" />
+    <ClInclude Include="..\..\common-src\settings\settings_manager.h" />
+    <ClInclude Include="..\..\common-src\settings\settings_manager_core.h" />
+    <QtMoc Include="..\..\common-src\timeline_slider\timeline_slider.h" />
+    <ClInclude Include="..\..\common-src\vapoursynth\vs_pack_rgb.h" />
+    <ClInclude Include="..\..\common-src\vapoursynth\vs_script_processor_structures.h" />
+    <ClInclude Include="..\..\common-src\vapoursynth\vs_set_matrix.h" />
+    <QtMoc Include="..\..\common-src\vapoursynth\vs_script_library.h" />
+    <QtMoc Include="..\..\common-src\vapoursynth\vapoursynth_script_processor.h" />
+    <ClInclude Include="..\..\common-src\version_info.h" />
+    <ClInclude Include="..\..\common-src\win32_console.h" />
+    <QtMoc Include="..\..\vsedit\src\frame_consumers\benchmark_dialog.h" />
+    <QtMoc Include="..\..\vsedit\src\frame_consumers\encode_dialog.h" />
+    <QtMoc Include="..\..\vsedit\src\job_server_watcher_socket.h" />
+    <QtMoc Include="..\..\vsedit\src\main_window.h" />
+    <QtMoc Include="..\..\vsedit\src\preview\preview_advanced_settings_dialog.h" />
+    <QtMoc Include="..\..\vsedit\src\preview\preview_area.h" />
+    <QtMoc Include="..\..\vsedit\src\preview\preview_dialog.h" />
+    <ClInclude Include="..\..\vsedit\src\preview\scroll_navigator.h" />
+    <ClInclude Include="..\..\vsedit\src\preview\zoom_ratio_spinbox.h" />
+    <ClInclude Include="..\..\vsedit\src\script_editor\number_matcher.h" />
+    <QtMoc Include="..\..\vsedit\src\script_editor\script_completer_model.h" />
+    <QtMoc Include="..\..\vsedit\src\script_editor\script_completer.h" />
+    <QtMoc Include="..\..\vsedit\src\script_editor\syntax_highlighter.h" />
+    <QtMoc Include="..\..\vsedit\src\script_editor\script_editor.h" />
+    <QtMoc Include="..\..\vsedit\src\script_status_bar_widget\script_status_bar_widget.h" />
+    <QtMoc Include="..\..\vsedit\src\script_templates\templates_dialog.h" />
+    <QtMoc Include="..\..\vsedit\src\script_templates\drop_file_category_model.h" />
+    <QtMoc Include="..\..\vsedit\src\settings\item_delegate_for_hotkey.h" />
+    <QtMoc Include="..\..\vsedit\src\settings\clearable_key_sequence_editor.h" />
+    <QtMoc Include="..\..\vsedit\src\settings\actions_hotkey_edit_model.h" />
+    <QtMoc Include="..\..\vsedit\src\settings\settings_dialog.h" />
+    <QtMoc Include="..\..\vsedit\src\settings\theme_elements_model.h" />
+    <ClInclude Include="..\..\vsedit\src\vapoursynth\vs_plugin_data.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\common-src\frame_header_writers\frame_header_writer.cpp" />
+    <ClCompile Include="..\..\common-src\frame_header_writers\frame_header_writer_null.cpp" />
+    <ClCompile Include="..\..\common-src\frame_header_writers\frame_header_writer_y4m.cpp" />
+    <ClCompile Include="..\..\common-src\helpers.cpp" />
+    <ClCompile Include="..\..\common-src\jobs\job.cpp" />
+    <ClCompile Include="..\..\common-src\jobs\job_variables.cpp" />
+    <ClCompile Include="..\..\common-src\log\log_styles_model.cpp" />
+    <ClCompile Include="..\..\common-src\log\styled_log_view.cpp" />
+    <ClCompile Include="..\..\common-src\log\styled_log_view_core.cpp" />
+    <ClCompile Include="..\..\common-src\log\styled_log_view_settings_dialog.cpp" />
+    <ClCompile Include="..\..\common-src\log\styled_log_view_structures.cpp" />
+    <ClCompile Include="..\..\common-src\log\vs_editor_log.cpp" />
+    <ClCompile Include="..\..\common-src\log\vs_editor_log_definitions.cpp" />
+    <ClCompile Include="..\..\common-src\settings\settings_definitions.cpp" />
+    <ClCompile Include="..\..\common-src\settings\settings_definitions_core.cpp" />
+    <ClCompile Include="..\..\common-src\settings\settings_manager.cpp" />
+    <ClCompile Include="..\..\common-src\settings\settings_manager_core.cpp" />
+    <ClCompile Include="..\..\common-src\timeline_slider\timeline_slider.cpp" />
+    <ClCompile Include="..\..\common-src\vapoursynth\vapoursynth_script_processor.cpp" />
+    <ClCompile Include="..\..\common-src\vapoursynth\vs_pack_rgb.cpp" />
+    <ClCompile Include="..\..\common-src\vapoursynth\vs_script_library.cpp" />
+    <ClCompile Include="..\..\common-src\vapoursynth\vs_script_processor_structures.cpp" />
+    <ClCompile Include="..\..\common-src\vapoursynth\vs_set_matrix.cpp" />
+    <ClCompile Include="..\..\common-src\version_info.cpp" />
+    <ClCompile Include="..\..\common-src\win32_console.cpp" />
+    <ClCompile Include="..\..\vsedit\src\frame_consumers\benchmark_dialog.cpp" />
+    <ClCompile Include="..\..\vsedit\src\frame_consumers\encode_dialog.cpp" />
+    <ClCompile Include="..\..\vsedit\src\job_server_watcher_socket.cpp" />
+    <ClCompile Include="..\..\vsedit\src\main.cpp" />
+    <ClCompile Include="..\..\vsedit\src\main_window.cpp" />
+    <ClCompile Include="..\..\vsedit\src\preview\preview_advanced_settings_dialog.cpp" />
+    <ClCompile Include="..\..\vsedit\src\preview\preview_area.cpp" />
+    <ClCompile Include="..\..\vsedit\src\preview\preview_dialog.cpp" />
+    <ClCompile Include="..\..\vsedit\src\preview\scroll_navigator.cpp" />
+    <ClCompile Include="..\..\vsedit\src\preview\zoom_ratio_spinbox.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_editor\number_matcher.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_editor\script_completer.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_editor\script_completer_model.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_editor\script_editor.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_editor\syntax_highlighter.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_status_bar_widget\script_status_bar_widget.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_templates\drop_file_category_model.cpp" />
+    <ClCompile Include="..\..\vsedit\src\script_templates\templates_dialog.cpp" />
+    <ClCompile Include="..\..\vsedit\src\settings\actions_hotkey_edit_model.cpp" />
+    <ClCompile Include="..\..\vsedit\src\settings\clearable_key_sequence_editor.cpp" />
+    <ClCompile Include="..\..\vsedit\src\settings\item_delegate_for_hotkey.cpp" />
+    <ClCompile Include="..\..\vsedit\src\settings\settings_dialog.cpp" />
+    <ClCompile Include="..\..\vsedit\src\settings\theme_elements_model.cpp" />
+    <ClCompile Include="..\..\vsedit\src\vapoursynth\vapoursynth_plugins_manager.cpp" />
+    <ClCompile Include="..\..\vsedit\src\vapoursynth\vs_plugin_data.cpp" />
+    <ClCompile Include="..\..\vsedit\src\vapoursynth\vs_script_processor_dialog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="..\..\resources\dark\style.qrc" />
+    <QtRcc Include="..\..\resources\vsedit.qrc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
