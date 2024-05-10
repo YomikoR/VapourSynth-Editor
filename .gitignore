@@ -12,6 +12,9 @@
 !/LICENSE
 !/README
 !/TODO.txt
+!/msvc/vsedit/vsedit.rc
+!/msvc/vsedit/resource.h
+
 build
 pro/*/*.rc
 pro/*/Makefile.Release
@@ -22,8 +25,11 @@ pro/dist
 pro/.qmake.stash
 pro/Makefile
 pro/local_quirks.pri
-*/generated
-*/Release
+**/generated
+**/Release
+**/Debug
+
+msvc/**/*.aps
 
 *.d
 *.slo
@@ -45,5 +51,6 @@ pro/local_quirks.pri
 *.out
 *.app
 */.vs
+*.vcxproj.user
 *.log
 *.props
