@@ -14,6 +14,12 @@
 !/TODO.txt
 !/msvc/vsedit/vsedit.rc
 !/msvc/vsedit/resource.h
+!/msvc/vsedit-previewer/vsedit-previewer.rc
+!/msvc/vsedit-previewer/resource.h
+!/msvc/vsedit-job-server/vsedit-job-server.rc
+!/msvc/vsedit-job-server/resource.h
+!/msvc/vsedit-job-server-watcher/vsedit-job-server-watcher.rc
+!/msvc/vsedit-job-server-watcher/resource.h
 
 build
 pro/*/*.rc

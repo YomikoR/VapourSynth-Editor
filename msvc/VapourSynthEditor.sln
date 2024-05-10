@@ -7,6 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsedit", "vsedit\vsedit.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libp2p", "libp2p\libp2p.vcxproj", "{DD503806-0462-4CFE-BC5D-6355CF100832}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsedit-previewer", "vsedit-previewer\vsedit-previewer.vcxproj", "{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsedit-job-server", "vsedit-job-server\vsedit-job-server.vcxproj", "{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vsedit-job-server-watcher", "vsedit-job-server-watcher\vsedit-job-server-watcher.vcxproj", "{1550A490-74AA-413F-97C4-AFFA1BB470C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +37,30 @@ Global
 		{DD503806-0462-4CFE-BC5D-6355CF100832}.Release|x64.Build.0 = Release|x64
 		{DD503806-0462-4CFE-BC5D-6355CF100832}.Release|x86.ActiveCfg = Release|Win32
 		{DD503806-0462-4CFE-BC5D-6355CF100832}.Release|x86.Build.0 = Release|Win32
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Debug|x64.ActiveCfg = Debug|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Debug|x64.Build.0 = Debug|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Debug|x86.ActiveCfg = Debug|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Debug|x86.Build.0 = Debug|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Release|x64.ActiveCfg = Release|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Release|x64.Build.0 = Release|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Release|x86.ActiveCfg = Release|x64
+		{654CE67F-6EB3-4DBD-86F2-D3DB7081FA04}.Release|x86.Build.0 = Release|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Debug|x64.ActiveCfg = Debug|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Debug|x64.Build.0 = Debug|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Debug|x86.ActiveCfg = Debug|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Debug|x86.Build.0 = Debug|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Release|x64.ActiveCfg = Release|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Release|x64.Build.0 = Release|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Release|x86.ActiveCfg = Release|x64
+		{BF53C69D-89A2-40B4-977E-1C535B4C7EB8}.Release|x86.Build.0 = Release|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Debug|x64.ActiveCfg = Debug|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Debug|x64.Build.0 = Debug|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Debug|x86.ActiveCfg = Debug|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Debug|x86.Build.0 = Debug|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Release|x64.ActiveCfg = Release|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Release|x64.Build.0 = Release|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Release|x86.ActiveCfg = Release|x64
+		{1550A490-74AA-413F-97C4-AFFA1BB470C2}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

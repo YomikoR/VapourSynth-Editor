@@ -4,7 +4,6 @@
 #include "../../../common-src/libp2p/p2p_api.h"
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../../../common-src/settings/settings_manager.h"
-#include "../settings/settings_dialog.h"
 #include "scroll_navigator.h"
 #include "../../../common-src/timeline_slider/timeline_slider.h"
 #include "preview_advanced_settings_dialog.h"
