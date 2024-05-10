@@ -337,6 +337,13 @@ void PreviewDialog::previewScript(const QString& a_script,
 			setAudioOutput();
 	}
 
+	if(a_number >= 0)
+		setExpectedFrame(a_number);
+	else if(useTimestamps())
+		m_frameExpected = timestampToFrame(m_frameTimestampExpected);
+	else
+		m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
+
 	resetCropSpinBoxes();
 
 	slotSetPlayFPSLimit();
@@ -350,24 +357,13 @@ void PreviewDialog::previewScript(const QString& a_script,
 	else
 		showNormal();
 
-	if(a_number >= 0)
-		setExpectedFrame(a_number);
-	else
-	{
-		auto timelineMode = m_pSettingsManager->getTimeLineMode();
-		if(timelineMode == TimeLineSlider::DisplayMode::Frames)
-			m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
-		else
-			m_frameExpected = timestampToFrame(m_frameTimestampExpected);
-	}
-
 	if(m_frameExpected > lastFrameNumber)
 		setExpectedFrame(lastFrameNumber);
 	else if(m_frameExpected < 0)
 		setExpectedFrame(0);
 
 	slotShowFrame(m_frameExpected, false);
-	
+
 	setTitle();
 }
 
@@ -2117,6 +2113,8 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 		setExpectedFrame(lastFrameNumber);
 	else if(m_frameExpected < 0)
 		setExpectedFrame(0);
+	else
+		m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
 
 	if(m_currentIsAudio)
 	{
@@ -2806,8 +2804,24 @@ void PreviewDialog::setExpectedFrame(int a_frame)
 	m_frameTimestampExpected = frameToTimestamp(m_frameExpected);
 }
 
-// END OF void PreviewDialog::resetCropSpinBoxes()
-//==============================================================================
+bool PreviewDialog::useTimestamps() const
+{
+	Q_ASSERT(m_pSettingsManager);
+
+	auto syncMode = m_pSettingsManager->getSyncOutputMode();
+	if(syncMode == SyncOutputNodesMode::Time)
+		return true;
+	else if(syncMode == SyncOutputNodesMode::Frame)
+		return false;
+	else
+	{
+		auto timelineMode = m_pSettingsManager->getTimeLineMode();
+		if(timelineMode == TimeLineSlider::DisplayMode::Frames)
+			return false;
+		else
+			return true;
+	}
+}
 
 void PreviewDialog::setCurrentFrame(const VSFrame * a_cpOutputFrame,
 	const VSFrame * a_cpPreviewFrame)

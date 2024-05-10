@@ -13,6 +13,10 @@
 !/README
 !/TODO.txt
 build
+/msvc/vsedit
+/msvc/vsedit-previewer/resource.h
+/msvc/vsedit-job-server
+/msvc/vsedit-job-server-watcher
 pro/*.rc
 pro/Makefile.Release
 pro/Makefile.Debug
@@ -28,3 +32,9 @@ pro/.qmake.stash
 pro/Makefile
 pro/local_quirks.pri
 */generated
+**/Release
+**/Debug
+
+msvc/**/*.aps
+*/.vs
+*.vcxproj.user

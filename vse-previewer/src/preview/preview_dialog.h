@@ -221,6 +221,8 @@ protected:
 
 	void setExpectedFrame(int a_frame);
 
+	bool useTimestamps() const;
+
 	void setCurrentFrame(const VSFrame * a_cpOutputFrame,
 		const VSFrame * a_cpPreviewFrame);
 
