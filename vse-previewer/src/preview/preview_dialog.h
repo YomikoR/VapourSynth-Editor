@@ -53,7 +53,7 @@ public:
 
 	PreviewDialog(SettingsManager * a_pSettingsManager,
 		VSScriptLibrary * a_pVSScriptLibrary,
-		bool a_enableAudioPlayback = true,
+		bool a_enableSound = true,
 		QWidget * a_pParent = nullptr);
 	virtual ~PreviewDialog();
 

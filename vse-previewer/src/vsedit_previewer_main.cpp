@@ -159,9 +159,9 @@ struct VSEPreviewerArgs
 	int defaultFrameNumber = -1;
 	int coreCreationFlag = 0;
 #ifdef Q_OS_WIN
-	bool enableAudioPlayback = true;
+	bool enableSound = true;
 #else
-	bool enableAudioPlayback = false;
+	bool enableSound = false;
 #endif
 };
 
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
 			}
 			else if(argString == "--sound")
 			{
-				args.enableAudioPlayback = true;
+				args.enableSound = true;
 			}
 			else if(argString == "-l" || argString == "--lib")
 			{
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
 		return exitCode;
 
 	pPreviewDialog = new PreviewDialog(pSettings, pVSSLibrary,
-		args.enableAudioPlayback);
+		args.enableSound);
 	QObject::connect(pPreviewDialog, &PreviewDialog::signalWriteLogMessage,
 		writeLogMessage);
 

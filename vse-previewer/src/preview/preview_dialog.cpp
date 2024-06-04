@@ -77,7 +77,7 @@ const char TIMELINE_BOOKMARKS_FILE_SUFFIX[] = ".bookmarks";
 //==============================================================================
 
 PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
-	VSScriptLibrary * a_pVSScriptLibrary, bool a_enableAudioPlayback, QWidget * a_pParent) :
+	VSScriptLibrary * a_pVSScriptLibrary, bool a_enableSound, QWidget * a_pParent) :
 	VSScriptProcessorDialog(a_pSettingsManager, a_pVSScriptLibrary, a_pParent)
 	, m_pAdvancedSettingsDialog(nullptr)
 	, m_pSettingsDialog(nullptr)
@@ -154,7 +154,7 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pFramePropsPanel(nullptr)
 	, m_fakeButton1(new QToolButton(this))
 	, m_fakeButton2(new QToolButton(this))
-	, m_audioPlaybackEnabled(a_enableAudioPlayback)
+	, m_audioPlaybackEnabled(a_enableSound)
 {
 	vsedit::disableFontKerning(this);
 	m_ui.setupUi(this);
