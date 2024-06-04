@@ -227,6 +227,20 @@ VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 	return pCore;
 }
 
+std::vector<int> VSScriptLibrary::getOutputIndices(VSScript * a_pScript) const
+{
+	if(!m_initialized || !a_pScript)
+		return std::vector<int>();
+
+	int size = m_cpVSSAPI->getAvailableOutputNodes(a_pScript, 0, nullptr);
+	if(size <= 0)
+		return std::vector<int>();
+	
+	std::vector<int> idx(size);
+	m_cpVSSAPI->getAvailableOutputNodes(a_pScript, size, idx.data());
+	return idx;
+}
+
 // END OF VSCore * VSScriptLibrary::getCore(VSScript * a_pScript)
 //==============================================================================
 

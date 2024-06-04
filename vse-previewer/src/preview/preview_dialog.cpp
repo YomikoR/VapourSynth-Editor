@@ -285,6 +285,23 @@ void PreviewDialog::previewScript(const QString& a_script,
 	if(!initialized)
 		return;
 
+	std::vector<int> outputIndices = m_pVapourSynthScriptProcessor->getOutputIndices();
+
+	if(outputIndices.size() > 0)
+	{
+		m_ui.outputIndexComboBox->clear();
+		for(auto i : outputIndices)
+			m_ui.outputIndexComboBox->addItem(QString::number(i));
+		m_ui.outputIndexComboBox->setCurrentText(QString::number(m_outputIndex));
+	}
+	else
+	{
+		// Use old layout
+		m_ui.outputIndexLabel->hide();
+		m_ui.outputIndexComboBox->hide();
+		m_ui.frameLabel->hide();
+	}
+
 	int lastFrameNumber;
 
 	auto mt = m_nodeInfo[m_outputIndex].mediaType();
@@ -363,6 +380,16 @@ void PreviewDialog::previewScript(const QString& a_script,
 		setExpectedFrame(0);
 
 	slotShowFrame(m_frameExpected, false);
+
+	if(outputIndices.size() > 0)
+	{
+		connect(m_ui.outputIndexComboBox, &QComboBox::currentTextChanged,
+			[this]()
+			{
+				int idx = m_ui.outputIndexComboBox->currentText().toInt();
+				slotSwitchOutputIndex(idx);
+			});
+	}
 
 	setTitle();
 }
@@ -1555,6 +1582,7 @@ void PreviewDialog::slotPlay(bool a_play)
 
 	if(m_playing)
 	{
+		m_ui.outputIndexComboBox->setEnabled(false);
 		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
 		if(m_currentIsAudio && m_pAudioSink)
@@ -1567,6 +1595,7 @@ void PreviewDialog::slotPlay(bool a_play)
 		clearFramesCache();
 		m_audioCache.clear();
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
+		m_ui.outputIndexComboBox->setEnabled(true);
 		m_pActionPlay->setIcon(m_iconPlay);
 		setTitle();
 	}

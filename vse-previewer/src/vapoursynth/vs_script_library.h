@@ -48,6 +48,8 @@ public:
 
 	VSCore * getCore(VSScript * a_pScript);
 
+	std::vector<int> getOutputIndices(VSScript * a_pScript) const;
+
 	VSNode * getOutput(VSScript * a_pScript, int a_index);
 
 	//bool freeScript(VSScript * a_pScript);
