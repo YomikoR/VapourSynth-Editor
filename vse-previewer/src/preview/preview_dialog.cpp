@@ -285,12 +285,12 @@ void PreviewDialog::previewScript(const QString& a_script,
 	if(!initialized)
 		return;
 
-	std::vector<int> outputIndices = m_pVapourSynthScriptProcessor->getOutputIndices();
+	m_outputIndices = m_pVapourSynthScriptProcessor->getOutputIndices();
 
-	if(outputIndices.size() > 0)
+	if(m_outputIndices.size() > 0)
 	{
 		m_ui.outputIndexComboBox->clear();
-		for(auto i : outputIndices)
+		for(auto i : m_outputIndices)
 			m_ui.outputIndexComboBox->addItem(QString::number(i));
 		m_ui.outputIndexComboBox->setCurrentText(QString::number(m_outputIndex));
 	}
@@ -381,7 +381,7 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	slotShowFrame(m_frameExpected, false);
 
-	if(outputIndices.size() > 0)
+	if(m_outputIndices.size() > 0)
 	{
 		connect(m_ui.outputIndexComboBox, &QComboBox::currentTextChanged,
 			[this]()
@@ -2184,6 +2184,28 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 
 // END OF void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 //==============================================================================
+
+void PreviewDialog::setOutputIndex(int a_index)
+{
+	if(m_playing)
+		return;
+
+	if(a_index == m_outputIndex)
+		return;
+
+	if(m_outputIndices.size() == 0)
+		return slotSwitchOutputIndex(a_index);
+
+	if(vsedit::contains(m_outputIndices, a_index))
+	{
+		m_ui.outputIndexComboBox->setCurrentText(QString::number(a_index));
+	}
+	else
+	{
+		emit signalWriteLogMessage(mtWarning,
+			QString("Couldn't resolve output node #%1.").arg(a_index));
+	}
+}
 
 void PreviewDialog::slotAbout()
 {
