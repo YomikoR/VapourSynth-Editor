@@ -175,26 +175,33 @@ protected slots:
 
 	void slotSwitchOutputIndex(int a_outputIndex);
 
-	void slotSwitchOutputIndex0() { slotSwitchOutputIndex(0); }
-	void slotSwitchOutputIndex1() { slotSwitchOutputIndex(1); }
-	void slotSwitchOutputIndex2() { slotSwitchOutputIndex(2); }
-	void slotSwitchOutputIndex3() { slotSwitchOutputIndex(3); }
-	void slotSwitchOutputIndex4() { slotSwitchOutputIndex(4); }
-	void slotSwitchOutputIndex5() { slotSwitchOutputIndex(5); }
-	void slotSwitchOutputIndex6() { slotSwitchOutputIndex(6); }
-	void slotSwitchOutputIndex7() { slotSwitchOutputIndex(7); }
-	void slotSwitchOutputIndex8() { slotSwitchOutputIndex(8); }
-	void slotSwitchOutputIndex9() { slotSwitchOutputIndex(9); }
-	void slotSwitchOutputIndex10() { slotSwitchOutputIndex(10); }
-	void slotSwitchOutputIndex11() { slotSwitchOutputIndex(11); }
-	void slotSwitchOutputIndex12() { slotSwitchOutputIndex(12); }
-	void slotSwitchOutputIndex13() { slotSwitchOutputIndex(13); }
-	void slotSwitchOutputIndex14() { slotSwitchOutputIndex(14); }
-	void slotSwitchOutputIndex15() { slotSwitchOutputIndex(15); }
-	void slotSwitchOutputIndex16() { slotSwitchOutputIndex(16); }
-	void slotSwitchOutputIndex17() { slotSwitchOutputIndex(17); }
-	void slotSwitchOutputIndex18() { slotSwitchOutputIndex(18); }
-	void slotSwitchOutputIndex19() { slotSwitchOutputIndex(19); }
+	void setOutputIndex(int a_index);
+
+#define SLOT_SWITCH_OUTPUT_INDEX(a) \
+	void slotSwitchOutputIndex##a() { setOutputIndex(a); }
+
+	SLOT_SWITCH_OUTPUT_INDEX(0)
+	SLOT_SWITCH_OUTPUT_INDEX(1)
+	SLOT_SWITCH_OUTPUT_INDEX(2)
+	SLOT_SWITCH_OUTPUT_INDEX(3)
+	SLOT_SWITCH_OUTPUT_INDEX(4)
+	SLOT_SWITCH_OUTPUT_INDEX(5)
+	SLOT_SWITCH_OUTPUT_INDEX(6)
+	SLOT_SWITCH_OUTPUT_INDEX(7)
+	SLOT_SWITCH_OUTPUT_INDEX(8)
+	SLOT_SWITCH_OUTPUT_INDEX(9)
+	SLOT_SWITCH_OUTPUT_INDEX(10)
+	SLOT_SWITCH_OUTPUT_INDEX(11)
+	SLOT_SWITCH_OUTPUT_INDEX(12)
+	SLOT_SWITCH_OUTPUT_INDEX(13)
+	SLOT_SWITCH_OUTPUT_INDEX(14)
+	SLOT_SWITCH_OUTPUT_INDEX(15)
+	SLOT_SWITCH_OUTPUT_INDEX(16)
+	SLOT_SWITCH_OUTPUT_INDEX(17)
+	SLOT_SWITCH_OUTPUT_INDEX(18)
+	SLOT_SWITCH_OUTPUT_INDEX(19)
+
+#undef SLOT_SWITCH_OUTPUT_INDEX
 
 protected:
 

@@ -10,6 +10,7 @@
 #include <QPixmap>
 #include <QString>
 #include <list>
+#include <vector>
 
 class QCloseEvent;
 class QStatusBar;
@@ -102,6 +103,7 @@ protected:
 	double m_usedCacheRatio;
 
 	int m_outputIndex;
+	std::vector<int> m_outputIndices;
 
 	bool m_wantToFinalize;
 	bool m_wantToClose;

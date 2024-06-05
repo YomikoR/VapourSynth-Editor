@@ -36,6 +36,8 @@ public:
 
 	QString error() const;
 
+	std::vector<int> getOutputIndices() const;
+
 	VSNodeInfo nodeInfo(int a_outputIndex = 0);
 
 	bool requestFrameAsync(int a_frameNumber, int a_outputIndex = 0,

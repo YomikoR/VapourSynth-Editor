@@ -1,5 +1,6 @@
 r19-mod-6.7
 -BUGFIX: Messages sent by core logging are missing after preview refresh.
+-Add combo box for switching output index (enabled with VS R69 or later).
 
 r19-mod-6.6
 -BUGFIX: Previewer does not launch.

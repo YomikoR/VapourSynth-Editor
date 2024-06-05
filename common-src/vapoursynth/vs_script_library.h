@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QLibrary>
 #include <map>
+#include <vector>
 
 class SettingsManagerCore;
 
@@ -43,6 +44,9 @@ public:
 	const char * getError(VSScript * a_pScript);
 
 	VSCore * createCore(int a_flag = 0);
+
+	// Returns empty vector if not supported by API
+	std::vector<int> getOutputIndices(VSScript * a_pScript) const;
 
 	VSNode * getOutput(VSScript * a_pScript, int a_index);
 

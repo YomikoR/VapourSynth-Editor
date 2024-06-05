@@ -301,6 +301,22 @@ void PreviewDialog::previewScript(const QString& a_script,
 	if(!initialized)
 		return;
 
+	m_outputIndices = m_pVapourSynthScriptProcessor->getOutputIndices();
+	if(m_outputIndices.size() > 0)
+	{
+		m_ui.outputIndexComboBox->clear();
+		for(auto i : m_outputIndices)
+			m_ui.outputIndexComboBox->addItem(QString::number(i));
+		m_ui.outputIndexComboBox->setCurrentText(QString::number(m_outputIndex));
+	}
+	else
+	{
+		// Use old layout
+		m_ui.outputIndexLabel->hide();
+		m_ui.outputIndexComboBox->hide();
+		m_ui.frameLabel->hide();
+	}
+
 	int lastFrameNumber;
 
 	auto mt = m_nodeInfo[m_outputIndex].mediaType();
@@ -404,6 +420,17 @@ void PreviewDialog::previewScript(const QString& a_script,
 		setExpectedFrame(0);
 
 	slotShowFrame(m_frameExpected, false);
+
+	if(m_outputIndices.size() > 0)
+	{
+		m_ui.outputIndexComboBox->disconnect();
+		connect(m_ui.outputIndexComboBox, &QComboBox::currentTextChanged,
+			[this]()
+			{
+				int idx = m_ui.outputIndexComboBox->currentText().toInt();
+				slotSwitchOutputIndex(idx);
+			});
+	}
 
 	setTitle();
 }
@@ -1632,6 +1659,7 @@ void PreviewDialog::slotPlay(bool a_play)
 
 	if(m_playing)
 	{
+		m_ui.outputIndexComboBox->setEnabled(false);
 		m_pActionPlay->setIcon(m_iconPause);
 		m_lastFrameRequestedForPlay = m_frameShown;
 #ifdef Q_OS_WIN // AUDIO
@@ -1650,6 +1678,7 @@ void PreviewDialog::slotPlay(bool a_play)
 		m_audioCache.clear();
 #endif
 		m_pVapourSynthScriptProcessor->flushFrameTicketsQueue();
+		m_ui.outputIndexComboBox->setEnabled(true);
 		m_pActionPlay->setIcon(m_iconPlay);
 		setTitle();
 	}
@@ -2261,6 +2290,28 @@ void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 
 // END OF void PreviewDialog::slotSwitchOutputIndex(int a_outputIndex)
 //==============================================================================
+
+void PreviewDialog::setOutputIndex(int a_index)
+{
+	if(m_playing)
+		return;
+
+	if(a_index == m_outputIndex)
+		return;
+
+	if(m_outputIndices.size() == 0)
+		return slotSwitchOutputIndex(a_index);
+
+	if(vsedit::contains(m_outputIndices, a_index))
+	{
+		m_ui.outputIndexComboBox->setCurrentText(QString::number(a_index));
+	}
+	else
+	{
+		emit signalWriteLogMessage(mtWarning,
+			QString("Couldn't resolve output node #%1.").arg(a_index));
+	}
+}
 
 void PreviewDialog::createActionsAndMenus()
 {

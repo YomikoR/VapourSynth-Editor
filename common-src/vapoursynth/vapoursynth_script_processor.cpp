@@ -239,6 +239,14 @@ QString VapourSynthScriptProcessor::error() const
 // END OF QString VapourSynthScriptProcessor::error() const
 //==============================================================================
 
+std::vector<int> VapourSynthScriptProcessor::getOutputIndices() const
+{
+	if(!isInitialized() || !m_pVSScript)
+    	return std::vector<int>();
+
+	return m_pVSScriptLibrary->getOutputIndices(m_pVSScript);
+}
+
 VSNodeInfo VapourSynthScriptProcessor::nodeInfo(int a_outputIndex)
 {
 	if(!m_initialized)
