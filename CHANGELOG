@@ -1,3 +1,7 @@
+R5
+Add a drop-down menu for switching output indices
+Add hotkey options for switching to previous and next output indices
+
 R4
 Do clear filters and frames when script evaluation is aborted
 Accept --sound argument to enable sound during audio playback, default enabled on Windows
