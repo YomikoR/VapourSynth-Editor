@@ -184,6 +184,10 @@ void SettingsManager::initializeStandardActions()
 			QIcon(), QKeySequence()},
 		{ACTION_ID_SET_OUTPUT_INDEX_19, tr("Switch to output index 19"),
 			QIcon(), QKeySequence()},
+		{ACTION_ID_PREVIOUS_OUTPUT_INDEX, "Switch to previous output index",
+			QIcon(), QKeySequence()},
+		{ACTION_ID_NEXT_OUTPUT_INDEX, "Switch to next output index",
+			QIcon(), QKeySequence()},
 	};
 }
 

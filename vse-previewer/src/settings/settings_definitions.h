@@ -128,6 +128,8 @@ extern const char ACTION_ID_SET_OUTPUT_INDEX_16[];
 extern const char ACTION_ID_SET_OUTPUT_INDEX_17[];
 extern const char ACTION_ID_SET_OUTPUT_INDEX_18[];
 extern const char ACTION_ID_SET_OUTPUT_INDEX_19[];
+extern const char ACTION_ID_PREVIOUS_OUTPUT_INDEX[];
+extern const char ACTION_ID_NEXT_OUTPUT_INDEX[];
 
 //==============================================================================
 

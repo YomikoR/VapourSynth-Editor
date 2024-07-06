@@ -188,6 +188,9 @@ protected slots:
 
 #undef SLOT_SWITCH_OUTPUT_INDEX
 
+	void slotSwitchToPreviousOutputIndex();
+	void slotSwitchToNextOutputIndex();
+
 	void slotAbout();
 	void slotCallSettingsDialog();
 
@@ -333,6 +336,8 @@ protected:
 	QAction * m_pActionSwitchToOutputIndex17;
 	QAction * m_pActionSwitchToOutputIndex18;
 	QAction * m_pActionSwitchToOutputIndex19;
+	QAction * m_pActionSwitchToPreviousOutputIndex;
+	QAction * m_pActionSwitchToNextOutputIndex;
 	QAction * m_pActionAbout;
 
 	std::map<QString, ZoomMode> m_actionIDToZoomModeMap;

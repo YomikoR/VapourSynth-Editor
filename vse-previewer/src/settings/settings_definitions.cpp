@@ -88,6 +88,8 @@ const char ACTION_ID_SET_OUTPUT_INDEX_16[] = "switch_to_output_index_16";
 const char ACTION_ID_SET_OUTPUT_INDEX_17[] = "switch_to_output_index_17";
 const char ACTION_ID_SET_OUTPUT_INDEX_18[] = "switch_to_output_index_18";
 const char ACTION_ID_SET_OUTPUT_INDEX_19[] = "switch_to_output_index_19";
+const char ACTION_ID_PREVIOUS_OUTPUT_INDEX[] = "switch_to_previous_output_index";
+const char ACTION_ID_NEXT_OUTPUT_INDEX[] = "switch_to_next_output_index";
 
 //==============================================================================
 

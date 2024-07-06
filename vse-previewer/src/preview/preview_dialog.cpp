@@ -143,6 +143,8 @@ PreviewDialog::PreviewDialog(SettingsManager * a_pSettingsManager,
 	, m_pActionSwitchToOutputIndex17(nullptr)
 	, m_pActionSwitchToOutputIndex18(nullptr)
 	, m_pActionSwitchToOutputIndex19(nullptr)
+	, m_pActionSwitchToPreviousOutputIndex(nullptr)
+	, m_pActionSwitchToNextOutputIndex(nullptr)
 	, m_pActionAbout(nullptr)
 	, m_playing(false)
 	, m_processingPlayQueue(false)
@@ -2207,6 +2209,40 @@ void PreviewDialog::setOutputIndex(int a_index)
 	}
 }
 
+void PreviewDialog::slotSwitchToPreviousOutputIndex()
+{
+	size_t num = m_outputIndices.size();
+	if(num <= 1)
+		return;
+
+	if(m_outputIndex == m_outputIndices[0])
+		return setOutputIndex(m_outputIndices[num - 1]);
+
+	auto idx = std::upper_bound(m_outputIndices.begin(),
+		m_outputIndices.end(), m_outputIndex - 1);
+	if(idx == m_outputIndices.end())
+		return setOutputIndex(m_outputIndices[num - 1]);
+	else
+		return setOutputIndex(*(idx-1));
+}
+
+void PreviewDialog::slotSwitchToNextOutputIndex()
+{
+	size_t num = m_outputIndices.size();
+	if(num <= 1)
+		return;
+
+	if(m_outputIndex == m_outputIndices[num - 1])
+		return setOutputIndex(m_outputIndices[0]);
+
+	auto idx = std::lower_bound(m_outputIndices.begin(),
+		m_outputIndices.end(), m_outputIndex + 1);
+	if(idx == m_outputIndices.end())
+		return setOutputIndex(m_outputIndices[0]);
+	else
+		return setOutputIndex(*idx);
+}
+
 void PreviewDialog::slotAbout()
 {
     QResource aboutResource(":readme");
@@ -2347,6 +2383,11 @@ void PreviewDialog::createActionsAndMenus()
 			false, SLOT(slotSwitchOutputIndex18())},
 		{&m_pActionSwitchToOutputIndex19, ACTION_ID_SET_OUTPUT_INDEX_19,
 			false, SLOT(slotSwitchOutputIndex19())},
+		{&m_pActionSwitchToPreviousOutputIndex,
+			ACTION_ID_PREVIOUS_OUTPUT_INDEX,
+			false, SLOT(slotSwitchToPreviousOutputIndex())},
+		{&m_pActionSwitchToNextOutputIndex, ACTION_ID_NEXT_OUTPUT_INDEX,
+			false, SLOT(slotSwitchToNextOutputIndex())},
 		{&m_pActionAbout, ACTION_ID_ABOUT,
 			false, SLOT(slotAbout())},
 	};
@@ -2534,6 +2575,8 @@ void PreviewDialog::createActionsAndMenus()
 	addAction(m_pActionSwitchToOutputIndex17);
 	addAction(m_pActionSwitchToOutputIndex18);
 	addAction(m_pActionSwitchToOutputIndex19);
+	addAction(m_pActionSwitchToPreviousOutputIndex);
+	addAction(m_pActionSwitchToNextOutputIndex);
 
 //------------------------------------------------------------------------------
 
