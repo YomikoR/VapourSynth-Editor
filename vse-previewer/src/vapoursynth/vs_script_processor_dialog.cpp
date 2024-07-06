@@ -119,6 +119,8 @@ bool VSScriptProcessorDialog::initialize(const QString & a_script,
 
 bool VSScriptProcessorDialog::busy(int a_outputIndex) const
 {
+	if(m_framesInProcess.find(a_outputIndex) == m_framesInProcess.end())
+		return false;
 	return (m_framesInProcess.at(a_outputIndex)
 		+ m_framesInQueue.at(a_outputIndex) != 0);
 }
