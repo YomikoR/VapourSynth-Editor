@@ -180,6 +180,8 @@ void VSScriptProcessorDialog::slotFrameQueueStateChanged(size_t a_inQueue,
 
 	m_pStatusBarWidget->setQueueState(m_framesInQueue[m_outputIndex],
 		m_framesInProcess[m_outputIndex], m_maxThreads, m_usedCacheRatio);
+
+	emit signalProcessorIdle(!busy(m_outputIndex));
 }
 
 // END OF void VSScriptProcessorDialog::slotFrameQueueStateChanged(

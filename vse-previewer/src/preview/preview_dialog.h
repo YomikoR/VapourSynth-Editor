@@ -160,6 +160,8 @@ protected slots:
 
 	void slotSwitchOutputIndex(int a_outputIndex);
 
+	void slotEnableSwitchOutputIndex(bool a_idle);
+
 	void setOutputIndex(int a_index);
 
 #define SLOT_SWITCH_OUTPUT_INDEX(a) \

@@ -74,6 +74,8 @@ signals:
 	void signalWriteLogMessage(int a_messageType,
 		const QString & a_message);
 
+	void signalProcessorIdle(bool a_idle);
+
 protected:
 
 	virtual void closeEvent(QCloseEvent * a_pEvent) override;
