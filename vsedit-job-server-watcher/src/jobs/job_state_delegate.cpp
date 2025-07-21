@@ -33,7 +33,7 @@ void JobStateDelegate::paint(QPainter * a_pPainter,
 		(!vsedit::contains(noProgressBarStates, state));
 
 	a_pPainter->setPen(cellColor);
-	a_pPainter->setBrush(cellColor);
+	a_pPainter->setBrush(a_option.palette.color(QPalette::Base));
 
 	QRect innerRect = a_option.rect;
 	innerRect.setWidth(a_option.rect.width() - 1);
