@@ -428,8 +428,10 @@ void PreviewDialog::previewScript(const QString& a_script,
 
 	if(m_outputIndices.size() > 0)
 	{
-		m_ui.outputIndexComboBox->disconnect();
-		connect(m_ui.outputIndexComboBox, &QComboBox::currentTextChanged,
+		m_ui.outputIndexComboBox->disconnect(m_outputIndexComboBoxConnection);
+
+		m_outputIndexComboBoxConnection = connect(m_ui.outputIndexComboBox,
+			&QComboBox::currentTextChanged,
 			[this]()
 			{
 				int idx = m_ui.outputIndexComboBox->currentText().toInt();

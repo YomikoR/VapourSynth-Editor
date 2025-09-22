@@ -383,6 +383,8 @@ protected:
 
 	bool m_inPreviewer;
 
+	QMetaObject::Connection m_outputIndexComboBoxConnection;
+
 #ifdef Q_OS_WIN // AUDIO
 	bool m_currentIsAudio;
 	QAudioSink * m_pAudioSink = nullptr;
