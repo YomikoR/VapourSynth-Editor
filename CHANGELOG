@@ -1,3 +1,10 @@
+r19-mod-6.9
+-BUGFIX: Aborting dead process in job server watcher causes ghost entry.
+-Add match/case keywords to text editor highlighting (chrschmidt).
+-Make "Home" toggle between the block start and the first column (chrschmidt).
+-Disable color filling in the progress bars of job server watcher.
+-Add display support for _Range frame property since VS R73.
+
 r19-mod-6.8
 -BUGFIX: Switching output index could fail after immediate playback.
 -Add hotkey options for switching to previous or next output index.
