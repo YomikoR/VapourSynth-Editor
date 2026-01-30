@@ -1016,6 +1016,7 @@ QString VapourSynthScriptProcessor::framePropsString(
 	static std::map<QString, std::map<int64_t, QString>> reservedPropToMap =
 	{
 		{"_ChromaLocation", _ChromaLocationToString},
+		{"_Range", _ColorRangeToString},
 		{"_ColorRange", _ColorRangeToString},
 		{"_Primaries", _PrimariesToString},
 		{"_Matrix", _MatrixToString},
