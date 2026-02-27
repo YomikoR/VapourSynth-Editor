@@ -1,6 +1,6 @@
 #include "drop_file_category_model.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 
 //==============================================================================
@@ -177,13 +177,12 @@ bool DropFileCategoryModel::setData(const QModelIndex & a_index,
 				return false;
 		}
 
-		QRegExp matcher;
-		matcher.setPatternSyntax(QRegExp::Wildcard);
-
 		for(const QString & mask : maskList)
 		{
-			matcher.setPattern(mask);
-			if(!matcher.isValid())
+			auto re = QRegularExpression::fromWildcard(mask,
+				Qt::CaseInsensitive,
+				QRegularExpression::UnanchoredWildcardConversion);
+			if(!re.isValid())
 				return false;
 		}
 

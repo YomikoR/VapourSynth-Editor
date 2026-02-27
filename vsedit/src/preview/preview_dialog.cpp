@@ -31,7 +31,7 @@
 #include <QImageWriter>
 #include <QFileInfo>
 #include <QInputDialog>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <algorithm>
 #include <cmath>
 
@@ -1877,18 +1877,18 @@ void PreviewDialog::slotLoadChapters()
 	if(!chaptersFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 
-	static const QRegExp regExp(R"((\d{2}):(\d{2}):(\d{2})[\.:](\d{3})?)");
+	static QRegularExpression re = QRegularExpression(
+		R"((\d{1,3}):(\d{2}):(\d{2})[\.:](\d{3})?)");
 	while(!chaptersFile.atEnd())
 	{
 		const QByteArray line = chaptersFile.readLine();
-		if(regExp.indexIn(line) < 0)
+		auto match = re.match(line);
+		if(!match.hasMatch())
 			continue;
 
-		const QStringList timecodes = regExp.capturedTexts();
-
-		const double timecode = timecodes.at(1).toDouble() * 3600.0 +
-			timecodes.at(2).toDouble() * 60.0 + timecodes.at(3).toDouble() +
-			timecodes.at(4).toDouble() / 1000;
+		double timecode = match.captured(1).toDouble() * 3600 +
+			match.captured(2).toDouble() * 60 + match.captured(3).toDouble() +
+			match.captured(4).toDouble() / 1000;
 		const int frameIndex = round(timecode * m_fpsNum / m_fpsDen);
 		m_ui.frameNumberSlider->addBookmark(frameIndex);
 	}

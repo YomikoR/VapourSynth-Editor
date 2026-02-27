@@ -22,7 +22,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMenu>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <algorithm>
 
 //==============================================================================
@@ -753,11 +753,8 @@ void ScriptEditor::dropEvent(QDropEvent * a_pEvent)
 	if(urls.size() == 1)
 	{
 		QString filePath = urls[0].toLocalFile();
-		QRegExp matcher;
-		matcher.setPatternSyntax(QRegExp::Wildcard);
-		matcher.setCaseSensitivity(Qt::CaseInsensitive);
-		matcher.setPattern("*.vpy");
-		if(matcher.exactMatch(filePath))
+		static QRegularExpression re = QRegularExpression("\\.vpy$");
+		if(re.match(filePath).hasMatch())
 		{
 			bool handled = false;
 			emit signalScriptFileDropped(filePath, &handled);

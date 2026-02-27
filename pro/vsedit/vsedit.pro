@@ -2,7 +2,6 @@ CONFIG += qt
 
 QT += widgets
 QT += network
-QT += core5compat
 
 win32 {
 	QT += multimedia

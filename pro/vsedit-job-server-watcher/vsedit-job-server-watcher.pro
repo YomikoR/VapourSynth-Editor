@@ -2,8 +2,6 @@ CONFIG += qt
 
 QT += widgets
 QT += websockets
-QT += core5compat
-
 
 HOST_64_BIT = contains(QMAKE_HOST.arch, "x86_64")
 TARGET_64_BIT = contains(QMAKE_TARGET.arch, "x86_64")

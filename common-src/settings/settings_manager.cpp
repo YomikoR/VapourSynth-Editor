@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QPalette>
 #include <QFontMetricsF>
-#include <QRegExp>
+#include <QRegularExpression>
 
 //==============================================================================
 
@@ -1072,18 +1072,16 @@ QString SettingsManager::getDropFileTemplate(const QString & a_filePath) const
 	QSettings settings(m_settingsFilePath, QSettings::IniFormat);
 	settings.beginGroup(DROP_FILE_TEMPLATES_GROUP);
 
-	QRegExp matcher;
-	matcher.setPatternSyntax(QRegExp::Wildcard);
-	matcher.setCaseSensitivity(Qt::CaseInsensitive);
-
 	std::vector<DropFileCategory> categories = getAllDropFileTemplates();
 
 	for(const DropFileCategory & category : categories)
 	{
 		for(const QString & mask : category.maskList)
 		{
-			matcher.setPattern(mask);
-			if(matcher.exactMatch(a_filePath))
+			auto re = QRegularExpression::fromWildcard(mask,
+				Qt::CaseInsensitive,
+				QRegularExpression::UnanchoredWildcardConversion);
+			if(re.match(a_filePath).hasMatch())
 				return category.sourceTemplate;
 		}
 	}

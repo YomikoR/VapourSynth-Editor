@@ -2,7 +2,6 @@ CONFIG += qt
 
 QT += websockets
 QT += widgets
-QT += core5compat
 
 win32 {
 	CONFIG += console

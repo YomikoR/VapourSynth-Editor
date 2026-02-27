@@ -4,6 +4,7 @@ r19-mod-6.9
 -Make "Home" toggle between the block start and the first column (chrschmidt).
 -Disable color filling in the progress bars of job server watcher.
 -Add display support for _Range frame property since VS R73.
+-Switch to Qt6 regex functions
 
 r19-mod-6.8
 -BUGFIX: Switching output index could fail after immediate playback.

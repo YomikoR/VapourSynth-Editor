@@ -48,7 +48,6 @@ Source: ..\build\release-64bit-msvc\README; DestDir: {app}; Flags: ignoreversion
 Source: ..\build\release-64bit-msvc\LICENSE; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\CHANGELOG; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Core.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
-Source: ..\build\release-64bit-msvc\Qt6Core5Compat.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Gui.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Multimedia.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: ..\build\release-64bit-msvc\Qt6Network.dll; DestDir: {app}; Flags: ignoreversion uninsrestartdelete restartreplace
