@@ -3,6 +3,8 @@
 #include "../settings/settings_manager_core.h"
 #include "../helpers.h"
 
+#include <string>
+
 #include <QSettings>
 #include <QProcessEnvironment>
 
@@ -159,9 +161,9 @@ VSScript * VSScriptLibrary::createScript()
 
 	VSCoreInfo info;
 	m_cpVSAPI->getCoreInfo(pCore, &info);
-	if(info.core < 58)
+	if(info.core < 74)
 	{
-		QString errorString = "VapourSynth version 58 or later is required.";
+		QString errorString = "VapourSynth version 74 or later is required.";
 		emit signalWriteLogMessage(mtCritical, errorString);
 		finalize();
 		return nullptr;
@@ -258,18 +260,12 @@ VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
 
 bool VSScriptLibrary::clearCoreCaches([[maybe_unused]] VSScript *a_pScript)
 {
-#if(VAPOURSYNTH_API_MAJOR == 4) && (VAPOURSYNTH_API_MINOR >= 1)
-	if(m_VSAPIMajor == 4 && m_VSAPIMinor >= 1)
-	{
-		if(!m_initialized)
-			return false;
+	if(!m_initialized)
+		return false;
 
-		VSCore * pCore = m_cpVSSAPI->getCore(a_pScript);
-		m_cpVSAPI->clearCoreCaches(pCore);
-		return true;
-	}
-#endif
-    return false;
+	VSCore * pCore = m_cpVSSAPI->getCore(a_pScript);
+	m_cpVSAPI->clearCoreCaches(pCore);
+	return true;
 }
 
 QString VSScriptLibrary::VSAPIInfo()
@@ -290,7 +286,7 @@ bool VSScriptLibrary::initLibrary()
 {
 	if(m_vsScriptLibrary.isLoaded())
 	{
-		Q_ASSERT(vssGetAPI);
+		Q_ASSERT(vssGetAPI2);
 		return true;
 	}
 
@@ -409,23 +405,17 @@ bool VSScriptLibrary::initLibrary()
 	{
 		QFunctionPointer * ppFunction;
 		const char * name;
-		const char * fallbackName;
 	};
 
 	Entry vssEntries[] =
 	{
-		  {(QFunctionPointer *)&vssGetAPI, "getVSScriptAPI",
-			"getVSScriptAPI"}
+		{(QFunctionPointer *)&vssGetAPI2, "getVSScriptAPI2"}
 	};
 
 	for(Entry & entry : vssEntries)
 	{
 		Q_ASSERT(entry.ppFunction);
 		*entry.ppFunction = m_vsScriptLibrary.resolve(entry.name);
-		if(!*entry.ppFunction)
-		{ // Win32 fallback
-			*entry.ppFunction = m_vsScriptLibrary.resolve(entry.fallbackName);
-		}
 		if(!*entry.ppFunction)
 		{
 			QString errorString = tr("Failed to get entry %1() "
@@ -436,10 +426,20 @@ bool VSScriptLibrary::initLibrary()
 		}
 	}
 
-	m_cpVSSAPI = vssGetAPI(VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor));
+	std::string errMsg;
+	errMsg.resize(1000);
+	m_cpVSSAPI = vssGetAPI2(VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor),
+		errMsg.data(), errMsg.size());
 	if(!m_cpVSSAPI)
 	{
 		QString errorStr = tr("Failed to get VSScript API!");
+		if(errMsg.size() < 1000)
+		{
+			// Maybe the error message size will never be >= 1000
+			errorStr += '\n';
+			errorStr += errMsg;
+			errorStr += '\n';
+		}
 		emit signalWriteLogMessage(mtCritical, errorStr);
 		freeLibrary();
 		return false;
@@ -453,7 +453,7 @@ bool VSScriptLibrary::initLibrary()
 
 void VSScriptLibrary::freeLibrary()
 {
-	vssGetAPI = nullptr;
+	vssGetAPI2 = nullptr;
 
 	if(m_vsScriptLibrary.isLoaded())
 		m_vsScriptLibrary.unload();

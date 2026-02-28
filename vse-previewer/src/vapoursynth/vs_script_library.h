@@ -14,7 +14,7 @@ class SettingsManagerCore;
 
 //==============================================================================
 
-typedef const VSSCRIPTAPI * (VS_CC * FNP_getVSSAPI)(int);
+typedef const VSSCRIPTAPI * (VS_CC * FNP_getVSSAPI2)(int, char *, int);
 
 //==============================================================================
 
@@ -83,7 +83,7 @@ private:
 
 	QLibrary m_vsScriptLibrary;
 
-	FNP_getVSSAPI vssGetAPI;
+	FNP_getVSSAPI2 vssGetAPI2;
 
 	bool m_initialized;
 
