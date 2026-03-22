@@ -14,6 +14,7 @@ class SettingsManagerCore;
 //==============================================================================
 
 typedef const VSSCRIPTAPI * (VS_CC * FNP_getVSSAPI)(int);
+typedef const char * (VS_CC * FNP_getVSSAPILastError)();
 
 //==============================================================================
 
@@ -64,6 +65,7 @@ signals:
 private:
 
 	bool initLibrary();
+	bool initLibrary2(); // For VSScript API  4.3 and later
 
 	void freeLibrary();
 
@@ -77,6 +79,7 @@ private:
 	QLibrary m_vsScriptLibrary;
 
 	FNP_getVSSAPI vssGetAPI;
+	FNP_getVSSAPILastError vssGetAPILastError;
 
 	bool m_initialized;
 
