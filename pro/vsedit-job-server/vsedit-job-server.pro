@@ -14,6 +14,8 @@ ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
 PROJECT_DIRECTORY = ../../vsedit-job-server
 COMMON_DIRECTORY = ../..
 
+INCLUDEPATH += $${COMMON_DIRECTORY}/common-src
+
 TARGET = vsedit-job-server
 
 CONFIG(debug, debug|release) {
@@ -83,8 +85,6 @@ macx {
 E = $$escape_expand(\n\t)
 
 win32 {
-	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
-
 	DEPLOY_COMMAND = windeployqt
 	DEPLOY_TARGET = $$shell_quote($$shell_path($${DESTDIR}/$${TARGET}.exe))
 	QMAKE_POST_LINK += $${DEPLOY_COMMAND} --no-translations --no-svg --no-opengl-sw --no-system-d3d-compiler $${DEPLOY_TARGET} $${E}
