@@ -419,23 +419,21 @@ bool VSScriptLibrary::initLibrary2()
 		return false;
 	}
 
-#ifdef Q_OS_WIN
-		QString libraryName = "vsscript";
-		QString libraryName2 = "VSScript.dll";
-		bool libraryName2CS = false;
-		int libraryName2Chop = 4;
-#elif defined(Q_OS_MACOS)
-		QString libraryName = "vapoursynth-script";
-		QString libraryName2 = "libvapoursynth-script.4.dylib";
-		bool libraryName2CS = true;
-		int libraryName2Chop = 8;
-#else
-		QString libraryName = "vapoursynth-script";
-		QString libraryName2 = "libvapoursynth-script.so.4";
-		bool libraryName2CS = true;
-		int libraryName2Chop = 5;
-#endif
+	QString libraryName = "vsscript";
 
+#ifdef Q_OS_WIN
+	QString libraryName2 = "VSScript.dll";
+	bool libraryName2CS = false;
+	int libraryName2Chop = 4;
+#elif defined(Q_OS_MACOS)
+	QString libraryName2 = "libvsscript.4.dylib";
+	bool libraryName2CS = true;
+	int libraryName2Chop = 8;
+#else
+	QString libraryName2 = "libvsscript.so.4";
+	bool libraryName2CS = true;
+	int libraryName2Chop = 5;
+#endif
 
 	QString libraryDir;
 	QString libraryFullPath = QString();
