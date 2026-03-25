@@ -13,7 +13,13 @@ In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev and libqt6websockets
 
     `qmake6 -norecursive pro.pro CONFIG+=release`
 
-4) "make" the Makefile with platform specific make-tool, e.g. `nmake` for MS Visual Studio.
+4) on Windows: set environment variable `VS_INCLUDE_PATH` for the include path of VapourSynth header files, e.g. by
+
+    ```CMD
+    FOR /F "USEBACKQ tokens=*" %I IN (`python -c "import vapoursynth;print(vapoursynth.get_include())"`) DO (SET VS_INCLUDE_PATH=%I)
+    ```
+
+5) "make" the Makefile with platform specific make-tool, e.g. `nmake` for MS Visual Studio.
 
 The program files will be built in compiler specific sub-directory in the "build" directory in source tree and ready to use.
 

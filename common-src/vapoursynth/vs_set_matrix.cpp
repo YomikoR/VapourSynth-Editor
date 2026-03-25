@@ -1,7 +1,7 @@
 #include "vs_set_matrix.h"
 
-#include <vapoursynth/VSHelper4.h>
-#include <vapoursynth/VSConstants4.h>
+#include <VSHelper4.h>
+#include <VSConstants4.h>
 
 #include <memory>
 #include <cstring>

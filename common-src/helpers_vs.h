@@ -1,8 +1,8 @@
 #ifndef HELPERS_VS_H_INCLUDED
 #define HELPERS_VS_H_INCLUDED
 
-#include <vapoursynth/VapourSynth4.h>
-#include <vapoursynth/VSHelper4.h>
+#include <VapourSynth4.h>
+#include <VSHelper4.h>
 
 #include <utility>
 

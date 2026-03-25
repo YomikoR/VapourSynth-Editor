@@ -3,7 +3,7 @@
 
 #include "vs_plugin_data.h"
 
-#include <vapoursynth/VapourSynth4.h>
+#include <VapourSynth4.h>
 
 #include <QObject>
 #include <QStringList>

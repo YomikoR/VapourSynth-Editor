@@ -3,7 +3,7 @@
 #include "../../common-src/application_instance_file_guard/application_instance_file_guard.h"
 #include "../../common-src/ipc_defines.h"
 #include "../../common-src/version_info.h"
-#include <vapoursynth/VapourSynth4.h>
+#include <VapourSynth4.h>
 
 #include <QCoreApplication>
 

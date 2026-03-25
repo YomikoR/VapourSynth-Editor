@@ -11,7 +11,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <algorithm>
-#include <vapoursynth/VSHelper4.h>
+#include <VSHelper4.h>
 
 #ifdef Q_OS_WIN
 	#ifndef NOMINMAX

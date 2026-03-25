@@ -104,6 +104,7 @@ macx {
 }
 
 win32 {
+	INCLUDEPATH += $$(VS_INCLUDE_PATH)
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt

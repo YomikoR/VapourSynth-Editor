@@ -1,7 +1,7 @@
 #ifndef FRAME_HEADER_WRITER_H_INCLUDED
 #define FRAME_HEADER_WRITER_H_INCLUDED
 
-#include <vapoursynth/VapourSynth4.h>
+#include <VapourSynth4.h>
 
 #include <QObject>
 

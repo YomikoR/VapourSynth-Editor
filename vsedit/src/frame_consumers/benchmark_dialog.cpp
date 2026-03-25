@@ -4,7 +4,7 @@
 #include "../../../common-src/vapoursynth/vapoursynth_script_processor.h"
 #include "../../../common-src/settings/settings_manager.h"
 
-#include <vapoursynth/VapourSynth4.h>
+#include <VapourSynth4.h>
 
 //==============================================================================
 

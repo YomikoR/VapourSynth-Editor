@@ -9,8 +9,8 @@
 #include "preview_advanced_settings_dialog.h"
 #include "zoom_ratio_spinbox.h"
 
-#include <vapoursynth/VapourSynth4.h>
-#include <vapoursynth/VSHelper4.h>
+#include <VapourSynth4.h>
+#include <VSHelper4.h>
 
 #include <QEvent>
 #include <QCloseEvent>
