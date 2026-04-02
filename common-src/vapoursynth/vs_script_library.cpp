@@ -318,10 +318,10 @@ bool VSScriptLibrary::initLibrary()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
-		for(const QString & path : librarySearchPaths)
+		for(const QString & libPath : librarySearchPaths)
 		{
 			m_vsScriptLibrary.unload();
-			libraryDir = vsedit::resolvePathFromApplication(path);
+			libraryDir = vsedit::resolvePathFromApplication(libPath);
 			libraryFullPath = libraryDir + QString("/") + libraryName;
 			m_vsScriptLibrary.setFileName(libraryFullPath);
 			set_path();
@@ -465,19 +465,25 @@ bool VSScriptLibrary::initLibrary2()
 			emit signalWriteLogMessage(mtInformation, QString(
 				"You are in a Python virtual environment with path %1")
 				.arg(QString::fromLocal8Bit(venv)));
-			QProcess vssProc;
-			vssProc.startCommand("python -c \"import vapoursynth;"
-				"print(vapoursynth.get_vsscript())\"");
-			if(vssProc.waitForFinished(3000))
+		}
+		QProcess vssProc;
+#ifdef Q_OS_WIN
+		vssProc.startCommand("python -c \"import vapoursynth;"
+#else
+		vssProc.startCommand("/usr/bin/env python3 -c \"import vapoursynth;"
+#endif
+			"print(vapoursynth.get_vsscript())\"");
+		if(vssProc.waitForFinished(3000))
+		{
+			QString ret = QString::fromLocal8Bit(
+				vssProc.readAllStandardOutput()).trimmed();
+			if(ret.count('\n') == 0 && ret.endsWith(libraryName2,
+				libraryName2CS ? Qt::CaseSensitive : Qt::CaseInsensitive))
 			{
-				QString ret = QString::fromLocal8Bit(
-					vssProc.readAllStandardOutput()).trimmed();
-				if(ret.count('\n') == 0 && ret.endsWith(libraryName2,
-					libraryName2CS ? Qt::CaseSensitive : Qt::CaseInsensitive))
-				{
-					ret.chop(libraryName2Chop);
-					libraryFullPath = ret;
-				}
+#ifdef Q_OS_WIN
+				ret.chop(libraryName2Chop);
+#endif
+				libraryFullPath = ret;
 			}
 		}
 
@@ -500,11 +506,15 @@ bool VSScriptLibrary::initLibrary2()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
-		for(const QString & path : librarySearchPaths)
+		for(const QString & libPath : librarySearchPaths)
 		{
 			m_vsScriptLibrary.unload();
-			libraryDir = vsedit::resolvePathFromApplication(path);
+			libraryDir = vsedit::resolvePathFromApplication(libPath);
+#ifdef Q_OS_WIN
 			libraryFullPath = libraryDir + QString("/") + libraryName;
+#else
+			libraryFullPath = libraryDir + QString("/") + libraryName2;
+#endif
 			m_vsScriptLibrary.setFileName(libraryFullPath);
 			set_path();
 			loaded = m_vsScriptLibrary.load();
