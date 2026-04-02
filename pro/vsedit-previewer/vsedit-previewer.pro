@@ -14,6 +14,8 @@ ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
 PROJECT_DIRECTORY = ../../vsedit
 COMMON_DIRECTORY = ../..
 
+INCLUDEPATH += $$(VS_INCLUDE_PATH)
+
 CONFIG(debug, debug|release) {
 
 	contains(QMAKE_COMPILER, gcc) {
@@ -104,7 +106,6 @@ macx {
 }
 
 win32 {
-	INCLUDEPATH += $$(VS_INCLUDE_PATH)
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt

@@ -10,6 +10,8 @@ ARCHITECTURE_64_BIT = $$HOST_64_BIT | $$TARGET_64_BIT
 PROJECT_DIRECTORY = ../../vsedit-job-server-watcher
 COMMON_DIRECTORY = ../..
 
+INCLUDEPATH += $$(VS_INCLUDE_PATH)
+
 TARGET = vsedit-job-server-watcher
 
 CONFIG(debug, debug|release) {
@@ -82,7 +84,6 @@ macx {
 win32 {
 	QMAKE_LFLAGS += '/entry:mainCRTStartup'
 
-	INCLUDEPATH += $$(VS_INCLUDE_PATH)
 	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 	DEPLOY_COMMAND = windeployqt
