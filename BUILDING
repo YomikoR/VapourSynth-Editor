@@ -9,11 +9,7 @@ In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev and libqt6websockets
 
 1) make sure you meet the above prerequisites;
 2) open the system terminal and change working directory to the "pro" directory in the source tree;
-3) execute following command to generate the Makefile and other intermediate files
-
-    `qmake6 -norecursive pro.pro CONFIG+=release`
-
-4) (optional) set environment variable `VS_INCLUDE_PATH` for the include path of VapourSynth header files, e.g. for Windows CMD
+3) (optional) set environment variable `VS_INCLUDE_PATH` for the include path of VapourSynth header files, e.g. for Windows CMD
     ```CMD
     FOR /F "USEBACKQ tokens=*" %I IN (`python -c "import vapoursynth;print(vapoursynth.get_include())"`) DO (SET VS_INCLUDE_PATH=%I)
     ```
@@ -21,6 +17,10 @@ In Ubuntu 22.04 LTS, for example, the packages qt6-base-dev and libqt6websockets
     ```shell
     export VS_INCLUDE_PATH=`/usr/bin/env python3 -c "import vapoursynth;print(vapoursynth.get_include())"`
     ```
+
+4) execute following command to generate the Makefile and other intermediate files
+
+    `qmake6 -norecursive pro.pro CONFIG+=release`
 
 5) "make" the Makefile with platform specific make-tool, e.g. `nmake` for MS Visual Studio.
 
