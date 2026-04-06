@@ -64,7 +64,6 @@ signals:
 
 private:
 
-	bool initLibrary();
 	bool initLibrary2(); // For VSScript API  4.3 and later
 
 	void freeLibrary();
@@ -93,6 +92,17 @@ private:
 	int m_VSAPIMinor;
 	int m_VSSAPIMajor;
 	int m_VSSAPIMinor;
+
+	int vsVersionCompare(int a_major, int a_minor) const
+	{
+		return version_compare(m_VSAPIMajor, m_VSAPIMinor, a_major, a_minor);
+	}
+
+	int vssVersionCompare(int a_major, int a_minor) const
+	{
+		return version_compare(m_VSSAPIMajor, m_VSSAPIMinor, a_major, a_minor);
+	}
+
 };
 
 //==============================================================================

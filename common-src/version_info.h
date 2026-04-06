@@ -13,4 +13,6 @@
 
 void print_version();
 
+int version_compare(int major1, int minor1, int major2, int minor2);
+
 #endif

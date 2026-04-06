@@ -180,7 +180,7 @@ VSCore *VSScriptLibrary::createCore(int a_flag)
 std::vector<int> VSScriptLibrary::getOutputIndices(VSScript *a_pScript) const
 {
 #if(VSSCRIPT_API_MAJOR == 4) && (VSSCRIPT_API_MINOR >= 2)
-	if(m_initialized && a_pScript && m_VSSAPIMajor == 4 && m_VSSAPIMinor >= 2)
+	if(m_initialized && a_pScript && vssVersionCompare(4, 2) >= 0)
 	{
 		int size = m_cpVSSAPI->getAvailableOutputNodes(a_pScript, 0, nullptr);
 		if(size <= 0)
@@ -221,7 +221,7 @@ bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 bool VSScriptLibrary::clearCoreCaches(VSCore * a_pCore)
 {
 #if(VAPOURSYNTH_API_MAJOR == 4) && (VAPOURSYNTH_API_MINOR >= 1)
-	if(m_VSAPIMajor == 4 && m_VSAPIMinor >= 1)
+	if(vsVersionCompare(4, 1) >= 0)
 	{
 		if(!m_initialized)
 			return false;
@@ -250,7 +250,7 @@ QString VSScriptLibrary::VSSAPIInfo()
 // END OF bool VSScriptLibrary::freeScript(VSScript * a_pScript)
 //==============================================================================
 
-bool VSScriptLibrary::initLibrary()
+bool VSScriptLibrary::initLibrary2()
 {
 	if(m_vsScriptLibrary.isLoaded())
 	{
@@ -258,21 +258,34 @@ bool VSScriptLibrary::initLibrary()
 		return true;
 	}
 
-	QString libraryName(
+	QString libraryName = "vsscript";
+
 #ifdef Q_OS_WIN
-		"vsscript"
+	QString libraryNameOld = "vsscript";
+	QString libraryName2 = "vsscript.dll";
+	bool libraryName2CS = false;
+	int libraryName2Chop = 4;
+#elif defined(Q_OS_MACOS)
+	QString libraryNameOld = "vapoursynth-script";
+	QString libraryName2 = "libvsscript.4.dylib";
+	bool libraryName2CS = true;
+	int libraryName2Chop = 8;
 #else
-		"vapoursynth-script"
-#endif // Q_OS_WIN
-	);
+	QString libraryNameOld = "vapoursynth-script";
+	QString libraryName2 = "libvsscript.so.4";
+	bool libraryName2CS = true;
+	int libraryName2Chop = 5;
+#endif
 
 	QString libraryDir;
-	QString libraryFullPath;
+	QString libraryFullPath = QString();
 	bool loaded = false;
-	m_vsScriptLibrary.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 
 	QString path = QString::fromLocal8Bit(qgetenv("PATH"));
 	QString path_backup = path;
+
+	QFunctionPointer * ppGetAPI = (QFunctionPointer *)&vssGetAPI;
+	QFunctionPointer * ppLastError = (QFunctionPointer *)&vssGetAPILastError;
 
 	auto set_path = [&]()
 	{
@@ -290,31 +303,36 @@ bool VSScriptLibrary::initLibrary()
 #endif
 	};
 
-	auto load_from_registry = [&]()
+	auto load_vssapi = [&] ()
 	{
-#ifdef Q_OS_WIN
-		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
-			QSettings::NativeFormat);
-		libraryFullPath =
-			settings.value("VapourSynth/VSScriptDLL").toString();
-
-		if(!libraryFullPath.isEmpty())
+		*ppGetAPI = m_vsScriptLibrary.resolve("getVSScriptAPI");
+		if(!*ppGetAPI)
+			return;
+		for(; m_VSSAPIMinor >= 0; --m_VSSAPIMinor)
 		{
-			m_vsScriptLibrary.unload();
-			m_vsScriptLibrary.setFileName(libraryFullPath);
-			loaded = m_vsScriptLibrary.load();
+			int apiVer = VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor);
+			m_cpVSSAPI = vssGetAPI(apiVer);
+			if(m_cpVSSAPI)
+				break;
 		}
-#endif // Q_OS_WIN
+		if(m_cpVSSAPI)
+			return;
+		else
+		{
+			QString errMsg = QString("Library found in %1 but failed to get VSScript API!").arg(libPath);
+			const char * errVSSMsg = nullptr;
+			*ppLastError = m_vsScriptLibrary.resolve("getVSScriptAPILastError");
+			if(*ppLastError)
+				errVSSMsg = vssGetAPILastError();
+			if(errVSSMsg)
+				emit signalWriteLogMessage(mtWarning, QString("%1\n%2").arg(errMsg).arg(errVSSMsg));
+			else
+				emit signalWriteLogMessage(mtWarning, errMsg);
+			return;
+		}
 	};
 
-	auto load_from_path = [&]()
-	{
-		m_vsScriptLibrary.unload();
-		m_vsScriptLibrary.setFileName(libraryName);
-		loaded = m_vsScriptLibrary.load();
-	};
-
-	auto load_from_list = [&]()
+	auto load_from_list = [&] ()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
@@ -328,137 +346,15 @@ bool VSScriptLibrary::initLibrary()
 			loaded = m_vsScriptLibrary.load();
 			reset_path();
 			if(loaded)
-				break;
+			{
+				load_vssapi();
+				loaded = m_cpVSSAPI == nullptr;
+			}
 		}
 	};
 
-	if(m_pSettingsManager->getPreferVSLibrariesFromList())
+	auto load_from_python = [&] ()
 	{
-		if(!loaded) load_from_list();
-		if(!loaded) load_from_registry();
-		if(!loaded) load_from_path();
-	}
-	else
-	{
-		if(!loaded) load_from_registry();
-		if(!loaded) load_from_path();
-		if(!loaded) load_from_list();
-	}
-
-	if(!loaded)
-	{
-		emit signalWriteLogMessage(mtCritical,
-			"Failed to load vapoursynth script library!\n"
-			"Please set up the library search paths in settings.");
-		return false;
-	}
-
-	struct Entry
-	{
-		QFunctionPointer * ppFunction;
-		const char * name;
-		const char * fallbackName;
-	};
-
-	Entry vssEntries[] =
-	{
-		  {(QFunctionPointer *)&vssGetAPI, "getVSScriptAPI",
-			"getVSScriptAPI"}
-	};
-
-	for(Entry & entry : vssEntries)
-	{
-		Q_ASSERT(entry.ppFunction);
-		*entry.ppFunction = m_vsScriptLibrary.resolve(entry.name);
-		if(!*entry.ppFunction)
-		{ // Win32 fallback
-			*entry.ppFunction = m_vsScriptLibrary.resolve(entry.fallbackName);
-		}
-		if(!*entry.ppFunction)
-		{
-			QString errorString = tr("Failed to get entry %1() "
-				"in vapoursynth script library!").arg(entry.name);
-			emit signalWriteLogMessage(mtCritical, errorString);
-			freeLibrary();
-			return false;
-		}
-	}
-
-	for(; m_VSSAPIMinor >= 1; --m_VSSAPIMinor)
-	{
-		int apiVer = VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor);
-		m_cpVSSAPI = vssGetAPI(apiVer);
-		if(m_cpVSSAPI)
-			break;
-	}
-
-	if(!m_cpVSSAPI)
-	{
-		QString errorStr = tr("Failed to get VSScript API!");
-		emit signalWriteLogMessage(mtCritical, errorStr);
-		freeLibrary();
-		return false;
-	}
-
-	return true;
-}
-
-// END OF bool VSScriptLibrary::initLibrary()
-//==============================================================================
-
-bool VSScriptLibrary::initLibrary2()
-{
-	if(m_vsScriptLibrary.isLoaded())
-	{
-		Q_ASSERT(vssGetAPI);
-		return true;
-	}
-
-	if(m_VSSAPIMajor < 4 || (m_VSSAPIMajor == 4 && m_VSSAPIMinor <= 2))
-	{
-		return false;
-	}
-
-	QString libraryName = "vsscript";
-
-#ifdef Q_OS_WIN
-	QString libraryName2 = "VSScript.dll";
-	bool libraryName2CS = false;
-	int libraryName2Chop = 4;
-#elif defined(Q_OS_MACOS)
-	QString libraryName2 = "libvsscript.4.dylib";
-	bool libraryName2CS = true;
-	int libraryName2Chop = 8;
-#else
-	QString libraryName2 = "libvsscript.so.4";
-	bool libraryName2CS = true;
-	int libraryName2Chop = 5;
-#endif
-
-	QString libraryDir;
-	QString libraryFullPath = QString();
-	bool loaded = false;
-
-	QString path = QString::fromLocal8Bit(qgetenv("PATH"));
-	QString path_backup = path;
-
-	auto set_path = [&]()
-	{
-#ifdef Q_OS_WIN
-		path = libraryDir + ";" + path;
-		qputenv("PATH", path.toLocal8Bit());
-#endif
-	};
-
-	auto reset_path = [&]()
-	{
-#ifdef Q_OS_WIN
-		path = path_backup;
-		qputenv("PATH", path.toLocal8Bit());
-#endif
-	};
-
-	auto load_from_env = [&] () {
 		auto venv = qgetenv("VIRTUAL_ENV");
 		if(!venv.isEmpty())
 		{
@@ -488,11 +384,24 @@ bool VSScriptLibrary::initLibrary2()
 		}
 
 		if(libraryFullPath.isEmpty())
+			return;
+
+		m_vsScriptLibrary.unload();
+		m_vsScriptLibrary.setFileName(libraryFullPath);
+		loaded = m_vsScriptLibrary.load();
+
+		if(loaded)
 		{
-			auto envPath = qgetenv("VSSCRIPT_PATH");
-			if(!envPath.isEmpty())
-				libraryFullPath = QString::fromLocal8Bit(envPath);
+			load_vssapi();
+			loaded = m_cpVSSAPI == nullptr;
 		}
+	};
+
+	auto load_from_env = [&] ()
+	{
+		auto envPath = qgetenv("VSSCRIPT_PATH");
+		if(!envPath.isEmpty())
+			libraryFullPath = QString::fromLocal8Bit(envPath);
 
 		if(libraryFullPath.isEmpty())
 			return;
@@ -500,100 +409,67 @@ bool VSScriptLibrary::initLibrary2()
 		m_vsScriptLibrary.unload();
 		m_vsScriptLibrary.setFileName(libraryFullPath);
 		loaded = m_vsScriptLibrary.load();
+		if(loaded)
+		{
+			load_vssapi();
+			loaded = m_cpVSSAPI == nullptr;
+		}
 	};
 
-	auto load_from_list = [&]()
+	auto load_from_registry = [&] ()
 	{
-		QStringList librarySearchPaths =
-			m_pSettingsManager->getVapourSynthLibraryPaths();
-		for(const QString & libPath : librarySearchPaths)
-		{
-			m_vsScriptLibrary.unload();
-			libraryDir = vsedit::resolvePathFromApplication(libPath);
 #ifdef Q_OS_WIN
-			libraryFullPath = libraryDir + QString("/") + libraryName;
-#else
-			libraryFullPath = libraryDir + QString("/") + libraryName2;
+		QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE",
+			QSettings::NativeFormat);
+		libraryFullPath =
+			settings.value("VapourSynth/VSScriptDLL").toString();
+
+		if(libraryFullPath.isEmpty())
+			return;
+
+			m_vsScriptLibrary.unload();
+		m_vsScriptLibrary.setFileName(libraryFullPath);
+		loaded = m_vsScriptLibrary.load();
+		if(loaded)
+		{
+			load_vssapi();
+			loaded = m_cpVSSAPI == nullptr;
+		}
 #endif
-			m_vsScriptLibrary.setFileName(libraryFullPath);
-			set_path();
-			loaded = m_vsScriptLibrary.load();
-			reset_path();
-			if(loaded)
-				break;
+	};
+
+	auto load_from_path = [&]()
+	{
+		m_vsScriptLibrary.unload();
+		m_vsScriptLibrary.setFileName(libraryNameOld);
+		loaded = m_vsScriptLibrary.load();
+		if(loaded)
+		{
+			load_vssapi();
+			loaded = m_cpVSSAPI == nullptr;
 		}
 	};
 
 	if(m_pSettingsManager->getPreferVSLibrariesFromList())
 	{
 		if(!loaded) load_from_list();
+		if(!loaded) load_from_python();
 		if(!loaded) load_from_env();
+		if(!loaded) load_from_registry();
+		if(!loaded) load_from_path();
 	}
 	else
 	{
+		if(!loaded) load_from_python();
 		if(!loaded) load_from_env();
 		if(!loaded) load_from_list();
-	}
-
-	if(!loaded)
-	{
-		m_VSSAPIMajor = 4;
-		m_VSSAPIMinor = 2;
-		return initLibrary();
-	}
-
-	struct Entry
-	{
-		QFunctionPointer * ppFunction;
-		const char * name;
-		const char * fallbackName;
-	};
-
-	Entry vssEntries[] =
-	{
-		{(QFunctionPointer *)&vssGetAPI, "getVSScriptAPI",
-			"getVSScriptAPI"},
-		{(QFunctionPointer *)&vssGetAPILastError, "getVSScriptAPILastError",
-			"getVSScriptAPILastError"},
-	};
-
-	for(Entry & entry : vssEntries)
-	{
-		Q_ASSERT(entry.ppFunction);
-		*entry.ppFunction = m_vsScriptLibrary.resolve(entry.name);
-		if(!*entry.ppFunction)
-		{ // Win32 fallback
-			*entry.ppFunction = m_vsScriptLibrary.resolve(entry.fallbackName);
-		}
-		if(!*entry.ppFunction)
-		{
-			QString errorString = tr("Failed to get entry (%1) "
-				"in vapoursynth script library!").arg(entry.name);
-			emit signalWriteLogMessage(mtCritical, errorString);
-			freeLibrary();
-			return false;
-		}
-	}
-
-	for(; m_VSSAPIMinor >= 3; --m_VSSAPIMinor)
-	{
-		int apiVer = VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor);
-		m_cpVSSAPI = vssGetAPI(apiVer);
-		if(m_cpVSSAPI)
-			break;
+		if(!loaded) load_from_registry();
+		if(!loaded) load_from_path();
 	}
 
 	if(!m_cpVSSAPI)
 	{
-		QString errorStr;
-		const char * lastError = vssGetAPILastError();
-		if(lastError)
-		{
-			errorStr = QString("Failed to get VSScript API:\n");
-			errorStr += lastError;
-		}
-		else
-			errorStr = QString("Failed to get VSScript API!");
+		QString errorStr = QString("Failed to get VSScript API!");
 		emit signalWriteLogMessage(mtCritical, errorStr);
 		freeLibrary();
 		return false;
