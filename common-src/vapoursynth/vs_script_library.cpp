@@ -303,27 +303,36 @@ bool VSScriptLibrary::initLibrary2()
 #endif
 	};
 
-	auto load_vssapi = [&] ()
+	auto load_vssapi = [&] (int max_minor_ver, int min_minor_ver)
 	{
 		*ppGetAPI = m_vsScriptLibrary.resolve("getVSScriptAPI");
 		if(!*ppGetAPI)
 			return;
-		for(; m_VSSAPIMinor >= 0; --m_VSSAPIMinor)
+		if(max_minor_ver >= 3)
+			*ppLastError = m_vsScriptLibrary.resolve("getVSScriptAPILastError");
+		const char * errVSSMsg = nullptr;
+		for(int vminor = max_minor_ver; vminor >= min_minor_ver; --vminor)
 		{
-			int apiVer = VS_MAKE_VERSION(m_VSSAPIMajor, m_VSSAPIMinor);
+			int apiVer = VS_MAKE_VERSION(m_VSSAPIMajor, vminor);
 			m_cpVSSAPI = vssGetAPI(apiVer);
 			if(m_cpVSSAPI)
+			{
+				m_VSSAPIMinor = vminor;
 				break;
+			}
+			if(vminor >= 3 && *ppLastError)
+			{
+				const char * lastError = vssGetAPILastError();
+				if(lastError && !errVSSMsg)
+					errVSSMsg = lastError;
+			}
 		}
 		if(m_cpVSSAPI)
 			return;
 		else
 		{
-			QString errMsg = QString("Library found in %1 but failed to get VSScript API!").arg(libPath);
-			const char * errVSSMsg = nullptr;
-			*ppLastError = m_vsScriptLibrary.resolve("getVSScriptAPILastError");
-			if(*ppLastError)
-				errVSSMsg = vssGetAPILastError();
+			QString errMsg = QString("Library found in %1"
+				" but failed to get VSScript API!").arg(libraryFullPath);
 			if(errVSSMsg)
 				emit signalWriteLogMessage(mtWarning, QString("%1\n%2").arg(errMsg).arg(errVSSMsg));
 			else
@@ -347,7 +356,7 @@ bool VSScriptLibrary::initLibrary2()
 			reset_path();
 			if(loaded)
 			{
-				load_vssapi();
+				load_vssapi(m_VSSAPIMinor, 0);
 				loaded = m_cpVSSAPI != nullptr;
 			}
 		}
@@ -392,7 +401,7 @@ bool VSScriptLibrary::initLibrary2()
 
 		if(loaded)
 		{
-			load_vssapi();
+			load_vssapi(m_VSSAPIMinor, 3);
 			loaded = m_cpVSSAPI != nullptr;
 		}
 	};
@@ -411,7 +420,7 @@ bool VSScriptLibrary::initLibrary2()
 		loaded = m_vsScriptLibrary.load();
 		if(loaded)
 		{
-			load_vssapi();
+			load_vssapi(m_VSSAPIMinor, 0);
 			loaded = m_cpVSSAPI != nullptr;
 		}
 	};
@@ -432,7 +441,7 @@ bool VSScriptLibrary::initLibrary2()
 		loaded = m_vsScriptLibrary.load();
 		if(loaded)
 		{
-			load_vssapi();
+			load_vssapi(m_VSSAPIMinor, 0);
 			loaded = m_cpVSSAPI != nullptr;
 		}
 #endif
@@ -445,7 +454,7 @@ bool VSScriptLibrary::initLibrary2()
 		loaded = m_vsScriptLibrary.load();
 		if(loaded)
 		{
-			load_vssapi();
+			load_vssapi(2, 0);
 			loaded = m_cpVSSAPI != nullptr;
 		}
 	};
