@@ -348,7 +348,7 @@ bool VSScriptLibrary::initLibrary2()
 			if(loaded)
 			{
 				load_vssapi();
-				loaded = m_cpVSSAPI == nullptr;
+				loaded = m_cpVSSAPI != nullptr;
 			}
 		}
 	};
@@ -393,7 +393,7 @@ bool VSScriptLibrary::initLibrary2()
 		if(loaded)
 		{
 			load_vssapi();
-			loaded = m_cpVSSAPI == nullptr;
+			loaded = m_cpVSSAPI != nullptr;
 		}
 	};
 
@@ -412,7 +412,7 @@ bool VSScriptLibrary::initLibrary2()
 		if(loaded)
 		{
 			load_vssapi();
-			loaded = m_cpVSSAPI == nullptr;
+			loaded = m_cpVSSAPI != nullptr;
 		}
 	};
 
@@ -433,7 +433,7 @@ bool VSScriptLibrary::initLibrary2()
 		if(loaded)
 		{
 			load_vssapi();
-			loaded = m_cpVSSAPI == nullptr;
+			loaded = m_cpVSSAPI != nullptr;
 		}
 #endif
 	};
@@ -446,7 +446,7 @@ bool VSScriptLibrary::initLibrary2()
 		if(loaded)
 		{
 			load_vssapi();
-			loaded = m_cpVSSAPI == nullptr;
+			loaded = m_cpVSSAPI != nullptr;
 		}
 	};
 
