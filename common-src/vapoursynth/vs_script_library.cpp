@@ -262,17 +262,17 @@ bool VSScriptLibrary::initLibrary2()
 
 #ifdef Q_OS_WIN
 	QString libraryNameOld = "vsscript";
-	QString libraryName2 = "vsscript.dll";
+	QString libraryNameExt = "vsscript.dll";
 	bool libraryName2CS = false;
 	int libraryName2Chop = 4;
 #elif defined(Q_OS_MACOS)
 	QString libraryNameOld = "vapoursynth-script";
-	QString libraryName2 = "libvsscript.4.dylib";
+	QString libraryNameExt = "libvsscript.4.dylib";
 	bool libraryName2CS = true;
 	int libraryName2Chop = 8;
 #else
 	QString libraryNameOld = "vapoursynth-script";
-	QString libraryName2 = "libvsscript.so.4";
+	QString libraryNameExt = "libvsscript.so.4";
 	bool libraryName2CS = true;
 	int libraryName2Chop = 5;
 #endif
@@ -341,7 +341,7 @@ bool VSScriptLibrary::initLibrary2()
 		}
 	};
 
-	auto load_from_list = [&] ()
+	auto load_from_list2 = [&] ()
 	{
 		QStringList librarySearchPaths =
 			m_pSettingsManager->getVapourSynthLibraryPaths();
@@ -356,7 +356,28 @@ bool VSScriptLibrary::initLibrary2()
 			reset_path();
 			if(loaded)
 			{
-				load_vssapi(m_VSSAPIMinor, 0);
+				load_vssapi(m_VSSAPIMinor, 3);
+				loaded = m_cpVSSAPI != nullptr;
+			}
+		}
+	};
+
+	auto load_from_list = [&] ()
+	{
+		QStringList librarySearchPaths =
+			m_pSettingsManager->getVapourSynthLibraryPaths();
+		for(const QString & libPath : librarySearchPaths)
+		{
+			m_vsScriptLibrary.unload();
+			libraryDir = vsedit::resolvePathFromApplication(libPath);
+			libraryFullPath = libraryDir + QString("/") + libraryNameOld;
+			m_vsScriptLibrary.setFileName(libraryFullPath);
+			set_path();
+			loaded = m_vsScriptLibrary.load();
+			reset_path();
+			if(loaded)
+			{
+				load_vssapi(2, 0);
 				loaded = m_cpVSSAPI != nullptr;
 			}
 		}
@@ -382,7 +403,7 @@ bool VSScriptLibrary::initLibrary2()
 		{
 			QString ret = QString::fromLocal8Bit(
 				vssProc.readAllStandardOutput()).trimmed();
-			if(ret.count('\n') == 0 && ret.endsWith(libraryName2,
+			if(ret.count('\n') == 0 && ret.endsWith(libraryNameExt,
 				libraryName2CS ? Qt::CaseSensitive : Qt::CaseInsensitive))
 			{
 #ifdef Q_OS_WIN
@@ -461,6 +482,7 @@ bool VSScriptLibrary::initLibrary2()
 
 	if(m_pSettingsManager->getPreferVSLibrariesFromList())
 	{
+		if(!loaded) load_from_list2();
 		if(!loaded) load_from_list();
 		if(!loaded) load_from_python();
 		if(!loaded) load_from_env();
@@ -471,6 +493,7 @@ bool VSScriptLibrary::initLibrary2()
 	{
 		if(!loaded) load_from_python();
 		if(!loaded) load_from_env();
+		if(!loaded) load_from_list2();
 		if(!loaded) load_from_list();
 		if(!loaded) load_from_registry();
 		if(!loaded) load_from_path();
