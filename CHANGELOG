@@ -1,3 +1,6 @@
+r19-mod-6.10
+-BUGFIX: Cannot load old vsscript from list due to change on the file name.
+
 r19-mod-6.9
 -BUGFIX: Aborting dead process in job server watcher causes ghost entry.
 -Add match/case keywords to text editor highlighting (chrschmidt).
