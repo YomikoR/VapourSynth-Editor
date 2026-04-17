@@ -1,7 +1,7 @@
 #include "vs_pack_rgb.h"
 #include "../libp2p/p2p_api.h"
 
-#include <vapoursynth/VSHelper4.h>
+#include "VSHelper4.h"
 
 struct PackData
 {

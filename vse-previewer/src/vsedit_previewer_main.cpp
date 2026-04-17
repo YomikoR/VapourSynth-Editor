@@ -154,7 +154,6 @@ struct VSEPreviewerArgs
 	QString scriptFilePath = "";
 	std::map<std::string, std::string> scriptArgs = {};
 	bool launchInPortableMode = false;
-	QString librarySearchPath = "";
 	int defaultOutputIndex = 0;
 	int defaultFrameNumber = -1;
 	int coreCreationFlag = 0;
@@ -194,7 +193,6 @@ int main(int argc, char *argv[])
 		std::cout << "  -o, --outputindex N              Select output index to start with, should be between 0 and 9" << std::endl;
 		std::cout << "  -f, --frame N                    Select frame number to start with" << std::endl;
 		std::cout << "  -p, --portable                   Force launching in portable mode (to create or move config next to the executable)" << std::endl;
-		std::cout << "  -l, --lib directory              Force searching vsscript library from given directory (won't save to settings)" << std::endl;
 		std::cout << "  -c, --coreflag N                 Set VS core creation flag (default 0)" << std::endl;
 		std::cout << "  --sound                          Enable experimental sound support during audio playback (default enabled on Windows)" << std::endl;
 		return 0;
@@ -289,16 +287,6 @@ int main(int argc, char *argv[])
 			{
 				args.enableSound = true;
 			}
-			else if(argString == "-l" || argString == "--lib")
-			{
-				if(argc <= arg + 1)
-				{
-					std::cerr << "VSE-Previewer: no library search path specified." << std::endl;
-					return 1;
-				}
-				args.librarySearchPath = QString::fromLocal8Bit(argv[arg + 1], -1);
-				++arg;
-			}
 			else if(argString == "-c" || argString == "--coreflag")
 			{
 				if(argc <= arg + 1)
@@ -392,7 +380,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	pVSSLibrary = new VSScriptLibrary(pSettings, qApp, args.librarySearchPath);
+	pVSSLibrary = new VSScriptLibrary(pSettings, qApp);
 	auto vssLibLog = QObject::connect(pVSSLibrary, &VSScriptLibrary::signalWriteLogMessage,
 		writeLogMessage);
 	pVSSLibrary->setCoreCreationFlags(args.coreCreationFlag);

@@ -5,7 +5,7 @@
 #include "vapoursynth_script_processor.h"
 #include "vs_script_library.h"
 
-#include <vapoursynth/VapourSynth4.h>
+#include "VapourSynth4.h"
 
 #include <QCloseEvent>
 #include <QStatusBar>

@@ -4,8 +4,7 @@
 #include "vs_script_processor_structures.h"
 #include "../settings/settings_manager_core.h"
 #include "../helpers_vs.h"
-
-#include <vapoursynth/VSScript4.h>
+#include "VSScript4.h"
 
 #include <QObject>
 #include <deque>

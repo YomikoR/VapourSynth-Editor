@@ -2,8 +2,7 @@
 #define VS_SCRIPT_LIBRARY_H_INCLUDED
 
 #include "../version_info.h"
-
-#include <vapoursynth/VSScript4.h>
+#include "VSScript4.h"
 
 #include <QObject>
 #include <QLibrary>
@@ -14,7 +13,8 @@ class SettingsManagerCore;
 
 //==============================================================================
 
-typedef const VSSCRIPTAPI * (VS_CC * FNP_getVSSAPI2)(int, char *, int);
+typedef const VSSCRIPTAPI * (VS_CC * FNP_getVSSAPI)(int);
+typedef const char * (VS_CC * FNP_getVSSAPILastError)();
 
 //==============================================================================
 
@@ -25,7 +25,7 @@ class VSScriptLibrary : public QObject
 public:
 
 	VSScriptLibrary(SettingsManagerCore * a_pSettingsManager,
-		QObject * a_pParent = nullptr, QString a_libPath = QString());
+		QObject * a_pParent = nullptr);
 
 	virtual ~VSScriptLibrary();
 
@@ -83,7 +83,8 @@ private:
 
 	QLibrary m_vsScriptLibrary;
 
-	FNP_getVSSAPI2 vssGetAPI2;
+	FNP_getVSSAPI vssGetAPI;
+	FNP_getVSSAPILastError vssGetLastError;
 
 	bool m_initialized;
 
@@ -99,8 +100,6 @@ private:
 	int m_VSAPIMinor;
 	int m_VSSAPIMajor;
 	int m_VSSAPIMinor;
-
-	QString m_forcedLibrarySearchPath;
 
 	int m_defaultOutputIndex = 0;
 

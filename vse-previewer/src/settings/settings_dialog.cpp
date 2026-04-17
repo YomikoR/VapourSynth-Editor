@@ -31,10 +31,6 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 	vsedit::disableFontKerning(m_ui.themeElementsList);
 	setWindowIcon(QIcon(":settings.png"));
 
-	m_ui.addVSLibraryPathButton->setIcon(QIcon(":folder_add.png"));
-	m_ui.removeVSLibraryPathButton->setIcon(QIcon(":folder_remove.png"));
-	m_ui.selectVSLibraryPathButton->setIcon(QIcon(":folder.png"));
-
 	m_pActionsHotkeyEditModel = new ActionsHotkeyEditModel(m_pSettingsManager,
 		this);
 	m_ui.hotkeysTable->setModel(m_pActionsHotkeyEditModel);
@@ -51,13 +47,6 @@ SettingsDialog::SettingsDialog(SettingsManager * a_pSettingsManager,
 	connect(m_ui.okButton, SIGNAL(clicked()), this, SLOT(slotOk()));
 	connect(m_ui.applyButton, SIGNAL(clicked()), this, SLOT(slotApply()));
 	connect(m_ui.cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-	connect(m_ui.addVSLibraryPathButton, SIGNAL(clicked()),
-		this, SLOT(slotAddVSLibraryPath()));
-	connect(m_ui.removeVSLibraryPathButton, SIGNAL(clicked()),
-		this, SLOT(slotRemoveVSLibraryPath()));
-	connect(m_ui.selectVSLibraryPathButton, SIGNAL(clicked()),
-		this, SLOT(slotSelectVSLibraryPath()));
 
 	connect(m_ui.themeElementsList, SIGNAL(clicked(const QModelIndex &)),
 		this, SLOT(slotThemeElementSelected(const QModelIndex &)));
@@ -96,13 +85,6 @@ void SettingsDialog::slotCall(bool a_show)
 		m_pSettingsManager->getShowDebugMessages());
 	m_ui.snapshotCompressionLevelSpinBox->setValue(
 		m_pSettingsManager->getPNGSnapshotCompressionLevel());
-	m_ui.preferLibraryFromListCheckBox->setChecked(
-		m_pSettingsManager->getPreferVSLibrariesFromList());
-
-	m_ui.vsLibraryPathsListWidget->clear();
-	m_ui.vsLibraryPathsListWidget->addItems(
-		m_pSettingsManager->getVapourSynthLibraryPaths());
-	m_ui.vsLibraryPathEdit->clear();
 
 	m_ui.settingsTabWidget->setCurrentIndex(0);
 
@@ -152,18 +134,6 @@ void SettingsDialog::slotApply()
 		m_ui.debugMsgCheckBox->isChecked());
 	m_pSettingsManager->setPNGSnapshotCompressionLevel(
 		m_ui.snapshotCompressionLevelSpinBox->value());
-	m_pSettingsManager->setPreferVSLibrariesFromList(
-		m_ui.preferLibraryFromListCheckBox->isChecked());
-
-	QStringList vapourSynthLibraryPaths;
-	int vsLibraryPathsNumber = m_ui.vsLibraryPathsListWidget->count();
-	for(int i = 0; i < vsLibraryPathsNumber; ++i)
-	{
-		QString path = m_ui.vsLibraryPathsListWidget->item(i)->text();
-		vapourSynthLibraryPaths.append(path);
-	}
-	vapourSynthLibraryPaths.removeDuplicates();
-	m_pSettingsManager->setVapourSynthLibraryPaths(vapourSynthLibraryPaths);
 
 	m_pActionsHotkeyEditModel->slotSaveActionsHotkeys();
 
@@ -172,49 +142,6 @@ void SettingsDialog::slotApply()
 }
 
 // END OF void SettingsDialog::slotApply()
-//==============================================================================
-
-void SettingsDialog::slotAddVSLibraryPath()
-{
-	QString newPath = m_ui.vsLibraryPathEdit->text();
-	if(newPath.isEmpty())
-		return;
-	int pathsNumber = m_ui.vsLibraryPathsListWidget->count();
-	for(int i = 0; i < pathsNumber; ++i)
-	{
-		QString path = m_ui.vsLibraryPathsListWidget->item(i)->text();
-		if(path == newPath)
-			return;
-	}
-	QListWidgetItem * pListItem = new QListWidgetItem(newPath,
-		m_ui.vsLibraryPathsListWidget);
-	pListItem->setToolTip(newPath);
-}
-
-// END OF void SettingsDialog::slotAddVSLibraryPath()
-//==============================================================================
-
-void SettingsDialog::slotRemoveVSLibraryPath()
-{
-	QListWidgetItem * pCurrentItem =
-		m_ui.vsLibraryPathsListWidget->currentItem();
-	if(pCurrentItem)
-		delete pCurrentItem;
-}
-
-// END OF void SettingsDialog::slotRemoveVSPluginsPath()
-//==============================================================================
-
-void SettingsDialog::slotSelectVSLibraryPath()
-{
-	QString path = QFileDialog::getExistingDirectory(this,
-		tr("Select VapourSynth library search path"),
-		m_ui.vsLibraryPathEdit->text());
-	if(!path.isEmpty())
-		m_ui.vsLibraryPathEdit->setText(path);
-}
-
-// END OF void SettingsDialog::slotSelectVSLibraryPath()
 //==============================================================================
 
 void SettingsDialog::slotThemeElementSelected(const QModelIndex & a_index)

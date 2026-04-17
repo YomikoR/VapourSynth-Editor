@@ -53,12 +53,6 @@ private slots:
 
 	void slotApply();
 
-	void slotAddVSLibraryPath();
-
-	void slotRemoveVSLibraryPath();
-
-	void slotSelectVSLibraryPath();
-
 	void slotThemeElementSelected(const QModelIndex & a_index);
 
 	void slotFontButtonClicked();

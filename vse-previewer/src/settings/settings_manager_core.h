@@ -23,14 +23,6 @@ public:
 
 	//----------------------------------------------------------------------
 
-	QStringList getVapourSynthLibraryPaths() const;
-
-	bool setVapourSynthLibraryPaths(const QStringList & a_pathsList);
-
-	bool getPreferVSLibrariesFromList() const;
-
-	bool setPreferVSLibrariesFromList(bool a_prior);
-
 	ResamplingFilter getChromaResamplingFilter() const;
 
 	bool setChromaResamplingFilter(ResamplingFilter a_filter);

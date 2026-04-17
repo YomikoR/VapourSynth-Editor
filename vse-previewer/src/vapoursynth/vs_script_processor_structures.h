@@ -1,7 +1,7 @@
 #ifndef VS_SCRIPT_PROCESSOR_STRUCTURES_H_INCLUDED
 #define VS_SCRIPT_PROCESSOR_STRUCTURES_H_INCLUDED
 
-#include <vapoursynth/VapourSynth4.h>
+#include "VapourSynth4.h"
 
 //==============================================================================
 

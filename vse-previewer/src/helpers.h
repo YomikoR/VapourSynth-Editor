@@ -1,7 +1,7 @@
 #ifndef HELPERS_H_INCLUDED
 #define HELPERS_H_INCLUDED
 
-#include <vapoursynth/VapourSynth4.h>
+#include "VapourSynth4.h"
 
 #include "helpers_vs.h"
 

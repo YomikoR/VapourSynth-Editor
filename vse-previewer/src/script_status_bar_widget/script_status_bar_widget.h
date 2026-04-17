@@ -3,7 +3,7 @@
 
 #include <ui_script_status_bar_widget.h>
 
-#include <vapoursynth/VapourSynth4.h>
+#include "VapourSynth4.h"
 #include <QPixmap>
 
 class VSNodeInfo;

@@ -11,6 +11,8 @@ win32 {
 	CONFIG += console
 }
 
+INCLUDEPATH += $$(VS_INCLUDE_PATH)
+
 PROJECT_DIRECTORY = ../vse-previewer
 COMMON_DIRECTORY = ..
 
@@ -72,12 +74,10 @@ QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}LICENSE $${D}$${S}LICENSE $${E}
 QMAKE_POST_LINK += $${QMAKE_COPY} $${SC}$${S}CHANGELOG $${D}$${S}CHANGELOG $${E}
 
 macx {
-	INCLUDEPATH += /usr/local/include
 	ICON = $${COMMON_DIRECTORY}/resources/vsedit.icns
 }
 
 win32 {
-	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
 
 #	DEPLOY_COMMAND = windeployqt
 #	DEPLOY_TARGET = $$shell_quote($$shell_path($${D}/$${TARGET}.exe))

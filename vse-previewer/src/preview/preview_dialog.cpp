@@ -12,8 +12,8 @@
 #include "zoom_ratio_spinbox.h"
 #include "../version_info.h"
 
-#include <vapoursynth/VapourSynth4.h>
-#include <vapoursynth/VSHelper4.h>
+#include "VapourSynth4.h"
+#include "VSHelper4.h"
 
 #include <QEvent>
 #include <QCloseEvent>

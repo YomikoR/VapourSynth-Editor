@@ -14,8 +14,6 @@ const char SETTINGS_FILE_NAME[] = "/vse-previewer.conf";
 
 const char COMMON_GROUP[] = "common";
 
-const char VAPOURSYNTH_LIBRARY_PATHS_KEY[] = "vapoursynth_library_paths";
-const char PREFER_VS_LIBRARIES_FROM_LIST_KEY[] = "prefer_vs_libs_from_list";
 const char CHROMA_RESAMPLING_FILTER_KEY[] = "chroma_resampling_filter";
 const char YUV_MATRIX_COEFFICIENTS_KEY[] = "yuv_matrix_coefficients";
 const char CHROMA_PLACEMENT_KEY[] = "chroma_placement";
@@ -120,17 +118,6 @@ bool SettingsManagerCore::setPortableMode(bool a_portableMod)
 	return false;
 }
 
-bool SettingsManagerCore::getPreferVSLibrariesFromList() const
-{
-	return value(PREFER_VS_LIBRARIES_FROM_LIST_KEY,
-		DEFAULT_PREFER_VS_LIBRARIES_FROM_LIST).toBool();
-}
-
-bool SettingsManagerCore::setPreferVSLibrariesFromList(bool a_prior)
-{
-	return setValue(PREFER_VS_LIBRARIES_FROM_LIST_KEY, a_prior);
-}
-
 
 //==============================================================================
 
@@ -176,21 +163,6 @@ bool SettingsManagerCore::setValue(const QString & a_key,
 	const QVariant & a_value)
 {
 	return setValueInGroup(COMMON_GROUP, a_key, a_value);
-}
-
-//==============================================================================
-
-QStringList SettingsManagerCore::getVapourSynthLibraryPaths() const
-{
-	QStringList paths = value(VAPOURSYNTH_LIBRARY_PATHS_KEY).toStringList();
-	paths.removeDuplicates();
-	return paths;
-}
-
-bool SettingsManagerCore::setVapourSynthLibraryPaths(
-	const QStringList & a_pathsList)
-{
-	return setValue(VAPOURSYNTH_LIBRARY_PATHS_KEY, a_pathsList);
 }
 
 //==============================================================================
