@@ -84,7 +84,7 @@ macx {
 win32 {
 	QMAKE_LFLAGS += '/entry:mainCRTStartup'
 
-	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
+	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/vapoursynth'
 
 	DEPLOY_COMMAND = windeployqt
 	DEPLOY_TARGET = $$shell_quote($$shell_path($${DESTDIR}/$${TARGET}.exe))

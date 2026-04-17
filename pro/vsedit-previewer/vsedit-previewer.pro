@@ -106,7 +106,7 @@ macx {
 }
 
 win32 {
-	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/'
+	INCLUDEPATH += 'C:/Program Files/VapourSynth/sdk/include/vapoursynth'
 
 	DEPLOY_COMMAND = windeployqt
 	DEPLOY_TARGET = $$shell_quote($$shell_path($${D}/$${TARGET}.exe))
