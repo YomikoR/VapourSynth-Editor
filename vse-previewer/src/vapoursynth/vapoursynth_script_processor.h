@@ -22,7 +22,7 @@ class VapourSynthScriptProcessor : public QObject
 public:
 
 	VapourSynthScriptProcessor(SettingsManagerCore * a_pSettingsManager,
-		VSScriptLibrary * a_pVSScriptLibrary, QObject * a_pParent = nullptr);
+		VSScriptLibrary * a_pVSScriptLibrary, int a_colorDepth, QObject * a_pParent = nullptr);
 
 	virtual ~VapourSynthScriptProcessor();
 
@@ -99,6 +99,8 @@ private:
 	SettingsManagerCore * m_pSettingsManager;
 
 	VSScriptLibrary * m_pVSScriptLibrary;
+
+	int m_colorDepth;
 
 	QString m_script;
 

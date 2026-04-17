@@ -48,8 +48,10 @@ VSScriptProcessorDialog::VSScriptProcessorDialog(
 	//	SIGNAL(signalWriteLogMessage(int, const QString &)),
 	//	this, SLOT(slotWriteLogMessage(int, const QString &)));
 
+	m_colorDepth = window()->depth();
+
 	m_pVapourSynthScriptProcessor = new VapourSynthScriptProcessor(
-		m_pSettingsManager, m_pVSScriptLibrary, this);
+		m_pSettingsManager, m_pVSScriptLibrary, m_colorDepth, this);
 
 	m_pStatusBarWidget = new ScriptStatusBarWidget();
 

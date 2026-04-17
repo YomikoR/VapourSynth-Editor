@@ -123,6 +123,8 @@ protected:
 	QString m_clipName;
 	QString m_sceneName;
 	QString m_absoluteTime;
+
+	int m_colorDepth;
 };
 
 #endif // VS_SCRIPT_PROCESSOR_DIALOG_H_INCLUDED

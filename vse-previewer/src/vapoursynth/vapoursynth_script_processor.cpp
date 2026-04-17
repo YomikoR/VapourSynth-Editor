@@ -14,7 +14,6 @@
 #include <memory>
 #include <functional>
 #include <QPixmap>
-#include <QColormap>
 
 //==============================================================================
 
@@ -43,10 +42,12 @@ void VS_CC frameReady(void * a_pUserData,
 VapourSynthScriptProcessor::VapourSynthScriptProcessor(
 	SettingsManagerCore * a_pSettingsManager,
 	VSScriptLibrary * a_pVSScriptLibrary,
+	int a_colorDepth,
 	QObject * a_pParent):
 	QObject(a_pParent)
 	, m_pSettingsManager(a_pSettingsManager)
 	, m_pVSScriptLibrary(a_pVSScriptLibrary)
+	, m_colorDepth(a_colorDepth)
 	, m_script()
 	, m_scriptName()
 	, m_error()
@@ -567,7 +568,7 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 		return false;
 	const VSVideoFormat * cpFormat = &cpVideoInfo->format;
 
-	bool to_10_bit = (QColormap::instance().depth() == 30);
+	bool to_10_bit = m_colorDepth == 30;
 
 	VSMap * pResultMap = nullptr;
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
