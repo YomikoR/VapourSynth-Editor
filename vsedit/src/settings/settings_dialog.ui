@@ -453,7 +453,7 @@
        <item>
         <widget class="QCheckBox" name="preferLibraryFromListCheckBox">
          <property name="text">
-          <string>Libraries from this list are loaded prior to Windows registry or system PATH</string>
+          <string>Libraries from this list are loaded prior to environment configs</string>
          </property>
         </widget>
        </item>
