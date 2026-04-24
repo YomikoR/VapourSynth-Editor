@@ -295,13 +295,13 @@ bool VSScriptLibrary::initLibrary()
 	bool libraryName2CS = false;
 	int libraryName2Chop = 4;
 #elif defined(Q_OS_MACOS)
-	QString libraryNameExt = "libvsscript.4.dylib";
+	QString libraryNameExt = "libvsscript.dylib";
 	bool libraryName2CS = true;
-	int libraryName2Chop = 8;
+	int libraryName2Chop = 6;
 #else
-	QString libraryNameExt = "libvsscript.so.4";
+	QString libraryNameExt = "libvsscript.so";
 	bool libraryName2CS = true;
-	int libraryName2Chop = 5;
+	int libraryName2Chop = 3;
 #endif
 
 	auto load_vssapi = [&] ()
