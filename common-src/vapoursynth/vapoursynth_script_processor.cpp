@@ -618,6 +618,17 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 #endif
 	}
 
+	if(m_pVSScriptLibrary->hasVulkan())
+	{
+		VSMap * pGPUDownloadMap = m_cpVSAPI->createMap();
+		m_cpVSAPI->mapConsumeNode(pGPUDownloadMap, "clip", a_nodePair.pOutputNode, maAppend);
+		VSPlugin * stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, m_pCore);
+		VSMap * pGPUDownloadedMap = m_cpVSAPI->invoke(stdPlugin, "GPUDownload", pGPUDownloadMap);
+		m_cpVSAPI->freeMap(pGPUDownloadMap);
+		a_nodePair.pOutputNode = m_cpVSAPI->mapGetNode(pGPUDownloadedMap, "clip", 0, nullptr);
+		m_cpVSAPI->freeMap(pGPUDownloadedMap);
+	}
+
 	const VSVideoInfo * cpVideoInfo =
 		m_cpVSAPI->getVideoInfo(a_nodePair.pOutputNode);
 	if(!cpVideoInfo)

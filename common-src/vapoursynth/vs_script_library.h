@@ -58,6 +58,11 @@ public:
 	QString VSAPIInfo();
 	QString VSSAPIInfo();
 
+	bool hasVulkan() const
+	{
+		return vssVersionCompare(4, 4) >= 0;
+	}
+
 signals:
 
 	void signalWriteLogMessage(int a_messageType, const QString & a_message);

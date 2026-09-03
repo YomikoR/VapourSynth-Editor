@@ -5,11 +5,11 @@
 
 #define VS_USE_LATEST_API
 #define VSE_VS_API_VER_MAJOR 4
-#define VSE_VS_API_VER_MINOR 2
+#define VSE_VS_API_VER_MINOR 3
 
 #define VSSCRIPT_USE_LATEST_API
 #define VSE_VSS_API_VER_MAJOR 4
-#define VSE_VSS_API_VER_MINOR 3
+#define VSE_VSS_API_VER_MINOR 4
 
 void print_version();
 

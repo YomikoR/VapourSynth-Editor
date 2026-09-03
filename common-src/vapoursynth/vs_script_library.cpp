@@ -180,17 +180,31 @@ VSCore *VSScriptLibrary::createCore(int a_flag)
 std::vector<int> VSScriptLibrary::getOutputIndices(VSScript *a_pScript) const
 {
 #if(VSSCRIPT_API_MAJOR == 4) && (VSSCRIPT_API_MINOR >= 2)
-	if(m_initialized && a_pScript && vssVersionCompare(4, 2) >= 0)
+	if(m_initialized && a_pScript)
 	{
-		int size = m_cpVSSAPI->getAvailableOutputNodes(a_pScript, 0, nullptr);
-		if(size <= 0)
-			return std::vector<int>();
-		std::vector<int> idx(size);
-		m_cpVSSAPI->getAvailableOutputNodes(a_pScript, size, idx.data());
-		return idx;
+		if(vssVersionCompare(4, 4) >= 0)
+		{
+			int size = m_cpVSSAPI->getAvailableOutputNodesEx(a_pScript,
+				0, nullptr, sgfAllowGPUResident);
+			if(size <= 0)
+				return std::vector<int>();
+			std::vector<int> idx(size);
+			m_cpVSSAPI->getAvailableOutputNodesEx(a_pScript,
+				size, idx.data(), sgfAllowGPUResident);
+			return idx;
+		}
+		else if(vssVersionCompare(4, 2) >= 0)
+		{
+			int size = m_cpVSSAPI->getAvailableOutputNodes(a_pScript,
+				0, nullptr);
+			if(size <= 0)
+				return std::vector<int>();
+			std::vector<int> idx(size);
+			m_cpVSSAPI->getAvailableOutputNodes(a_pScript, size, idx.data());
+			return idx;
+		}
 	}
-	else
-		return std::vector<int>();
+	return std::vector<int>();
 #else
 	return std::vector<int>();
 #endif
@@ -201,7 +215,11 @@ VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
 	if(!initialize())
 		return nullptr;
 
-	return m_cpVSSAPI->getOutputNode(a_pScript, a_index);
+	if(vssVersionCompare(4, 4) >= 0)
+		return m_cpVSSAPI->getOutputNodeEx(a_pScript,
+			a_index, sgfAllowGPUResident);
+	else
+		return m_cpVSSAPI->getOutputNode(a_pScript, a_index);
 }
 
 // END OF VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript,

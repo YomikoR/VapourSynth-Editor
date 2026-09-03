@@ -1,3 +1,6 @@
+r19-mod-6.11
+-Add support for VS R80.
+
 r19-mod-6.10
 -BUGFIX: Cannot load old vsscript from list due to change on the file name.
 
