@@ -573,6 +573,16 @@ bool VapourSynthScriptProcessor::recreatePreviewNode(NodePair & a_nodePair)
 	VSMap * pResultMap = nullptr;
 	VSCore * pCore = m_pVSScriptLibrary->getCore(m_pVSScript);
 
+	{
+		VSMap * pGPUDownloadMap = m_cpVSAPI->createMap();
+		m_cpVSAPI->mapConsumeNode(pGPUDownloadMap, "clip", a_nodePair.pOutputNode, maAppend);
+		VSPlugin * stdPlugin = m_cpVSAPI->getPluginByID(VSH_STD_PLUGIN_ID, pCore);
+		VSMap * pGPUDownloadedMap = m_cpVSAPI->invoke(stdPlugin, "GPUDownload", pGPUDownloadMap);
+		m_cpVSAPI->freeMap(pGPUDownloadMap);
+		a_nodePair.pOutputNode = m_cpVSAPI->mapGetNode(pGPUDownloadedMap, "clip", 0, nullptr);
+		m_cpVSAPI->freeMap(pGPUDownloadedMap);
+	}
+
 	if(vsh::isSameVideoPresetFormat(pfRGB24, cpFormat, pCore, m_cpVSAPI))
 	{
 		to_10_bit = false;

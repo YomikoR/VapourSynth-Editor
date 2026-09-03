@@ -155,9 +155,9 @@ VSScript * VSScriptLibrary::createScript()
 
 	VSCoreInfo info;
 	m_cpVSAPI->getCoreInfo(pCore, &info);
-	if(info.core < 74)
+	if(info.core < 80)
 	{
-		QString errorString = "VapourSynth version 74 or later is required.";
+		QString errorString = "VapourSynth version 80 or later is required.";
 		emit signalWriteLogMessage(mtCritical, errorString);
 		finalize();
 		return nullptr;
@@ -228,12 +228,12 @@ std::vector<int> VSScriptLibrary::getOutputIndices(VSScript * a_pScript) const
 	if(!m_initialized || !a_pScript)
 		return std::vector<int>();
 
-	int size = m_cpVSSAPI->getAvailableOutputNodes(a_pScript, 0, nullptr);
+	int size = m_cpVSSAPI->getAvailableOutputNodesEx(a_pScript, 0, nullptr, sgfAllowGPUResident);
 	if(size <= 0)
 		return std::vector<int>();
 	
 	std::vector<int> idx(size);
-	m_cpVSSAPI->getAvailableOutputNodes(a_pScript, size, idx.data());
+	m_cpVSSAPI->getAvailableOutputNodesEx(a_pScript, size, idx.data(), sgfAllowGPUResident);
 	return idx;
 }
 
@@ -245,7 +245,7 @@ VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript, int a_index)
 	if(!initialize())
 		return nullptr;
 
-	return m_cpVSSAPI->getOutputNode(a_pScript, a_index);
+	return m_cpVSSAPI->getOutputNodeEx(a_pScript, a_index, sgfAllowGPUResident);
 }
 
 // END OF VSNode * VSScriptLibrary::getOutput(VSScript * a_pScript,
